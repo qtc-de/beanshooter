@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.qtc.TonkaBean</groupId>
+    <artifactId>tonka-bean</artifactId>
+    <name>tonka-bean</name>
+    <packaging>jar</packaging>
+    <version>1.0.0</version>
+    <description>A evil Bean with several malicious functions</description>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                  <execution>
+                    <phase>package</phase>
+                    <goals>
+                      <goal>single</goal>
+                    </goals>
+                  </execution>
+                </executions>
+                <configuration>
+                  <finalName>tonka-bean</finalName>
+                  <archive>
+                      <manifest>
+                          <mainClass>de.qtc.tonkabean.TonkaBean</mainClass>
+                      </manifest>
+                  </archive>
+                  <descriptorRefs>
+                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                  </descriptorRefs>
+                  <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                  <execution>
+                     <id>default-jar</id>
+                     <phase>none</phase>
+                  </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
