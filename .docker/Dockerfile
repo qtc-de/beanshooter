@@ -20,4 +20,4 @@ COPY ./resources/start.sh /opt/start.sh
 
 WORKDIR /
 RUN chmod +x /opt/start.sh
-CMD ["/opt/start.sh"]
+CMD ["bash", "/opt/start.sh"]
