@@ -34,31 +34,35 @@ public class GreenGrocer {
         this.beanName = new ObjectName(this.objectName);
     }
 
-    public void connect(String host, int port, String username, String password, String boundName) 
+    public void connect(String host, int port, String username, String password, String boundName, boolean jmxmp) 
     {
-      try {
-          /* Setup of the credentials and the service URL */
-          HashMap<String, String[]> environment = new HashMap<String, String[]>();
-          String[] credentials = new String[] {username, password};
-          environment.put(JMXConnector.CREDENTIALS, credentials);
-          JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + host + ":" + port +  "/" + boundName);
+        try {
+            /* Setup of the credentials and the service URL */
+            HashMap<String, String[]> environment = new HashMap<String, String[]>();
+            String[] credentials = new String[] {username, password};
+            environment.put(JMXConnector.CREDENTIALS, credentials);
 
-          /* Connection Attempt */
-          System.out.print("[+] Connecting to JMX server... ");
-          JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
-          System.out.println("done!");
+            JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + host + ":" + port +  "/" + boundName);
+            if( jmxmp ) {
+                jmxUrl = new JMXServiceURL("service:jmx:jmxmp://" + host + ":" + port);
+            }
 
-          /* Generate MBeanServerConnection */
-          System.out.print("[+] Creating MBeanServerConnection... ");
-          this.mBeanServer = jmxConnector.getMBeanServerConnection();
-          System.out.println("done!\n[+]");
+            /* Connection Attempt */
+            System.out.print("[+] Connecting to JMX server... ");
+            JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
+            System.out.println("done!");
 
-      /* If any of the above one failes, we can terminate the program */
-      } catch( Exception e ) {
-          System.out.println("failed!");
-          System.out.println("[-] Exception was thrown: " + e.toString() + "\n");
-          System.exit(1);
-      }
+            /* Generate MBeanServerConnection */
+            System.out.print("[+] Creating MBeanServerConnection... ");
+            this.mBeanServer = jmxConnector.getMBeanServerConnection();
+            System.out.println("done!\n[+]");
+
+        /* If any of the above one failes, we can terminate the program */
+        } catch( Exception e ) {
+            System.out.println("failed!");
+            System.out.println("[-] Exception was thrown: " + e.toString() + "\n");
+            System.exit(1);
+        }
     }
 
     public void registerMLet() 

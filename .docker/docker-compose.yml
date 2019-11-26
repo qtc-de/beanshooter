@@ -1,17 +1,19 @@
-version: '3'
+version: '3.7'
 
 services:
-
   tomcat:
-    image: tomcat:9-alpine
+    image: qtc/tomcat-jmxmp
+    build: .
     environment:
       - CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.rmi.port=9010 -Djava.rmi.server.hostname=172.30.0.2 -Dcom.sun.management.jmxremote.ssl=false
     volumes: 
       - ./resources/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
       - ./resources/context.xml:/usr/local/tomcat/webapps/manager/META-INF/context.xml
+      - ./resources/start.sh:/opt/start.sh
     networks:
       tomcat_net:
         ipv4_address: 172.30.0.2
+    init: true
 
 networks:
   tomcat_net:
