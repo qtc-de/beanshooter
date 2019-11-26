@@ -327,3 +327,6 @@ restore the clean state of the *JMX* endpoint.
 
 * The initial idea and also the initial codebase of the tool were taken from [this blogpost](https://www.optiv.com/blog/exploiting-jmx-rmi).
 * For the JMXMP implementation, the tools provided by [nickman](https://github.com/nickman) were really helpful.
+
+
+Copyright 2019, Tobias Neitzel and contributors.
