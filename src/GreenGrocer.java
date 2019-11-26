@@ -21,6 +21,7 @@ public class GreenGrocer {
     String objectName = null;
     ObjectName beanName = null;
     ObjectName mLetName = null;
+    JMXConnector jmxConnector = null;
     MBeanServerConnection mBeanServer = null;
 
     public GreenGrocer(String jarPath, String jarName, String beanClass, String objectName, String mLetNameString) throws MalformedObjectNameException
@@ -49,7 +50,7 @@ public class GreenGrocer {
 
             /* Connection Attempt */
             System.out.print("[+] Connecting to JMX server... ");
-            JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
+            jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
             System.out.println("done!");
 
             /* Generate MBeanServerConnection */
@@ -60,7 +61,18 @@ public class GreenGrocer {
         /* If any of the above one failes, we can terminate the program */
         } catch( Exception e ) {
             System.out.println("failed!");
-            System.out.println("[-] Exception was thrown: " + e.toString() + "\n");
+            System.out.println("[-] The following exception was thrown: " + e.toString() + "\n");
+            System.exit(1);
+        }
+    }
+
+    public void disconnect()
+    {
+        try {
+            jmxConnector.close();
+        } catch( Exception e ) {
+            System.out.println("[-] Encountered an error while closing the JMX connection...");
+            System.out.println("[-] The following exception was thrown: " + e.toString() + "\n");
             System.exit(1);
         }
     }
