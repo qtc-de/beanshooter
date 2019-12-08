@@ -303,7 +303,7 @@ username=null
 password=null
 boundName=jmxrmi
 
-jarPath=./tonka-bean/target/
+jarPath=/opt/jmx-exploiter/tonka-bean/target/
 jarName=tonka-bean.jar
 mLetName=DefaultDomain:type=MLet
 beanClass=de.qtc.tonkabean.TonkaBean
