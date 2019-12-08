@@ -69,6 +69,20 @@ After *maven* has finished, you should find the executable *.jar* files in the t
 -rw-r--r-- 1 pentester pentester 2636 Nov  5 07:23 jmx-exploiter/tonka-bean/target/tonka-bean.jar
 ```
 
+*jmx-exploiter* does also support autocompletion for bash. To take advantage of autocompletion, *jmx-exploiter* should be available
+in your path and the completion scripts need to be sourced on bash startup. This repository contains a small [installation script](/resoruces/install.sh)
+that takes care of these things.
+
+```bash
+[pentester@kali resources]$ bash install.sh 
+[+] Creating local completion script ~/.bash_completion
+[+] Creating local completion folder ~/.bash_completion.d
+[+] Creating jmx-exploiter completion script ~/.bash_completion.d/jmx-exploiter
+[+] Creating symlink for jmx-exploiter
+```
+
+However, you can also setup completion manually by just looking at the source of the script and taking the corresponding actions on your own. 
+
 
 ### Usage
 
@@ -129,7 +143,7 @@ by using the *deployMLet* and *deployMBean* commands, or you can simply use *dep
 the remote server needs to establish a HTTP connection to your listener. Therefore, you might need a firewall whitelisting and you have to use the corresponding
 ``--stagerHost`` and ``--stagerPort`` options of *jmx-exploiter*, to specify where your listener can be found. You can also specify these options in a configuration file
 that looks like the one in the ``src`` folder of the project. The configuration file does also allow you to specify advanced options, like controlling the name of 
-the deployed *MBean*. Lastly, make sure that the *MBean* you want to deploy can be found in the path that is specified in your configuration file (default is: ``tonka-bean/target/``).
+the deployed *MBean*. Lastly, make sure that the *MBean* you want to deploy can be found in the path that is specified in your configuration file (default is: ``/opt/jmx-exploiter/tonka-bean/target/``).
 
 ```bash
 [pentester@kali deploy]$ ls
