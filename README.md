@@ -343,4 +343,4 @@ restore the clean state of the *JMX* endpoint.
 * For the JMXMP implementation, the tools provided by [nickman](https://github.com/nickman) were really helpful.
 
 
-Copyright 2019, Tobias Neitzel and contributors.
+Copyright 2019, Tobias Neitzel and the jmx-exploiter contributors.
