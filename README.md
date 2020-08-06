@@ -143,8 +143,6 @@ that looks like the one in the ``src`` folder of the project. The configuration 
 the deployed *MBean*. Lastly, make sure that the *MBean* you want to deploy can be found in the path that is specified in your configuration file (default is: ``/opt/jmx-exploiter/tonka-bean/target/``).
 
 ```console
-[pentester@kali deploy]$ ls
-config.properties  jmx-exploiter.jar  tonka-bean
 [pentester@kali deploy]$ cat config.properties 
 defaultCmd=id
 stagerPort=8080
