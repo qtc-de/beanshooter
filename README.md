@@ -16,6 +16,8 @@ the **MLet** feature, attackers with access to a *JMX* agent can easily deploy t
 compromise the underlying application server. *jmx-exploiter* can support you during this part and handle the *MBean* deployment
 and interaction for you. 
 
+![](https://github.com/qtc-de/jmx-exploiter/workflows/master%20maven%20CI/badge.svg?branch=master)
+![](https://github.com/qtc-de/jmx-exploiter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
 
 ### Installation
 
