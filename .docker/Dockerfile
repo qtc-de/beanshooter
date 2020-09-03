@@ -7,17 +7,19 @@ RUN set -ex \
     && apk add maven \
     && apk add openjdk8
 
-# Build JMXMP Agent
+# Copy required files
+COPY ./resources/src/jmxmp /opt/jmxmp
+COPY ./resources/trust/store.p12 /opt/store.p12
+COPY ./resources/conf/server.xml /usr/local/tomcat/conf/server.xml
+COPY ./resources/conf/tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
+COPY ./resources/conf/context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml
+COPY ./resources/jmxremote-optional.jar /usr/local/tomcat/lib/jmxremote-optional.jar
+
+# Build JMXMP listener
 RUN set -ex \
-    && mkdir /opt \
-    && git clone https://github.com/nickman/JMXMPAgent /opt/JMXMPAgent \
-    && cd /opt/JMXMPAgent/agent && mvn clean package
+    && cd /opt/jmxmp && mvn clean package \
+    && cp /opt/jmxmp/target/jmxmp-1.0.0.jar $CATALINA_HOME/lib/jmxmp.jar \
+    && cd -
 
-# Copy local resources
-COPY ./resources/tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
-COPY ./resources/context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml
-COPY ./resources/start.sh /opt/start.sh
-
-WORKDIR /
-RUN chmod +x /opt/start.sh
-CMD ["bash", "/opt/start.sh"]
+# Start tomcat as usual
+CMD ["catalina.sh", "run"]

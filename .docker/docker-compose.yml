@@ -5,11 +5,12 @@ services:
     image: qtc/tomcat-jmxmp
     build: .
     environment:
-      - CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.rmi.port=9010 -Djava.rmi.server.hostname=172.30.0.2 -Dcom.sun.management.jmxremote.ssl=false
+      - CATALINA_OPTS=-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.rmi.port=9011 -Djava.rmi.server.hostname=iinsecure.dev -Dcom.sun.management.jmxremote.ssl=true -Djavax.net.ssl.keyStore=/opt/store.p12 -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.keyStoreType=pkcs12 -Dcom.sun.management.jmxremote.registry.ssl=true
     volumes: 
-      - ./resources/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
-      - ./resources/context.xml:/usr/local/tomcat/webapps/manager/META-INF/context.xml
-      - ./resources/start.sh:/opt/start.sh
+      - ./resources/conf/server.xml:/usr/local/tomcat/conf/server.xml
+      - ./resources/conf/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
+      - ./resources/conf/context.xml:/usr/local/tomcat/webapps/manager/META-INF/context.xml
+      - ./resources/trust/store.p12:/opt/store.p12
     networks:
       tomcat_net:
         ipv4_address: 172.30.0.2
