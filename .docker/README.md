@@ -1,45 +1,65 @@
-## Docker Container
+### Docker Container
+
+----
 
 If you want to test *jmx-exploiter*, you can do this using the docker container provided in this repository.
 The *docker-compose.yml* file in this folder builds a docker container based on the *tomcat9-alpine* image.
-The server has JMX enabled and also provides a JMXMP listener. Shout-outs go to [nickman](https://github.com/nickman)
-for providing a [JMXMPAgent implementation](https://github.com/nickman/JMXMPAgent).
+The server has JMX enabled and also provides a JMXMP listener.
 
 
 ### Configuration Details
 
 -----
 
-* -Dcom.sun.management.jmxremote 
-* -Dcom.sun.management.jmxremote.local.only=false 
-* -Dcom.sun.management.jmxremote.authenticate=false 
-* -Dcom.sun.management.jmxremote.port=9010 
-* -Dcom.sun.management.jmxremote.rmi.port=9010 
-* -Djava.rmi.server.hostname=172.30.0.2 
-* -Dcom.sun.management.jmxremote.ssl=false
+```java
+-Dcom.sun.management.jmxremote
+-Dcom.sun.management.jmxremote.local.only=false
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.port=9010
+-Dcom.sun.management.jmxremote.rmi.port=9011
+-Dcom.sun.management.jmxremote.ssl=true
+-Dcom.sun.management.jmxremote.registry.ssl=true
+-Djava.rmi.server.hostname=iinsecure.dev
+-Djavax.net.ssl.keyStore=/opt/store.p12
+-Djavax.net.ssl.keyStorePassword=password
+-Djavax.net.ssl.keyStoreType=pkcs12
+```
 
-Please notice that the container starts on a fixed ip address. When starting the container without a fixed
-address and without the **hostname** option, the rmi registry redirects the JMX query always to 127.0.0.1.
-Not sure how to fix this in a better way than setting a fixed ip address, but this should work as a workaround.
-The JMXMP listener will start on port 8888.
+By default, the container uses *SSL* on both, the registry and for *RMI* connections. The corresponding hostname is
+``iinsecure.dev`` and should be added to your ``/etc/hosts`` file for testing. The JMXMP listener will start on
+port 5555.
 
 Notice that the **docker-compose.yml** file does not map any container ports to your docker host system. Therfore, you
-have to target the ip address of the docker container directly to connect to the exposed services.
+have to target the IP address of the docker container directly to connect to the exposed services.
 
 
-### Startup and Shutdown
+### Some Test Cases
 
 -----
 
-Make sure you have installed docker compose:
+In the following, some example test cases and the behavior of ``jmx-exploiter`` are shown.
 
-```bash
-pip install docker-compose
+
+#### SSL Protected Registry
+
+After starting the container using ``docker-compose up`` you can test ``jmx-exploiter``. As *SSL* is enabled by
+default for the *RMI registry*, running ``jmx-exploiter`` without the ``--ssl`` option will fail:
+
+```console
+[qtc@kali jmx-exploiter]$ jmx-exploiter 172.30.0.2 9010 status
+[+] Connecting to JMX server... failed!
+[-] The following exception was thrown: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.CommunicationException [Root exception is java.rmi.ConnectIOException: non-JRMP server at remote endpoint]
 ```
 
-For starting and stopping the container you can simply use the following commands:
+Running with the ``--ssl`` option should work fine:
 
-```bash
-docker-compose up # Startup
-docker-compose stop # Shutdown
+```console
+[qtc@kali jmx-exploiter]$ jmx-exploiter --ssl 172.30.0.2 9010 status
+[+] Connecting to JMX server... done!
+[+] Creating MBeanServerConnection... done!
+[+]
+[+] Getting Status of MLet... done!
+[+]	MLet is not registered on the JMX server.
+[+] Getting Status of malicious Bean... done!
+[+]	malicious Bean is not registered on the JMX server.
 ```
