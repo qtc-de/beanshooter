@@ -1,8 +1,11 @@
 /* Credits: https://github.com/felixoldenburg/jmxmp-lifecycle-listener */
 package javax.management.remote.extension;
 
+import java.util.HashMap;
 import java.lang.management.ManagementFactory;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
@@ -13,11 +16,11 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
-public class JMXMPLifecycleListener implements LifecycleListener
+public class JMXMPSslLifecycleListener implements LifecycleListener
 {
-    protected int port = 5555;
+    protected int port = 5556;
     protected JMXConnectorServer cs;
-    private static final Log log = LogFactory.getLog(JMXMPLifecycleListener.class);
+    private static final Log log = LogFactory.getLog(JMXMPSslLifecycleListener.class);
 
     public int getPort() {
         return port;
@@ -35,9 +38,15 @@ public class JMXMPLifecycleListener implements LifecycleListener
             if (Lifecycle.START_EVENT == event.getType()) {
                 log.debug("Starting JMXMP");
 
+                HashMap env = new HashMap();
+                SSLContext ctx = SSLContext.getDefault();
+                SSLSocketFactory ssf = ctx.getSocketFactory(); 
+                env.put("jmx.remote.profiles", "TLS"); 
+                env.put("jmx.remote.tls.socket.factory", ssf); 
+
                 cs = JMXConnectorServerFactory.newJMXConnectorServer(
                     new JMXServiceURL("jmxmp", "0.0.0.0", port),
-                    null,
+                    env,
                     ManagementFactory.getPlatformMBeanServer()
                 );
                 cs.start();
