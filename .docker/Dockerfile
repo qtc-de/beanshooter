@@ -10,6 +10,8 @@ RUN set -ex \
 # Copy required files
 COPY ./resources/src/jmxmp /opt/jmxmp
 COPY ./resources/trust/store.p12 /opt/store.p12
+COPY ./resources/conf/jmxremote.password /opt/jmxremote.password
+COPY ./resources/conf/jmxremote.access /opt/jmxremote.access
 COPY ./resources/conf/server.xml /usr/local/tomcat/conf/server.xml
 COPY ./resources/conf/tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
 COPY ./resources/conf/context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml
