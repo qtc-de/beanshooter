@@ -1,14 +1,15 @@
 /* Credits: https://github.com/felixoldenburg/jmxmp-lifecycle-listener */
 package javax.management.remote.extension;
 
-import java.util.HashMap;
 import java.lang.management.ManagementFactory;
+import java.security.Security;
+import java.util.HashMap;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleEvent;
@@ -16,11 +17,13 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 
-public class JMXMPSslLifecycleListener implements LifecycleListener
+import com.sun.jdmk.security.sasl.callbacks.AuthenticationCallBackHandler;
+
+public class JMXMPSaslLifecycleListener implements LifecycleListener
 {
     protected int port = 5556;
     protected JMXConnectorServer cs;
-    private static final Log log = LogFactory.getLog(JMXMPSslLifecycleListener.class);
+    private static final Log log = LogFactory.getLog(JMXMPSaslLifecycleListener.class);
 
     public int getPort() {
         return port;
@@ -42,7 +45,10 @@ public class JMXMPSslLifecycleListener implements LifecycleListener
                 HashMap env = new HashMap();
                 SSLContext ctx = SSLContext.getDefault();
                 SSLSocketFactory ssf = ctx.getSocketFactory(); 
-                env.put("jmx.remote.profiles", "TLS"); 
+        	    Security.addProvider(new com.sun.jdmk.security.sasl.Provider()); 
+        	    env.put("jmx.remote.profiles", "TLS SASL/PLAIN"); 
+        	    env.put("jmx.remote.sasl.callback.handler", new AuthenticationCallBackHandler()); 
+        	    env.put("jmx.remote.x.access.file", "/opt/jmxmp.access"); 
                 env.put("jmx.remote.tls.socket.factory", ssf); 
 
                 cs = JMXConnectorServerFactory.newJMXConnectorServer(

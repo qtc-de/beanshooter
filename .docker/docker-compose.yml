@@ -30,6 +30,7 @@ services:
       - ./resources/trust/store.p12:/opt/store.p12
       - ./resources/conf/jmxremote.password:/opt/jmxremote.password
       - ./resources/conf/jmxremote.access:/opt/jmxremote.access
+      - ./resources/conf/jmxmp.access:/opt/jmxmp.access
     networks:
       tomcat_net:
         ipv4_address: 172.30.0.2
