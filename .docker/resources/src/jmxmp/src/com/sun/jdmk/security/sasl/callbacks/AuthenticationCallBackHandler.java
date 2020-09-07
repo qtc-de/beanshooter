@@ -54,8 +54,11 @@ public class AuthenticationCallBackHandler implements CallbackHandler {
 		        String pw = credentials.get(username);
 
                 log.debug("Got AuthenticatedCallback for '" + username + ":" + password + "'");
-		
-	            if(pw.equals(password)){
+                
+		        if(pw == null) {
+		        	log.debug("Username '" + username + "' is unknown.");
+		        	authenticate.setAuthenticated(false);
+		        } else if (pw.equals(password)) {
 	            	authenticate.setAuthenticated(true);
 	            }
 		        
