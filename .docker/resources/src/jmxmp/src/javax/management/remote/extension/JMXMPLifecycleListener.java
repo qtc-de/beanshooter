@@ -33,7 +33,7 @@ public class JMXMPLifecycleListener implements LifecycleListener
         try {
 
             if (Lifecycle.START_EVENT == event.getType()) {
-                log.debug("Starting JMXMP");
+                log.info("Starting JMXMP Listener");
 
                 cs = JMXConnectorServerFactory.newJMXConnectorServer(
                     new JMXServiceURL("jmxmp", "0.0.0.0", port),
@@ -42,13 +42,13 @@ public class JMXMPLifecycleListener implements LifecycleListener
                 );
                 cs.start();
 
-                log.info("Started JMXMP on port " + port);
+                log.info("Started JMXMP Listener on port " + port);
             }
 
             else if (Lifecycle.STOP_EVENT == event.getType()) {
-                log.debug("Stopp JMXMP");
+                log.info("Stopp JMXMP Listener");
                 cs.stop();
-                log.info("Stopped JMXMP");
+                log.info("Stopped JMXMP Listener");
             }
 
         } catch (final Exception e) {

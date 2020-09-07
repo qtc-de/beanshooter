@@ -40,7 +40,7 @@ public class JMXMPSaslLifecycleListener implements LifecycleListener
         try {
 
             if (Lifecycle.START_EVENT == event.getType()) {
-                log.debug("Starting JMXMP");
+                log.debug("Starting JMXMP SASL Listener (PLAIN)");
 
                 HashMap env = new HashMap();
                 SSLContext ctx = SSLContext.getDefault();
@@ -58,13 +58,13 @@ public class JMXMPSaslLifecycleListener implements LifecycleListener
                 );
                 cs.start();
 
-                log.info("Started JMXMP on port " + port);
+                log.info("Started JMXMP SASL Listener (PLAIN) on port " + port);
             }
 
             else if (Lifecycle.STOP_EVENT == event.getType()) {
-                log.debug("Stopp JMXMP");
+                log.debug("Stopp JMXMP SASL Listener (PLAIN)");
                 cs.stop();
-                log.info("Stopped JMXMP");
+                log.info("Stopped JMXMP SASL Listener (PLAIN)");
             }
 
         } catch (final Exception e) {
