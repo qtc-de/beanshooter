@@ -25,6 +25,7 @@
   <Listener className="javax.management.remote.extension.JMXMPSslLifecycleListener" port="5556" />
   <Listener className="javax.management.remote.extension.JMXMPSaslLifecycleListener" port="5557" />
   <Listener className="javax.management.remote.extension.JMXMPSaslDigestLifecycleListener" port="5558" />
+  <Listener className="javax.management.remote.extension.JMXMPSaslCramLifecycleListener" port="5559" />
 
   <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
   <!-- Security listener. Documentation at /docs/config/listeners.html
