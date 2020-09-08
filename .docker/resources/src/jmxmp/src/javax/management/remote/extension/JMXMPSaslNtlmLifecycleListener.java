@@ -45,7 +45,7 @@ public class JMXMPSaslNtlmLifecycleListener implements LifecycleListener
                 SSLContext ctx = SSLContext.getDefault();
                 SSLSocketFactory ssf = ctx.getSocketFactory();
 
-                env.put("jmx.remote.profiles", "SASL/NTLM");
+                env.put("jmx.remote.profiles", "TLS SASL/NTLM");
                 env.put("jmx.remote.sasl.callback.handler", new AuthenticationCallBackHandler());
                 env.put("jmx.remote.x.access.file", "/opt/jmxremote.access");
                 env.put("jmx.remote.tls.socket.factory", ssf);
