@@ -2,7 +2,6 @@
 package javax.management.remote.extension;
 
 import java.lang.management.ManagementFactory;
-import java.security.Security;
 import java.util.HashMap;
 
 import javax.management.remote.JMXConnectorServer;
@@ -34,7 +33,7 @@ public class JMXMPSaslDigestLifecycleListener implements LifecycleListener
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
+    @Override
     public void lifecycleEvent(final LifecycleEvent event)
     {
         try {
@@ -44,12 +43,15 @@ public class JMXMPSaslDigestLifecycleListener implements LifecycleListener
 
                 HashMap env = new HashMap();
                 SSLContext ctx = SSLContext.getDefault();
-                SSLSocketFactory ssf = ctx.getSocketFactory(); 
-        	    Security.addProvider(new com.sun.jdmk.security.sasl.Provider()); 
-        	    env.put("jmx.remote.profiles", "TLS SASL/CRAM-MD5"); 
-        	    env.put("jmx.remote.sasl.callback.handler", new AuthenticationCallBackHandler()); 
-        	    env.put("jmx.remote.x.access.file", "/opt/jmxremote.access"); 
+                SSLSocketFactory ssf = ctx.getSocketFactory();
+
+                env.put("jmx.remote.profiles", "SASL/DIGEST-MD5");
+                env.put("jmx.remote.sasl.callback.handler", new AuthenticationCallBackHandler());
+                env.put("jmx.remote.x.access.file", "/opt/jmxremote.access");
                 env.put("jmx.remote.tls.socket.factory", ssf); 
+
+                /* Somehow the next option is not accepted :/ */
+                env.put("com.sun.security.sasl.digest.realm", "iinsecure.dev");
 
                 cs = JMXConnectorServerFactory.newJMXConnectorServer(
                     new JMXServiceURL("jmxmp", "0.0.0.0", port),
