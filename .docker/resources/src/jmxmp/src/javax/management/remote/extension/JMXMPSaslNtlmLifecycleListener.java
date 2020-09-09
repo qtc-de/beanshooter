@@ -47,7 +47,7 @@ public class JMXMPSaslNtlmLifecycleListener implements LifecycleListener
 
                 env.put("jmx.remote.profiles", "TLS SASL/NTLM");
                 env.put("jmx.remote.sasl.callback.handler", new AuthenticationCallBackHandler());
-                env.put("jmx.remote.x.access.file", "/opt/jmxremote.access");
+                env.put("jmx.remote.x.access.file", "/opt/jmxmp.access");
                 env.put("jmx.remote.tls.socket.factory", ssf);
 
                 cs = JMXConnectorServerFactory.newJMXConnectorServer(

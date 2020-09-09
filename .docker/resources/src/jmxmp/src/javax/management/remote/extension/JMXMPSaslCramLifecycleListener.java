@@ -46,7 +46,7 @@ public class JMXMPSaslCramLifecycleListener implements LifecycleListener
                 SSLSocketFactory ssf = ctx.getSocketFactory();
                 env.put("jmx.remote.profiles", "TLS SASL/CRAM-MD5");
                 env.put("jmx.remote.sasl.callback.handler", new AuthenticationCallBackHandler());
-                env.put("jmx.remote.x.access.file", "/opt/jmxremote.access");
+                env.put("jmx.remote.x.access.file", "/opt/jmxmp.access");
                 env.put("jmx.remote.tls.socket.factory", ssf);
 
                 cs = JMXConnectorServerFactory.newJMXConnectorServer(

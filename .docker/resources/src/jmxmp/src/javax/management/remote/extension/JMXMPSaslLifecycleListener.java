@@ -34,7 +34,7 @@ public class JMXMPSaslLifecycleListener implements LifecycleListener
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
+    @Override
     public void lifecycleEvent(final LifecycleEvent event)
     {
         try {
@@ -44,12 +44,12 @@ public class JMXMPSaslLifecycleListener implements LifecycleListener
 
                 HashMap env = new HashMap();
                 SSLContext ctx = SSLContext.getDefault();
-                SSLSocketFactory ssf = ctx.getSocketFactory(); 
-        	    Security.addProvider(new com.sun.jdmk.security.sasl.Provider()); 
-        	    env.put("jmx.remote.profiles", "TLS SASL/PLAIN"); 
-        	    env.put("jmx.remote.sasl.callback.handler", new AuthenticationCallBackHandler()); 
-        	    env.put("jmx.remote.x.access.file", "/opt/jmxmp.access"); 
-                env.put("jmx.remote.tls.socket.factory", ssf); 
+                SSLSocketFactory ssf = ctx.getSocketFactory();
+                Security.addProvider(new com.sun.jdmk.security.sasl.Provider());
+                env.put("jmx.remote.profiles", "TLS SASL/PLAIN");
+                env.put("jmx.remote.sasl.callback.handler", new AuthenticationCallBackHandler());
+                env.put("jmx.remote.x.access.file", "/opt/jmxmp.access");
+                env.put("jmx.remote.tls.socket.factory", ssf);
 
                 cs = JMXConnectorServerFactory.newJMXConnectorServer(
                     new JMXServiceURL("jmxmp", "0.0.0.0", port),
