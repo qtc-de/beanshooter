@@ -27,6 +27,7 @@ services:
       - ./resources/conf/server.xml:/usr/local/tomcat/conf/server.xml
       - ./resources/conf/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
       - ./resources/conf/context.xml:/usr/local/tomcat/webapps/manager/META-INF/context.xml
+      - ./resources/commons-collections-3.1.jar:/usr/lib/jvm/default-jvm/jre/lib/ext/commons-collections-3.1.jar
       - ./resources/trust/store.p12:/opt/store.p12
       - ./resources/conf/jmxremote.password:/opt/jmxremote.password
       - ./resources/conf/jmxremote.access:/opt/jmxremote.access
