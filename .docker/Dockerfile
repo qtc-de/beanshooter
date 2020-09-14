@@ -1,28 +1,23 @@
-FROM tomcat:9-alpine
+# This super old image is required to verify cve-2016-3427
+FROM tomcat:8.0.37-alpine
 
-# Install required packages
-RUN set -ex \
-    && apk update \
-    && apk add git \
-    && apk add maven \
-    && apk add openjdk8
+# If you want to test on a newer image, you should use the following line instead
+#FROM tomcat:9-alpine
 
-# Copy required files
-COPY ./resources/src/jmxmp /opt/jmxmp
+# Copy authentication and cert files
 COPY ./resources/trust/store.p12 /opt/store.p12
-COPY ./resources/conf/jmxremote.password /opt/jmxremote.password
-COPY ./resources/conf/jmxremote.access /opt/jmxremote.access
 COPY ./resources/conf/jmxmp.access /opt/jmxmp.access
+COPY ./resources/conf/jmxremote.access /opt/jmxremote.access
+COPY ./resources/conf/jmxremote.password /opt/jmxremote.password
+
+# Copy server configuration files
 COPY ./resources/conf/server.xml /usr/local/tomcat/conf/server.xml
 COPY ./resources/conf/tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
 COPY ./resources/conf/context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml
+
+# Copy additional jars
+COPY ./resources/jmxmp.jar /usr/local/tomcat/lib/jmxmp.jar
 COPY ./resources/jmxremote-optional.jar /usr/local/tomcat/lib/jmxremote-optional.jar
+COPY ./resources/commons-collections-3.1.jar /usr/local/tomcat/lib/commons-collections-3.1.jar
 
-# Build JMXMP listener
-RUN set -ex \
-    && cd /opt/jmxmp && mvn clean package \
-    && cp /opt/jmxmp/target/jmxmp-1.0.0.jar $CATALINA_HOME/lib/jmxmp.jar \
-    && cd -
-
-# Start tomcat as usual
 CMD ["catalina.sh", "run"]
