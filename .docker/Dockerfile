@@ -1,5 +1,6 @@
-# This old image is required to verify cve-2016-3427
-FROM tomcat:8.0.37-alpine
+# This old image is required to verify cve-2016-3427.
+# The oldest alpine based build is already no longer vulnerable.
+FROM tomcat:8.0.18-jre8
 
 # If you want to test on a newer image, you should use the following line instead
 # You can also use the Dockerfile.alternative
@@ -19,7 +20,7 @@ COPY ./resources/conf/context.xml /usr/local/tomcat/webapps/manager/META-INF/con
 # Copy additional jars
 COPY ./resources/jmxmp.jar /usr/local/tomcat/lib/jmxmp.jar
 COPY ./resources/jmxremote-optional.jar /usr/local/tomcat/lib/jmxremote-optional.jar
-COPY ./resources/commons-collections-3.1.jar /usr/lib/jvm/java-1.7-openjdk/jre/lib/ext/commons-collections-3.1.jar
+COPY ./resources/commons-collections-3.1.jar /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/ext/commons-collections-3.1.jar
 
 # Setup the environment (ssl registry, ssl jmx, no auth)
 ENV CATALINA_OPTS -Dcom.sun.management.jmxremote \
