@@ -19,7 +19,7 @@ COPY ./resources/conf/context.xml /usr/local/tomcat/webapps/manager/META-INF/con
 # Copy additional jars
 COPY ./resources/jmxmp.jar /usr/local/tomcat/lib/jmxmp.jar
 COPY ./resources/jmxremote-optional.jar /usr/local/tomcat/lib/jmxremote-optional.jar
-COPY ./resources/commons-collections-3.1.jar /usr/local/tomcat/lib/commons-collections-3.1.jar
+COPY ./resources/commons-collections-3.1.jar /usr/lib/jvm/java-1.7-openjdk/jre/lib/ext/commons-collections-3.1.jar
 
 # Setup the environment (ssl registry, ssl jmx, no auth)
 ENV CATALINA_OPTS -Dcom.sun.management.jmxremote \
