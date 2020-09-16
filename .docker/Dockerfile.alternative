@@ -1,11 +1,5 @@
-# alternative docker file. Contains all vulnerabilities except cve-2016-3427
+# alternative docker file. Contains all vulnerabilities except cve-2016-3427.
 FROM tomcat:9-alpine
-
-# Install required packages
-RUN set -ex \
-    && apk update \
-    && apk add maven \
-    && apk add openjdk8
 
 # Copy authentication and cert files
 COPY ./resources/trust/store.p12 /opt/store.p12
@@ -13,20 +7,18 @@ COPY ./resources/conf/jmxmp.access /opt/jmxmp.access
 COPY ./resources/conf/jmxremote.access /opt/jmxremote.access
 COPY ./resources/conf/jmxremote.password /opt/jmxremote.password
 
+# Adjust permissions on password files (required by JMX)
+RUN chmod 400 /opt/jmxmp.access /opt/jmxremote.access /opt/jmxremote.password
+
 # Copy server configuration files
 COPY ./resources/conf/server.xml /usr/local/tomcat/conf/server.xml
 COPY ./resources/conf/tomcat-users.xml /usr/local/tomcat/conf/tomcat-users.xml
 COPY ./resources/conf/context.xml /usr/local/tomcat/webapps/manager/META-INF/context.xml
 
 # Copy additional jars
+COPY ./resources/jmxmp.jar /usr/local/tomcat/lib/jmxmp.jar
 COPY ./resources/jmxremote-optional.jar /usr/local/tomcat/lib/jmxremote-optional.jar
-COPY ./resources/commons-collections-3.1.jar /usr/lib/jvm/java-1.7-openjdk/jre/lib/ext/commons-collections-3.1.jar
-
-# Build JMXMP listener
-RUN set -ex \
-    && cd /opt/jmxmp && mvn clean package \
-    && cp /opt/jmxmp/target/jmxmp-1.0.0.jar $CATALINA_HOME/lib/jmxmp.jar \
-    && cd -
+COPY ./resources/commons-collections-3.1.jar /usr/lib/jvm/default-jvm/jre/lib/ext/commons-collections-3.1.jar
 
 # Setup the environment (ssl registry, ssl jmx, no auth)
 ENV CATALINA_OPTS -Dcom.sun.management.jmxremote \

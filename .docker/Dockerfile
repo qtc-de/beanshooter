@@ -2,15 +2,14 @@
 # The oldest alpine based build is already no longer vulnerable.
 FROM tomcat:8.0.18-jre8
 
-# If you want to test on a newer image, you should use the following line instead
-# You can also use the Dockerfile.alternative
-#FROM tomcat:9-alpine
-
 # Copy authentication and cert files
 COPY ./resources/trust/store.p12 /opt/store.p12
 COPY ./resources/conf/jmxmp.access /opt/jmxmp.access
 COPY ./resources/conf/jmxremote.access /opt/jmxremote.access
 COPY ./resources/conf/jmxremote.password /opt/jmxremote.password
+
+# Adjust permissions on password files (required by JMX)
+RUN chmod 400 /opt/jmxmp.access /opt/jmxremote.access /opt/jmxremote.password
 
 # Copy server configuration files
 COPY ./resources/conf/server.xml /usr/local/tomcat/conf/server.xml
