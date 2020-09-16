@@ -1,8 +1,8 @@
-## jmx-exploiter
+### Beanshooter
 
-*jmx-exploiter* is a command line tool written in Java, which helps to identify vulnerabilities on *JMX* endpoints.
-*JMX* stands for **Java Management Extensions** and can be used to monitor and configure the Java Virtual Machine
-from remote. Applications like *tomcat* or *JBoss* are often installed together with a *JMX* endpoint, which
+*Beanshooter* is a command line tool written in *Java*, which helps to identify common vulnerabilities on *JMX* endpoints.
+*JMX* stands for **Java Management Extensions** and can be used to monitor and configure the *Java Virtual Machine*
+from remote. Applications like *tomcat* or *JBoss* are often installed together with a *JMX* instance, which
 enables server administrators to monitor and manage the corresponding application.
 
 *JMX* uses so called *MBeans* for monitoring and configuration tasks. The *JMX* Agent (sever, port) is basically
@@ -10,11 +10,14 @@ just an interface, that handles remote connections and supports methods to commu
 *MBean* objects. The actual functionality is then implemented in the *MBean* itself and the *JMX* Agent only relays
 input and output to the *MBean* object.
 
-By default, *JMX* endpoints support a *MBean* with name **MLet**. This *MBean* can be used to deploy new *MBean* objects on the
-*JMX* agent. The codebase for these new *MBean* objects can be gathered over the network e.g. in form of a HTTP request. Using
-the **MLet** feature, attackers with access to a *JMX* agent can easily deploy their own malicious *MBean* objects and
-compromise the underlying application server. *jmx-exploiter* is a *Proof-of-Concept* tool, that can be used to
-identify vulnerable endpoints.
+By default, *JMX* endpoints support a *MBean* with name **MLet**. This *MBean* can be used to deploy new *MBeans* on the
+*JMX* agent. The codebase for these new *MBean* objects can be gathered over the network e.g. in form of a 
+*HTTP* request. Using the **MLet** feature, attackers with access to a *JMX* agent can easily deploy their own
+malicious *MBean* objects and compromise the underlying application server. 
+
+*Beanshooter* is a *Proof-of-Concept* tool, that can be used to identify vulnerable endpoints. It works for unauthenticated *JMX*
+endpoints as well as for authenticated ones (assumed you have valid credentials and sufficient permissions). Furthermore,
+it can be used to test for other vulnerabilities like insecure *Java Deserialization* or *CVE-2016-3427*.
 
 ![](https://github.com/qtc-de/jmx-exploiter/workflows/master%20maven%20CI/badge.svg?branch=master)
 ![](https://github.com/qtc-de/jmx-exploiter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
@@ -24,7 +27,7 @@ identify vulnerable endpoints.
 
 -----
 
-*jmx-exploiter* is a *Maven* project. This makes the installation a straight forward process and no manual installation of libraries
+*Beanshooter* is a *Maven* project. This makes the installation a straight forward process and no manual installation of libraries
 should be required. First of all, make sure that you have *maven* installed on your system:
 
 ```console
@@ -32,11 +35,11 @@ $ sudo apt install maven      # Debian
 $ pacman -s maven             # Arch
 ```
 
-Then, clone the *jmx-exploiter* project in a location of your choice and run ``mvn package`` inside of the projects folder.
+Then, clone the *beanshooter* project in a location of your choice and run ``mvn package`` inside of the projects folder.
 
 ```console
-[qtc@kali opt]$ cd jmx-exploiter/
-[qtc@kali jmx-exploiter]$ mvn package
+[qtc@kali opt]$ cd beanshooter
+[qtc@kali beanshooter]$ mvn package
 [INFO] Scanning for projects...
 [INFO]
 [INFO] -----------------< de.qtc.JmxExploiter:jmx-exploiter >------------------
@@ -46,13 +49,13 @@ Then, clone the *jmx-exploiter* project in a location of your choice and run ``m
 [...]
 ```
 
-Since the main purpose of *jmx-exploiter* is the deployment of *MBean* objects, you need also a corresponding *MBean*.
+Since the main purpose of *beanshooter* is the deployment of *MBean* objects, you need also a corresponding *MBean*.
 Theoretically you can deploy any *MBean* that fulfills the *MBean Specifications*. However, this project does also provide a reference
 implementation, the [tonka-bean](./tonka-bean/). The *tonka-bean* is a separate *maven* project and you can compile it in the same way as
-you compiled *jmx-exploiter*:
+you compiled *beanshooter*:
 
 ```console
-[qtc@kali jmx-exploiter]$ cd tonka-bean/
+[qtc@kali beanshooter]$ cd tonka-bean/
 [qtc@kali tonka-bean]$ mvn package
 [INFO] Scanning for projects...
 [INFO]
@@ -66,30 +69,31 @@ you compiled *jmx-exploiter*:
 After *maven* has finished, you should find the executable *.jar* files in the target folders of the corresponding projects.
 
 ```console
-[qtc@kali opt]$ ls -l jmx-exploiter/target/jmx-exploiter.jar
--rw-r--r-- 1 qtc qtc 64393 Nov  5 07:21 jmx-exploiter/target/jmx-exploiter.jar
-[qtc@kali opt]$ ls -l jmx-exploiter/tonka-bean/target/tonka-bean.jar
--rw-r--r-- 1 qtc qtc 2636 Nov  5 07:23 jmx-exploiter/tonka-bean/target/tonka-bean.jar
+[qtc@kali opt]$ ls -l beanshooter/target/beanshooter.jar
+-rw-r--r-- 1 qtc qtc 64393 Nov  5 07:21 beanshooter/target/beanshooter.jar
+[qtc@kali opt]$ ls -l beanshooter/tonka-bean/target/tonka-bean.jar
+-rw-r--r-- 1 qtc qtc 2636 Nov  5 07:23 beanshooter/tonka-bean/target/tonka-bean.jar
 ```
 
-*jmx-exploiter* does also support autocompletion for bash. To take advantage of autocompletion, you need to have the
+*Beanshooter* also supports autocompletion for *bash*. To take advantage of autocompletion, you need to have the
 [completion-helpers](https://github.com/qtc-de/completion-helpers) project installed. If setup correctly, just
-copying the [completion script](./resources/bash_completion.d/jmx-exploiter) to your ``~/.bash_completion.d`` enables
-autocompletion.
+copying the [completion script](./resources/bash_completion.d/beanshooter) to your ``~/.bash_completion.d`` folder
+enables autocompletion.
 
 ```console
-[qtc@kali jmx-exploiter]$ cp resources/bash_completion.d/jmx-exploiter ~/bash_completion.d/
+[qtc@kali beanshooter]$ cp resources/bash_completion.d/beanshooter ~/bash_completion.d/
 ```
+
 
 ### Usage
 
 -----
 
-For demonstration purposes, I created a vulnerable docker container, running
-an *Apache Tomcat* server with a *JMX* agent listening on port 9010. The corresponding [docker-files](./.docker/)
-can be found inside this repository and should enable you to practice the usage of *jmx-exploiter* yourself.
+For demonstration purposes, the project contains a [docker image](https://github.com/qtc-de/beanshooter/packages/398561) of
+an *Apache Tomcat* with *JMX* enabled and listening on port 9010. The corresponding [docker-files](./.docker/)
+can be found inside this repository and should enable you to practice the usage of *beanshooter* yourself.
 
-The listing below shows the nmap output for the corresponding container. Using the NSE-Script *rmi-dumpregistry* you can verify that port 9010 is running a *JMX* agent.
+The listing below shows the *nmap* output for the corresponding container. Using the *NSE-Script* *rmi-dumpregistry* you can verify that port 9010 is running a *JMX* agent.
 
 ```console
 [qtc@kali opt]$ sudo nmap -sV 172.30.0.2
@@ -116,13 +120,8 @@ PORT     STATE SERVICE  VERSION
 [...]
 ```
 
-If you encounter a *JMX* endpoint, you should first of all use [jconsole](https://docs.oracle.com/javase/7/docs/technotes/guides/management/jconsole.html)
-to determine if you can connect to the *JMX* endpoint without valid credentials. Especially on *Tomcat* servers *jconsole* is interesting, since per default the credentials
-of *Tomcat users* are accessible over the *JMX* interface:
-
-![Tomcat Credentials](/images/01-tomcat-credentials.png)
-
-However, with *jmx-exploiter* your first step is to launch the *status* command on the remote *JMX* endpoint:
+Once you encounter a *JMX* endpoint, you should first of all verify whether it require valid credentials. Just running *beanshooter* with the *status* action
+can verify unauthenticated access:
 
 ```console
 [qtc@kali target]$ ./jmx-exploiter.jar 172.30.0.2 9010 status

@@ -25,7 +25,7 @@ From an attackers perspective, setting ``localhost`` or ``127.0.0.1`` as hostnam
 *RMI stub* is still annoying, as standard tools can no longer be used to connect to the
 remote *RMI port*. Tools like [mjet](https://github.com/mogwailabs/mjet) solve this issue
 by creating a localhost proxy listener, that forwards all traffic to the remote endpoint.
-*jmx-exploiter* chooses a different approach by modifying the corresponding socket factories.
+*Beanshooter* chooses a different approach by modifying the corresponding socket factories.
 
 
 #### Non-SSL Connections
@@ -39,7 +39,7 @@ interface once can obtain the following information about the ``setSocketFactory
 When *JMX* is used without *SSL*, where is no need to specify a custom ``RMIClientSocketFactory`` during
 the call to ``exportObject``. Therefore, no specific factory is associated with the remote object
 and ``RMISocketFactory.setSocketFactory(fac)`` can be used to override the default. In the source of
-*jmx-exploiter*, this looks like this:
+*beanshooter*, this looks like this:
 
 ```java
 RMISocketFactory fac = RMISocketFactory.getDefaultSocketFactory();
@@ -96,7 +96,7 @@ public static synchronized SocketFactory getDefault() {
 ```
 
 Therefore, by setting this property to a custom ``SocketFactory`` class, it is also possible to overwrite the factory
-used for *SSL* protected *RMI connections*. In *jmx-exploiter*, this looks like this:
+used for *SSL* protected *RMI connections*. In *beanshooter*, this looks like this:
 
 ```java
 SSLContext ctx = SSLContext.getInstance("TLS");
@@ -106,7 +106,7 @@ SSLContext.setDefault(ctx);
 LoopbackSslSocketFactory.host = host;
 LoopbackSslSocketFactory.fac = ctx.getSocketFactory();
 LoopbackSslSocketFactory.followRedirect = followRedirect;
-java.security.Security.setProperty("ssl.SocketFactory.provider", "de.qtc.jmxexploiter.LoopbackSslSocketFactory");
+java.security.Security.setProperty("ssl.SocketFactory.provider", "de.qtc.beanshooter.LoopbackSslSocketFactory");
 ```
 
 As the ``ssl.SocketFactory.provider`` needs to have a *nullary constructor*, the required paramaters have to been set
