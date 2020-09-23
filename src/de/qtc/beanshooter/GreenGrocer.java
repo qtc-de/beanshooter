@@ -1,6 +1,7 @@
 package de.qtc.beanshooter;
 
 import java.io.IOException;
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.rmi.server.RMISocketFactory;
 import java.util.HashMap;
@@ -371,6 +372,14 @@ public class GreenGrocer {
     {
         HttpServer server = null;
         try {
+
+            File maliciousBean = new File(this.jarPath + this.jarName);
+            if( !maliciousBean.exists() || maliciousBean.isDirectory() ) {
+                System.err.println("[+] Unable to find MBean '" + maliciousBean.getCanonicalPath() + "' for deployment.");
+                System.err.println("[+] Stopping execution.");
+                System.exit(1);
+            }
+
             /* First we create a new HttpServer object */
             server = HttpServer.create(new InetSocketAddress(stagerHost, Integer.valueOf(stagerPort)), 0);
             System.out.println("[+] \tCreating HTTP server on " + stagerHost + ":" + stagerPort);
