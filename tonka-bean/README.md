@@ -18,7 +18,7 @@ should be required. First of all, make sure that you have *maven* installed on y
 Then, clone the *tonka-bean* project in a location of your choice and run ``mvn package`` inside of the projects folder.
 
 ```bash
-[pentester@kali tonka-bean]$ mvn package
+[qtc@kali tonka-bean]$ mvn package
 [INFO] Scanning for projects...
 [INFO] 
 [INFO] --------------------< de.qtc.TonkaBean:tonka-bean >---------------------

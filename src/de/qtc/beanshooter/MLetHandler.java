@@ -1,10 +1,10 @@
-package de.qtc.jmxexploiter;
+package de.qtc.beanshooter;
 
 import java.io.IOException;
 import java.io.OutputStream;
 
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 
 
 public class MLetHandler implements HttpHandler {

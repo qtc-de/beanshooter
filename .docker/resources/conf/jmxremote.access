@@ -1,0 +1,4 @@
+monitorRole readonly
+controlRole readwrite \
+    create javax.management.loading.MLet \
+    unregister
