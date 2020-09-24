@@ -2,7 +2,7 @@
 
 ----
 
-If you want to test *jmx-exploiter*, you can do this using the docker container provided in this repository.
+If you want to test *beanshooter*, you can do this using the docker container provided in this repository.
 The *docker-compose.yml* file in this folder builds a docker container based on the *tomcat9-alpine* image.
 The server has JMX enabled and also provides a JMXMP listener.
 
@@ -51,16 +51,16 @@ like creating new *mBeans* on the server probably do not work.
 
 -----
 
-In the following, some example test cases and the behavior of ``jmx-exploiter`` are shown.
+In the following, some example test cases and the behavior of ``beanshooter`` are shown.
 
 
 #### SSL Protected Registry
 
-After starting the container using ``docker-compose up`` you can test ``jmx-exploiter``. As *SSL* is enabled by
-default for the *RMI registry*, running ``jmx-exploiter`` without the ``--ssl`` option will fail:
+After starting the container using ``docker-compose up`` you can test ``beanshooter``. As *SSL* is enabled by
+default for the *RMI registry*, running ``beanshooter`` without the ``--ssl`` option will fail:
 
 ```console
-[qtc@kali jmx-exploiter]$ jmx-exploiter 172.30.0.2 9010 status
+[qtc@kali beanshooter]$ beanshooter 172.30.0.2 9010 status
 [+] Connecting to JMX server... failed!
 [-] The following exception was thrown: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.CommunicationException [Root exception is java.rmi.ConnectIOException: non-JRMP server at remote endpoint]
 ```
@@ -68,7 +68,7 @@ default for the *RMI registry*, running ``jmx-exploiter`` without the ``--ssl`` 
 Running with the ``--ssl`` option should work fine:
 
 ```console
-[qtc@kali jmx-exploiter]$ jmx-exploiter --ssl 172.30.0.2 9010 status
+[qtc@kali beanshooter]$ beanshooter --ssl 172.30.0.2 9010 status
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
 [+]
@@ -83,7 +83,7 @@ Running with the ``--ssl`` option should work fine:
 The following example shows a simple connection to the *JMXMP* port:
 
 ```console
-[qtc@kali jmx-exploiter]$ jmx-exploiter --jmxmp 172.30.0.2 5555 status
+[qtc@kali beanshooter]$ beanshooter --jmxmp 172.30.0.2 5555 status
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
 [+]
@@ -99,7 +99,7 @@ Now the *JMXMP* listener is *SSL protected*. First of all, notice how ``nmap`` f
 this port:
 
 ```console
-[qtc@kali jmx-exploiter]$ nmap -p 5556 172.30.0.2 -sV
+[qtc@kali beanshooter]$ nmap -p 5556 172.30.0.2 -sV
 [...]
 
 PORT     STATE SERVICE     VERSION
@@ -109,7 +109,7 @@ PORT     STATE SERVICE     VERSION
 Just connecting without *SSL* will lead to the following error:
 
 ```console
-[qtc@kali jmx-exploiter]$ jmx-exploiter --jmxmp 172.30.0.2 5556 status
+[qtc@kali beanshooter]$ beanshooter --jmxmp 172.30.0.2 5556 status
 [+] Connecting to JMX server... failed!
 [-] The following exception was thrown: java.io.IOException: The client does not require any profile but the server mandates one
 ```
@@ -118,7 +118,7 @@ This is because with *JMXMP* additional protection mechanisms have to be specifi
 By using the ``--ssl`` option, the connection should work fine:
 
 ```console
-[qtc@kali jmx-exploiter]$ jmx-exploiter --jmxmp --ssl 172.30.0.2 5556 status
+[qtc@kali beanshooter]$ beanshooter --jmxmp --ssl 172.30.0.2 5556 status
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
 [+]
@@ -134,7 +134,7 @@ Now lets take a look on a *SASL* protected *JMXMP* endpoint that uses *NTLM* and
 and connection without the appropriate options creates the following error:
 
 ```console
-[qtc@kali jmx-exploiter]$ jmx-exploiter --jmxmp --ssl 172.30.0.2 5560 status
+[qtc@kali beanshooter]$ beanshooter --jmxmp --ssl 172.30.0.2 5560 status
 [+] Connecting to JMX server... failed!
 [-] The following exception was thrown: java.io.IOException: The server supported profiles [SASL/NTLM] do not match the client required profiles [TLS].
 ```
@@ -143,7 +143,7 @@ This is nice, as the server informs us about the required connection profile. Re
 like this:
 
 ```console
-[qtc@kali jmx-exploiter]$ jmx-exploiter --jmxmp --sasl NTLM --username test --password test 172.30.0.2 5560 status
+[qtc@kali beanshooter]$ beanshooter --jmxmp --sasl NTLM --username test --password test 172.30.0.2 5560 status
 [+] Connecting to JMX server... failed!
 [-] The following exception was thrown: java.lang.SecurityException: javax.security.sasl.SaslException: NTLM: generate response failure [Caused by com.sun.security.ntlm.NTLMException: None of LM and NTLM verified]
 ```
@@ -151,7 +151,7 @@ like this:
 However, when using the correct credentials, the connection should work again:
 
 ```console
-[qtc@kali jmx-exploiter]$ jmx-exploiter --jmxmp --sasl NTLM --username controlRole --password control 172.30.0.2 5560 status
+[qtc@kali beanshooter]$ beanshooter --jmxmp --sasl NTLM --username controlRole --password control 172.30.0.2 5560 status
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
 [+]
@@ -168,7 +168,7 @@ is ignored by the ``LifecycleListener`` and therefore the hostname of the contai
 error message when using *Digest authentication*:
 
 ```console
-[qtc@kali jmx-exploiter]$ jmx-exploiter --jmxmp --sasl DIGEST-MD5 --username controlRole --password control 172.30.0.2 5558 status
+[qtc@kali beanshooter]$ beanshooter --jmxmp --sasl DIGEST-MD5 --username controlRole --password control 172.30.0.2 5558 status
 [+] Connecting to JMX server... failed!
 [-] The following exception was thrown: java.lang.SecurityException: javax.security.sasl.SaslException: DIGEST-MD5: digest response format violation. Mismatched URI: jmxmp/iinsecure.dev; expecting: jmxmp/4839abafde05
 ```
@@ -177,9 +177,9 @@ With a correct configured server, this should not happen. However, one can easil
 connection should work again:
 
 ```console
-[qtc@kali jmx-exploiter]$ head -n 1 /etc/hosts
+[qtc@kali beanshooter]$ head -n 1 /etc/hosts
 172.30.0.2  4839abafde05
-[qtc@kali jmx-exploiter]$ jmx-exploiter --jmxmp --sasl DIGEST-MD5 --username controlRole --password control 172.30.0.2 5558 status
+[qtc@kali beanshooter]$ beanshooter --jmxmp --sasl DIGEST-MD5 --username controlRole --password control 172.30.0.2 5558 status
 [+] Connecting to JMX server... done!
 [+] Creating MBeanServerConnection... done!
 [+]
