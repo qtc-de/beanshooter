@@ -98,9 +98,10 @@ public class GreenGrocer {
 
         } catch( Exception e ) {
 
-            System.err.println("failed!\n[*]");
+            System.err.println("failed!");
 
             if( e instanceof SecurityException && e.getMessage().contains("Credentials should be String[]") ) {
+                System.err.println("[*]");
                 System.out.println("[*] Caught SecurityException with content '" + e.getMessage() + "'.");
                 System.out.println("[*]     Target is most likely vulnerable to cve-2016-3427.");
                 System.exit(0);
