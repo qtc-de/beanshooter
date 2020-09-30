@@ -1,4 +1,4 @@
-package de.qtc.beanshooter;
+package de.qtc.beanshooter.utils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-
 
 public class JarHandler implements HttpHandler {
 
