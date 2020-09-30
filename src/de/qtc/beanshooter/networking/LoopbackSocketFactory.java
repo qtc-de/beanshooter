@@ -1,11 +1,11 @@
-package de.qtc.beanshooter;
+package de.qtc.beanshooter.networking;
 
 import java.net.Socket;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.rmi.server.RMISocketFactory;
 
-class LoopbackSocketFactory extends RMISocketFactory {
+public class LoopbackSocketFactory extends RMISocketFactory {
 
     private String host;
     private RMISocketFactory fac;

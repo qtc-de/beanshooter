@@ -1,4 +1,4 @@
-package de.qtc.beanshooter;
+package de.qtc.beanshooter.utils;
 
 import java.io.IOException;
 
@@ -12,8 +12,8 @@ import javax.security.sasl.RealmChoiceCallback;
 
 public class RealmHandler implements CallbackHandler {
 
-    static String username = "";
-    static String password = "";
+    public static String username = "";
+    public static String password = "";
 
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {

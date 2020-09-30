@@ -24,6 +24,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import de.qtc.beanshooter.utils.RealmHandler;
+
 
 public class Beanshooter {
 

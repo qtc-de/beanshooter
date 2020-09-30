@@ -1,4 +1,4 @@
-package de.qtc.beanshooter;
+package de.qtc.beanshooter.networking;
 
 import java.io.IOException;
 import java.net.InetAddress;

@@ -1,4 +1,4 @@
-package de.qtc.beanshooter;
+package de.qtc.beanshooter.utils;
 
 import java.io.IOException;
 import java.io.OutputStream;
