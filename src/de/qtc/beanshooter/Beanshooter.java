@@ -51,6 +51,14 @@ public class Beanshooter {
         remoteStager.setRequired(false);
         options.addOption(remoteStager);
 
+        Option bindAddress = new Option(null, "bind-address", true, "IP address to bind the stager server");
+        bindAddress.setRequired(false);
+        options.addOption(bindAddress);
+
+        Option bindPort = new Option(null, "bind-port", true, "port of the stager server");
+        bindPort.setRequired(false);
+        options.addOption(bindPort);
+
         Option jmxmp = new Option(null, "jmxmp", false, "use the JMXMP protocol instead of Java RMI");
         jmxmp.setRequired(false);
         options.addOption(jmxmp);
@@ -153,12 +161,20 @@ public class Beanshooter {
         String boundNameValue = commandLine.getOptionValue("bound-name", config.getProperty("boundName"));
         String stagerPortValue = commandLine.getOptionValue("stager-port", config.getProperty("stagerPort"));
         String stagerHostValue = commandLine.getOptionValue("stager-host", config.getProperty("stagerHost"));
+        String bindAddressValue = commandLine.getOptionValue("bind-address", config.getProperty("bindAddress"));
+        String bindPortValue = commandLine.getOptionValue("bind-port", config.getProperty("bind-port"));
 
         String jarPath = config.getProperty("jarPath");
         String jarName = config.getProperty("jarName");
         String beanClass = config.getProperty("beanClass");
         String objectName = config.getProperty("objectName");
         String mLetNameString = config.getProperty("mLetName");
+
+        if( bindPortValue == null )
+            bindPortValue = stagerPortValue;
+        if( bindAddressValue == null )
+            bindAddressValue = stagerHostValue;
+
 
         GreenGrocer gg = null;
         try {
@@ -169,7 +185,7 @@ public class Beanshooter {
         }
 
         if( stagerOnlyValue ) {
-            gg.startStagerServer(stagerHostValue, stagerPortValue);
+            gg.startStagerServer(bindAddressValue, bindPortValue, stagerHostValue, stagerPortValue);
             Scanner dummyScanner = new Scanner(System.in);
             System.out.println("Press Enter to stop listening...");
             dummyScanner.nextLine();
@@ -265,13 +281,13 @@ public class Beanshooter {
                 break;
             case "deployAll":
                 gg.registerMLet();
-                gg.registerBean(stagerHostValue, stagerPortValue, remoteStagerValue);
+                gg.registerBean(bindAddressValue, bindPortValue, stagerHostValue, stagerPortValue, remoteStagerValue);
                 break;
             case "deployMLet":
                 gg.registerMLet();
                 break;
             case "deployMBean":
-                gg.registerBean(stagerHostValue, stagerPortValue, remoteStagerValue);
+                gg.registerBean(bindAddressValue, bindPortValue, stagerHostValue, stagerPortValue, remoteStagerValue);
                 break;
             case "undeployAll":
                 gg.unregisterBean();

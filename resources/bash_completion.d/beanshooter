@@ -9,7 +9,7 @@ function _beanshooter() {
     local cur prev words cword opts args
     _init_completion || return
 
-    _count_args "" "@(-c|--config|-b|--bound-name|-p|--password|-rs|--remote-stager|--sasl|-sh|--stager-host|-sp|--stager-port|-u|--username|--yso)"
+    _count_args "" "@(--config|--bind-address|--bind-port|--bound-name|--password|--sasl|--stager-host|--stager-port|--username|--yso)"
     COMPREPLY=()
 
     gadgets="BeanShell1 C3P0 Clojure CommonsBeanutils1 CommonsCollections1 CommonsCollections2"
@@ -53,12 +53,12 @@ function _beanshooter() {
     fi
 
     # File completion for config files and yso option
-	if _comp_contains "-c --config --yso" $prev; then
+	if _comp_contains "--config --yso" $prev; then
         _filedir
 		return 0
 
-    # IP completion for stager host
-	elif _comp_contains "-sh --stager-host" $prev; then
+    # IP completion for stager host and bind address
+	elif _comp_contains "--stager-host --bind-address" $prev; then
         _ip_addresses
         return 0
 
@@ -67,23 +67,26 @@ function _beanshooter() {
         opts="NTLM PLAIN GSSAPI CRAM-MD5 DIGEST-MD5"
 
     # No completion
-	elif _comp_contains "--bound-name --password --stager-port --username" $prev; then
+	elif _comp_contains "--bind-port --bound-name --password --stager-port --username" $prev; then
 		return 0
 
 	else 
-		opts="-b --bound-name"
-		opts="$opts -c --config"
+		opts="--bind-address"
+		opts="$opts --bind-port"
+		opts="$opts --bound-name"
+		opts="$opts --config"
 		opts="$opts --follow"
 		opts="$opts --help"
-		opts="$opts -j --jmxmp"
-		opts="$opts -p --password"
-		opts="$opts -rs --remote-stager"
+		opts="$opts --jmxmp"
+		opts="$opts --password"
+		opts="$opts --remote-stager"
 		opts="$opts --sasl"
-		opts="$opts -sh --stager-host"
-		opts="$opts -so --stager-only"
-		opts="$opts -sp --stager-port"
 		opts="$opts --ssl"
-		opts="$opts -u --username"
+		opts="$opts --stager-host"
+		opts="$opts --stager-only"
+		opts="$opts --stager-port"
+		opts="$opts --username"
+		opts="$opts --yso"
 	fi
 
     _comp_filter "opts"
