@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.rmi.server.RMISocketFactory;
 
+import de.qtc.beanshooter.io.Logger;
+
 public class LoopbackSocketFactory extends RMISocketFactory {
 
     private String host;
@@ -24,25 +26,23 @@ public class LoopbackSocketFactory extends RMISocketFactory {
 
     public Socket createSocket(String host, int port) throws IOException {
         if(!this.host.equals(host)) {
-            printInfos("\n[*]    RMI object tries to connect to different remote host: " + host, true);
+            printInfos("RMI object tries to connect to different remote host: " + host);
 
             if( this.followRedirect ) {
-                printInfos("[*]    Following connection to new target... ", false);
+                printInfos("\tFollowing connection to new target... ");
             } else {
-                printInfos("[*]    Redirecting the connection back to " + this.host + "... ", false);
+                printInfos("\tRedirecting the connection back to " + this.host + "... ");
                 host = this.host;
             }
+            printInfos("\tThis is done for all further requests. This message is not shown again.");
             this.printInfo = false;
         }
         return fac.createSocket(host, port);
     }
 
-    private void printInfos(String info, boolean newLine) {
+    private void printInfos(String info) {
         if( this.printInfo ) {
-            if( newLine )
-                System.out.println(info);
-            else
-                System.out.print(info);
+            Logger.println_bl(info);
         }
     }
 }

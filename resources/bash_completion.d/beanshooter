@@ -78,6 +78,7 @@ function _beanshooter() {
 		opts="$opts --follow"
 		opts="$opts --help"
 		opts="$opts --jmxmp"
+		opts="$opts --no-color"
 		opts="$opts --password"
 		opts="$opts --remote-stager"
 		opts="$opts --sasl"

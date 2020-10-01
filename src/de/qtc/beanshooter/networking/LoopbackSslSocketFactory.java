@@ -7,6 +7,8 @@ import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import de.qtc.beanshooter.io.Logger;
+
 
 public class LoopbackSslSocketFactory extends SSLSocketFactory {
 
@@ -15,58 +17,56 @@ public class LoopbackSslSocketFactory extends SSLSocketFactory {
     public static boolean printInfo = true;
     public static boolean followRedirect = false;
 
-	@Override
+    @Override
     public Socket createSocket(String target, int port) throws IOException {
         if(!host.equals(target)) {
-            printInfos("\n[*]    RMI object tries to connect to different remote host: " + target, true);
+            printInfos("RMI object tries to connect to different remote host: " + target);
 
             if( followRedirect ) {
-                printInfos("[*]    Following connection to new target... ", false);
+                printInfos("\tFollowing connection to new target... ");
             } else {
-                printInfos("[*]    Redirecting the connection back to " + host + "... ", false);
+                printInfos("\tRedirecting the connection back to " + host + "... ");
                 target = host;
             }
+            printInfos("\tThis is done for all further requests. This message is not shown again.");
             printInfo = false;
         }
         return fac.createSocket(target, port);
     }
 
-	@Override
-	public Socket createSocket(Socket arg0, String arg1, int arg2, boolean arg3) throws IOException {
-		return fac.createSocket(arg0, arg1, arg2, arg3);
-	}
+    @Override
+    public Socket createSocket(Socket arg0, String arg1, int arg2, boolean arg3) throws IOException {
+        return fac.createSocket(arg0, arg1, arg2, arg3);
+    }
 
-	@Override
-	public String[] getDefaultCipherSuites() {
-		return fac.getDefaultCipherSuites();
-	}
+    @Override
+    public String[] getDefaultCipherSuites() {
+        return fac.getDefaultCipherSuites();
+    }
 
-	@Override
-	public String[] getSupportedCipherSuites() {
-		return fac.getSupportedCipherSuites();
-	}
+    @Override
+    public String[] getSupportedCipherSuites() {
+        return fac.getSupportedCipherSuites();
+    }
 
-	@Override
-	public Socket createSocket(InetAddress arg0, int arg1) throws IOException {
-		return fac.createSocket(arg0, arg1);
-	}
+    @Override
+    public Socket createSocket(InetAddress arg0, int arg1) throws IOException {
+        return fac.createSocket(arg0, arg1);
+    }
 
-	@Override
-	public Socket createSocket(String arg0, int arg1, InetAddress arg2, int arg3) throws IOException, UnknownHostException {
-		return fac.createSocket(arg0, arg1, arg2, arg3);
-	}
+    @Override
+    public Socket createSocket(String arg0, int arg1, InetAddress arg2, int arg3) throws IOException, UnknownHostException {
+        return fac.createSocket(arg0, arg1, arg2, arg3);
+    }
 
-	@Override
-	public Socket createSocket(InetAddress arg0, int arg1, InetAddress arg2, int arg3) throws IOException {
-		return fac.createSocket(arg0, arg1, arg2, arg3);
-	}
+    @Override
+    public Socket createSocket(InetAddress arg0, int arg1, InetAddress arg2, int arg3) throws IOException {
+        return fac.createSocket(arg0, arg1, arg2, arg3);
+    }
 
-    private void printInfos(String info, boolean newLine) {
+    private void printInfos(String info) {
         if( printInfo ) {
-        	if( newLine )
-        		System.out.println(info);
-        	else
-        		System.out.print(info);
+            Logger.println_bl(info);
         }
     }
 }

