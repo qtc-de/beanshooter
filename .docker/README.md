@@ -110,7 +110,7 @@ Running with the ``--ssl`` option, on the other hand, should work fine:
 
 #### MLet Deployment
 
-This is already presented in the projects main [README.md](./). However, for completeness, it is also demonstrated here:
+This is already presented in the projects main [README.md](/). However, for completeness, it is also demonstrated here:
 
 ```console
 [qtc@kali ~]$ beanshooter --stager-host 172.17.0.1 --ssl 172.17.0.2 9010 deployAll
