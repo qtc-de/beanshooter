@@ -92,6 +92,10 @@ public class Logger {
         System.out.print(ANSI_YELLOW + msg + ANSI_RESET);
     }
 
+    public static void eprintPlain_ye(String msg) {
+        System.err.print(ANSI_YELLOW + msg + ANSI_RESET);
+    }
+
     public static void printPlain_bl(String msg) {
         System.out.print(ANSI_BLUE + msg + ANSI_RESET);
     }
@@ -117,6 +121,8 @@ public class Logger {
     }
 
     public static void decreaseIndent() {
+        if( indent == 0 )
+            return;
         indent -= 1;
     }
 

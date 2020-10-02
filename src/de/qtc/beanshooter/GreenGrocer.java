@@ -434,8 +434,8 @@ public class GreenGrocer {
             File maliciousBean = new File(this.jarPath + this.jarName);
             if( !maliciousBean.exists() || maliciousBean.isDirectory() ) {
                 Logger.eprint("Unable to find MBean ");
-                Logger.eprintlnPlain_ye(maliciousBean.getCanonicalPath());
-                Logger.eprintlnPlain("for deployment.");
+                Logger.eprintPlain_ye(maliciousBean.getCanonicalPath());
+                Logger.eprintlnPlain(" for deployment.");
                 Logger.eprintln("Stopping execution.");
                 System.exit(1);
             }
