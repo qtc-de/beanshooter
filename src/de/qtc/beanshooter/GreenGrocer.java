@@ -318,77 +318,76 @@ public class GreenGrocer {
         }
     }
 
-    public void ping()
+    public String invoke(String command, Object[] params, String[] signature)
     {
         try {
-            Logger.print("Sending ping to the server... ");
-            Object response = this.mBeanServer.invoke(this.beanName, "ping", null, null);
-            Logger.printlnPlain("done!");
-            Logger.print("Servers answer is: ");
-            Logger.printlnPlain_ye((String)response);
+            Object response = this.mBeanServer.invoke(this.beanName, command, params, signature);
+            return (String)response;
+
+        } catch( javax.management.InstanceNotFoundException e ) {
+            Logger.eprint("MBean ");
+            Logger.eprintPlain_ye(e.getMessage());
+            Logger.eprintlnPlain(" not found on the server. ");
+            Logger.increaseIndent();
+            Logger.eprintln("Did you forget to deploy?");
+            this.disconnect();
+            System.exit(1);
 
         } catch( Exception e ) {
-            Logger.eprintlnPlain("failed!");
             Logger.eprint("The following exception was thrown: ");
-            Logger.eprintlnPlain(e.getMessage());
+            Logger.eprintlnPlain_ye(e.getMessage());
             this.disconnect();
             System.exit(1);
         }
+
+        return "Unexpected Error";
+    }
+
+    public void ping()
+    {
+        Logger.print("Sending ");
+        Logger.printPlain_bl("ping");
+        Logger.printlnPlain(" to the server...");
+        String response = invoke("ping", null, null);
+
+        Logger.print("Servers answer is: ");
+        Logger.printlnPlain_ye(response);
     }
 
     public String executeCommand(String command, boolean verbose)
     {
-        try {
-            if(verbose) {
-                Logger.print("Sending command '");
-                Logger.printPlain_bl(command);
-                Logger.printlnPlain("' to the server... ");
-            }
-
-            Object response = this.mBeanServer.invoke(this.beanName, "executeCommand", new Object[]{ command }, new String[]{ String.class.getName() });
-
-            if(verbose) {
-                Logger.print("Servers answer is: ");
-                Logger.printPlain_ye((String)response);
-            }
-            return (String)response;
-
-        } catch( Exception e ) {
-            Logger.eprint("The following exception was thrown: ");
-            Logger.eprintlnPlain_ye(e.getMessage());
-            this.disconnect();
-            System.exit(1);
+        if(verbose) {
+            Logger.print("Sending command '");
+            Logger.printPlain_bl(command);
+            Logger.printlnPlain("' to the server...");
         }
 
-        return "Unexpected Error";
+        String response = invoke("executeCommand", new Object[]{ command }, new String[]{ String.class.getName() });
+
+        if(verbose) {
+            Logger.print("Servers answer is: ");
+            Logger.printPlain_ye(response);
+        }
+
+        return response;
     }
 
     public String executeCommandBackground(String command, boolean verbose)
     {
-        try {
-            if(verbose) {
-                Logger.print("Sending command '");
-                Logger.printPlain_bl(command);
-                Logger.printlnPlain("' to the server... ");
-            }
-
-            Object response = this.mBeanServer.invoke(this.beanName, "executeCommandBackground", new Object[]{ command }, new String[]{ String.class.getName() });
-
-            if(verbose) {
-                Logger.print("Servers answer is: ");
-                Logger.printPlain_ye((String)response);
-            }
-
-            return (String)response;
-
-        } catch( Exception e ) {
-            Logger.eprint("The following exception was thrown: ");
-            Logger.eprintlnPlain_ye(e.getMessage());
-            this.disconnect();
-            System.exit(1);
+        if(verbose) {
+            Logger.print("Sending command '");
+            Logger.printPlain_bl(command);
+            Logger.printlnPlain("' to the server...");
         }
 
-        return "Unexpected Error";
+        String response = invoke("executeCommandBackground", new Object[]{ command }, new String[]{ String.class.getName() });
+
+        if(verbose) {
+            Logger.print("Servers answer is: ");
+            Logger.printPlain_ye(response);
+        }
+
+        return response;
     }
 
     public void getLoggerLevel(Object payload)
