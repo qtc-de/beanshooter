@@ -319,14 +319,14 @@ public class Beanshooter {
                 Logger.println("Starting interactive shell...\n");
 
                 while( true ) {
-                    Logger.println("$ ");
+                    System.out.print("$ ");
                     command = console.readLine();
 
                     if( command.equals("exit") || command.equals("Exit") )
                         break;
 
                     response = gg.executeCommand(command,  false);
-                    Logger.println(response);
+                    System.out.print(response);
                 }
 
                 break;
