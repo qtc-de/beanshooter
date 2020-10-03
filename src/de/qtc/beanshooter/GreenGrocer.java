@@ -2,7 +2,9 @@ package de.qtc.beanshooter;
 
 import java.io.IOException;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
 import java.rmi.server.RMISocketFactory;
 import java.util.HashMap;
 
@@ -319,13 +321,13 @@ public class GreenGrocer {
         }
     }
 
-    public String invoke(String command, Object[] params, String[] signature)
+    public Object invoke(String command, Object[] params, String[] signature)
     {
         try {
             Object response = this.mBeanServer.invoke(this.beanName, command, params, signature);
-            return (String)response;
+            return response;
 
-        } catch( javax.management.InstanceNotFoundException e ) {
+        } catch( InstanceNotFoundException e ) {
             Logger.eprint("MBean ");
             Logger.eprintPlain_ye(e.getMessage());
             Logger.eprintlnPlain(" not found on the server.");
@@ -349,7 +351,7 @@ public class GreenGrocer {
         Logger.print("Sending ");
         Logger.printPlain_bl("ping");
         Logger.printlnPlain(" to the server...");
-        String response = invoke("ping", null, null);
+        String response = (String)invoke("ping", null, null);
 
         Logger.print("Servers answer is: ");
         Logger.printlnPlain_ye(response);
@@ -363,7 +365,7 @@ public class GreenGrocer {
             Logger.printlnPlain("' to the server...");
         }
 
-        String response = invoke("executeCommand", new Object[]{ command }, new String[]{ String.class.getName() });
+        String response = (String)invoke("executeCommand", new Object[]{ command }, new String[]{ String.class.getName() });
 
         if(verbose) {
             Logger.print("Servers answer is: ");
@@ -373,7 +375,7 @@ public class GreenGrocer {
         return response;
     }
 
-    public String executeCommandBackground(String command, boolean verbose)
+    public void executeCommandBackground(String command, boolean verbose)
     {
         if(verbose) {
             Logger.print("Sending command '");
@@ -381,14 +383,46 @@ public class GreenGrocer {
             Logger.printlnPlain("' to the server...");
         }
 
-        String response = invoke("executeCommandBackground", new Object[]{ command }, new String[]{ String.class.getName() });
+        invoke("executeCommandBackground", new Object[]{ command }, new String[]{ String.class.getName() });
+    }
 
-        if(verbose) {
-            Logger.print("Servers answer is: ");
-            Logger.printPlain_ye(response);
+    public void uploadFile(String source, String destination)
+    {
+        try {
+            File file = new File(source);
+            byte[] content = Files.readAllBytes(file.toPath());
+
+            Object[] arguments = new Object[]{destination, content};
+            String[] types = new String[]{String.class.getName(), byte[].class.getName() };
+
+            invoke("uploadFile", arguments, types);
+
+        } catch( IOException e ) {
+            Logger.eprint("Unable to read ");
+            Logger.eprintlnPlain_ye(source);
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
         }
+    }
 
-        return response;
+    public void downloadFile(String source, String destination)
+    {
+        try {
+            FileOutputStream stream = new FileOutputStream(destination);
+
+            Object[] arguments = new Object[]{source};
+            String[] types = new String[]{String.class.getName()};
+
+            byte[] response = (byte[])invoke("uploadFile", arguments, types);
+            stream.write(response);
+            stream.close();
+
+        } catch( IOException e ) {
+            Logger.eprint("Unable to open ");
+            Logger.eprintlnPlain_ye(destination);
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
+        }
     }
 
     public void getLoggerLevel(Object payload)
