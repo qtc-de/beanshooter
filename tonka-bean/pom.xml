@@ -7,10 +7,11 @@
     <artifactId>tonka-bean</artifactId>
     <name>tonka-bean</name>
     <packaging>jar</packaging>
-    <version>1.0.0</version>
-    <description>A evil Bean with several malicious functions</description>
+    <version>1.1.0</version>
+    <description>Proof of Concept for a Malicious MBean</description>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>

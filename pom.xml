@@ -8,7 +8,7 @@
     <name>beanshooter</name>
     <packaging>jar</packaging>
     <version>2.0.0</version>
-    <description>JMX Attacking Tool</description>
+    <description>JMX Proof of Concept Tool</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
