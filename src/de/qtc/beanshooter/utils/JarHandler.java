@@ -33,7 +33,7 @@ public class JarHandler implements HttpHandler {
     public void handle(HttpExchange t) throws IOException
     {
         String requestURL = t.getRequestURI().toString();
-        Logger.print("Received request for ");
+        Logger.print("Received request for: ");
         Logger.eprintlnPlain_ye(requestURL);
 
         byte[] jarContent = this.readJar(this.jarPath, this.jarName);

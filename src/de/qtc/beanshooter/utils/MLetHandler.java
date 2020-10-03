@@ -28,7 +28,7 @@ public class MLetHandler implements HttpHandler {
 
     public void handle(HttpExchange t) throws IOException
     {
-        Logger.print("Received request for ");
+        Logger.print("Received request for: ");
         Logger.eprintlnPlain_ye("/mlet");
 
         String response = "<HTML><mlet code=\"%s\" archive=\"%s\" name=\"%s\" codebase=\"http://%s:%s\"></mlet></HTML>";
