@@ -397,6 +397,11 @@ public class GreenGrocer {
 
             invoke("uploadFile", arguments, types);
 
+            Logger.print("File upload finished.");
+            Logger.printPlain_ye(" " + content.length + " ");
+            Logger.printPlain("bytes were written to ");
+            Logger.printlnPlain_ye(destination);
+
         } catch( IOException e ) {
             Logger.eprint("Unable to read ");
             Logger.eprintlnPlain_ye(source);
@@ -408,14 +413,26 @@ public class GreenGrocer {
     public void downloadFile(String source, String destination)
     {
         try {
-            FileOutputStream stream = new FileOutputStream(destination);
+
+            File sourceFile = new File(source);
+            File destinationFile = new File(destination);
+            if( destinationFile.isDirectory() ) {
+                destinationFile = new File(destinationFile.getCanonicalPath(), sourceFile.getName());
+            }
+
+            FileOutputStream stream = new FileOutputStream(destinationFile);
 
             Object[] arguments = new Object[]{source};
             String[] types = new String[]{String.class.getName()};
 
-            byte[] response = (byte[])invoke("uploadFile", arguments, types);
+            byte[] response = (byte[])invoke("downloadFile", arguments, types);
             stream.write(response);
             stream.close();
+
+            Logger.print("File download finished.");
+            Logger.printPlain_ye(" " + response.length + " ");
+            Logger.printPlain("bytes were written to ");
+            Logger.printlnPlain_ye(destinationFile.getCanonicalPath());
 
         } catch( IOException e ) {
             Logger.eprint("Unable to open ");

@@ -126,6 +126,8 @@ public class Beanshooter {
                            +"    shell                         Continuously prompt for new commands\n"
                            +"    execute <cmd>                 Execute specified command\n"
                            +"    executeBackground <cmd>       Execute command in the background\n"
+                           +"    upload <src> <dest>           Upload a local file to the server\n"
+                           +"    download <src> <dest>         Download a file form the server\n"
                            +"    ysoserial <gadget> <cmd>      Pass ysoserial payload to getLoggerLevel\n"
                            +"    cve-2016-3427 <gadget> <cmd>  Attempt cve-2016-3427\n\n"
 
@@ -213,6 +215,8 @@ public class Beanshooter {
         String action = remainingArgs.get(2);
 
         String gadget = "";
+        String srcFile = "";
+        String destFile = "";
         String command = "id";
         Object ysoPayload = null;
 
@@ -236,6 +240,18 @@ public class Beanshooter {
                 gadget = remainingArgs.get(3);
                 command = remainingArgs.get(4);
                 ysoPayload = getPayloadObject(ysoValue, gadget, command);
+                break;
+
+            case "upload":
+            case "download":
+                if( remainingArgs.size() < 5 ) {
+                    Logger.eprintlnPlain_ye("Error: Insufficient number of arguments.\n");
+                    formatter.printHelp(helpString, options);
+                    System.exit(1);
+                }
+
+                srcFile = remainingArgs.get(3);
+                destFile = remainingArgs.get(4);
         }
 
         int remotePortNumeric = 1090;
@@ -335,6 +351,12 @@ public class Beanshooter {
                 break;
             case "executeBackground":
                 gg.executeCommandBackground(command, true);
+                break;
+            case "upload":
+                gg.uploadFile(srcFile, destFile);
+                break;
+            case "download":
+                gg.downloadFile(srcFile, destFile);
                 break;
             case "ysoserial":
                 gg.getLoggerLevel(ysoPayload);
