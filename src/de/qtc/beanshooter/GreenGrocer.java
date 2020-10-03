@@ -406,7 +406,7 @@ public class GreenGrocer {
             Logger.eprint("Unable to read ");
             Logger.eprintlnPlain_ye(source);
             Logger.eprint("The following exception was thrown: ");
-            Logger.eprintlnPlain_ye(e.getMessage());
+            Logger.eprintlnPlain_ye(e.toString());
         }
     }
 
@@ -438,7 +438,7 @@ public class GreenGrocer {
             Logger.eprint("Unable to open ");
             Logger.eprintlnPlain_ye(destination);
             Logger.eprint("The following exception was thrown: ");
-            Logger.eprintlnPlain_ye(e.getMessage());
+            Logger.eprintlnPlain_ye(e.toString());
         }
     }
 
