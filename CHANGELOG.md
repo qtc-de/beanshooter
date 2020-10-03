@@ -18,18 +18,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add support for authenticated *JMXMP*
 * Add support for *SSL* protected *JMXMP*
 * Add new options for separate bind-address and bind-port
-* Add color suppoer
+* Add color support
+* Add upload and download functions
 
 ### Changed
 
-* Changed the paramater layout during execute actions
+* Changed the parameter layout during execute actions
 * Changed the bash completion script to include new options
 * Changed the folder structures and class layouts
 
 ### Example Server
 
 * Add additional example server running a different tomcat version
-* Add cve-2016-3427 vulnerability to the example server
+* Add CVE-2016-3427 vulnerability to the example server
 * Add deserialization vulnerability to the example server
 * Add authenticated *JMXMP* listeners to the example server
 * Add *SSL* protection to *RMI* and *JMXMP* listeners
