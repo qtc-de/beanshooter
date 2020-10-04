@@ -1,12 +1,14 @@
 package de.qtc.beanshooter;
 
 import java.io.IOException;
+import java.io.Console;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.rmi.server.RMISocketFactory;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -439,6 +441,48 @@ public class GreenGrocer {
             Logger.eprintlnPlain_ye(destination);
             Logger.eprint("The following exception was thrown: ");
             Logger.eprintlnPlain_ye(e.toString());
+        }
+    }
+
+    public void startShell()
+    {
+        String command = "";
+        String response = "";
+        String[] splitResult = null;
+        Console console = System.console();
+        Pattern splitSpaces = Pattern.compile(" (?=(?:[^\"]*\"[^\"]*\")*(?:[^']*'[^']*')*[^\"']*$)");
+
+        Logger.println("Starting interactive shell...\n");
+
+        while( true ) {
+            System.out.print("$ ");
+            command = console.readLine();
+
+            if( command.equals("exit") || command.equals("Exit") )
+                break;
+
+            else if( command.startsWith("!background ")) {
+                splitResult = command.split(" ", 2);
+                executeCommandBackground(splitResult[1],  false);
+                System.out.println("Command is executed in the background.");
+            }
+
+            else if( command.startsWith("!download ")) {
+                splitResult = splitSpaces.split(command);
+                splitResult[2] = splitResult[2].replaceFirst("^~", System.getProperty("user.home"));
+                downloadFile(splitResult[1], splitResult[2]);
+            }
+
+            else if( command.startsWith("!upload ")) {
+                splitResult = splitSpaces.split(command);
+                splitResult[1] = splitResult[1].replaceFirst("^~", System.getProperty("user.home"));
+                uploadFile(splitResult[1], splitResult[2]);
+            }
+
+            else {
+                response = executeCommand(command,  false);
+                System.out.print(response);
+            }
         }
     }
 

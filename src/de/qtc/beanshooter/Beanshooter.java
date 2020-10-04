@@ -1,6 +1,5 @@
 package de.qtc.beanshooter;
 
-import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -330,21 +329,7 @@ public class Beanshooter {
                 gg.ping();
                 break;
             case "shell":
-                String response;
-                Console console = System.console();
-                Logger.println("Starting interactive shell...\n");
-
-                while( true ) {
-                    System.out.print("$ ");
-                    command = console.readLine();
-
-                    if( command.equals("exit") || command.equals("Exit") )
-                        break;
-
-                    response = gg.executeCommand(command,  false);
-                    System.out.print(response);
-                }
-
+                gg.startShell();
                 break;
             case "execute":
                 gg.executeCommand(command, true);
