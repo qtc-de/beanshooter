@@ -490,7 +490,7 @@ public class GreenGrocer {
             else if( command.startsWith("!download ")) {
                 splitResult = splitSpaces.split(command);
 
-                if( splitResult.length() == 2 ) {
+                if( splitResult.length == 2 ) {
                     downloadFile(splitResult[1], null);
                 } else {
                     splitResult[2] = splitResult[2].replaceFirst("^~", System.getProperty("user.home"));
