@@ -27,7 +27,7 @@ function _beanshooter() {
 
         # If host and port are specified - complete actions
         elif [[ $args -eq 3 ]]; then
-            opts="status deployAll deployMLet deployMBean undeployAll undeployMLet undeployMBean execute executeBackground ping ysoserial cve-2016-3427"
+            opts="status deployAll deployMLet deployMBean undeployAll undeployMLet undeployMBean execute executeBackground ping ysoserial cve-2016-3427 upload download"
             mapfile -t COMPREPLY < <(compgen -W "${opts}" -- "${cur}") 
             return 0
 
@@ -43,11 +43,29 @@ function _beanshooter() {
                 opts=$gadgets
                 mapfile -t COMPREPLY < <(compgen -W "${opts}" -- "${cur}") 
                 return 0
+
+            # If action is upload, complete files
+            elif _comp_contains "upload" $prev; then
+                _filedir
+	        	return 0
             fi
 
-        # If host, port, action and another argument was specified and the previous word is a gadget - complete nothing
-        elif [[ $args -eq 5 ]] || _comp_contains $gadgets $prev; then
-            return 0
+        # If host, port, action and another argument was specified...
+        elif [[ $args -eq 5 ]]; then
+
+            # ... and the previous word is a gadget - complete nothing
+            if _comp_contains $gadgets $prev; then
+                return 0
+
+            # ... and the action was 'upload' - complete nothing
+            elif _comp_contains "upload" ${words[$(($cword-2))]}; then
+                return 0
+
+            # ... and the action was 'download' - complete files
+            elif _comp_contains "download" ${words[$(($cword-2))]}; then
+                _filedir
+                return 0
+            fi
         fi
 
     fi
