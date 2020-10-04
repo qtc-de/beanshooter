@@ -3,6 +3,16 @@
 ----
 
 *Beanshooter* is a command line tool written in *Java*, which helps to identify common vulnerabilities on *JMX* endpoints.
+
+![](https://github.com/qtc-de/beanshooter/workflows/master%20maven%20CI/badge.svg?branch=master)
+![](https://github.com/qtc-de/beanshooter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
+![](./resources/media/01-demo.gif)
+
+
+### Introduction
+
+----
+
 *JMX* stands for *Java Management Extensions* and can be used to monitor and configure the *Java Virtual Machine*
 from remote. Applications like *tomcat* or *JBoss* are often installed together with a *JMX* instance, which
 enables server administrators to monitor and manage the corresponding application.
@@ -21,9 +31,6 @@ malicious *MBean* objects and compromise the underlying application server.
 endpoints as well as for authenticated ones (assumed you have valid credentials and sufficient permissions). Furthermore,
 it can be used to test other vulnerabilities like insecure *Java Deserialization* or *CVE-2016-3427*. Also connections
 using the *JMXMP* protocol are supported.
-
-![](https://github.com/qtc-de/beanshooter/workflows/master%20maven%20CI/badge.svg?branch=master)
-![](https://github.com/qtc-de/beanshooter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
 
 
 ### Installation
@@ -355,6 +362,8 @@ classpath.
 ### Deserialization Support
 
 -----
+
+![](./resources/media/02-deserialization-demo.gif)
 
 In case of authenticated *JMX* endpoints, it is pretty common that usage of *MLet* does not work, even with valid credentials.
 The following listing shows an attempt to deploy a malicious *MBean* on an authenticated *JMX* endpoint:
