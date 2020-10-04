@@ -323,7 +323,7 @@ public class GreenGrocer {
         }
     }
 
-    public Object invoke(String command, Object[] params, String[] signature)
+    public Object invoke(String command, Object[] params, String[] signature) throws MBeanException, ReflectionException, IOException
     {
         try {
             Object response = this.mBeanServer.invoke(this.beanName, command, params, signature);
@@ -335,15 +335,11 @@ public class GreenGrocer {
             Logger.eprintlnPlain(" not found on the server.");
             Logger.increaseIndent();
             Logger.eprintln("Did you forget to deploy?");
+
             this.disconnect();
             System.exit(1);
-
-        } catch( Exception e ) {
-            Logger.eprint("The following exception was thrown: ");
-            Logger.eprintlnPlain_ye(e.getMessage());
+            return null;
         }
-
-        return "Unexpected Error";
     }
 
     public void ping()
@@ -351,10 +347,16 @@ public class GreenGrocer {
         Logger.print("Sending ");
         Logger.printPlain_bl("ping");
         Logger.printlnPlain(" to the server...");
-        String response = (String)invoke("ping", null, null);
 
-        Logger.print("Servers answer is: ");
-        Logger.printlnPlain_ye(response);
+        try {
+            String response = (String)invoke("ping", null, null);
+            Logger.print("Servers answer is: ");
+            Logger.printlnPlain_ye(response);
+
+        } catch( Exception e ) {
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
+        }
     }
 
     public String executeCommand(String command, boolean verbose)
@@ -365,14 +367,21 @@ public class GreenGrocer {
             Logger.printlnPlain("' to the server...");
         }
 
-        String response = (String)invoke("executeCommand", new Object[]{ command }, new String[]{ String.class.getName() });
+        try {
+            String response = (String)invoke("executeCommand", new Object[]{ command }, new String[]{ String.class.getName() });
 
-        if(verbose) {
-            Logger.print("Servers answer is: ");
-            Logger.printPlain_ye(response);
+            if(verbose) {
+                Logger.print("Servers answer is: ");
+                Logger.printPlain_ye(response);
+            }
+
+            return response;
+
+        } catch( Exception e ) {
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
+            return "";
         }
-
-        return response;
     }
 
     public void executeCommandBackground(String command, boolean verbose)
@@ -383,7 +392,12 @@ public class GreenGrocer {
             Logger.printlnPlain("' to the server...");
         }
 
-        invoke("executeCommandBackground", new Object[]{ command }, new String[]{ String.class.getName() });
+        try {
+            invoke("executeCommandBackground", new Object[]{ command }, new String[]{ String.class.getName() });
+        } catch( Exception e ) {
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
+        }
     }
 
     public void uploadFile(String source, String destination)
@@ -407,6 +421,9 @@ public class GreenGrocer {
             Logger.eprintlnPlain_ye(source);
             Logger.eprint("The following exception was thrown: ");
             Logger.eprintlnPlain_ye(e.toString());
+        } catch( Exception e ) {
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
         }
     }
 
@@ -439,6 +456,9 @@ public class GreenGrocer {
             Logger.eprintlnPlain_ye(destination);
             Logger.eprint("The following exception was thrown: ");
             Logger.eprintlnPlain_ye(e.toString());
+        } catch( Exception e ) {
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
         }
     }
 
@@ -456,13 +476,13 @@ public class GreenGrocer {
             System.out.print("$ ");
             command = console.readLine();
 
-            if( command.equals("exit") || command.equals("Exit") )
+            if( command == null || command.equals("exit") || command.equals("Exit") )
                 break;
 
             else if( command.startsWith("!background ")) {
                 splitResult = command.split(" ", 2);
+                System.out.println("Executing command in the background...");
                 executeCommandBackground(splitResult[1],  false);
-                System.out.println("Command is executed in the background.");
             }
 
             else if( command.startsWith("!download ")) {
