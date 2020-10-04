@@ -409,12 +409,12 @@ public class GreenGrocer {
             Object[] arguments = new Object[]{destination, content};
             String[] types = new String[]{String.class.getName(), byte[].class.getName() };
 
-            invoke("uploadFile", arguments, types);
+            String response = (String)invoke("uploadFile", arguments, types);
 
             Logger.print("File upload finished.");
             Logger.printPlain_ye(" " + content.length + " ");
             Logger.printPlain("bytes were written to ");
-            Logger.printlnPlain_ye(destination);
+            Logger.printlnPlain_ye(response);
 
         } catch( IOException e ) {
             Logger.eprint("Unable to read ");

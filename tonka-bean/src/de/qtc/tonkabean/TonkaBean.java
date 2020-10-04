@@ -2,7 +2,7 @@ package de.qtc.tonkabean;
 
 import java.io.*;
 import java.nio.file.Files;
- 
+
 public class TonkaBean implements TonkaBeanMBean {
 
     public static void main(String[] argv)
@@ -15,21 +15,21 @@ public class TonkaBean implements TonkaBeanMBean {
     {
         Runtime runTime = Runtime.getRuntime();
         Process proc = runTime.exec(command);
-        
+
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
         BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
         String s;
         String stdout_err_data = "";
-        
+
         while ((s = stdInput.readLine()) != null) {
             stdout_err_data += s+"\n";
         }
-        
+
         while ((s = stdError.readLine()) != null) {
             stdout_err_data += s+"\n";
         }
-        
+
         proc.waitFor();
         return stdout_err_data;
     }
@@ -44,16 +44,20 @@ public class TonkaBean implements TonkaBeanMBean {
         return "pong!";
     }
 
-	public byte[] downloadFile(String filename) throws IOException
-	{
-		File file = new File(filename);
-		return Files.readAllBytes(file.toPath());
-	}
+    public byte[] downloadFile(String filename) throws IOException
+    {
+        File file = new File(filename);
+        return Files.readAllBytes(file.toPath());
+    }
 
-	public void uploadFile(String destination, byte[] content) throws IOException
-	{
-		FileOutputStream stream = new FileOutputStream(destination);
-		stream.write(content);
-		stream.close();
-	}
+    public String uploadFile(String destination, byte[] content) throws IOException
+    {
+        File file = new File(destination);
+        FileOutputStream stream = new FileOutputStream(destination);
+
+        stream.write(content);
+        stream.close();
+
+        return file.getAbsolutePath();
+    }
 }

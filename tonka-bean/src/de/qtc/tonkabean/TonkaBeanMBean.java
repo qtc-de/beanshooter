@@ -10,5 +10,5 @@ public interface TonkaBeanMBean {
     public String executeCommand(String cmd) throws IOException, InterruptedException ;
 
     public byte[] downloadFile(String filename) throws IOException;
-    public void uploadFile(String destination, byte[] content) throws IOException;
+    public String uploadFile(String destination, byte[] content) throws IOException;
 }
