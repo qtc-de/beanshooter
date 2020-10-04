@@ -413,7 +413,7 @@ public class Beanshooter {
         return mechanism;
     }
 
-    private static String showSaslHelp(String saslMethod)
+    private static void showSaslHelp(String saslMethod)
     {
         Logger.eprintln_ye("Specified SASL mechanism '" + saslMethod + "' is invalid.");
         Logger.println_bl("Possible values are:");
