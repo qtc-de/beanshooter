@@ -252,6 +252,7 @@ public class Beanshooter {
                 srcFile = remainingArgs.get(3);
                 if( argCount > 5 )
                     destFile = remainingArgs.get(4);
+                break;
 
             case "upload":
                 if( argCount < 5 ) {
