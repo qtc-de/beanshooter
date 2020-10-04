@@ -1,4 +1,4 @@
-package de.qtc.beanshooter;
+package de.qtc.beanshooter.networking;
 
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
