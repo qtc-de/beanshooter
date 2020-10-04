@@ -278,14 +278,7 @@ public class Beanshooter {
         if( saslValue != null ) {
             saslMechanism = getSaslMechanism(saslValue, useSsl);
             if( saslMechanism == null ) {
-                Logger.eprintln_ye("Specified SASL mechanism '" + saslValue + "' is invalid.");
-                Logger.println_bl("Possible values are:");
-                Logger.increaseIndent();
-                Logger.println_bl("* NTLM");
-                Logger.println_bl("* PLAIN");
-                Logger.println_bl("* GSSAPI");
-                Logger.println_bl("* CRAM-MD5");
-                Logger.println_bl("* DIGEST-MD5");
+                showSaslHelp(saslValue);
                 System.exit(1);
             }
         }
@@ -373,8 +366,8 @@ public class Beanshooter {
         gg.disconnect();
     }
 
-    private static void loadConfig(String filename, Properties prop, boolean extern) {
-
+    private static void loadConfig(String filename, Properties prop, boolean extern)
+    {
         InputStream configStream = null;
         try {
             if( extern ) {
@@ -390,11 +383,10 @@ public class Beanshooter {
             Logger.println_ye("Unable to load properties file '" + filename + "'");
             System.exit(1);
         }
-
     }
 
-    private static String getSaslMechanism(String choice, boolean tls) {
-
+    private static String getSaslMechanism(String choice, boolean tls)
+    {
         String mechanism;
 
         switch(choice) {
@@ -419,6 +411,19 @@ public class Beanshooter {
         }
 
         return mechanism;
+    }
+
+    private static String showSaslHelp(String saslMethod)
+    {
+        Logger.eprintln_ye("Specified SASL mechanism '" + saslMethod + "' is invalid.");
+        Logger.println_bl("Possible values are:");
+        Logger.increaseIndent();
+        Logger.println_bl("* NTLM");
+        Logger.println_bl("* PLAIN");
+        Logger.println_bl("* GSSAPI");
+        Logger.println_bl("* CRAM-MD5");
+        Logger.println_bl("* DIGEST-MD5");
+        Logger.decreaseIndent();
     }
 
     private static Object getPayloadObject(String ysoPath, String gadget, String command) {

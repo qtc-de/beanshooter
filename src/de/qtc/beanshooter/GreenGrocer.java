@@ -151,7 +151,6 @@ public class GreenGrocer {
             Logger.increaseIndent();
             Logger.println("MBean 'MLet' did already exist on the server.");
             Logger.decreaseIndent();
-            Logger.println("");
 
         } catch( Exception e ) {
             /* Otherwise MLet registration fails and we can stop execution. */
