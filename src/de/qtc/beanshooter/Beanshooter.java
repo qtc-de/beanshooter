@@ -318,6 +318,7 @@ public class Beanshooter {
                 break;
             case "deployAll":
                 gg.registerMLet();
+                Logger.println("");
                 gg.registerBean(bindAddressValue, bindPortValue, stagerHostValue, stagerPortValue, remoteStagerValue);
                 break;
             case "deployMLet":

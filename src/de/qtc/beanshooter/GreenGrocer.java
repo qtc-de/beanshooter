@@ -144,7 +144,6 @@ public class GreenGrocer {
             Logger.print_ye("Creating MBean 'MLet' for remote deploymet... ");
             this.mBeanServer.createMBean("javax.management.loading.MLet", null);
             Logger.printlnPlain_ye("done!");
-            Logger.println("");
 
         } catch (javax.management.InstanceAlreadyExistsException e) {
             /* MLet is may already registered. In this case we are done. */
