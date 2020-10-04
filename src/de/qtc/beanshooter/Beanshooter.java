@@ -215,9 +215,9 @@ public class Beanshooter {
 
         int argCount = remainingArgs.size();
         String gadget = "";
-        String srcFile = "";
-        String destFile = "";
         String command = "id";
+        String srcFile = null;
+        String destFile = null;
         Object ysoPayload = null;
 
         switch(action) {
