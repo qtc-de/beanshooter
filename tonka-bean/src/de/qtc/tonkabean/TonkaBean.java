@@ -15,23 +15,23 @@ public class TonkaBean implements TonkaBeanMBean {
     {
         Runtime runTime = Runtime.getRuntime();
         Process proc = runTime.exec(command);
+        proc.waitFor();
 
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(proc.getInputStream()));
         BufferedReader stdError = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
         String s;
-        String stdout_err_data = "";
+        String stdOutErrData = "";
 
         while ((s = stdInput.readLine()) != null) {
-            stdout_err_data += s+"\n";
+            stdOutErrData += s+"\n";
         }
 
         while ((s = stdError.readLine()) != null) {
-            stdout_err_data += s+"\n";
+            stdOutErrData += s+"\n";
         }
 
-        proc.waitFor();
-        return stdout_err_data;
+        return stdOutErrData;
     }
 
     public void executeCommandBackground(String command) throws IOException
