@@ -341,8 +341,6 @@ public class GreenGrocer {
         } catch( Exception e ) {
             Logger.eprint("The following exception was thrown: ");
             Logger.eprintlnPlain_ye(e.getMessage());
-            this.disconnect();
-            System.exit(1);
         }
 
         return "Unexpected Error";
