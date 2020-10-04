@@ -213,6 +213,7 @@ public class Beanshooter {
         String remotePort = remainingArgs.get(1);
         String action = remainingArgs.get(2);
 
+        int argCount = remainingArgs.size();
         String gadget = "";
         String srcFile = "";
         String destFile = "";
@@ -223,14 +224,14 @@ public class Beanshooter {
 
             case "execute":
             case "executeBackground":
-                if( remainingArgs.size() > 3 ) {
+                if( argCount > 3 ) {
                     command = remainingArgs.get(3);
                 }
                 break;
 
             case "ysoserial":
             case "cve-2016-3427":
-                if( remainingArgs.size() < 5 ) {
+                if( argCount < 5 ) {
                     Logger.eprintlnPlain_ye("Error: Insufficient number of arguments.\n");
                     formatter.printHelp(helpString, options);
                     System.exit(1);
@@ -241,9 +242,19 @@ public class Beanshooter {
                 ysoPayload = getPayloadObject(ysoValue, gadget, command);
                 break;
 
-            case "upload":
             case "download":
-                if( remainingArgs.size() < 5 ) {
+                if( argCount < 4 ) {
+                    Logger.eprintlnPlain_ye("Error: Insufficient number of arguments.\n");
+                    formatter.printHelp(helpString, options);
+                    System.exit(1);
+                }
+
+                srcFile = remainingArgs.get(3);
+                if( argCount > 5 )
+                    destFile = remainingArgs.get(4);
+
+            case "upload":
+                if( argCount < 5 ) {
                     Logger.eprintlnPlain_ye("Error: Insufficient number of arguments.\n");
                     formatter.printHelp(helpString, options);
                     System.exit(1);

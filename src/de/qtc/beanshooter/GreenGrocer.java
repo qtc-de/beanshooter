@@ -430,6 +430,8 @@ public class GreenGrocer {
     public void downloadFile(String source, String destination)
     {
         try {
+            if( destination == null )
+                destination = ".";
 
             File sourceFile = new File(source);
             File destinationFile = new File(destination);
@@ -487,8 +489,13 @@ public class GreenGrocer {
 
             else if( command.startsWith("!download ")) {
                 splitResult = splitSpaces.split(command);
-                splitResult[2] = splitResult[2].replaceFirst("^~", System.getProperty("user.home"));
-                downloadFile(splitResult[1], splitResult[2]);
+
+                if( splitResult.length() == 2 ) {
+                    downloadFile(splitResult[1], null);
+                } else {
+                    splitResult[2] = splitResult[2].replaceFirst("^~", System.getProperty("user.home"));
+                    downloadFile(splitResult[1], splitResult[2]);
+                }
             }
 
             else if( command.startsWith("!upload ")) {
