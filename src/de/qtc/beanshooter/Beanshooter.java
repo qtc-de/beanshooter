@@ -250,7 +250,7 @@ public class Beanshooter {
                 }
 
                 srcFile = remainingArgs.get(3);
-                if( argCount > 5 )
+                if( argCount > 4 )
                     destFile = remainingArgs.get(4);
                 break;
 
