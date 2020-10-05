@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [2.0.1] - Oct 2, 2020
+
+### Changed
+
+* Fixed bug when using quotes within the !upload and !download shell wrappers
+
+
 ## [2.0.0] - Oct 1, 2020
 
 ### Added

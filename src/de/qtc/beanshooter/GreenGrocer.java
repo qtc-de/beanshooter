@@ -468,7 +468,6 @@ public class GreenGrocer {
         String response = "";
         String[] splitResult = null;
         Console console = System.console();
-        Pattern splitSpaces = Pattern.compile(" (?=(?:[^\"]*\"[^\"]*\")*(?:[^']*'[^']*')*[^\"']*$)");
 
         Logger.println("Starting interactive shell...\n");
 
@@ -486,10 +485,14 @@ public class GreenGrocer {
             }
 
             else if( command.startsWith("!download ")) {
-                splitResult = splitSpaces.split(command);
+                splitResult = splitSpaces(command);
 
-                if( splitResult.length == 2 ) {
+                if( splitResult == null ) {
+                    continue;
+
+                } else if( splitResult.length == 2 ) {
                     downloadFile(splitResult[1], null);
+
                 } else {
                     splitResult[2] = splitResult[2].replaceFirst("^~", System.getProperty("user.home"));
                     downloadFile(splitResult[1], splitResult[2]);
@@ -497,7 +500,16 @@ public class GreenGrocer {
             }
 
             else if( command.startsWith("!upload ")) {
-                splitResult = splitSpaces.split(command);
+                splitResult = splitSpaces(command);
+
+                if( splitResult == null ) {
+                    continue;
+
+                } else if( splitResult.length < 3 ) {
+                    Logger.println_ye("Error: Insufficient number of arguments or unbalanced number of quotes.");
+                    continue;
+                }
+
                 splitResult[1] = splitResult[1].replaceFirst("^~", System.getProperty("user.home"));
                 uploadFile(splitResult[1], splitResult[2]);
             }
@@ -591,5 +603,35 @@ public class GreenGrocer {
         }
 
         return server;
+    }
+
+    public static String[] splitSpaces(String input)
+    {
+        Pattern splitSpaces = Pattern.compile(" (?=(?:(?:[^\"]*\"[^\"]*\")|(?:[^']*'[^']*'))*[^\"']*$)");
+        String[] splitResult = splitSpaces.split(input);
+
+        if(splitResult.length < 2) {
+            Logger.println_ye("Error: Insufficient number of arguments or unbalanced number of quotes.");
+            return null;
+        }
+
+        String current;
+        for(int ctr = 0; ctr < splitResult.length; ctr++) {
+
+            current = splitResult[ctr];
+
+            if(current.startsWith("'") || current.startsWith("\"")) {
+                splitResult[ctr] = current.substring(1);
+
+                if(!current.endsWith("'") && !current.endsWith("\"")) {
+                    Logger.println_ye("Error: Unbalanced number of quotes.");
+                    return null;
+                }
+
+                splitResult[ctr] = splitResult[ctr].substring(0, current.length() - 2);
+            }
+        }
+
+        return splitResult;
     }
 }
