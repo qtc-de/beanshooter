@@ -607,7 +607,7 @@ public class GreenGrocer {
 
     public static String[] splitSpaces(String input)
     {
-        Pattern splitSpaces = Pattern.compile(" (?=(?:[^\"]*\"[^\"]*\")*(?:[^']*'[^']*')*[^\"']*$)");
+        Pattern splitSpaces = Pattern.compile(" (?=(?:(?:[^\"]*\"[^\"]*\")|(?:[^']*'[^']*'))*[^\"']*$)");
         String[] splitResult = splitSpaces.split(input);
 
         if(splitResult.length < 2) {
