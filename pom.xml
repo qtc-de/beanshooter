@@ -24,13 +24,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.sun.net.httpserver</groupId>
-            <artifactId>http</artifactId>
-            <version>20070405</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.glassfish.external</groupId>
             <artifactId>opendmk_jmxremote_optional_jar</artifactId>
             <version>1.0-b01-ea</version>
