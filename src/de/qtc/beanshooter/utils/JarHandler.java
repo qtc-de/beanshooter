@@ -16,11 +16,18 @@ public class JarHandler implements HttpHandler {
 
     String jarName = null;
     String jarPath = null;
+    boolean stagerOnly = false;
 
     public JarHandler(String jarName, String jarPath)
     {
+        this(jarName, jarPath, false);
+    }
+
+    public JarHandler(String jarName, String jarPath, boolean stagerOnly)
+    {
         this.jarName = jarName;
         this.jarPath = jarPath;
+        this.stagerOnly = stagerOnly;
     }
 
     private byte[] readJar(String jarPath, String jarName) throws IOException
@@ -32,6 +39,11 @@ public class JarHandler implements HttpHandler {
 
     public void handle(HttpExchange t) throws IOException
     {
+        if( stagerOnly ) {
+            System.out.println("");
+            Logger.println("");
+        }
+
         String requestURL = t.getRequestURI().toString();
         Logger.print("Received request for: ");
         Logger.eprintlnPlain_ye(requestURL);
@@ -46,5 +58,8 @@ public class JarHandler implements HttpHandler {
 
         Logger.printlnPlain("done!");
         Logger.println("");
+
+        if( stagerOnly )
+            Logger.print_bl("Press Enter to stop listening...");
     }
 }

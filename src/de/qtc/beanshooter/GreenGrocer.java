@@ -590,7 +590,7 @@ public class GreenGrocer {
             /* Then we register a jar handler for requests that target our jarName */
             Logger.print("Creating JarHandler for endpoint: ");
             Logger.printlnPlain_bl("/" + this.jarName);
-            server.createContext("/" + this.jarName, new JarHandler(this.jarName, this.jarPath));
+            server.createContext("/" + this.jarName, new JarHandler(this.jarName, this.jarPath, stagerOnly));
 
             server.setExecutor(null);
 

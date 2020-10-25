@@ -18,6 +18,11 @@ public class MLetHandler implements HttpHandler {
     String objectName = null;
     boolean stagerOnly = false;
 
+    public MLetHandler(String host, String port, String beanClass, String jarName, String objectName)
+    {
+        this(host, port, beanClass, jarName, objectName, false);
+    }
+
     public MLetHandler(String host, String port, String beanClass, String jarName, String objectName, boolean stagerOnly)
     {
         this.host = host;
@@ -30,8 +35,10 @@ public class MLetHandler implements HttpHandler {
 
     public void handle(HttpExchange t) throws IOException
     {
-        if( stagerOnly )
+        if( stagerOnly ) {
             System.out.println("");
+            Logger.println("");
+        }
 
         Logger.print("Received request for: ");
         Logger.eprintlnPlain_ye("/mlet");
@@ -62,5 +69,8 @@ public class MLetHandler implements HttpHandler {
         OutputStream os = t.getResponseBody();
         os.write(response.getBytes());
         os.close();
+
+        if( stagerOnly )
+            Logger.print_bl("Press Enter to stop listening...");
     }
 }
