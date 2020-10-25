@@ -558,6 +558,11 @@ public class GreenGrocer {
 
     public HttpServer startStagerServer(String bindAddress, String bindPort, String stagerHost, String stagerPort)
     {
+        this.startStagerServer(bindAddress, bindPort, stagerHost, stagerPort, false)
+    }
+
+    public HttpServer startStagerServer(String bindAddress, String bindPort, String stagerHost, String stagerPort, boolean stagerOnly)
+    {
         HttpServer server = null;
         try {
 
@@ -580,7 +585,7 @@ public class GreenGrocer {
             /* Then we register an MLetHandler for requests on the endpoint /mlet */
             Logger.print("Creating MLetHandler for endpoint: ");
             Logger.printlnPlain_bl("/mlet");
-            server.createContext("/mlet", new MLetHandler(stagerHost, stagerPort, this.beanClass, this.jarName, this.objectName));
+            server.createContext("/mlet", new MLetHandler(stagerHost, stagerPort, this.beanClass, this.jarName, this.objectName, boolean stagerOnly));
 
             /* Then we register a jar handler for requests that target our jarName */
             Logger.print("Creating JarHandler for endpoint: ");

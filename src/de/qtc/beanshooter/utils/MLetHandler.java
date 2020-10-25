@@ -16,18 +16,23 @@ public class MLetHandler implements HttpHandler {
     String jarName = null;
     String mBeanClass = null;
     String objectName = null;
+    boolean StagerOnly = false;
 
-    public MLetHandler(String host, String port, String beanClass, String jarName, String objectName)
+    public MLetHandler(String host, String port, String beanClass, String jarName, String objectName, boolean stagerOnly)
     {
         this.host = host;
         this.port = port;
         this.jarName = jarName;
         this.mBeanClass = beanClass;
         this.objectName = objectName;
+        this.stagerOnly = stagerOnly;
     }
 
     public void handle(HttpExchange t) throws IOException
     {
+        if( stagerOnly )
+            System.out.println("");
+
         Logger.print("Received request for: ");
         Logger.eprintlnPlain_ye("/mlet");
 

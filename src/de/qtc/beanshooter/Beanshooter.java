@@ -193,7 +193,7 @@ public class Beanshooter {
         }
 
         if( stagerOnlyValue ) {
-            gg.startStagerServer(bindAddressValue, bindPortValue, stagerHostValue, stagerPortValue);
+            gg.startStagerServer(bindAddressValue, bindPortValue, stagerHostValue, stagerPortValue, true);
             Scanner dummyScanner = new Scanner(System.in);
             Logger.print_bl("Press Enter to stop listening...");
             dummyScanner.nextLine();
