@@ -16,7 +16,7 @@ public class MLetHandler implements HttpHandler {
     String jarName = null;
     String mBeanClass = null;
     String objectName = null;
-    boolean StagerOnly = false;
+    boolean stagerOnly = false;
 
     public MLetHandler(String host, String port, String beanClass, String jarName, String objectName, boolean stagerOnly)
     {
