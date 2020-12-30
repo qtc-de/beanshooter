@@ -6,7 +6,7 @@ type _comp_filter_shorts &> /dev/null || return
 
 function _beanshooter() {
 
-    local cur prev words cword opts args
+    local cur prev words cword opts args gadgets
     _init_completion || return
 
     _count_args "" "@(--config|--bind-address|--bind-port|--bound-name|--password|--sasl|--stager-host|--stager-port|--username|--yso)"
@@ -54,7 +54,7 @@ function _beanshooter() {
         elif [[ $args -eq 5 ]]; then
 
             # ... and the previous word is a gadget - complete nothing
-            if _comp_contains $gadgets $prev; then
+            if _comp_contains "$gadgets" $prev; then
                 return 0
 
             # ... and the action was 'upload' - complete nothing
