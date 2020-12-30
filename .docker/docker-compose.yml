@@ -4,7 +4,8 @@ services:
 
     tomcat:
 
-      image: docker.pkg.github.com/qtc-de/beanshooter/tomcat8-jmxmp:1.0
+      image: docker.pkg.github.com/qtc-de/beanshooter/tomcat8-jmxmp:1.1
+      build: .
       environment:
         - > 
           CATALINA_OPTS=
