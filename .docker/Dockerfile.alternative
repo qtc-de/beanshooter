@@ -1,7 +1,7 @@
 ###########################################
 ###             Build Stage             ###
 ###########################################
-FROM maven:3.6.3-openjdk-16-slim AS builder
+FROM maven:3.6.3-openjdk-8 AS builder
 COPY ./resources/jmxmp /usr/src/app
 WORKDIR /usr/src/app
 RUN mvn clean package
