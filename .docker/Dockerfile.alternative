@@ -27,7 +27,7 @@ RUN set -ex \
     && cd /usr/lib/jvm/default-jvm/jre/lib/ext/ \
     && wget https://repo1.maven.org/maven2/commons-collections/commons-collections/3.1/commons-collections-3.1.jar \
     && if [ "$SHA256_SUM" != "$(sha256sum commons-collections-3.1.jar | awk '{print($1)}')" ]; then \
-           echo "sha512 values doesn't match! exiting." \
+           echo "sha256 values doesn't match! exiting." \
            && exit 1; \
        fi \
     && cd -
