@@ -10,11 +10,22 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.sasl.RealmCallback;
 import javax.security.sasl.RealmChoiceCallback;
 
+/**
+ * The RealmHandler class is required to handle authentication in case of JMXMP connections.
+ * The JMXMP connector expects credentials to be obtained by a callback function that is contained
+ * in this handler. Username and password are stored as static values and are returned by the
+ * handle function.
+ *
+ * @author Tobias Neitzel (@qtc_de)
+ */
 public class RealmHandler implements CallbackHandler {
 
     public static String username = "";
     public static String password = "";
 
+    /**
+     * Handles the callback and returns the stored username and password in the desired format.
+     */
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
 
