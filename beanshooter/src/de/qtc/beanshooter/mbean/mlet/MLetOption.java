@@ -16,45 +16,45 @@ import net.sourceforge.argparse4j.inf.Namespace;
  */
 public enum MLetOption implements Option
 {
-	LOAD_URL("url",
-			 "URL to load the MBean from",
-			 Arguments.store(),
-			 OptionGroup.ACTION,
-			 ArgType.STRING
-			),
-	
-	LOAD_BEAN("bean",
-			  "name of the bean to load ('custom' for custom MBean)",
-			  Arguments.store(),
-			  OptionGroup.ACTION,
-			  ArgType.STRING
-			 ),
-	
-	LOAD_CLASS_NAME("--class-name",
-			    	"class name of the MBean to load",
-			    	Arguments.store(),
-			    	OptionGroup.ACTION,
-			    	ArgType.STRING,
-			    	"class"
-			       ),
-	
-	LOAD_JAR_FILE("--jar-file",
-				  "path to the jar file that implements the MBean",
-				  Arguments.store(),
-				  OptionGroup.ACTION,
-				  ArgType.STRING,
-				  "path"
-				 ),
-	
-	LOAD_OBJECT_NAME("--object-name",
-			         "object name of the custom MBean",
-			         Arguments.store(),
-			         OptionGroup.ACTION,
-			         ArgType.STRING,
-			         "objname"
-			        );
+    LOAD_URL("url",
+             "URL to load the MBean from",
+             Arguments.store(),
+             OptionGroup.ACTION,
+             ArgType.STRING
+            ),
 
-	private final String name;
+    LOAD_BEAN("bean",
+              "name of the bean to load ('custom' for custom MBean)",
+              Arguments.store(),
+              OptionGroup.ACTION,
+              ArgType.STRING
+             ),
+
+    LOAD_CLASS_NAME("--class-name",
+                    "class name of the MBean to load",
+                    Arguments.store(),
+                    OptionGroup.ACTION,
+                    ArgType.STRING,
+                    "class"
+                   ),
+
+    LOAD_JAR_FILE("--jar-file",
+                  "path to the jar file that implements the MBean",
+                  Arguments.store(),
+                  OptionGroup.ACTION,
+                  ArgType.STRING,
+                  "path"
+                 ),
+
+    LOAD_OBJECT_NAME("--object-name",
+                     "object name of the custom MBean",
+                     Arguments.store(),
+                     OptionGroup.ACTION,
+                     ArgType.STRING,
+                     "objname"
+                    );
+
+    private final String name;
     private final String description;
     private final String metavar;
     private final ArgType type;
@@ -66,7 +66,7 @@ public enum MLetOption implements Option
 
     /**
      * Initialize the MLetOption with the required parameters.
-     * 
+     *
      * @param name option name on the command line
      * @param description option description within the help menu
      * @param argumentAction argument action to use (flag or option)
@@ -77,10 +77,10 @@ public enum MLetOption implements Option
     {
         this(name, description, argumentAction, optionGroup, type, null);
     }
-    
+
     /**
      * Initialize the MLetOption with the required parameters.
-     * 
+     *
      * @param name option name on the command line
      * @param description option description within the help menu
      * @param argumentAction argument action to use (flag or option)
@@ -98,7 +98,7 @@ public enum MLetOption implements Option
         this.metavar = metavar;
         this.optionGroup = optionGroup;
     }
-	    
+
     /**
      * Returns true if the value is null.
      *
@@ -192,52 +192,52 @@ public enum MLetOption implements Option
         this.value = args.get(this.name.replaceFirst("--", "").replace("-", "_"));
         this.setValue(value, def);
     }
-    
+
     /**
      * Return the option name.
      */
     public String getName()
     {
-    	return name;
+        return name;
     }
-    
+
     /**
      * Return the option description.
      */
-	public String description() 
-	{
-		return description;
-	}
-    
+    public String description()
+    {
+        return description;
+    }
+
     /**
      * Return the expected ArgType.
      */
-	public ArgType getArgType()
-	{
-		return type;
-	}
-    
+    public ArgType getArgType()
+    {
+        return type;
+    }
+
     /**
      * Return the OptionGroup the option belongs to.
      */
-	public OptionGroup optionGroup()
-	{
-		return optionGroup;
-	}
-    
+    public OptionGroup optionGroup()
+    {
+        return optionGroup;
+    }
+
     /**
      * Return the option's ArgumentAction (flag or option).
      */
-	public ArgumentAction argumentAction()
-	{
-		return argumentAction;
-	}
-	
-	/**
-	 * return the options meta variable.
-	 */
-	public String metavar()
-	{
-		return metavar;
-	}
+    public ArgumentAction argumentAction()
+    {
+        return argumentAction;
+    }
+
+    /**
+     * return the options meta variable.
+     */
+    public String metavar()
+    {
+        return metavar;
+    }
 }

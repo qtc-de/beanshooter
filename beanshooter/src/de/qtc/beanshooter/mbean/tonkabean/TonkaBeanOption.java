@@ -8,9 +8,9 @@ import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 public enum TonkaBeanOption implements Option {
-	;
+    ;
 
-	private final String name;
+    private final String name;
     private final String description;
     private final String metavar;
     private final ArgType type;
@@ -22,7 +22,7 @@ public enum TonkaBeanOption implements Option {
 
     /**
      * Initialize the TonkaBeanOption with the required parameters.
-     * 
+     *
      * @param name option name on the command line
      * @param description option description within the help menu
      * @param argumentAction argument action to use (flag or option)
@@ -33,10 +33,10 @@ public enum TonkaBeanOption implements Option {
     {
         this(name, description, argumentAction, optionGroup, type, null);
     }
-    
+
     /**
      * Initialize the TonkaBeanOption with the required parameters.
-     * 
+     *
      * @param name option name on the command line
      * @param description option description within the help menu
      * @param argumentAction argument action to use (flag or option)
@@ -54,7 +54,7 @@ public enum TonkaBeanOption implements Option {
         this.metavar = metavar;
         this.optionGroup = optionGroup;
     }
-	    
+
     /**
      * Returns true if the value is null.
      *
@@ -148,52 +148,52 @@ public enum TonkaBeanOption implements Option {
         this.value = args.get(this.name.replaceFirst("--", "").replace("-", "_"));
         this.setValue(value, def);
     }
-    
+
     /**
      * Return the option name.
      */
     public String getName()
     {
-    	return name;
+        return name;
     }
-    
+
     /**
      * Return the option description.
      */
-	public String description() 
-	{
-		return description;
-	}
-    
+    public String description()
+    {
+        return description;
+    }
+
     /**
      * Return the expected ArgType.
      */
-	public ArgType getArgType()
-	{
-		return type;
-	}
-    
+    public ArgType getArgType()
+    {
+        return type;
+    }
+
     /**
      * Return the OptionGroup the option belongs to.
      */
-	public OptionGroup optionGroup()
-	{
-		return optionGroup;
-	}
-    
+    public OptionGroup optionGroup()
+    {
+        return optionGroup;
+    }
+
     /**
      * Return the option's ArgumentAction (flag or option).
      */
-	public ArgumentAction argumentAction()
-	{
-		return argumentAction;
-	}
-	
-	/**
-	 * return the options meta variable.
-	 */
-	public String metavar()
-	{
-		return metavar;
-	}
+    public ArgumentAction argumentAction()
+    {
+        return argumentAction;
+    }
+
+    /**
+     * return the options meta variable.
+     */
+    public String metavar()
+    {
+        return metavar;
+    }
 }

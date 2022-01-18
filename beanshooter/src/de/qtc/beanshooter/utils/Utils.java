@@ -188,24 +188,24 @@ public class Utils {
     public static boolean isLocal(String host)
     {
         try {
-        	InetAddress addr = InetAddress.getByName(host);
+            InetAddress addr = InetAddress.getByName(host);
 
-        	if( addr.isLoopbackAddress() )
-        		return true;
-        	
-        	else if ( addr.isAnyLocalAddress() ) {
-            	
-            	if( host.equals("0.0.0.0") )
-            		return true;
-            	
-            	return false;
-            	
-        	} else {
-        		NetworkInterface intf = NetworkInterface.getByInetAddress(addr);
-        		
+            if( addr.isLoopbackAddress() )
+                return true;
+
+            else if ( addr.isAnyLocalAddress() ) {
+
+                if( host.equals("0.0.0.0") )
+                    return true;
+
+                return false;
+
+            } else {
+                NetworkInterface intf = NetworkInterface.getByInetAddress(addr);
+
                 if( intf != null )
-                	return true;
-        	}
+                    return true;
+            }
 
         } catch (UnknownHostException e) {
             Logger.eprintlnMixedYellow("The specified hostname", host, "could not be resolved.");
@@ -214,7 +214,7 @@ public class Utils {
         } catch (SocketException e) {
             return false;
         }
-        
+
         return false;
     }
 

@@ -86,7 +86,7 @@ public class ExceptionHandler {
         if(exit)
             Utils.exit();
     }
-    
+
     public static void unknownHost(Exception e)
     {
         Logger.eprintlnMixedYellow("Caugth", "UnknownHostException", "during connection setup.");
@@ -238,38 +238,38 @@ public class ExceptionHandler {
         if(exit)
             Utils.exit();
     }
-    
+
     public static void credentialException(Exception e)
     {
         Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while connecting to the JMX server.");
-        
+
         if( BeanshooterOption.CONN_USER.isNull() )
-        	Logger.eprintlnMixedBlue("You need to specify", "credentials", "to connect to this JMX server.");
-        
+            Logger.eprintlnMixedBlue("You need to specify", "credentials", "to connect to this JMX server.");
+
         else
-        	Logger.eprintlnMixedBlue("The specified credentials seem to be", "invalid.");
-        
+            Logger.eprintlnMixedBlue("The specified credentials seem to be", "invalid.");
+
         showStackTrace(e);
         Utils.exit();
     }
-    
+
     public static void ysoNotPresent(String location)
     {
         Logger.eprintlnMixedBlue("Unable to find ysoserial library in path", location);
         Logger.eprintlnMixedYellow("Check your configuration file or use the", "--yso", "command line parameter.");
         Utils.exit();
     }
-    
+
     public static void deserialClassNotFound(ClassNotFoundException e)
     {
-		if( e.getMessage().contains("DeserializationCanary") ) {
-			Logger.printlnMixedBlue("MBeanServer attempted to deserialize the", "DeserializationCanary", "class.");
-			Logger.printlnMixedYellow("Deserialization attack was", "probably successful.");
-			
-		} else {
+        if( e.getMessage().contains("DeserializationCanary") ) {
+            Logger.printlnMixedBlue("MBeanServer attempted to deserialize the", "DeserializationCanary", "class.");
+            Logger.printlnMixedYellow("Deserialization attack was", "probably successful.");
+
+        } else {
             Logger.eprintlnMixedYellow("Caught", "ClassNotFoundException", "after the payload object was sent.");
             Logger.eprintlnMixedBlue("The specified gadget does probably", "not exist", "inside the classpath.");
-		}
+        }
     }
 
     public static void invalidObjectId(String objID)
@@ -294,35 +294,35 @@ public class ExceptionHandler {
 
     public static void ioException(Exception e, String during)
     {
-    	Throwable t = ExceptionHandler.getCause(e);
-    	
-    	if(t instanceof java.rmi.ConnectException)
-    		ExceptionHandler.connectException(e, during);
-    	
-    	else if(t instanceof java.rmi.ConnectIOException )
-    		ExceptionHandler.connectIOException(e, during);
+        Throwable t = ExceptionHandler.getCause(e);
 
-    	else if(t instanceof java.rmi.UnknownHostException )
-    		ExceptionHandler.unknownHost(e);
-    	
-    	else
-    		ExceptionHandler.unknownReason(e);
+        if(t instanceof java.rmi.ConnectException)
+            ExceptionHandler.connectException(e, during);
+
+        else if(t instanceof java.rmi.ConnectIOException )
+            ExceptionHandler.connectIOException(e, during);
+
+        else if(t instanceof java.rmi.UnknownHostException )
+            ExceptionHandler.unknownHost(e);
+
+        else
+            ExceptionHandler.unknownReason(e);
     }
-    
+
     public static void unknownReason(Exception e, String during)
     {
-		Throwable t = ExceptionHandler.getCause(e);
-		Logger.printlnMixedYellow("Caught unexpected", t.getClass().getName(), during);
-		
-		ExceptionHandler.unknownReason(e);
+        Throwable t = ExceptionHandler.getCause(e);
+        Logger.printlnMixedYellow("Caught unexpected", t.getClass().getName(), during);
+
+        ExceptionHandler.unknownReason(e);
     }
-    
+
     public static void unknownReason(Exception e)
     {
-    	Logger.printlnMixedBlue("The exception occured unexpected and was not caught by", "beanshooter.");
-    	Logger.println("Please report the exception to help improving the exception handling :)");
-    	ExceptionHandler.stackTrace(e);
-    	Utils.exit();
+        Logger.printlnMixedBlue("The exception occured unexpected and was not caught by", "beanshooter.");
+        Logger.println("Please report the exception to help improving the exception handling :)");
+        ExceptionHandler.stackTrace(e);
+        Utils.exit();
     }
 
     /**

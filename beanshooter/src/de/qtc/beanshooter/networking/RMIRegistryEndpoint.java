@@ -27,7 +27,7 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
 
     private Registry rmiRegistry;
     private Map<String,Remote> remoteObjectCache;
-    
+
     private static boolean setupComplete = false;
 
     /**
@@ -70,23 +70,23 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
     {
         this(rmi.host, rmi.port);
     }
-    
+
     private static void SocketFactorySetup(String host, int port)
     {
         if( setupComplete )
-        	return;
-        
-	    try {
-	        RMISocketFactory.setSocketFactory(PluginSystem.getDefaultRMISocketFactory(host, port));
-	
-	    } catch (IOException e) {
-	        Logger.eprintlnMixedBlue("Unable to set custom", "RMISocketFactory.", "Host redirection will probably not work.");
-	        ExceptionHandler.showStackTrace(e);
-	        Logger.eprintln("");
-	    }
-	
-	    java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
-	    setupComplete = true;
+            return;
+
+        try {
+            RMISocketFactory.setSocketFactory(PluginSystem.getDefaultRMISocketFactory(host, port));
+
+        } catch (IOException e) {
+            Logger.eprintlnMixedBlue("Unable to set custom", "RMISocketFactory.", "Host redirection will probably not work.");
+            ExceptionHandler.showStackTrace(e);
+            Logger.eprintln("");
+        }
+
+        java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
+        setupComplete = true;
     }
 
     /**

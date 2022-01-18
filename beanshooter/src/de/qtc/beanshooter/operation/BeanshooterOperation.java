@@ -19,9 +19,9 @@ import net.sourceforge.argparse4j.inf.Subparsers;
 public enum BeanshooterOperation implements Operation {
 
     BRUTE("brute", "bruteforce JMX credentials", new Option[] {}),
-    
+
     INVOKE("invoke", "invoke the specified method on the specified MBean", new Option[] {
-    		 BeanshooterOption.GLOBAL_CONFIG,
+             BeanshooterOption.GLOBAL_CONFIG,
              BeanshooterOption.GLOBAL_VERBOSE,
              BeanshooterOption.GLOBAL_PLUGIN,
              BeanshooterOption.GLOBAL_NO_COLOR,
@@ -38,7 +38,7 @@ public enum BeanshooterOperation implements Operation {
              BeanshooterOption.CONN_PASS,
              BeanshooterOption.CONN_SASL,
     }),
-    
+
     DEPLOY("deploy", "deploys the specified MBean on the JMX server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -65,7 +65,7 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.DEPLOY_BEAN_NAME,
             BeanshooterOption.DEPLOY_JAR_FILE,
     }),
-    
+
     ENUM("enumerate", "enumerate the JMX service for common vulnerabilities", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -82,8 +82,8 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
     }),
-    
-    
+
+
     SERIAL("serial", "perform a deserialization attack", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -103,10 +103,10 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.SERIAL_GADGET_CMD,
             BeanshooterOption.YSO,
     }),
-    
-    
+
+
     TOMCAT("tomcat", "attempts to obtain stored credentials from tomcat based JMX", new Option[] {}),
-    
+
     UNDEPLOY("undeploy", "undeploys the specified MBEAN from the JMX server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -126,11 +126,11 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.CONN_SASL,
             BeanshooterOption.UNDEPLOY_BEAN_NAME,
     });
- 
+
     private Method method;
     private String description;
     private Option[] options;
-    
+
     private Dispatcher dispatcher;
 
     /**
@@ -152,23 +152,23 @@ public enum BeanshooterOperation implements Operation {
 
         this.description = description;
         this.options = options;
-    }	
-    
-	/**
-	 * Return the name of the operation.
-	 */
-	public String getName()
-	{
-		return this.name();
-	}
-	
-	/**
-	 * Return the description of the operation.
-	 */
-	public String getDescription()
-	{
-		return this.description;
-	}
+    }
+
+    /**
+     * Return the name of the operation.
+     */
+    public String getName()
+    {
+        return this.name();
+    }
+
+    /**
+     * Return the description of the operation.
+     */
+    public String getDescription()
+    {
+        return this.description;
+    }
 
     /**
      * Checks whether the current Operation contains the specified option.
@@ -194,11 +194,11 @@ public enum BeanshooterOperation implements Operation {
      */
     public static BeanshooterOperation getByName(String name)
     {
-    	BeanshooterOperation returnItem = null;
+        BeanshooterOperation returnItem = null;
 
-        for(BeanshooterOperation item : BeanshooterOperation.values()) 
+        for(BeanshooterOperation item : BeanshooterOperation.values())
         {
-            if(item.toString().equalsIgnoreCase(name)) 
+            if(item.toString().equalsIgnoreCase(name))
             {
                 returnItem = item;
                 break;
@@ -230,9 +230,9 @@ public enum BeanshooterOperation implements Operation {
      */
     public void invoke()
     {
-    	if( dispatcher == null )
-    		dispatcher = new Dispatcher();
-    	
+        if( dispatcher == null )
+            dispatcher = new Dispatcher();
+
         try {
             this.method.invoke(dispatcher);
 

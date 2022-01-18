@@ -22,221 +22,221 @@ import net.sourceforge.argparse4j.inf.Namespace;
  */
 public enum BeanshooterOption implements Option {
 
-    GLOBAL_CONFIG("--config", 
-    		      "path to a configuration file", 
-    		      Arguments.store(), 
-    		      OptionGroup.GENERAL,
-    		      ArgType.STRING,
-    		      "config-file"),
-    
+    GLOBAL_CONFIG("--config",
+                  "path to a configuration file",
+                  Arguments.store(),
+                  OptionGroup.GENERAL,
+                  ArgType.STRING,
+                  "config-file"),
+
     GLOBAL_VERBOSE("--verbose",
-    			   "enable verbose output",
-    			   Arguments.storeTrue(),
-    			   OptionGroup.GENERAL,
-    			   ArgType.BOOL),
-    
+                   "enable verbose output",
+                   Arguments.storeTrue(),
+                   OptionGroup.GENERAL,
+                   ArgType.BOOL),
+
     GLOBAL_PLUGIN("--plugin",
                   "file system path to a beanshooter plugin",
                   Arguments.store(),
                   OptionGroup.GENERAL,
                   ArgType.STRING,
                   "plugin-file"),
- 
-	GLOBAL_NO_COLOR("--no-color",
-	                "disable colored output",
-	                Arguments.storeTrue(),
-	                OptionGroup.GENERAL,
-	                ArgType.BOOL),
-	
-	GLOBAL_STACK_TRACE("--stack-trace",
-	                   "display stack traces for caught exceptions",
-	                   Arguments.storeTrue(),
-	                   OptionGroup.GENERAL,
-	                   ArgType.BOOL),
-	
-	TARGET_HOST("host",
-	            "target host",
-	            Arguments.store(),
-	            OptionGroup.NONE,
-	            ArgType.STRING,
-	            "host"),
-	
-	TARGET_PORT("port",
-	            "target port",
-	            Arguments.store(),
-	            OptionGroup.NONE,
-	            ArgType.INT,
-	            "port"),
-	
-	TARGET_BOUND_NAME("--bound-name",
-	                  "target bound name within an RMI registry",
-	                  Arguments.store(),
-	                  OptionGroup.TARGET,
-	                  ArgType.STRING,
-	                  "name"),
-	
-	TARGET_OBJID_SERVER("--objid-server",
-	                    "target ObjID for an RMIServer remote object",
-	                    Arguments.store(),
-	                    OptionGroup.TARGET,
-	                    ArgType.STRING,
-	                    "objid"),
-	
-	TARGET_OBJID_CONNECTION("--objid-connection",
-	                        "target ObjID for an RMIConnection remote object",
-	                        Arguments.store(),
-	                        OptionGroup.TARGET,
-	                        ArgType.STRING,
-	                        "objid"),
-	
-	CONN_FOLLOW("--follow",
-	            "follow redirects to different servers",
-	            Arguments.storeTrue(),
-	            OptionGroup.CONNECTION,
-	            ArgType.BOOL),
-	
-	CONN_SSL("--ssl",
-	         "use SSL for connections",
-	         Arguments.storeTrue(),
-	         OptionGroup.CONNECTION,
-	         ArgType.BOOL),
-	
-	CONN_JMXMP("--jmxmp",
-	           "use JMXMP for JMX communication",
-	           Arguments.storeTrue(),
-	           OptionGroup.CONNECTION,
-	           ArgType.BOOL),
-	
-	CONN_USER("--username",
-	          "username to use for JMX authentication",
-	          Arguments.store(),
-	          OptionGroup.CONNECTION,
-	          ArgType.STRING,
-	          "user"),
-	
-	CONN_PASS("--password",
-	          "password to use for JMX authentication",
-	          Arguments.store(),
-	          OptionGroup.CONNECTION,
-	          ArgType.STRING,
-	         "pass"),
-	
-	DEPLOY_STAGER_ONLY("--stager-only",
-	                   "only launch the stager HTTP server",
-	                   Arguments.storeTrue(),
-	                   OptionGroup.ACTION,
-	                   ArgType.BOOL),
-	
-	DEPLOY_NO_STAGER("--no-stager",
-	                 "do not launch the stager HTTP server",
-	                 Arguments.storeTrue(),
-	                 OptionGroup.ACTION,
-	                 ArgType.BOOL),
-	
-	DEPLOY_STAGER_URL("--stager-url",
-	                  "url of the stager server",
-	                  Arguments.store(),
-	                  OptionGroup.ACTION,
-	                  ArgType.STRING,
-	                  "URL"),
-	
-	DEPLOY_STAGER_PORT("--stager-port",
-	                   "TCP port to start the stager on",
-	                   Arguments.store(),
-	                   OptionGroup.ACTION,
-	                   ArgType.INT,
-	                   "port"),
-	
-	DEPLOY_STAGER_ADDR("--stager-host",
-	                   "IP address to start the stager on",
-	                   Arguments.store(),
-	                   OptionGroup.ACTION,
-	                   ArgType.STRING,
-	                   "addr"),
-	
-	DEPLOY_BEAN_CLASS("--classname",
-	                  "classname of the MBean to deploy",
-	                  Arguments.store(),
-	                  OptionGroup.BEAN,
-	                  ArgType.STRING,
-	                  "name"),
-	
-	DEPLOY_BEAN_NAME("--object-name",
-	                 "object name of the MBean to deploy",
-	                 Arguments.store(),
-	                 OptionGroup.BEAN,
-	                 ArgType.STRING,
-	                 "name"),
-	
-	DEPLOY_JAR_FILE("--jar",
-	                "jar archive to deploy",
-	                Arguments.store(),
-	                OptionGroup.BEAN,
-	                ArgType.STRING,
-	                "path"),
-	
-	UNDEPLOY_BEAN_NAME("--object-name",
-	                 "object name of the MBean to remove",
-	                 Arguments.store(),
-	                 OptionGroup.BEAN,
-	                 ArgType.STRING,
-	                 "name"),
-	
-	BRUTE_THREADS("--threads",
-	              "maximum number of threads (default: 5)",
-	              Arguments.store(),
-	              OptionGroup.ACTION,
-	              ArgType.INT,
-	              "threads"),
-	
-	SERIAL_GADGET_NAME("gadget",
-				  	   "gadget to use for the deserialization attack",
-				  	   Arguments.store(),
-				  	   OptionGroup.ACTION,
-				  	   ArgType.STRING,
-				  	   "gadget"),
-	
-	SERIAL_GADGET_CMD("cmd",
-			  		  "gadget command to use for the deserialization attack",
-			  		  Arguments.store(),
-			  		  OptionGroup.ACTION,
-			  		  ArgType.STRING,
-			  		  "cmd"),
-	
-	INVOKE_OBJ_NAME("object-name",
-					"ObjectName of the targeted MBean",
-					Arguments.store(),
-					OptionGroup.ACTION,
-					ArgType.STRING,
-					"objname"),
-	
-	INVOKE_METHOD_NAME("method",
-					   "name of the method to invoke",
-					   Arguments.store(),
-					   OptionGroup.ACTION,
-					   ArgType.STRING,
-					   "method"),
-	
-	INVOKE_METHOD_ARGS("args",
-			   		   "argument string to use for the call",
-			   		   Arguments.store(),
-			   		   OptionGroup.ACTION,
-			   		   ArgType.STRING,
-			   		   "args"),
-	
-	CONN_SASL("--sasl",
-	   		   	   "SASL mechanism to use for the connection",
-	   		   	   Arguments.store(),
-	   		   	   OptionGroup.CONNECTION,
-	   		   	   ArgType.STRING,
-	   		   	   "method"),
-	
-	YSO("--yso",
-	    "location of ysoserial.jar for deserialization attacks",
-	    Arguments.store(),
-	    OptionGroup.ACTION,
-	    ArgType.STRING,
-	    "yso-path");
+
+    GLOBAL_NO_COLOR("--no-color",
+                    "disable colored output",
+                    Arguments.storeTrue(),
+                    OptionGroup.GENERAL,
+                    ArgType.BOOL),
+
+    GLOBAL_STACK_TRACE("--stack-trace",
+                       "display stack traces for caught exceptions",
+                       Arguments.storeTrue(),
+                       OptionGroup.GENERAL,
+                       ArgType.BOOL),
+
+    TARGET_HOST("host",
+                "target host",
+                Arguments.store(),
+                OptionGroup.NONE,
+                ArgType.STRING,
+                "host"),
+
+    TARGET_PORT("port",
+                "target port",
+                Arguments.store(),
+                OptionGroup.NONE,
+                ArgType.INT,
+                "port"),
+
+    TARGET_BOUND_NAME("--bound-name",
+                      "target bound name within an RMI registry",
+                      Arguments.store(),
+                      OptionGroup.TARGET,
+                      ArgType.STRING,
+                      "name"),
+
+    TARGET_OBJID_SERVER("--objid-server",
+                        "target ObjID for an RMIServer remote object",
+                        Arguments.store(),
+                        OptionGroup.TARGET,
+                        ArgType.STRING,
+                        "objid"),
+
+    TARGET_OBJID_CONNECTION("--objid-connection",
+                            "target ObjID for an RMIConnection remote object",
+                            Arguments.store(),
+                            OptionGroup.TARGET,
+                            ArgType.STRING,
+                            "objid"),
+
+    CONN_FOLLOW("--follow",
+                "follow redirects to different servers",
+                Arguments.storeTrue(),
+                OptionGroup.CONNECTION,
+                ArgType.BOOL),
+
+    CONN_SSL("--ssl",
+             "use SSL for connections",
+             Arguments.storeTrue(),
+             OptionGroup.CONNECTION,
+             ArgType.BOOL),
+
+    CONN_JMXMP("--jmxmp",
+               "use JMXMP for JMX communication",
+               Arguments.storeTrue(),
+               OptionGroup.CONNECTION,
+               ArgType.BOOL),
+
+    CONN_USER("--username",
+              "username to use for JMX authentication",
+              Arguments.store(),
+              OptionGroup.CONNECTION,
+              ArgType.STRING,
+              "user"),
+
+    CONN_PASS("--password",
+              "password to use for JMX authentication",
+              Arguments.store(),
+              OptionGroup.CONNECTION,
+              ArgType.STRING,
+             "pass"),
+
+    DEPLOY_STAGER_ONLY("--stager-only",
+                       "only launch the stager HTTP server",
+                       Arguments.storeTrue(),
+                       OptionGroup.ACTION,
+                       ArgType.BOOL),
+
+    DEPLOY_NO_STAGER("--no-stager",
+                     "do not launch the stager HTTP server",
+                     Arguments.storeTrue(),
+                     OptionGroup.ACTION,
+                     ArgType.BOOL),
+
+    DEPLOY_STAGER_URL("--stager-url",
+                      "url of the stager server",
+                      Arguments.store(),
+                      OptionGroup.ACTION,
+                      ArgType.STRING,
+                      "URL"),
+
+    DEPLOY_STAGER_PORT("--stager-port",
+                       "TCP port to start the stager on",
+                       Arguments.store(),
+                       OptionGroup.ACTION,
+                       ArgType.INT,
+                       "port"),
+
+    DEPLOY_STAGER_ADDR("--stager-host",
+                       "IP address to start the stager on",
+                       Arguments.store(),
+                       OptionGroup.ACTION,
+                       ArgType.STRING,
+                       "addr"),
+
+    DEPLOY_BEAN_CLASS("--classname",
+                      "classname of the MBean to deploy",
+                      Arguments.store(),
+                      OptionGroup.BEAN,
+                      ArgType.STRING,
+                      "name"),
+
+    DEPLOY_BEAN_NAME("--object-name",
+                     "object name of the MBean to deploy",
+                     Arguments.store(),
+                     OptionGroup.BEAN,
+                     ArgType.STRING,
+                     "name"),
+
+    DEPLOY_JAR_FILE("--jar",
+                    "jar archive to deploy",
+                    Arguments.store(),
+                    OptionGroup.BEAN,
+                    ArgType.STRING,
+                    "path"),
+
+    UNDEPLOY_BEAN_NAME("--object-name",
+                     "object name of the MBean to remove",
+                     Arguments.store(),
+                     OptionGroup.BEAN,
+                     ArgType.STRING,
+                     "name"),
+
+    BRUTE_THREADS("--threads",
+                  "maximum number of threads (default: 5)",
+                  Arguments.store(),
+                  OptionGroup.ACTION,
+                  ArgType.INT,
+                  "threads"),
+
+    SERIAL_GADGET_NAME("gadget",
+                         "gadget to use for the deserialization attack",
+                         Arguments.store(),
+                         OptionGroup.ACTION,
+                         ArgType.STRING,
+                         "gadget"),
+
+    SERIAL_GADGET_CMD("cmd",
+                        "gadget command to use for the deserialization attack",
+                        Arguments.store(),
+                        OptionGroup.ACTION,
+                        ArgType.STRING,
+                        "cmd"),
+
+    INVOKE_OBJ_NAME("object-name",
+                    "ObjectName of the targeted MBean",
+                    Arguments.store(),
+                    OptionGroup.ACTION,
+                    ArgType.STRING,
+                    "objname"),
+
+    INVOKE_METHOD_NAME("method",
+                       "name of the method to invoke",
+                       Arguments.store(),
+                       OptionGroup.ACTION,
+                       ArgType.STRING,
+                       "method"),
+
+    INVOKE_METHOD_ARGS("args",
+                          "argument string to use for the call",
+                          Arguments.store(),
+                          OptionGroup.ACTION,
+                          ArgType.STRING,
+                          "args"),
+
+    CONN_SASL("--sasl",
+                         "SASL mechanism to use for the connection",
+                         Arguments.store(),
+                         OptionGroup.CONNECTION,
+                         ArgType.STRING,
+                         "method"),
+
+    YSO("--yso",
+        "location of ysoserial.jar for deserialization attacks",
+        Arguments.store(),
+        OptionGroup.ACTION,
+        ArgType.STRING,
+        "yso-path");
 
     private final String name;
     private final String description;
@@ -379,52 +379,52 @@ public enum BeanshooterOption implements Option {
         this.value = args.get(this.name.replaceFirst("--", "").replace("-", "_"));
         this.setValue(value, def);
     }
-    
+
     /**
      * Return the option name.
      */
     public String getName()
     {
-    	return name;
+        return name;
     }
-    
+
     /**
      * Return the option description.
      */
-	public String description() 
-	{
-		return description;
-	}
-    
+    public String description()
+    {
+        return description;
+    }
+
     /**
      * Return the expected ArgType.
      */
-	public ArgType getArgType()
-	{
-		return type;
-	}
-    
+    public ArgType getArgType()
+    {
+        return type;
+    }
+
     /**
      * Return the OptionGroup the option belongs to.
      */
-	public OptionGroup optionGroup()
-	{
-		return optionGroup;
-	}
-    
+    public OptionGroup optionGroup()
+    {
+        return optionGroup;
+    }
+
     /**
      * Return the option's ArgumentAction (flag or option).
      */
-	public ArgumentAction argumentAction()
-	{
-		return argumentAction;
-	}
-	
-	/**
-	 * return the options meta variable.
-	 */
-	public String metavar()
-	{
-		return metavar;
-	}
+    public ArgumentAction argumentAction()
+    {
+        return argumentAction;
+    }
+
+    /**
+     * return the options meta variable.
+     */
+    public String metavar()
+    {
+        return metavar;
+    }
 }

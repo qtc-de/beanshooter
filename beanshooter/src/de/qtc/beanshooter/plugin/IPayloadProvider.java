@@ -14,6 +14,6 @@ import de.qtc.beanshooter.cli.Operation;
  * @author Tobias Neitzel (@qtc_de)
  */
 public interface IPayloadProvider {
-	
+
     Object getPayloadObject(Operation action, String name, String args);
 }

@@ -11,7 +11,7 @@ import de.qtc.beanshooter.cli.Operation;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public class Starter 
+public class Starter
 {
     public static void main(String[] argv)
     {

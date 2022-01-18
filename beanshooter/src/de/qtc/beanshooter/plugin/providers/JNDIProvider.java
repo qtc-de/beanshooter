@@ -35,7 +35,7 @@ public class JNDIProvider implements IMBeanServerProvider {
         String boundName = ArgumentHandler.require(BeanshooterOption.TARGET_BOUND_NAME);
 
         java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
-        
+
         if( BeanshooterOption.CONN_SSL.getBool() )
             env.put("com.sun.jndi.rmi.factory.socket", new SslRMIClientSocketFactory());
 

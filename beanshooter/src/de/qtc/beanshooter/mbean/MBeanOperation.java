@@ -14,12 +14,12 @@ import net.sourceforge.argparse4j.inf.Subparsers;
  * Enum containing the available generic MBean operations. This enum is mainly used to assign
  * options to the corresponding actions and implements the invoke function for invoking the
  * operations.
- * 
+ *
  * @author Tobias Neitzel (@qtc_de)
  */
 public enum MBeanOperation implements Operation {
 
-	STATUS("status", "checks whether the MBean is registered", new Option[] {
+    STATUS("status", "checks whether the MBean is registered", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -36,8 +36,8 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-	}), 
-	
+    }),
+
     DEPLOY("deploy", "deploys the specified MBean on the JMX server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -64,7 +64,7 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.DEPLOY_BEAN_NAME,
             BeanshooterOption.DEPLOY_JAR_FILE,
     }),
-    
+
     UNDEPLOY("undeploy", "undeploys the specified MBEAN from the JMX server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -85,52 +85,52 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.UNDEPLOY_BEAN_NAME,
     });
 
-	private Method method;
-	private String description;
-	private Option[] options;
+    private Method method;
+    private String description;
+    private Option[] options;
 
-	private Dispatcher dispatcher;
-	private static MBean currentBean;
+    private Dispatcher dispatcher;
+    private static MBean currentBean;
 
-	/**
-	 * The constructor requires the method name that is looked up via reflection from the Dispatcher class.
-	 * Additionally, a description for the help menu and the available options need to be specified.
-	 *
-	 * @param methodName method to invoke when the operation was specified
-	 * @param description brief description of the action for the help menu
-	 * @param options options that should be available for the action
-	 */
-	MBeanOperation(String methodName, String description, Option[] options)
-	{
-	    try 
-	    {
-	        this.method = Dispatcher.class.getDeclaredMethod(methodName, new Class<?>[] {});
-	    } 
-	    
-	    catch(Exception e) 
-	    {
-	        ExceptionHandler.internalException(e, "Operation constructor", true);
-	    }
-	
-	    this.description = description;
-	    this.options = options;
-	}
-	
-	/**
-	 * Return the name of the operation.
-	 */
-	public String getName()
-	{
-		return this.name();
-	}
-	
-	/**
-	 * Return the description of the operation.
-	 */
-	public String getDescription()
-	{
-		return this.description;
-	}
+    /**
+     * The constructor requires the method name that is looked up via reflection from the Dispatcher class.
+     * Additionally, a description for the help menu and the available options need to be specified.
+     *
+     * @param methodName method to invoke when the operation was specified
+     * @param description brief description of the action for the help menu
+     * @param options options that should be available for the action
+     */
+    MBeanOperation(String methodName, String description, Option[] options)
+    {
+        try
+        {
+            this.method = Dispatcher.class.getDeclaredMethod(methodName, new Class<?>[] {});
+        }
+
+        catch(Exception e)
+        {
+            ExceptionHandler.internalException(e, "Operation constructor", true);
+        }
+
+        this.description = description;
+        this.options = options;
+    }
+
+    /**
+     * Return the name of the operation.
+     */
+    public String getName()
+    {
+        return this.name();
+    }
+
+    /**
+     * Return the description of the operation.
+     */
+    public String getDescription()
+    {
+        return this.description;
+    }
 
     /**
      * Checks whether the current Operation contains the specified option.
@@ -141,7 +141,7 @@ public enum MBeanOperation implements Operation {
     public boolean containsOption(Option option)
     {
         for( Option o : this.options )
-        	
+
             if( o == option )
                 return true;
 
@@ -153,31 +153,31 @@ public enum MBeanOperation implements Operation {
      */
     public void invoke()
     {
-    	if( currentBean == null )
+        if( currentBean == null )
             ExceptionHandler.internalError("Operation.invoke(...)", "currentBean was not set");
 
-    	if( dispatcher == null )
-    		this.dispatcher = new Dispatcher(currentBean);
-    	
+        if( dispatcher == null )
+            this.dispatcher = new Dispatcher(currentBean);
+
         try
         {
             this.method.invoke(dispatcher);
-        } 
-        
-        catch(Exception e) 
+        }
+
+        catch(Exception e)
         {
             ExceptionHandler.internalException(e, "Operation.invoke(...)", true);
         }
     }
-	
+
     /**
      * Set an MBean to operate on.
-     * 
+     *
      * @param bean MBean to operate on
      */
     public static void setMBean(MBean bean)
     {
-    	currentBean = bean;
+        currentBean = bean;
     }
 
     /**
@@ -190,18 +190,18 @@ public enum MBeanOperation implements Operation {
      */
     public static Operation getByName(String name)
     {
-    	Operation returnItem = null;
+        Operation returnItem = null;
 
-    	if( currentBean != null )
-    		
-	    	for( Operation operation : currentBean.getOperations() )
-	    	{
-	            if(operation.toString().equalsIgnoreCase(name)) {
-	                returnItem = operation;
-	                break;
-	            }
-	    	}
-    	
+        if( currentBean != null )
+
+            for( Operation operation : currentBean.getOperations() )
+            {
+                if(operation.toString().equalsIgnoreCase(name)) {
+                    returnItem = operation;
+                    break;
+                }
+            }
+
         for(Operation operation : MBeanOperation.values())
         {
             if(operation.toString().equalsIgnoreCase(name)) {
@@ -209,7 +209,7 @@ public enum MBeanOperation implements Operation {
                 break;
             }
         }
-        
+
         return returnItem;
     }
 
@@ -224,7 +224,7 @@ public enum MBeanOperation implements Operation {
     public static void addSubparsers(Subparsers argumentParser)
     {
         for( MBean bean : MBean.values() ) {
-        	
+
             Subparser parser = argumentParser.addParser(bean.getName()).help(bean.getDescription());
             Subparsers subparsers = parser.addSubparsers().help(" ").metavar(" ").dest("mbean-action");
 
@@ -233,8 +233,8 @@ public enum MBeanOperation implements Operation {
                 Subparser opParser = subparsers.addParser(operation.getName().toLowerCase()).help(operation.getDescription());
                 OptionHandler.addOptions(operation, opParser);
             }
-        	
-            for( MBeanOperation operation : MBeanOperation.values()) 
+
+            for( MBeanOperation operation : MBeanOperation.values())
             {
                 Subparser opParser = subparsers.addParser(operation.getName().toLowerCase()).help(operation.getDescription());
                 OptionHandler.addOptions(operation, opParser);

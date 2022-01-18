@@ -43,7 +43,7 @@ public enum OptionGroup
      * ArgumentGroups are actually assigned to an ArgumentParser-Operation Pair.
      *
      * This function first checks whether the ArgumentGroup for the specified ArgumentParser-Operation Pair was
-     * already created. If so, it is simply returned. Otherwise, it is created, added to the parser and added 
+     * already created. If so, it is simply returned. Otherwise, it is created, added to the parser and added
      * to an internally stored HashMap for later use.
      *
      * @param argParser ArgumentParser to add the ArgumentGroup to
@@ -52,7 +52,7 @@ public enum OptionGroup
      */
     public ArgumentGroup addArgumentGroup(ArgumentParser argParser, Operation operation)
     {
-    	Pair pair = new Pair(argParser, operation);
+        Pair pair = new Pair(argParser, operation);
         ArgumentGroup group = argumentGroups.get(pair);
 
         if( group == null )
@@ -63,53 +63,53 @@ public enum OptionGroup
 
         return group;
     }
-    
+
     /**
      * Helper class to make a combination of one ArgumentParser and one Operation to a hashable
      * item that can be used within a HashMap. This is required, since ArgumentGroups are assigned
      * to ArgumentParser-Operation pairs.
-     * 
-	 * @author Tobias Neitzel (@qtc_de)
-	 */
-    class Pair 
+     *
+     * @author Tobias Neitzel (@qtc_de)
+     */
+    class Pair
     {
-    	private ArgumentParser parser;
-    	private Operation operation;
-    	
-    	/**
-    	 * Initialize the pair by specifying the corresponding ArgumentParser and Operation values.
-    	 * 
-    	 * @param parser ArgumentParser contained in the pair
-    	 * @param operation Operation contained in the pair
-    	 */
-    	Pair(ArgumentParser parser, Operation operation)
-    	{
-    		this.parser = parser;
-    		this.operation = operation;
-    	}
-		
-    	/**
-    	 * Create a hashCode from the compound Pair object.
-    	 */
-    	public int hashCode()
-    	{
-    		return Objects.hash(parser, operation);
-    	}
-    	
-		/**
-		 * Two Pairs are equal when they contain the same ArgumentParser and Operation values.
-		 */
-		public boolean equals(Object obj)
-    	{
-    		if( !(obj instanceof Pair) )
-    			return false;
-    		
-    		Pair other = (Pair)obj;
-    		
-    		if( other.parser == this.parser && other.operation == this.operation )
-    			return true;
-    		
-    		return false;
-    	}
+        private ArgumentParser parser;
+        private Operation operation;
+
+        /**
+         * Initialize the pair by specifying the corresponding ArgumentParser and Operation values.
+         *
+         * @param parser ArgumentParser contained in the pair
+         * @param operation Operation contained in the pair
+         */
+        Pair(ArgumentParser parser, Operation operation)
+        {
+            this.parser = parser;
+            this.operation = operation;
+        }
+
+        /**
+         * Create a hashCode from the compound Pair object.
+         */
+        public int hashCode()
+        {
+            return Objects.hash(parser, operation);
+        }
+
+        /**
+         * Two Pairs are equal when they contain the same ArgumentParser and Operation values.
+         */
+        public boolean equals(Object obj)
+        {
+            if( !(obj instanceof Pair) )
+                return false;
+
+            Pair other = (Pair)obj;
+
+            if( other.parser == this.parser && other.operation == this.operation )
+                return true;
+
+            return false;
+        }
     }
 }

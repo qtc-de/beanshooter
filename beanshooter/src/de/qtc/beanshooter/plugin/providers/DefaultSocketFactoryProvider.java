@@ -63,7 +63,7 @@ public class DefaultSocketFactoryProvider implements ISocketFactoryProvider {
 
         return "de.qtc.beanshooter.networking.LoopbackSslSocketFactory";
     }
-    
+
     public SocketFactory getDefaultSSLSocketFactory(String host, int port)
     {
         TrustAllSocketFactory trustAllFax = new TrustAllSocketFactory();
@@ -71,7 +71,7 @@ public class DefaultSocketFactoryProvider implements ISocketFactoryProvider {
         LoopbackSslSocketFactory.host = host;
         LoopbackSslSocketFactory.fac = trustAllFax.getSSLSocketFactory();
         LoopbackSslSocketFactory.followRedirect = BeanshooterOption.CONN_FOLLOW.getBool();
-        
+
         return new LoopbackSslSocketFactory();
     }
 }

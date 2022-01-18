@@ -22,23 +22,23 @@ import net.sourceforge.argparse4j.inf.Namespace;
  * within the de.qtc.beanshooter.operation.BeanshooterOption class or within classes specified
  * in the MBeam enum. This class uses a static block to obtain all these options and implements
  * functions to initialize them.
- * 
+ *
  * @author Tobias Neitzel (@qtc_de)
  */
 public class OptionHandler {
-	
-	private static Option[] options;
-	
-	static {
-		List<Option> opts = new ArrayList<Option>();
-		opts.addAll(Arrays.asList(BeanshooterOption.values()));
-		
-		for( MBean bean : MBean.values() )
-			opts.addAll(Arrays.asList(bean.getOptions()));
-		
-		options = opts.toArray(new Option[0]);
-	}
-	
+
+    private static Option[] options;
+
+    static {
+        List<Option> opts = new ArrayList<Option>();
+        opts.addAll(Arrays.asList(BeanshooterOption.values()));
+
+        for( MBean bean : MBean.values() )
+            opts.addAll(Arrays.asList(bean.getOptions()));
+
+        options = opts.toArray(new Option[0]);
+    }
+
     /**
      * This function initializes all statically obtained options and uses either the value
      * that was specified on the command line or the value obtained from the configuration file.
@@ -126,15 +126,15 @@ public class OptionHandler {
 
         if( option.getArgType() == ArgType.INT )
             arg.type(Integer.class);
-        
+
         if( option == BeanshooterOption.CONN_SASL )
-        	arg.choices(SASLMechanism.getMechanisms());
-        
+            arg.choices(SASLMechanism.getMechanisms());
+
         if( option == MLetOption.LOAD_BEAN )
         {
-        	List<String> mBeanNames = MBean.getBeanNames();
-        	mBeanNames.add("custom");
-        	arg.choices(mBeanNames);
+            List<String> mBeanNames = MBean.getBeanNames();
+            mBeanNames.add("custom");
+            arg.choices(mBeanNames);
         }
     }
 }

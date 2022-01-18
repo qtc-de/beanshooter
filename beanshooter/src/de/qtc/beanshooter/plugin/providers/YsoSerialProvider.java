@@ -6,8 +6,8 @@ import de.qtc.beanshooter.utils.YsoIntegration;
 
 public class YsoSerialProvider implements IPayloadProvider {
 
-	 public Object getPayloadObject(Operation action, String name, String args)
-	 {
-		 return YsoIntegration.getPayloadObject(name, args);
-	 }
+     public Object getPayloadObject(Operation action, String name, String args)
+     {
+         return YsoIntegration.getPayloadObject(name, args);
+     }
 }

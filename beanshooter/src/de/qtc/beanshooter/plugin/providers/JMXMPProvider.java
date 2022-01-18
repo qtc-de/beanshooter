@@ -31,10 +31,10 @@ public class JMXMPProvider implements IMBeanServerProvider {
     private static final String connString = "service:jmx:jmxmp://%s:%s";
 
     @Override
-    public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env) throws AuthenticationException  
+    public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env) throws AuthenticationException
     {
-    	MBeanServerConnection mBeanServerConnection = null;
-    	
+        MBeanServerConnection mBeanServerConnection = null;
+
         java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
 
         if( BeanshooterOption.CONN_SSL.getBool() )
@@ -46,63 +46,63 @@ public class JMXMPProvider implements IMBeanServerProvider {
         SASLMechanism saslMechanism = ArgumentHandler.getSASLMechanism();
         if( saslMechanism != null )
         {
-        	ArgumentHandler.requireAllOf(BeanshooterOption.CONN_USER, BeanshooterOption.CONN_PASS);
-        	
-        	String username = ArgumentHandler.require(BeanshooterOption.CONN_USER);
-        	String password = ArgumentHandler.require(BeanshooterOption.CONN_PASS);
-        	
-        	saslMechanism.init(env, username, password);
+            ArgumentHandler.requireAllOf(BeanshooterOption.CONN_USER, BeanshooterOption.CONN_PASS);
+
+            String username = ArgumentHandler.require(BeanshooterOption.CONN_USER);
+            String password = ArgumentHandler.require(BeanshooterOption.CONN_PASS);
+
+            saslMechanism.init(env, username, password);
         }
 
-        try 
+        try
         {
             JMXServiceURL jmxUrl = new JMXServiceURL(String.format(connString, host, port));
             JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, env);
 
             mBeanServerConnection = jmxConnector.getMBeanServerConnection();
         }
-        
-        catch (MalformedURLException e) 
+
+        catch (MalformedURLException e)
         {
             ExceptionHandler.internalError("DefaultMBeanServerProvider.getMBeanServerConnection", "Invalid URL.");
-        } 
-        
+        }
+
         catch (IOException e)
         {
-        	Throwable t = ExceptionHandler.getCause(e);
-        	String message = t.getMessage();
-        	
-        	if( t instanceof IOException && message.contains("negotiated profiles do not match") )
-        		throw new SaslProfileException(e, true);
-        	
-        	if( t instanceof IOException && message.contains("do not match the client required profiles") )
-        		throw new SaslProfileException(e, true);
-        	
-        	if( t instanceof IOException && message.contains("not require any profile but the server mandates on") )
-        		throw new SaslProfileException(e, true);
+            Throwable t = ExceptionHandler.getCause(e);
+            String message = t.getMessage();
 
-        	if( t instanceof IOException && message.contains("The server does not support any profile") )
-        		throw new SaslProfileException(e, true);
-        	
+            if( t instanceof IOException && message.contains("negotiated profiles do not match") )
+                throw new SaslProfileException(e, true);
+
+            if( t instanceof IOException && message.contains("do not match the client required profiles") )
+                throw new SaslProfileException(e, true);
+
+            if( t instanceof IOException && message.contains("not require any profile but the server mandates on") )
+                throw new SaslProfileException(e, true);
+
+            if( t instanceof IOException && message.contains("The server does not support any profile") )
+                throw new SaslProfileException(e, true);
+
             Logger.eprintlnMixedYellow("Caught unexpected", "IOException", "while connecting to the specified JMX service.");
             ExceptionHandler.showStackTrace(e);
             Utils.exit();
         }
-        
+
         catch( java.lang.SecurityException e )
         {
-        	Throwable t = ExceptionHandler.getCause(e);
-        	String message = t.getMessage();
-        	
-        	if( t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed") )
-        		throw new AuthenticationException(e);
-        	
-        	if( t instanceof java.lang.SecurityException && message.contains("Mismatched URI") )
-        		throw new MismatchedURIException(e, true);
-        	
-        	if( t instanceof java.lang.SecurityException && message.contains("Invalid response") )
-        		throw new AuthenticationException(e);
-        	
+            Throwable t = ExceptionHandler.getCause(e);
+            String message = t.getMessage();
+
+            if( t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed") )
+                throw new AuthenticationException(e);
+
+            if( t instanceof java.lang.SecurityException && message.contains("Mismatched URI") )
+                throw new MismatchedURIException(e, true);
+
+            if( t instanceof java.lang.SecurityException && message.contains("Invalid response") )
+                throw new AuthenticationException(e);
+
             Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "while connecting to the specified JMX service.");
             ExceptionHandler.showStackTrace(e);
             Utils.exit();

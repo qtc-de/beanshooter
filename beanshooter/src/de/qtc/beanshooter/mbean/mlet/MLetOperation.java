@@ -10,12 +10,12 @@ import de.qtc.beanshooter.operation.BeanshooterOption;
 /**
  * The MLetOperation enum contains operations that are available on a deployed MLet MBean.
  * Furthermore, it defines the options that are available for the corresponding operations.
- * 
+ *
  * @author Tobias Neitzel (@qtc_de)
  */
 public enum MLetOperation implements Operation
 {
-	LOAD("loadMBeanFromURL", "load a new MBean from the specified URL", new Option[] {
+    LOAD("loadMBeanFromURL", "load a new MBean from the specified URL", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -37,53 +37,53 @@ public enum MLetOperation implements Operation
             MLetOption.LOAD_CLASS_NAME,
             MLetOption.LOAD_JAR_FILE,
             MLetOption.LOAD_OBJECT_NAME,
-	});
-	
-	private Method method;
-	private String description;
-	private Option[] options;
-	
-	private Dispatcher dispatcher;
-	
-	/**
-	 * The constructor requires the method name that is looked up via reflection from the Dispatcher class.
-	 * Additionally, a description for the help menu and the available options need to be specified.
-	 *
-	 * @param methodName method to invoke when the operation was specified
-	 * @param description brief description of the action for the help menu
-	 * @param options options that should be available for the action
-	 */
-	MLetOperation(String methodName, String description, Option[] options)
-	{
-	    try 
-	    {
-	        this.method = Dispatcher.class.getDeclaredMethod(methodName, new Class<?>[] {});
-	    } 
-	    
-	    catch(Exception e)
-	    {
-	        ExceptionHandler.internalException(e, "Operation constructor", true);
-	    }
-	
-	    this.description = description;
-	    this.options = options;
-	}
-	
-	/**
-	 * Return the name of the operation.
-	 */
-	public String getName()
-	{
-		return this.name();
-	}
-	
-	/**
-	 * Return the description of the operation.
-	 */
-	public String getDescription()
-	{
-		return this.description;
-	}
+    });
+
+    private Method method;
+    private String description;
+    private Option[] options;
+
+    private Dispatcher dispatcher;
+
+    /**
+     * The constructor requires the method name that is looked up via reflection from the Dispatcher class.
+     * Additionally, a description for the help menu and the available options need to be specified.
+     *
+     * @param methodName method to invoke when the operation was specified
+     * @param description brief description of the action for the help menu
+     * @param options options that should be available for the action
+     */
+    MLetOperation(String methodName, String description, Option[] options)
+    {
+        try
+        {
+            this.method = Dispatcher.class.getDeclaredMethod(methodName, new Class<?>[] {});
+        }
+
+        catch(Exception e)
+        {
+            ExceptionHandler.internalException(e, "Operation constructor", true);
+        }
+
+        this.description = description;
+        this.options = options;
+    }
+
+    /**
+     * Return the name of the operation.
+     */
+    public String getName()
+    {
+        return this.name();
+    }
+
+    /**
+     * Return the description of the operation.
+     */
+    public String getDescription()
+    {
+        return this.description;
+    }
 
     /**
      * Checks whether the current Operation contains the specified option.
@@ -94,7 +94,7 @@ public enum MLetOperation implements Operation
     public boolean containsOption(Option option)
     {
         for( Option o : this.options )
-        	
+
             if( o == option )
                 return true;
 
@@ -106,9 +106,9 @@ public enum MLetOperation implements Operation
      */
     public void invoke()
     {
-    	if( dispatcher == null )
-    		dispatcher = new Dispatcher();
-    	
+        if( dispatcher == null )
+            dispatcher = new Dispatcher();
+
         try {
             this.method.invoke(dispatcher);
 

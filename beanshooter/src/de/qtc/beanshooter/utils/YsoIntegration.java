@@ -17,7 +17,7 @@ import de.qtc.beanshooter.operation.BeanshooterOption;
  * @author Tobias Neitzel (@qtc_de)
  */
 public class YsoIntegration {
-	
+
     /**
      * Just a small wrapper around the URLClassLoader creation. Checks the existence of the specified file
      * path before creating a class loader around it.

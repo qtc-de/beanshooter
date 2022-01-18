@@ -65,36 +65,36 @@ public class RMIProvider implements IMBeanServerProvider {
             connection = rmiConnector.getMBeanServerConnection();
 
         } catch (IOException e) {
-        	
-        	Throwable t = ExceptionHandler.getCause(e);
-        	
-        	Logger.resetIndent();
-        	Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while invoking the newClient method.");
-        	
-        	if( t instanceof java.net.ConnectException ) {
-        		
-        		if( t.getMessage().contains("Connection refused") ) {
-        			Logger.eprintlnMixedBlue("The JMX remote object", "refused", "the connection.");
-        			
-        		} else if( t.getMessage().contains("Network is unreachable") ) {
-        			Logger.eprintlnMixedBlue("The JMX remote object is", "unreachable.");
 
-        		} else {
-        			ExceptionHandler.unknownReason(e);
-        		}
-        		
-    			if( BeanshooterOption.TARGET_OBJID_CONNECTION.isNull() )
-    				Logger.eprintlnMixedYellow("The JMX", "bound name", "within the RMI registry is probably pointing to an invalid server.");
-    		
-        	} else {
-        		ExceptionHandler.unknownReason(e);
-        	}
-        	
-        	ExceptionHandler.showStackTrace(e);
-        	Utils.exit();
-        
+            Throwable t = ExceptionHandler.getCause(e);
+
+            Logger.resetIndent();
+            Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while invoking the newClient method.");
+
+            if( t instanceof java.net.ConnectException ) {
+
+                if( t.getMessage().contains("Connection refused") ) {
+                    Logger.eprintlnMixedBlue("The JMX remote object", "refused", "the connection.");
+
+                } else if( t.getMessage().contains("Network is unreachable") ) {
+                    Logger.eprintlnMixedBlue("The JMX remote object is", "unreachable.");
+
+                } else {
+                    ExceptionHandler.unknownReason(e);
+                }
+
+                if( BeanshooterOption.TARGET_OBJID_CONNECTION.isNull() )
+                    Logger.eprintlnMixedYellow("The JMX", "bound name", "within the RMI registry is probably pointing to an invalid server.");
+
+            } else {
+                ExceptionHandler.unknownReason(e);
+            }
+
+            ExceptionHandler.showStackTrace(e);
+            Utils.exit();
+
         } catch( SecurityException e ) {
-        	ExceptionHandler.credentialException(e);
+            ExceptionHandler.credentialException(e);
         }
 
         return connection;

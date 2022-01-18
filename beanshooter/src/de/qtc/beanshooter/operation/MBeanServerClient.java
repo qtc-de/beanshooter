@@ -62,13 +62,13 @@ public class MBeanServerClient {
         Logger.printlnMixedYellow("Deplyoing MBean:", className);
 
         try {
-        	
+
             if( conn.isRegistered(mBeanObjectName) )
             {
                 Logger.printlnMixedBlue("MBean with object name", mBeanObjectName.toString(), "is already deployed.");
                 return;
             }
-            
+
             conn.createMBean(mBeanClassName, mBeanObjectName);
 
         } catch (InstanceAlreadyExistsException e) {
@@ -82,23 +82,23 @@ public class MBeanServerClient {
             if( t instanceof ClassNotFoundException) {
 
                 if( jarFile != null ) {
-                	
+
                     Logger.lineBreak();
                     Logger.increaseIndent();
-                    
+
                     Logger.println("MBean class is not known to the server.");
-                    
+
                     if( BeanshooterOption.DEPLOY_STAGER_URL.isNull() )
                     {
-                    	Logger.printlnMixedYellow("You can use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
-                    	Utils.exit();
+                        Logger.printlnMixedYellow("You can use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
+                        Utils.exit();
                     }
-                    	
+
                     DynamicMBean mbean = new DynamicMBean(mBeanObjectName, mBeanClassName, jarFile);
-                    
+
                     Dispatcher mLetDispatcher = new Dispatcher();
                     mLetDispatcher.loadMBeanFromURL(mbean, BeanshooterOption.DEPLOY_STAGER_URL.getValue());
-                   
+
                     Logger.decreaseIndent();
 
                 } else
@@ -108,7 +108,7 @@ public class MBeanServerClient {
         } catch (Exception e) {
             ExceptionHandler.unexpectedException(e, "registering", "MLet", true);
         }
-        
+
         Logger.printlnMixedBlue("MBean with object name", mBeanObjectName.toString(), "was successfully deployed.");
     }
 
@@ -133,7 +133,7 @@ public class MBeanServerClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
+
         Logger.println("MBean was successfully removed.");
     }
 
@@ -149,7 +149,7 @@ public class MBeanServerClient {
      * @throws InstanceNotFoundException
      * @throws MBeanException
      * @throws ReflectionException
-     * @throws UnmarshalException 
+     * @throws UnmarshalException
      * @throws IOException
      */
     public Object invoke(ObjectName name, String methodName, Object... args) throws MBeanException, ReflectionException, UnmarshalException
@@ -160,24 +160,24 @@ public class MBeanServerClient {
             argumentTypes[ctr] = args[ctr].getClass().getName();
 
         Object result = null;
-        
-        try { 
-        	result = conn.invoke(name, methodName, args, argumentTypes);
-        	
+
+        try {
+            result = conn.invoke(name, methodName, args, argumentTypes);
+
         } catch( InstanceNotFoundException e ) {
-        	Logger.eprintlnMixedYellow("Caught unexpected", "InstanceNotFoundException", "while calling invoke.");
-        	Logger.eprintlnMixedBlue("The specified MBean", name.toString(), "does probably not exist on the endpoint.");
-        	Utils.exit();
-        
+            Logger.eprintlnMixedYellow("Caught unexpected", "InstanceNotFoundException", "while calling invoke.");
+            Logger.eprintlnMixedBlue("The specified MBean", name.toString(), "does probably not exist on the endpoint.");
+            Utils.exit();
+
         } catch( IOException e ) {
-        	
-        	if( e instanceof java.rmi.UnmarshalException ) {
-        		throw (java.rmi.UnmarshalException)e;
-        	}
-        	
-        	ExceptionHandler.ioException(e, "invoke");
+
+            if( e instanceof java.rmi.UnmarshalException ) {
+                throw (java.rmi.UnmarshalException)e;
+            }
+
+            ExceptionHandler.ioException(e, "invoke");
         }
-        
+
         return result;
     }
 }

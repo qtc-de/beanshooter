@@ -56,7 +56,7 @@ public class ArgumentHandler
         Subparsers subparsers = parser.addSubparsers().help(" ").metavar(" ").dest("action");
         BeanshooterOperation.addSubparsers(subparsers);
         MBeanOperation.addSubparsers(subparsers);
-        
+
         try {
             args = parser.parseArgs(argv);
 
@@ -66,9 +66,9 @@ public class ArgumentHandler
         }
 
         initialize();
-        
+
         if( ArgumentHandler.instance == null )
-        	ArgumentHandler.instance = this;
+            ArgumentHandler.instance = this;
     }
 
     /**
@@ -125,28 +125,28 @@ public class ArgumentHandler
      */
     public Operation getAction()
     {
-    	String actionArg = args.getString("action");
+        String actionArg = args.getString("action");
         this.action = BeanshooterOperation.getByName(actionArg);
 
         if( action == null ) {
-        	
-        	MBean selectedBean = MBean.getMBean(actionArg);
-        	
-        	if( selectedBean == null )
+
+            MBean selectedBean = MBean.getMBean(actionArg);
+
+            if( selectedBean == null )
                 ExceptionHandler.internalError("ArgumentHandler.getAction", "Unable to find MBean with name: " + selectedBean);
 
-        	MBeanOperation.setMBean(selectedBean);
-        	String mBeanAction = args.getString("mbean-action");
-        	
-        	this.action = MBeanOperation.getByName(mBeanAction);
+            MBeanOperation.setMBean(selectedBean);
+            String mBeanAction = args.getString("mbean-action");
+
+            this.action = MBeanOperation.getByName(mBeanAction);
         }
-        
+
         if( action == null )
             ExceptionHandler.internalError("ArgumentHandler.getAction", "The specified action is not avaialble");
 
         return action;
     }
-    
+
     /**
      * Parses the user specified gadget arguments to request a corresponding gadget from the PayloadProvider.
      * The corresponding gadget object is returned.
@@ -160,33 +160,33 @@ public class ArgumentHandler
 
         return PluginSystem.getPayloadObject(this.getAction(), gadget, command);
     }
-    
+
     /**
      * Other classes can use this function to obtain the current instance of the ArgumentHandler
      * class.
-     * 
+     *
      * @return currently used instance of ArgumentHandler
      */
     public static ArgumentHandler getInstance()
     {
-    	return ArgumentHandler.instance;
+        return ArgumentHandler.instance;
     }
-    
+
     /**
      * Parses the user specified SASL mechanism and returns it in form of a member of the
      * SASLMechanism enum. null is returned if no SASL mechanism was specified.
-     * 
+     *
      * @return user specified SASLMechanism or null
      */
     public static SASLMechanism getSASLMechanism()
     {
-    	if( BeanshooterOption.CONN_SASL.isNull() )
-    		return null;
-    	
-    	String mechanism = BeanshooterOption.CONN_SASL.getValue();
-    	return SASLMechanism.valueOf(mechanism.toUpperCase());
+        if( BeanshooterOption.CONN_SASL.isNull() )
+            return null;
+
+        String mechanism = BeanshooterOption.CONN_SASL.getValue();
+        return SASLMechanism.valueOf(mechanism.toUpperCase());
     }
-    
+
     /**
      * The require function allows other parts of the source code to require an option value.
      * If the corresponding option was not set, an error message is printed and the current execution
@@ -252,20 +252,20 @@ public class ArgumentHandler
      */
     public static void requireAllOf(Option... options)
     {
-    	boolean failed = false;
+        boolean failed = false;
         StringBuilder helpString = new StringBuilder();
-        
+
         for( Option option : options )
         {
             if( option.isNull() )
-            	failed = true;
-            
+                failed = true;
+
             helpString.append(option.getName());
             helpString.append(", ");
         }
-        
+
         helpString.setLength(helpString.length() - 2);
-        
+
         if( failed )
         {
             Logger.eprintlnMixedYellow("Error: The specified aciton requires the", helpString.toString(), "options.");
