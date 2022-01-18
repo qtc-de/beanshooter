@@ -1,4 +1,4 @@
-package de.qtc.tonkabean;
+package de.qtc.beanshooter.tonkabean;
 
 import java.io.*;
 import java.nio.file.Files;
