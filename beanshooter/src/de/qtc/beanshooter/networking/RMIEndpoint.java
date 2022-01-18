@@ -35,7 +35,7 @@ public class RMIEndpoint {
     {
          this.host = host;
          this.port = port;
-         this.csf = PluginSystem.getClientSocketFactory();
+         this.csf = PluginSystem.getRMIClientSocketFactory(host, port);
     }
 
     /**

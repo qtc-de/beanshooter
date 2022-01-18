@@ -3,6 +3,8 @@ package de.qtc.beanshooter.plugin;
 import java.rmi.server.RMIClientSocketFactory;
 import java.rmi.server.RMISocketFactory;
 
+import javax.net.SocketFactory;
+
 /**
  * The ISocketFactoryProvider interface can be used to overwrite SocketFactory implementations that are used during
  * RMI communication. This is usually not required, but when the RMI server uses a customized SocketFactory for RMI
@@ -34,7 +36,8 @@ import java.rmi.server.RMISocketFactory;
  */
 public interface ISocketFactoryProvider
 {
-    public RMIClientSocketFactory getClientSocketFactory();
-    public RMISocketFactory getDefaultSocketFactory(String host, int port);
-    public String getDefaultSSLSocketFactory(String host, int port);
+    public RMIClientSocketFactory getRMIClientSocketFactory(String host, int port);
+    public RMISocketFactory getDefaultRMISocketFactory(String host, int port);
+    public SocketFactory getDefaultSSLSocketFactory(String host, int port);
+    public String getDefaultSSLSocketFactoryClass(String host, int port);
 }

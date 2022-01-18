@@ -7,6 +7,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.utils.Utils;
 
 /**
@@ -18,8 +19,8 @@ import de.qtc.beanshooter.utils.Utils;
  * @author Tobias Neitzel (@qtc_de)
  */
 @SuppressWarnings("restriction")
-public class StagerServer {
-
+public class StagerServer
+{
     private final int port;
     private final String host;
     private final boolean stagerOnly;
@@ -72,9 +73,39 @@ public class StagerServer {
 
         } catch( IOException e ) {
 
-            Logger.eprintlnMixedYellow("Caught unexpected", "IOException", "when starting the stager server.");
-            ExceptionHandler.showStackTrace(e);
+        	Throwable t = ExceptionHandler.getCause(e);
+        	
+        	Logger.resetIndent();
+    		Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while creating the stager server.");
+
+        	if( t instanceof java.net.BindException ) {
+        		
+        		Logger.eprintlnMixedBlue("The endpoint", String.format("%s:%s", host, port), "is probably in use.");
+        		Logger.eprintlnMixedYellow("Specify", BeanshooterOption.DEPLOY_NO_STAGER.name(), "if you use an extern stager server.");;
+        	
+        	} else if( t instanceof java.net.SocketException && t.getMessage().contains("Permission denied") ) {
+        		
+        		Logger.printlnMixedBlue("You don't have sufficient permissions to bind port", String.valueOf(port), "on this host.");
+        		
+        	} else {
+        		ExceptionHandler.unknownReason(e);
+        	}
+            
+        	ExceptionHandler.showStackTrace(e);
             Utils.exit();
+        
+        } catch( java.lang.IllegalArgumentException e ) {
+        	
+        	Logger.resetIndent();
+
+        	if( e.getMessage().contains("port out of range") ) {
+        		
+        		Logger.eprintlnMixedYellow("Caught", "IllegalArgumentException", "while creating the stager server.");
+        		Logger.printlnMixedBlue("The specified port", String.valueOf(port), "is out of range.");
+        		Logger.printlnMixedYellow("Specify a port within the range", String.format("0-%s", Short.MAX_VALUE * 2 + 1));
+        		ExceptionHandler.showStackTrace(e);
+        		Utils.exit();
+        	}
         }
     }
 

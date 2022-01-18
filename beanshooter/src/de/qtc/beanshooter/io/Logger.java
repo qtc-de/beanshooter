@@ -1,6 +1,6 @@
 package de.qtc.beanshooter.io;
 
-import de.qtc.beanshooter.cli.Option;
+import de.qtc.beanshooter.operation.BeanshooterOption;
 
 /**
  * The Logger class exposes static methods that can be used to create colored output.
@@ -39,7 +39,7 @@ public class Logger {
     }
 
     public static void disableIfNotVerbose() {
-        if( !Option.GLOBAL_VERBOSE.getBool() )
+        if( !BeanshooterOption.GLOBAL_VERBOSE.getBool() )
             disable();
     }
 

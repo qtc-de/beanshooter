@@ -1,4 +1,4 @@
-package de.qtc.beanshooter.plugin;
+package de.qtc.beanshooter.plugin.providers;
 
 import java.io.IOException;
 import java.lang.reflect.Proxy;
@@ -14,11 +14,12 @@ import javax.management.remote.rmi.RMIConnection;
 import javax.management.remote.rmi.RMIConnector;
 import javax.management.remote.rmi.RMIServer;
 
-import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.networking.RMIEndpoint;
 import de.qtc.beanshooter.networking.RMIRegistryEndpoint;
+import de.qtc.beanshooter.operation.BeanshooterOption;
+import de.qtc.beanshooter.plugin.IMBeanServerProvider;
 import de.qtc.beanshooter.utils.Utils;
 
 /**
@@ -46,9 +47,9 @@ public class RMIProvider implements IMBeanServerProvider {
         RMIConnector rmiConnector = null;
         MBeanServerConnection connection = null;
 
-        if( Option.TARGET_OBJID_CONNECTION.notNull() ) {
+        if( BeanshooterOption.TARGET_OBJID_CONNECTION.notNull() ) {
 
-            ObjID objID = Utils.parseObjID(Option.TARGET_OBJID_CONNECTION.getValue());
+            ObjID objID = Utils.parseObjID(BeanshooterOption.TARGET_OBJID_CONNECTION.getValue());
             RMIConnection conn = getRMIConnectionByObjID(objID);
 
             rmiServer = new FakeRMIServer(conn);
@@ -64,7 +65,36 @@ public class RMIProvider implements IMBeanServerProvider {
             connection = rmiConnector.getMBeanServerConnection();
 
         } catch (IOException e) {
-            ExceptionHandler.unexpectedException(e, "connecting to", "MBeanServer", true);
+        	
+        	Throwable t = ExceptionHandler.getCause(e);
+        	
+        	Logger.resetIndent();
+        	Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while invoking the newClient method.");
+        	
+        	if( t instanceof java.net.ConnectException ) {
+        		
+        		if( t.getMessage().contains("Connection refused") ) {
+        			Logger.eprintlnMixedBlue("The JMX remote object", "refused", "the connection.");
+        			
+        		} else if( t.getMessage().contains("Network is unreachable") ) {
+        			Logger.eprintlnMixedBlue("The JMX remote object is", "unreachable.");
+
+        		} else {
+        			ExceptionHandler.unknownReason(e);
+        		}
+        		
+    			if( BeanshooterOption.TARGET_OBJID_CONNECTION.isNull() )
+    				Logger.eprintlnMixedYellow("The JMX", "bound name", "within the RMI registry is probably pointing to an invalid server.");
+    		
+        	} else {
+        		ExceptionHandler.unknownReason(e);
+        	}
+        	
+        	ExceptionHandler.showStackTrace(e);
+        	Utils.exit();
+        
+        } catch( SecurityException e ) {
+        	ExceptionHandler.credentialException(e);
         }
 
         return connection;
@@ -79,9 +109,9 @@ public class RMIProvider implements IMBeanServerProvider {
      */
     public RMIConnection getRMIConnection(Map<String,Object> env)
     {
-        if( Option.TARGET_OBJID_CONNECTION.notNull() ) {
+        if( BeanshooterOption.TARGET_OBJID_CONNECTION.notNull() ) {
 
-            ObjID objID = Utils.parseObjID(Option.TARGET_OBJID_CONNECTION.getValue());
+            ObjID objID = Utils.parseObjID(BeanshooterOption.TARGET_OBJID_CONNECTION.getValue());
             return getRMIConnectionByObjID(objID);
         }
 
@@ -133,9 +163,9 @@ public class RMIProvider implements IMBeanServerProvider {
      */
     private RMIServer getRMIServer()
     {
-        if( Option.TARGET_OBJID_SERVER.notNull() ) {
+        if( BeanshooterOption.TARGET_OBJID_SERVER.notNull() ) {
 
-            ObjID objID = Utils.parseObjID(Option.TARGET_OBJID_SERVER.getValue());
+            ObjID objID = Utils.parseObjID(BeanshooterOption.TARGET_OBJID_SERVER.getValue());
             return getRMIServerByObjID(objID);
         }
 
@@ -188,8 +218,8 @@ public class RMIProvider implements IMBeanServerProvider {
      */
     private RMIServer getRMIServerByLookup()
     {
-        if( Option.TARGET_BOUND_NAME.notNull() )
-            return getRMIServerByLookup(Option.TARGET_BOUND_NAME.getValue());
+        if( BeanshooterOption.TARGET_BOUND_NAME.notNull() )
+            return getRMIServerByLookup(BeanshooterOption.TARGET_BOUND_NAME.getValue());
 
         String[] boundNames = regEndpoint.getBoundNames();
         Remote[] remoteObjects = Utils.filterJmxEndpoints(regEndpoint.lookup(boundNames));

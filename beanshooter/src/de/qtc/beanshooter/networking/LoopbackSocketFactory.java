@@ -1,14 +1,14 @@
 package de.qtc.beanshooter.networking;
 
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.rmi.server.RMISocketFactory;
 
-import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.operation.BeanshooterOption;
 
 /**
  * Remote objects bound to an RMI registry are usually pointing to remote endpoints
@@ -69,26 +69,26 @@ public class LoopbackSocketFactory extends RMISocketFactory {
 
         if(!this.host.equals(host)) {
 
-            if( printInfo && Option.GLOBAL_VERBOSE.getBool() ) {
+            if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
                 Logger.printInfoBox();
                 Logger.printlnMixedBlue("RMI object tries to connect to different remote host:", host);
             }
 
             if( this.followRedirect ) {
-                if( printInfo && Option.GLOBAL_VERBOSE.getBool() )
+                if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() )
                     Logger.println("Following redirect to new target...");
 
             } else {
 
                 host = this.host;
 
-                if( printInfo && Option.GLOBAL_VERBOSE.getBool() ) {
+                if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
                     Logger.printlnMixedBlue("Redirecting the connection back to", host);
                     Logger.printlnMixedYellow("You can use", "--follow", "to prevent this.");
                 }
             }
 
-            if( printInfo && Option.GLOBAL_VERBOSE.getBool() ) {
+            if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
                 Logger.decreaseIndent();
             }
 

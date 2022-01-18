@@ -7,9 +7,9 @@ import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.operation.BeanshooterOption;
 
 /**
  * Remote objects bound to an RMI registry are usually pointing to remote endpoints
@@ -52,26 +52,26 @@ public class LoopbackSslSocketFactory extends SSLSocketFactory {
 
         if(!host.equals(target)) {
 
-            if( printInfo && Option.GLOBAL_VERBOSE.getBool() ) {
+            if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
                 Logger.printInfoBox();
                 Logger.printlnMixedBlue("RMI object tries to connect to different remote host:", target);
             }
 
             if( followRedirect ) {
-                if( printInfo && Option.GLOBAL_VERBOSE.getBool() )
+                if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() )
                     Logger.println("Following SSL redirect to new target...");
 
             } else {
 
                 target = host;
 
-                if( printInfo && Option.GLOBAL_VERBOSE.getBool() ) {
+                if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
                     Logger.printlnMixedBlue("Redirecting the SSL connection back to", host);
                     Logger.printlnMixedYellow("You can use", "--follow", "to prevent this.");
                 }
             }
 
-            if( printInfo && Option.GLOBAL_VERBOSE.getBool() ) {
+            if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
                 Logger.decreaseIndent();
             }
 

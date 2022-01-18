@@ -1,12 +1,15 @@
-package de.qtc.beanshooter.plugin;
+package de.qtc.beanshooter.plugin.providers;
 
 import java.rmi.server.RMIClientSocketFactory;
 import java.rmi.server.RMISocketFactory;
 
-import de.qtc.beanshooter.cli.Option;
+import javax.net.SocketFactory;
+
 import de.qtc.beanshooter.networking.LoopbackSocketFactory;
 import de.qtc.beanshooter.networking.LoopbackSslSocketFactory;
 import de.qtc.beanshooter.networking.TrustAllSocketFactory;
+import de.qtc.beanshooter.operation.BeanshooterOption;
+import de.qtc.beanshooter.plugin.ISocketFactoryProvider;
 
 /**
  * beanshooters default implementation for an ISocketFactoryProvider.
@@ -19,9 +22,9 @@ public class DefaultSocketFactoryProvider implements ISocketFactoryProvider {
      * Returns an RMIClientSocketFactory according to the specified options on the command line.
      */
     @Override
-    public RMIClientSocketFactory getClientSocketFactory()
+    public RMIClientSocketFactory getRMIClientSocketFactory(String host, int port)
     {
-        if( Option.CONN_SSL.getBool() ) {
+        if( BeanshooterOption.CONN_SSL.getBool() ) {
             return new TrustAllSocketFactory();
 
         } else {
@@ -39,10 +42,10 @@ public class DefaultSocketFactoryProvider implements ISocketFactoryProvider {
      * implicit calls (DGC actions like clean or dirty).
      */
     @Override
-    public RMISocketFactory getDefaultSocketFactory(String host, int port)
+    public RMISocketFactory getDefaultRMISocketFactory(String host, int port)
     {
         RMISocketFactory fac = RMISocketFactory.getDefaultSocketFactory();
-        return new LoopbackSocketFactory(host, fac, Option.CONN_FOLLOW.getBool());
+        return new LoopbackSocketFactory(host, fac, BeanshooterOption.CONN_FOLLOW.getBool());
     }
 
     /**
@@ -50,14 +53,25 @@ public class DefaultSocketFactoryProvider implements ISocketFactoryProvider {
      * redirects all connection to the original target and thus prevents unwanted RMI redirections.
      */
     @Override
-    public String getDefaultSSLSocketFactory(String host, int port)
+    public String getDefaultSSLSocketFactoryClass(String host, int port)
     {
         TrustAllSocketFactory trustAllFax = new TrustAllSocketFactory();
 
         LoopbackSslSocketFactory.host = host;
         LoopbackSslSocketFactory.fac = trustAllFax.getSSLSocketFactory();
-        LoopbackSslSocketFactory.followRedirect = Option.CONN_FOLLOW.getBool();
+        LoopbackSslSocketFactory.followRedirect = BeanshooterOption.CONN_FOLLOW.getBool();
 
         return "de.qtc.beanshooter.networking.LoopbackSslSocketFactory";
+    }
+    
+    public SocketFactory getDefaultSSLSocketFactory(String host, int port)
+    {
+        TrustAllSocketFactory trustAllFax = new TrustAllSocketFactory();
+
+        LoopbackSslSocketFactory.host = host;
+        LoopbackSslSocketFactory.fac = trustAllFax.getSSLSocketFactory();
+        LoopbackSslSocketFactory.followRedirect = BeanshooterOption.CONN_FOLLOW.getBool();
+        
+        return new LoopbackSslSocketFactory();
     }
 }

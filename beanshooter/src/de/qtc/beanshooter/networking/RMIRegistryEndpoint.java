@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -27,6 +27,8 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
 
     private Registry rmiRegistry;
     private Map<String,Remote> remoteObjectCache;
+    
+    private static boolean setupComplete = false;
 
     /**
      * The main purpose of this constructor function is to setup the different socket factories.
@@ -47,17 +49,7 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
         super(host, port);
 
         this.remoteObjectCache = new HashMap<String,Remote>();
-
-        try {
-            RMISocketFactory.setSocketFactory(PluginSystem.getDefaultSocketFactory(host, port));
-
-        } catch (IOException e) {
-            Logger.eprintlnMixedBlue("Unable to set custom", "RMISocketFactory.", "Host redirection will probably not work.");
-            ExceptionHandler.showStackTrace(e);
-            Logger.eprintln("");
-        }
-
-        java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactory(host, port));
+        SocketFactorySetup(host, port);
 
         try {
             this.rmiRegistry = LocateRegistry.getRegistry(host, port, csf);
@@ -78,6 +70,24 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
     {
         this(rmi.host, rmi.port);
     }
+    
+    private static void SocketFactorySetup(String host, int port)
+    {
+        if( setupComplete )
+        	return;
+        
+	    try {
+	        RMISocketFactory.setSocketFactory(PluginSystem.getDefaultRMISocketFactory(host, port));
+	
+	    } catch (IOException e) {
+	        Logger.eprintlnMixedBlue("Unable to set custom", "RMISocketFactory.", "Host redirection will probably not work.");
+	        ExceptionHandler.showStackTrace(e);
+	        Logger.eprintln("");
+	    }
+	
+	    java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
+	    setupComplete = true;
+    }
 
     /**
      * If a bound name was specified on the command line, return this bound name immediately. Otherwise,
@@ -88,8 +98,8 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
      */
     public String[] getBoundNames()
     {
-        if( Option.TARGET_BOUND_NAME.notNull() )
-            return new String[] { Option.TARGET_BOUND_NAME.getValue() };
+        if( BeanshooterOption.TARGET_BOUND_NAME.notNull() )
+            return new String[] { BeanshooterOption.TARGET_BOUND_NAME.getValue() };
 
         String[] boundNames = null;
 

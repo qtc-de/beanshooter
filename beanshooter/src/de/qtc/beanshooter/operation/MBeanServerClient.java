@@ -1,6 +1,7 @@
 package de.qtc.beanshooter.operation;
 
 import java.io.IOException;
+import java.rmi.UnmarshalException;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
@@ -10,9 +11,11 @@ import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.mbean.DynamicMBean;
+import de.qtc.beanshooter.mbean.mlet.Dispatcher;
+import de.qtc.beanshooter.utils.Utils;
 
 /**
  * The MBeanServerClient is basically a wrapper around an MBeanServerConnection. It implements
@@ -51,20 +54,25 @@ public class MBeanServerClient {
      *
      * @param mBeanClassName class that is implemented by the MBean
      * @param mBeanObjectName objectName implemented by the MBean
-     * @param load whether to load the MBean from a stager server
+     * @param jarFile path to a jar file for remote deployments (null if not desired)
      */
-    public void deployMBean(String mBeanClassName, ObjectName mBeanObjectName, boolean load)
+    public void deployMBean(String mBeanClassName, ObjectName mBeanObjectName, String jarFile)
     {
         String className = mBeanClassName.substring(mBeanClassName.lastIndexOf(".") + 1);
         Logger.printlnMixedYellow("Deplyoing MBean:", className);
 
         try {
+        	
             if( conn.isRegistered(mBeanObjectName) )
+            {
+                Logger.printlnMixedBlue("MBean with object name", mBeanObjectName.toString(), "is already deployed.");
                 return;
-
+            }
+            
             conn.createMBean(mBeanClassName, mBeanObjectName);
 
         } catch (InstanceAlreadyExistsException e) {
+            Logger.printlnMixedYellowFirst(className, "is already deployed.");
             return;
 
         } catch (javax.management.ReflectionException e) {
@@ -73,12 +81,24 @@ public class MBeanServerClient {
 
             if( t instanceof ClassNotFoundException) {
 
-                if( load ) {
+                if( jarFile != null ) {
+                	
                     Logger.lineBreak();
                     Logger.increaseIndent();
+                    
                     Logger.println("MBean class is not known to the server.");
-                    MLetClient mLetClient = new MLetClient(this);
-                    mLetClient.loadMBeanFromURL(mBeanClassName, mBeanObjectName, Option.require(Option.DEPLOY_STAGER_URL));
+                    
+                    if( BeanshooterOption.DEPLOY_STAGER_URL.isNull() )
+                    {
+                    	Logger.printlnMixedYellow("You can use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
+                    	Utils.exit();
+                    }
+                    	
+                    DynamicMBean mbean = new DynamicMBean(mBeanObjectName, mBeanClassName, jarFile);
+                    
+                    Dispatcher mLetDispatcher = new Dispatcher();
+                    mLetDispatcher.loadMBeanFromURL(mbean, BeanshooterOption.DEPLOY_STAGER_URL.getValue());
+                   
                     Logger.decreaseIndent();
 
                 } else
@@ -88,6 +108,8 @@ public class MBeanServerClient {
         } catch (Exception e) {
             ExceptionHandler.unexpectedException(e, "registering", "MLet", true);
         }
+        
+        Logger.printlnMixedBlue("MBean with object name", mBeanObjectName.toString(), "was successfully deployed.");
     }
 
     /**
@@ -97,12 +119,12 @@ public class MBeanServerClient {
      */
     public void unregisterMBean(ObjectName objectName)
     {
-        try {
+        Logger.printlnMixedYellow("Removing MBean with ObjectName", objectName.toString(), "from the MBeanServer.");
 
+        try {
             conn.unregisterMBean(objectName);
 
         } catch (InstanceNotFoundException e) {
-            return;
 
         } catch (MBeanRegistrationException e) {
 
@@ -111,6 +133,8 @@ public class MBeanServerClient {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        Logger.println("MBean was successfully removed.");
     }
 
     /**
@@ -125,15 +149,35 @@ public class MBeanServerClient {
      * @throws InstanceNotFoundException
      * @throws MBeanException
      * @throws ReflectionException
+     * @throws UnmarshalException 
      * @throws IOException
      */
-    public Object invoke(ObjectName name, String methodName, Object... args) throws InstanceNotFoundException, MBeanException, ReflectionException, IOException
+    public Object invoke(ObjectName name, String methodName, Object... args) throws MBeanException, ReflectionException, UnmarshalException
     {
         String[] argumentTypes = new String[args.length];
 
         for(int ctr = 0; ctr < args.length; ctr++)
             argumentTypes[ctr] = args[ctr].getClass().getName();
 
-        return conn.invoke(name, methodName, args, argumentTypes);
+        Object result = null;
+        
+        try { 
+        	result = conn.invoke(name, methodName, args, argumentTypes);
+        	
+        } catch( InstanceNotFoundException e ) {
+        	Logger.eprintlnMixedYellow("Caught unexpected", "InstanceNotFoundException", "while calling invoke.");
+        	Logger.eprintlnMixedBlue("The specified MBean", name.toString(), "does probably not exist on the endpoint.");
+        	Utils.exit();
+        
+        } catch( IOException e ) {
+        	
+        	if( e instanceof java.rmi.UnmarshalException ) {
+        		throw (java.rmi.UnmarshalException)e;
+        	}
+        	
+        	ExceptionHandler.ioException(e, "invoke");
+        }
+        
+        return result;
     }
 }

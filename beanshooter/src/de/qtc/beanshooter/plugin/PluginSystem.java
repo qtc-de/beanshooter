@@ -11,11 +11,20 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 import javax.management.MBeanServerConnection;
+import javax.net.SocketFactory;
 
-import de.qtc.beanshooter.cli.Option;
+import de.qtc.beanshooter.cli.Operation;
+import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.MalformedPluginException;
+import de.qtc.beanshooter.exceptions.MismatchedURIException;
+import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.operation.BeanshooterOption;
+import de.qtc.beanshooter.plugin.providers.DefaultSocketFactoryProvider;
+import de.qtc.beanshooter.plugin.providers.JMXMPProvider;
+import de.qtc.beanshooter.plugin.providers.RMIProvider;
+import de.qtc.beanshooter.plugin.providers.YsoSerialProvider;
 import de.qtc.beanshooter.utils.Utils;
 
 /**
@@ -29,6 +38,7 @@ public class PluginSystem {
 
     private static IMBeanServerProvider mBeanServerProvider;
     private static ISocketFactoryProvider socketFactoryProvider;
+    private static IPayloadProvider payloadProvider;
 
     private static final String manifestAttribute = "BeanshooterPluginClass";
 
@@ -43,6 +53,7 @@ public class PluginSystem {
     {
         mBeanServerProvider = selectProvider();
         socketFactoryProvider = new DefaultSocketFactoryProvider();
+        payloadProvider = new YsoSerialProvider();
 
         if(pluginPath != null)
             loadPlugin(pluginPath);
@@ -107,6 +118,10 @@ public class PluginSystem {
         } if(pluginInstance instanceof ISocketFactoryProvider) {
             socketFactoryProvider = (ISocketFactoryProvider)pluginInstance;
             inUse = true;
+            
+        } if(pluginInstance instanceof IPayloadProvider) {
+        	payloadProvider = (IPayloadProvider)pluginInstance;
+            inUse = true;
         }
 
         if(!inUse) {
@@ -123,7 +138,7 @@ public class PluginSystem {
      */
     private static IMBeanServerProvider selectProvider()
     {
-        if( Option.CONN_JMXMP.getBool() )
+        if( BeanshooterOption.CONN_JMXMP.getBool() )
             return new JMXMPProvider();
 
         return new RMIProvider();
@@ -139,6 +154,58 @@ public class PluginSystem {
      */
     public static MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env)
     {
+    	MBeanServerConnection conn = null;
+    	
+    	try
+    	{
+            conn = mBeanServerProvider.getMBeanServerConnection(host, port, env);
+    	}
+    	catch( AuthenticationException e)
+    	{
+    		if( e instanceof SaslProfileException)
+    		{
+        		Logger.eprintlnMixedYellow("Caught", "SaslProfileException", "while connecting to the JMX service.");
+        		Logger.eprintlnMixedBlue("The specified", "SASL profile", "does not match the server SASL profile.");
+        		e.showDetails();
+
+        		ExceptionHandler.showStackTrace(e.getOriginalException());
+        		Utils.exit();
+    		}
+    		
+    		else if( e instanceof MismatchedURIException )
+    		{
+        		Logger.eprintlnMixedYellow("Caught", "MisMatchedURIException", "while connecting to the JMX service.");
+        		Logger.eprintlnMixedBlue("The specified", "target host", "does not match the configured SASL host.");
+        		e.showDetails();
+        		
+        		ExceptionHandler.showStackTrace(e.getOriginalException());
+        		Utils.exit();
+    		}
+    		
+    		else
+    		{
+        		Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
+        		Logger.eprintlnMixedBlue("The targeted JMX endpoint probably", "requires authentication.");
+        		e.showDetails();
+
+        		ExceptionHandler.showStackTrace(e.getOriginalException());
+        		Utils.exit();
+    		}
+    	}
+    	
+    	return conn;
+    }
+    
+    /**
+     * Returns the RMIClientSocketFactory that is used for RMI connections. The factory returned by this function
+     * is used for all direct RMI calls. So e.g. if you call the registry or another RMI endpoint directly. If you
+     * first lookup a bound name and use the obtained reference to make calls on the object, another factory is used
+     * (check the getDefaultClientSocketFactory function for more details).
+     *
+     * @return RMIClientSocketFactory that is used for direct RMI calls
+     */
+    public static MBeanServerConnection getMBeanServerConnectionUmanaged(String host, int port, Map<String,Object> env) throws AuthenticationException
+    {
         return mBeanServerProvider.getMBeanServerConnection(host, port, env);
     }
 
@@ -150,9 +217,9 @@ public class PluginSystem {
      *
      * @return RMIClientSocketFactory that is used for direct RMI calls
      */
-    public static RMIClientSocketFactory getClientSocketFactory()
+    public static RMIClientSocketFactory getRMIClientSocketFactory(String host, int port)
     {
-        return socketFactoryProvider.getClientSocketFactory();
+        return socketFactoryProvider.getRMIClientSocketFactory(host, port);
     }
 
     /**
@@ -162,9 +229,9 @@ public class PluginSystem {
      *
      * @return RMISocketFactory that is used for "after lookup" RMI calls
      */
-    public static RMISocketFactory getDefaultSocketFactory(String host, int port)
+    public static RMISocketFactory getDefaultRMISocketFactory(String host, int port)
     {
-        return socketFactoryProvider.getDefaultSocketFactory(host, port);
+        return socketFactoryProvider.getDefaultRMISocketFactory(host, port);
     }
 
     /**
@@ -176,8 +243,18 @@ public class PluginSystem {
      *
      * @return String that indicates the desired SSLSocketFactories class name
      */
-    public static String getDefaultSSLSocketFactory(String host, int port)
+    public static String getDefaultSSLSocketFactoryClass(String host, int port)
+    {
+        return socketFactoryProvider.getDefaultSSLSocketFactoryClass(host, port);
+    }
+    
+    public static SocketFactory getDefaultSSLSocketFactory(String host, int port)
     {
         return socketFactoryProvider.getDefaultSSLSocketFactory(host, port);
+    }
+    
+    public static Object getPayloadObject(Operation op, String gadgetName, String gadgetCmd)
+    {
+    	return payloadProvider.getPayloadObject(op, gadgetName, gadgetCmd);
     }
 }

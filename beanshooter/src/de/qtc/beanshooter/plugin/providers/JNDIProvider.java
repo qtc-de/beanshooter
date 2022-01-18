@@ -1,4 +1,4 @@
-package de.qtc.beanshooter.plugin;
+package de.qtc.beanshooter.plugin.providers;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -11,9 +11,12 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 
-import de.qtc.beanshooter.cli.Option;
+import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.operation.BeanshooterOption;
+import de.qtc.beanshooter.plugin.IMBeanServerProvider;
+import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
 
 /**
@@ -29,15 +32,15 @@ public class JNDIProvider implements IMBeanServerProvider {
     public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env)
     {
         MBeanServerConnection mBeanServerConnection = null;
-        String boundName = Option.require(Option.TARGET_BOUND_NAME);
+        String boundName = ArgumentHandler.require(BeanshooterOption.TARGET_BOUND_NAME);
 
-        if( Option.CONN_SSL.getBool() )
+        java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
+        
+        if( BeanshooterOption.CONN_SSL.getBool() )
             env.put("com.sun.jndi.rmi.factory.socket", new SslRMIClientSocketFactory());
 
-        java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactory(host, port));
-
         try {
-            RMISocketFactory.setSocketFactory(PluginSystem.getDefaultSocketFactory(host, port));
+            RMISocketFactory.setSocketFactory(PluginSystem.getDefaultRMISocketFactory(host, port));
 
         } catch (IOException e) {
             Logger.eprintlnMixedBlue("Unable to set custom", "RMISocketFactory.", "Host redirection will probably not work.");
