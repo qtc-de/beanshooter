@@ -15,7 +15,7 @@ import de.qtc.beanshooter.operation.BeanshooterOption;
  */
 public enum TonkaBeanOperation implements Operation {
 
-    EXECUTE("execute", "execute a command on the MBeanServer", new Option[] {
+    EXEC("execute", "execute a command on the MBeanServer", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -32,9 +32,10 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            TonkaBeanOption.EXEC_CMD,
     }),
 
-    EXECUTE_BACKGROUND("executeBackground", "execute a command on the MBeanServer in the background", new Option[] {
+    BACKGROUND("executeBackground", "execute a command on the MBeanServer in the background", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -51,6 +52,7 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            TonkaBeanOption.EXEC_CMD,
     }),
 
     SHELL("shell", "start an semi interactive shell", new Option[] {
@@ -89,6 +91,8 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            TonkaBeanOption.UPLOAD_DEST,
+            TonkaBeanOption.UPLOAD_SOURCE,
     }),
 
     DOWNLOAD("download", "download a file from the MBean server", new Option[] {
@@ -108,6 +112,8 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            TonkaBeanOption.DOWNLOAD_DEST,
+            TonkaBeanOption.DOWNLOAD_SOURCE,
     });
 
     private Method method;

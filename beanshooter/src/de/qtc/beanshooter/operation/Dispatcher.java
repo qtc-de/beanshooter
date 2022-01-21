@@ -31,7 +31,7 @@ public class Dispatcher {
      *
      * @return MBeanServerConnection to the remote MBeanServer
      */
-    private MBeanServerConnection getMBeanServerConnection()
+    protected MBeanServerConnection getMBeanServerConnection()
     {
         if( conn != null )
             return conn;

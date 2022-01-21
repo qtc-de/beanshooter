@@ -1,11 +1,11 @@
 package de.qtc.beanshooter.mbean.mlet;
 
 import java.io.IOException;
+import java.lang.reflect.Proxy;
 import java.net.URL;
 
 import javax.management.MBeanException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -13,9 +13,9 @@ import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.DynamicMBean;
 import de.qtc.beanshooter.mbean.IMBean;
 import de.qtc.beanshooter.mbean.MBean;
+import de.qtc.beanshooter.mbean.MBeanInvocationHandler;
 import de.qtc.beanshooter.networking.StagerServer;
 import de.qtc.beanshooter.operation.BeanshooterOption;
-import de.qtc.beanshooter.operation.MBeanServerClient;
 import de.qtc.beanshooter.utils.Utils;
 
 /**
@@ -26,12 +26,19 @@ import de.qtc.beanshooter.utils.Utils;
  */
 public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 {
+    private final MLetMBean mlet;
+
     /**
      * Creates the dispatcher that operates on the MLet MBean.
      */
     public Dispatcher()
     {
         super(MBean.MLET);
+
+        MBeanInvocationHandler invo = new MBeanInvocationHandler(bean.getObjectName(), getMBeanServerConnection());
+        mlet = (MLetMBean) Proxy.newProxyInstance(Dispatcher.class.getClassLoader(),
+                                                  new Class<?>[] { MLetMBean.class },
+                                                  invo);
     }
 
     /**
@@ -107,8 +114,6 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         String host = url.getHost();
         String protocol = url.getProtocol();
 
-        MBeanServerClient conn = getMBeanServerClient();
-
         Logger.printlnMixedBlue("Loading MBean from", urlString);
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -121,12 +126,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
         try
         {
-            conn.invoke(bean.getObjectName(), "getMBeansFromURL", url);
-        }
-
-        catch (ReflectionException | java.rmi.UnmarshalException e)
-        {
-            ExceptionHandler.unexpectedException(e, "loading", "MBean", true);
+            mlet.getMBeansFromURL(url);
         }
 
         catch(MBeanException e)

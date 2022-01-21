@@ -4,10 +4,60 @@ import de.qtc.beanshooter.cli.ArgType;
 import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.cli.OptionGroup;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.Namespace;
 
-public enum TonkaBeanOption implements Option {
+public enum TonkaBeanOption implements Option
+{
+    EXEC_CMD("cmd",
+             "command to execute",
+             Arguments.store(),
+             OptionGroup.ACTION,
+             ArgType.STRING
+           ),
+
+    EXEC_CWD("--cwd",
+             "working directory to execute the command in",
+             Arguments.store(),
+             OptionGroup.ACTION,
+             ArgType.STRING
+            ),
+
+    EXEC_ENV("--env",
+             "environment variables to use with the command",
+             Arguments.store(),
+             OptionGroup.ACTION,
+             ArgType.STRING
+               ),
+
+    UPLOAD_SOURCE("local",
+                  "local file to upload onto the server",
+                  Arguments.store(),
+                  OptionGroup.ACTION,
+                  ArgType.STRING
+                 ),
+
+    UPLOAD_DEST("remote",
+                "remote path to upload the file to",
+                Arguments.store(),
+                OptionGroup.ACTION,
+                ArgType.STRING
+               ),
+
+    DOWNLOAD_SOURCE("remote",
+                    "remote path to download the file from",
+                    Arguments.store(),
+                    OptionGroup.ACTION,
+                    ArgType.STRING
+                   ),
+
+    DOWNLOAD_DEST("local",
+                  "local path to save the downloaded file to",
+                  Arguments.store(),
+                  OptionGroup.ACTION,
+                  ArgType.STRING
+                ),
     ;
 
     private final String name;
@@ -102,6 +152,28 @@ public enum TonkaBeanOption implements Option {
     @SuppressWarnings("unchecked")
     public <T> T getValue()
     {
+        try {
+            return (T)value;
+
+        } catch( ClassCastException e ) {
+            ExceptionHandler.internalError("RMGOption.getValue", "ClassCastException was caught.");
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the value stored within the option. If the value is null, return the specified
+     * default value.
+     *
+     * @return value stored within the option
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getValue(T def)
+    {
+        if( value == null )
+            return def;
+
         try {
             return (T)value;
 

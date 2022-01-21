@@ -121,6 +121,13 @@ public enum BeanshooterOption implements Option {
               ArgType.STRING,
              "pass"),
 
+    CONN_JNDI("--jndi",
+              "JNDI connection string to use for the connection",
+              Arguments.store(),
+              OptionGroup.CONNECTION,
+              ArgType.STRING,
+              "jndi"),
+
     DEPLOY_STAGER_ONLY("--stager-only",
                        "only launch the stager HTTP server",
                        Arguments.storeTrue(),
