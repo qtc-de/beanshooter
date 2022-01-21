@@ -8,8 +8,8 @@ import de.qtc.beanshooter.exceptions.AuthenticationException;
 
 /**
  * beanshooter supports different ways for obtaining a connection to an remote MBeanServer (e.g. rmi vs jmxmp).
- * The different providers need to implement this interface. Furthermore, custom plugins can implement this
- * interface to overwrite the default behavior.
+ * The different providers need to implement this interface. Furthermore, plugins can implement this interface
+ * to provide additional ways to connect to a remote MBeanServer.
  *
  * @author Tobias Neitzel (@qtc_de)
  */

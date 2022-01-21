@@ -30,6 +30,10 @@ public class JMXMPProvider implements IMBeanServerProvider {
 
     private static final String connString = "service:jmx:jmxmp://%s:%s";
 
+    /**
+     * Obtain the required values from the command line and establish an JMXMP based MBeanServerConnection
+     * with them.
+     */
     @Override
     public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env) throws AuthenticationException
     {
@@ -39,7 +43,7 @@ public class JMXMPProvider implements IMBeanServerProvider {
 
         if( BeanshooterOption.CONN_SSL.getBool() )
         {
-            env.put("jmx.remote.tls.socket.factory", PluginSystem.getDefaultSSLSocketFactory(host, port));
+            env.put("jmx.remote.tls.socket.factory", PluginSystem.getSSLSocketFactory(host, port));
             env.put("jmx.remote.profiles", "TLS");
         }
 

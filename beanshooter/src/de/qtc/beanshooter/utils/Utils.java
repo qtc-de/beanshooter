@@ -1,5 +1,7 @@
 package de.qtc.beanshooter.utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Proxy;
 import java.net.InetAddress;
@@ -8,13 +10,16 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.rmi.Remote;
 import java.rmi.server.ObjID;
 import java.rmi.server.UID;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +35,9 @@ import de.qtc.beanshooter.io.Logger;
  * @author Tobias Neitzel (@qtc_de)
  */
 public class Utils {
+
+    private static Pattern splitSpaces = Pattern.compile(" (?=(?:(?:[^'\"]*\"[^\"]*\")|(?:[^\"']*'[^']*'))*[^\"']*$)");
+    private static Pattern envVariable = Pattern.compile("[a-zA-Z0-9_-]+\\=.+");
 
     /**
      * Just a wrapper around System.exit(1) that prints an information before quitting.
@@ -255,5 +263,156 @@ public class Utils {
         }
 
         return builder.toString();
+    }
+
+    /**
+     * Split a user specified input string on all spaces that are not contained inside quotes. For each
+     * split token, remove surrounding quotes if present.
+     *
+     * @param input user specified input string
+     * @param requiredCount minimum required count of split results
+     * @return splitted string as an array
+     */
+    public static String[] splitSpaces(String input, int requiredCount)
+    {
+        String[] splitResult = splitSpaces.split(input);
+
+        if(splitResult.length < requiredCount)
+        {
+            Logger.eprintlnYellow("Error: Insufficient number of arguments or unbalanced number of quotes.");
+            return null;
+        }
+
+        for(int ctr = 0; ctr < splitResult.length; ctr++)
+
+            splitResult[ctr] = Utils.stripQuotes(splitResult[ctr]);
+
+        return splitResult;
+    }
+
+    /**
+     * Wrapper around the readFile function defined below. Takes a string as the argument.
+     *
+     * @param path file system path to read
+     * @return file content as byte array
+     */
+    public static byte[] readFile(String path)
+    {
+        return readFile(new File(path));
+    }
+
+    /**
+     * Helper function to read a file from the local file system. Includes error handling and
+     * exits if the specified file cannot be read.
+     *
+     * @param file file to read from the file system
+     * @return file content as byte array
+     */
+    public static byte[] readFile(File file)
+    {
+        byte[] content = null;
+
+        if( !file.exists() )
+        {
+            Logger.eprintlnMixedYellow("The file", file.getAbsolutePath(), "does not exist.");
+            Utils.exit();
+        }
+
+        if( !file.isFile() )
+        {
+            Logger.eprintlnMixedYellow("Path", file.getAbsolutePath(), "is not a file.");
+            Utils.exit();
+        }
+
+        if( !file.canRead() )
+        {
+            Logger.eprintlnMixedYellow("The file", file.getAbsolutePath(), "is not readable.");
+            Utils.exit();
+        }
+
+        try
+        {
+            content = Files.readAllBytes(file.toPath());
+        }
+
+        catch (IOException e)
+        {
+            ExceptionHandler.unexpectedException(e, "reading file", file.getAbsolutePath(), true);
+        }
+
+        return content;
+    }
+
+    /**
+     * beanshooter allows users to set environment variables during certain functionalities. This function
+     * is responsible for parsing them. It takes a string, splits it on spaces (quote aware) and searches for
+     * tokens with A=B format. On finding such tokens, it splits them on the "=" sign and assigns the resulting
+     * key-value pair to a HashMap. This Map is returned as the parsed environment.
+     *
+     * @param envString user specified environment string
+     * @return Map representing the environment varibales
+     */
+    public static Map<String,String> parseEnvironmentString(String envString)
+    {
+        HashMap<String,String> env = new HashMap<String,String>();
+
+        String[] parts = Utils.splitSpaces(envString, 1);
+
+        for(String token : parts)
+        {
+            if( envVariable.matcher(token).matches() )
+            {
+                String[] split = token.split("\\=", 2);
+                env.put(split[0], Utils.stripQuotes(split[1]));
+            }
+        }
+
+        return env;
+    }
+
+    /**
+     * Takes an array of Classes and converts it in an array if Strings, where each String represents
+     * the name of one of the input classes. This is required for MBeanServerConnection method invocation,
+     * which expects the argument types as an array of String.
+     *
+     * @param types array of Classes to convert
+     * @return String array containing the names of the classes
+     */
+    public static String[] typesToString(Class<?>[] types)
+    {
+        String[] typeNames = new String[types.length];
+
+        for(int ctr = 0; ctr < types.length; ctr++)
+            typeNames[ctr] = types[ctr].getName();
+
+        return typeNames;
+    }
+
+    /**
+     * Expand special variables within of user specified file system paths. Currently, only ~ at the
+     * beginning of the path is expanded to the current users home directory. In future, we may add
+     * additional expansions.
+     *
+     * @param path file system path to expand
+     * @return expanded path
+     */
+    public static String expandPath(String path)
+    {
+        return path.replaceFirst("^~", System.getProperty("user.home"));
+    }
+
+    /**
+     * Strip the leading and trailing quote from the specified input string. This modification
+     * is only applied if both quotes are present.
+     *
+     * @param input string to apply the modification on
+     * @return the modified string - or the input string if the quotes weren't present
+     */
+    public static String stripQuotes(String input)
+    {
+        if( ((input.startsWith("\"") && input.endsWith("\"")) || (input.startsWith("'") && input.endsWith("'"))) && input.length() != 1 )
+            return input.substring(1, input.length() - 1);
+
+        return input;
     }
 }

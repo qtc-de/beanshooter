@@ -38,6 +38,6 @@ public interface ISocketFactoryProvider
 {
     public RMIClientSocketFactory getRMIClientSocketFactory(String host, int port);
     public RMISocketFactory getDefaultRMISocketFactory(String host, int port);
-    public SocketFactory getDefaultSSLSocketFactory(String host, int port);
+    public SocketFactory getSSLSocketFactory(String host, int port);
     public String getDefaultSSLSocketFactoryClass(String host, int port);
 }

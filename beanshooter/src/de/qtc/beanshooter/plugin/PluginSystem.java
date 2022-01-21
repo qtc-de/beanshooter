@@ -21,9 +21,10 @@ import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
-import de.qtc.beanshooter.plugin.providers.DefaultSocketFactoryProvider;
 import de.qtc.beanshooter.plugin.providers.JMXMPProvider;
+import de.qtc.beanshooter.plugin.providers.JNDIProvider;
 import de.qtc.beanshooter.plugin.providers.RMIProvider;
+import de.qtc.beanshooter.plugin.providers.SocketFactoryProvider;
 import de.qtc.beanshooter.plugin.providers.YsoSerialProvider;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -52,7 +53,7 @@ public class PluginSystem {
     public static void init(String pluginPath)
     {
         mBeanServerProvider = selectProvider();
-        socketFactoryProvider = new DefaultSocketFactoryProvider();
+        socketFactoryProvider = new SocketFactoryProvider();
         payloadProvider = new YsoSerialProvider();
 
         if(pluginPath != null)
@@ -141,16 +142,21 @@ public class PluginSystem {
         if( BeanshooterOption.CONN_JMXMP.getBool() )
             return new JMXMPProvider();
 
+        if( BeanshooterOption.CONN_JNDI.notNull() )
+            return new JNDIProvider();
+
         return new RMIProvider();
     }
 
     /**
-     * Returns the RMIClientSocketFactory that is used for RMI connections. The factory returned by this function
-     * is used for all direct RMI calls. So e.g. if you call the registry or another RMI endpoint directly. If you
-     * first lookup a bound name and use the obtained reference to make calls on the object, another factory is used
-     * (check the getDefaultClientSocketFactory function for more details).
+     * Attempt to obtain an MBeanServerConnection to the specified remote MBeanServer. Authentication related
+     * exceptions are handled automatically. If this is not desired, the getMBeanServerConnectionUnmanaged function
+     * should be used instead.
      *
-     * @return RMIClientSocketFactory that is used for direct RMI calls
+     * @param host target host specified on the command line
+     * @param port target port specified on the command line
+     * @param env JMX environment to use for the call
+     * @return MBeanServerConnection to the remote MBeanServer
      */
     public static MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env)
     {
@@ -197,12 +203,16 @@ public class PluginSystem {
     }
 
     /**
-     * Returns the RMIClientSocketFactory that is used for RMI connections. The factory returned by this function
-     * is used for all direct RMI calls. So e.g. if you call the registry or another RMI endpoint directly. If you
-     * first lookup a bound name and use the obtained reference to make calls on the object, another factory is used
-     * (check the getDefaultClientSocketFactory function for more details).
+     * Depending on the beanshooter action specified on the command line, the corresponding operation may wants
+     * automatic exception handling or not. Most operations should use the managed version of getMbeanServerConnection,
+     * as it handles authentication related errors automatically. However, operations that need to obtain the exact reason
+     * for an authentication error can call the unmanaged version and handle the error themselves.
      *
-     * @return RMIClientSocketFactory that is used for direct RMI calls
+     * @param host    target host specified on the command line
+     * @param port    target port specified on the command line
+     * @param env    JMX environment to use for the connection attempt
+     * @return MBeanServerConnection to the specified remote MBeanServer
+     * @throws AuthenticationException
      */
     public static MBeanServerConnection getMBeanServerConnectionUmanaged(String host, int port, Map<String,Object> env) throws AuthenticationException
     {
@@ -215,6 +225,8 @@ public class PluginSystem {
      * first lookup a bound name and use the obtained reference to make calls on the object, another factory is used
      * (check the getDefaultClientSocketFactory function for more details).
      *
+     * @param host target host specified on the command line
+     * @param port target port specified on the command line
      * @return RMIClientSocketFactory that is used for direct RMI calls
      */
     public static RMIClientSocketFactory getRMIClientSocketFactory(String host, int port)
@@ -227,6 +239,8 @@ public class PluginSystem {
      * factory returned by this function is used when you perform RMI actions on a remote object reference that was
      * obtained from the RMI registry and the RMI server did not assign a custom socket factory to the object.
      *
+     * @param host target host specified on the command line
+     * @param port target port specified on the command line
      * @return RMISocketFactory that is used for "after lookup" RMI calls
      */
     public static RMISocketFactory getDefaultRMISocketFactory(String host, int port)
@@ -241,6 +255,8 @@ public class PluginSystem {
      * you want to use as your default SSLSocketFactory. Notice that the factory needs to be available on the class path
      * and it is not sufficient to define it within the plugin.
      *
+     * @param host target host specified on the command line
+     * @param port target port specified on the command line
      * @return String that indicates the desired SSLSocketFactories class name
      */
     public static String getDefaultSSLSocketFactoryClass(String host, int port)
@@ -248,11 +264,27 @@ public class PluginSystem {
         return socketFactoryProvider.getDefaultSSLSocketFactoryClass(host, port);
     }
 
-    public static SocketFactory getDefaultSSLSocketFactory(String host, int port)
+    /**
+     * Return the SocketFactory that should be used for non RMI based TLS protected connections. This is e.g.
+     * required for JMXMP connections.
+     *
+     * @param host target host specified on the command line
+     * @param port target port specified on the command line
+     * @return SocketFactory for TLS protected non RMI based connections
+     */
+    public static SocketFactory getSSLSocketFactory(String host, int port)
     {
-        return socketFactoryProvider.getDefaultSSLSocketFactory(host, port);
+        return socketFactoryProvider.getSSLSocketFactory(host, port);
     }
 
+    /**
+     * Return a deserialization gadget that matches the command line specified arguments.
+     *
+     * @param op operation that requested the gadget
+     * @param gadgetName name of the gadget
+     * @param gadgetCmd gadget command
+     * @return deserialization gadget
+     */
     public static Object getPayloadObject(Operation op, String gadgetName, String gadgetCmd)
     {
         return payloadProvider.getPayloadObject(op, gadgetName, gadgetCmd);

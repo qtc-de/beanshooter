@@ -258,9 +258,9 @@ public class RMIProvider implements IMBeanServerProvider {
          * Not required but defined in RMIServer.
          */
         @Override
-        public String getVersion() throws RemoteException {
-            // TODO Auto-generated method stub
-            return null;
+        public String getVersion() throws RemoteException
+        {
+            return "1.0";
         }
 
         /**

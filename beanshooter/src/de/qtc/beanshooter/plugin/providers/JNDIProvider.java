@@ -20,19 +20,23 @@ import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
 
 /**
- * The JNDIProvider provides MBeanServerConnections using a JNDI lookup.
+ * The JNDIProvider provides MBeanServerConnections using a JNDI lookup. It has been tested for
+ * RMI based connections only so far.
  *
  * @author Tobias Neitzel (@qtc_de)
  */
 public class JNDIProvider implements IMBeanServerProvider {
 
-    private static final String connString = "service:jmx:rmi:///jndi/rmi://%s:%s/%s";
-
+    /**
+     * Obtain the user specified JNDI string (--jndi <JNDI-STING>) from the command line and use it as a
+     * JMXServiceURL. The JNDI string may contain two %s placeholders that are replaced with the specified
+     * host and port values.
+     */
     @Override
     public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env)
     {
         MBeanServerConnection mBeanServerConnection = null;
-        String boundName = ArgumentHandler.require(BeanshooterOption.TARGET_BOUND_NAME);
+        String connString = ArgumentHandler.require(BeanshooterOption.CONN_JNDI);
 
         java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
 
@@ -49,7 +53,7 @@ public class JNDIProvider implements IMBeanServerProvider {
         }
 
         try {
-            JMXServiceURL jmxUrl = new JMXServiceURL(String.format(connString, host, port, boundName));
+            JMXServiceURL jmxUrl = new JMXServiceURL(String.format(connString, host, port));
             JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, env);
 
             mBeanServerConnection = jmxConnector.getMBeanServerConnection();
