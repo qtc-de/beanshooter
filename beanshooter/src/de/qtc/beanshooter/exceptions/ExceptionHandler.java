@@ -1,5 +1,7 @@
 package de.qtc.beanshooter.exceptions;
 
+import java.io.IOException;
+
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.utils.Utils;
@@ -251,6 +253,131 @@ public class ExceptionHandler {
 
         showStackTrace(e);
         Utils.exit();
+    }
+
+    public static void handleFileWrite(Exception e, String path, boolean exit)
+    {
+        Throwable t = ExceptionHandler.getCause(e);
+        String message = t.getMessage();
+
+        if(t instanceof java.io.FileNotFoundException)
+        {
+            Logger.eprintlnMixedYellow("Caught", "FileNotFoundException", "while opening output file.");
+
+            if(message.contains("Permission denied"))
+                Logger.eprintlnMixedBlue("Missing the required permissions to write to:", path);
+
+            else if(message.contains("No such file or director"))
+                Logger.eprintlnMixedBlue("The parent directory of", path, "seems not to exist.");
+
+            else if(message.contains("Is a directory"))
+                Logger.eprintlnMixedBlue("The specified path", path, "is an existing directory.");
+
+            else
+                unexpectedException(e, "writing", "file", exit);
+        }
+
+        else
+            unexpectedException(e, "writing", "file", exit);
+
+        showStackTrace(e);
+        Utils.exit(exit);
+    }
+
+    public static void handleFileRead(Exception e, String path, boolean exit)
+    {
+        Throwable t = ExceptionHandler.getCause(e);
+        String message = t.getMessage();
+
+        if(t instanceof java.nio.file.NoSuchFileException)
+        {
+            if(message.contains(path))
+                Logger.eprintlnMixedBlue("The specified file", path, "seems not to exist.");
+
+            else
+                unexpectedException(e, "reading", "file", exit);
+        }
+
+        else if( t instanceof java.nio.file.AccessDeniedException)
+        {
+            Logger.eprintlnMixedYellow("Caught", "AccessDeniedException", "while opening input file.");
+            Logger.eprintlnMixedBlue("Missing the required permissions to read file:", path);
+        }
+
+        else if(t instanceof java.io.IOException)
+        {
+            Logger.eprintlnMixedYellow("Caught", "IOException", "while opening input file.");
+
+            if(message.contains("Permission denied"))
+                Logger.eprintlnMixedBlue("Missing the required permissions to read file:", path);
+
+
+            else if(message.contains("Is a directory"))
+                Logger.eprintlnMixedBlue("The specified path", path, "is an existing directory.");
+
+            else
+                unexpectedException(e, "reading", "file", exit);
+        }
+
+        else
+            unexpectedException(e, "reading", "file", exit);
+
+        showStackTrace(e);
+        Utils.exit(exit);
+    }
+
+    public static void handleMBeanGeneric(Exception e)
+    {
+        Throwable t = ExceptionHandler.getCause(e);
+
+        if( t instanceof java.io.EOFException )
+        {
+            Logger.printlnMixedYellow("Caught unexpected", "EOFException", "while waiting for a server response.");
+            Logger.println("The server has probably terminated the connection.");
+            ExceptionHandler.showStackTrace(e);
+            Utils.exit();
+        }
+    }
+
+    public static void handleExecException(Exception e, String[] commandArray)
+    {
+        Throwable t = ExceptionHandler.getCause(e);
+        String message =  t.getMessage();
+
+        if( t instanceof IOException )
+        {
+            if(message.contains("error=2,"))
+                Logger.printlnMixedYellow("Unknown command:", commandArray[0]);
+
+            else if(message.contains("error=13,"))
+                Logger.printlnYellow("Permission denied.");
+        }
+
+        else
+        {
+            unexpectedException(e, "running", "command", true);
+        }
+    }
+
+    public static void handleShellExecException(Exception e, String[] commandArray)
+    {
+        Throwable t = ExceptionHandler.getCause(e);
+        String message =  t.getMessage();
+
+        if( t instanceof IOException )
+        {
+            if(message.contains("error=2,"))
+                Logger.printlnPlainMixedYellow("Unknown command:", commandArray[0]);
+
+            else if(message.contains("error=13,"))
+                Logger.printlnPlainYellow("Permission denied.");
+        }
+
+        else
+        {
+            Logger.printlnPlainMixedYellow("Caught unexpected", t.getClass().getName(), "while running the specified command.");
+            ExceptionHandler.stackTrace(e);
+        }
     }
 
     public static void ysoNotPresent(String location)

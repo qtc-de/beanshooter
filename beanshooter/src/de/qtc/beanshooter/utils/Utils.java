@@ -49,6 +49,21 @@ public class Utils {
     }
 
     /**
+     * Just a wrapper around System.exit(1) that prints an information before quitting. This
+     * version is invoked with a boolean that decides whether the exit should be performed.
+     *
+     * @param exit whether to exit
+     */
+    public static void exit(boolean exit)
+    {
+        if(!exit)
+            return;
+
+        Logger.eprintln("Cannot continue from here.");
+        System.exit(1);
+    }
+
+    /**
      * Parses an ObjID from a String. You can just specify a number like 1, 2 or 3 to target one of the
      * well known RMI components or a full ObjID string to target a different RemoteObject. Full ObjID
      * strings look usually like this: [196e60b8:17ac2551248:-7ffc, -7934078052539650836]
@@ -291,56 +306,27 @@ public class Utils {
     }
 
     /**
-     * Wrapper around the readFile function defined below. Takes a string as the argument.
+     * Helper function that reads a file into a byte array.
      *
-     * @param path file system path to read
-     * @return file content as byte array
+     * @param file the file to read
+     * @return content of the file as byte array
+     * @throws IOException
      */
-    public static byte[] readFile(String path)
+    public static byte[] readFile(String path) throws IOException
     {
         return readFile(new File(path));
     }
 
     /**
-     * Helper function to read a file from the local file system. Includes error handling and
-     * exits if the specified file cannot be read.
+     * Helper function that reads a file into a byte array.
      *
-     * @param file file to read from the file system
-     * @return file content as byte array
+     * @param file the file to read
+     * @return content of the file as byte array
+     * @throws IOException
      */
-    public static byte[] readFile(File file)
+    public static byte[] readFile(File file) throws IOException
     {
-        byte[] content = null;
-
-        if( !file.exists() )
-        {
-            Logger.eprintlnMixedYellow("The file", file.getAbsolutePath(), "does not exist.");
-            Utils.exit();
-        }
-
-        if( !file.isFile() )
-        {
-            Logger.eprintlnMixedYellow("Path", file.getAbsolutePath(), "is not a file.");
-            Utils.exit();
-        }
-
-        if( !file.canRead() )
-        {
-            Logger.eprintlnMixedYellow("The file", file.getAbsolutePath(), "is not readable.");
-            Utils.exit();
-        }
-
-        try
-        {
-            content = Files.readAllBytes(file.toPath());
-        }
-
-        catch (IOException e)
-        {
-            ExceptionHandler.unexpectedException(e, "reading file", file.getAbsolutePath(), true);
-        }
-
-        return content;
+        return Files.readAllBytes(file.toPath());
     }
 
     /**
