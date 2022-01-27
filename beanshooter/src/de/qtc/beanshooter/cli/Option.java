@@ -17,6 +17,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
  */
 public interface Option
 {
+    public String name();
     public ArgType getArgType();
     public ArgumentAction argumentAction();
     public boolean getBool();

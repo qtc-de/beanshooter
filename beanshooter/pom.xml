@@ -50,6 +50,7 @@
              <directory>.</directory>
              <includes>
                  <include>config.properties</include>
+                 <include>default-credentials.txt</include>
              </includes>
           </resource>
 

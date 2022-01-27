@@ -208,6 +208,7 @@ public class ArgumentHandler
             }
         }
 
+        Logger.resetIndent();
         Logger.eprintlnMixedYellow("Error: The specified aciton requires the", option.getName(), "option.");
         Utils.exit();
 
@@ -237,6 +238,7 @@ public class ArgumentHandler
 
          helpString.setLength(helpString.length() - 2);
 
+         Logger.resetIndent();
         Logger.eprintlnMixedYellow("Error: The specified aciton requires one of the", helpString.toString(), "options.");
         Utils.exit();
 
@@ -268,6 +270,7 @@ public class ArgumentHandler
 
         if( failed )
         {
+            Logger.resetIndent();
             Logger.eprintlnMixedYellow("Error: The specified aciton requires the", helpString.toString(), "options.");
             Utils.exit();
         }
@@ -278,17 +281,31 @@ public class ArgumentHandler
      * parameters. This function is used to prepare such a map by using the Options specified on the command
      * line.
      *
-     * @return
+     * @return environment that should be used during the newClient call
      */
     public static Map<String,Object> getEnv()
+    {
+        return getEnv(BeanshooterOption.CONN_USER.getValue(), BeanshooterOption.CONN_PASS.getValue());
+    }
+
+    /**
+     * Authentication to JMX endpoints is usually handled using a map that contains the authentication
+     * parameters. This function is used to prepare such a map by using an explicitly defiend username
+     * and password.
+     *
+     * @param username the desired username for JMX authentication
+     * @param password the desired password for JMX authentication
+     * @return environment that should be used during the newClient call
+     */
+    public static Map<String,Object> getEnv(String username, String password)
     {
         HashMap<String,Object> env = new HashMap<String,Object>();
 
         if(BeanshooterOption.CONN_SSL.getBool())
             env.put("com.sun.jndi.rmi.factory.socket", new SslRMIClientSocketFactory());
 
-        if(BeanshooterOption.CONN_USER.notNull() && BeanshooterOption.CONN_PASS.notNull())
-            env.put(JMXConnector.CREDENTIALS, new String[] {BeanshooterOption.CONN_USER.getValue(), BeanshooterOption.CONN_PASS.getValue()});
+        if(username != null && password != null)
+            env.put(JMXConnector.CREDENTIALS, new String[] {username, password});
 
         return env;
     }

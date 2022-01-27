@@ -1,6 +1,7 @@
 package de.qtc.beanshooter.operation;
 
 import java.util.Map;
+import java.util.Set;
 
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
@@ -11,6 +12,7 @@ import javax.management.RuntimeMBeanException;
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.io.WordlistHandler;
 import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -149,9 +151,26 @@ public class Dispatcher {
         }
     };
 
+    public void brute()
+    {
+        String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
+        int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
+
+        Logger.printlnMixedYellow("Reading wordlists for the", "brute", "action.");
+        Logger.increaseIndent();
+
+        Map<String,Set<String>> bruteMap = WordlistHandler.getCredentialMap();
+
+        Logger.decreaseIndent();
+        Logger.lineBreak();
+
+        CredentialGuesser guesser = new CredentialGuesser(host, port, bruteMap);
+        guesser.startGuessing();
+    };
+
+
     public void invoke() {};
 
-    public void brute() {};
     public void downloadFile() {};
     public void shell() {};
     public void status() {};

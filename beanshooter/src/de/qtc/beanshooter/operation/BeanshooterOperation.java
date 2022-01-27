@@ -18,7 +18,27 @@ import net.sourceforge.argparse4j.inf.Subparsers;
  */
 public enum BeanshooterOperation implements Operation {
 
-    BRUTE("brute", "bruteforce JMX credentials", new Option[] {}),
+    BRUTE("brute", "bruteforce JMX credentials", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_SASL,
+            BeanshooterOption.BRUTE_USER_FILE,
+            BeanshooterOption.BRUTE_PW_FILE,
+            BeanshooterOption.BRUTE_USER,
+            BeanshooterOption.BRUTE_PASSWORD,
+            BeanshooterOption.BRUTE_THREADS,
+            BeanshooterOption.NO_PROGRESS,
+    }),
 
     INVOKE("invoke", "invoke the specified method on the specified MBean", new Option[] {
              BeanshooterOption.GLOBAL_CONFIG,

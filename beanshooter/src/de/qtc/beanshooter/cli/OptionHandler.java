@@ -50,7 +50,7 @@ public class OptionHandler {
     {
         for(Option option : options) {
 
-            Object defaultValue = config.getProperty(option.getName().toLowerCase());
+            Object defaultValue = config.getProperty(option.name().toLowerCase());
 
             try {
 

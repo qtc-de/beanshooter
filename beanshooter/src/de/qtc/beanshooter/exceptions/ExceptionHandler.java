@@ -380,6 +380,31 @@ public class ExceptionHandler {
         }
     }
 
+    public static void handleSecurityException(SecurityException e) throws AuthenticationException
+    {
+        Throwable t = getCause(e);
+        String message = t.getMessage();
+
+        if( t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed") )
+            throw new AuthenticationException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Authentication required") )
+            throw new AuthenticationException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Mismatched URI") )
+            throw new MismatchedURIException(e, true);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Invalid response") )
+            throw new AuthenticationException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Bad credentials") )
+            throw new AuthenticationException(e);
+
+        Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "while connecting to the specified JMX service.");
+        stackTrace(e);
+        Utils.exit();
+    }
+
     public static void ysoNotPresent(String location)
     {
         Logger.eprintlnMixedBlue("Unable to find ysoserial library in path", location);

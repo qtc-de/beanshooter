@@ -71,7 +71,7 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
         this(rmi.host, rmi.port);
     }
 
-    private static void SocketFactorySetup(String host, int port)
+    private synchronized static void SocketFactorySetup(String host, int port)
     {
         if( setupComplete )
             return;

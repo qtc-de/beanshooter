@@ -13,9 +13,9 @@ import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.cli.SASLMechanism;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
-import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.operation.BeanshooterOperation;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.IMBeanServerProvider;
 import de.qtc.beanshooter.plugin.PluginSystem;
@@ -50,12 +50,12 @@ public class JMXMPProvider implements IMBeanServerProvider {
         SASLMechanism saslMechanism = ArgumentHandler.getSASLMechanism();
         if( saslMechanism != null )
         {
-            ArgumentHandler.requireAllOf(BeanshooterOption.CONN_USER, BeanshooterOption.CONN_PASS);
+            if(ArgumentHandler.getInstance().getAction() != BeanshooterOperation.BRUTE)
+                ArgumentHandler.requireAllOf(BeanshooterOption.CONN_USER, BeanshooterOption.CONN_PASS);
 
-            String username = ArgumentHandler.require(BeanshooterOption.CONN_USER);
-            String password = ArgumentHandler.require(BeanshooterOption.CONN_PASS);
+            String[] credentials = (String[]) env.get(JMXConnector.CREDENTIALS);
 
-            saslMechanism.init(env, username, password);
+            saslMechanism.init(env, credentials[0], credentials[1]);
         }
 
         try
@@ -95,21 +95,7 @@ public class JMXMPProvider implements IMBeanServerProvider {
 
         catch( java.lang.SecurityException e )
         {
-            Throwable t = ExceptionHandler.getCause(e);
-            String message = t.getMessage();
-
-            if( t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed") )
-                throw new AuthenticationException(e);
-
-            if( t instanceof java.lang.SecurityException && message.contains("Mismatched URI") )
-                throw new MismatchedURIException(e, true);
-
-            if( t instanceof java.lang.SecurityException && message.contains("Invalid response") )
-                throw new AuthenticationException(e);
-
-            Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "while connecting to the specified JMX service.");
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            ExceptionHandler.handleSecurityException(e);
         }
 
         return mBeanServerConnection;

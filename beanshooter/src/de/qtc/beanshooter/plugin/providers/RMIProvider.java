@@ -14,6 +14,7 @@ import javax.management.remote.rmi.RMIConnection;
 import javax.management.remote.rmi.RMIConnector;
 import javax.management.remote.rmi.RMIServer;
 
+import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.networking.RMIEndpoint;
@@ -35,10 +36,11 @@ public class RMIProvider implements IMBeanServerProvider {
     /**
      * Obtain an MBeanServerConnection from the specified endpoint. How the endpoint is obtained depends
      * on other command line arguments.
+     * @throws AuthenticationException
      */
     @SuppressWarnings("resource")
     @Override
-    public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env)
+    public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env) throws AuthenticationException
     {
         endpoint = new RMIEndpoint(host, port);
         regEndpoint = new RMIRegistryEndpoint(endpoint);
@@ -94,7 +96,7 @@ public class RMIProvider implements IMBeanServerProvider {
             Utils.exit();
 
         } catch( SecurityException e ) {
-            ExceptionHandler.credentialException(e);
+            ExceptionHandler.handleSecurityException(e);
         }
 
         return connection;

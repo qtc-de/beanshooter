@@ -210,6 +210,34 @@ public enum BeanshooterOption implements Option {
                         ArgType.STRING,
                         "cmd"),
 
+    BRUTE_USER("--username",
+                 "username for the bruteforce attack",
+                  Arguments.store(),
+                  OptionGroup.ACTION,
+                  ArgType.STRING,
+                  "name"),
+
+    BRUTE_PASSWORD("--password",
+                        "password for the bruteforce attack",
+                        Arguments.store(),
+                        OptionGroup.ACTION,
+                        ArgType.STRING,
+                      "password"),
+
+    BRUTE_USER_FILE("--username-file",
+                        "password file for the bruteforce attack",
+                        Arguments.store(),
+                        OptionGroup.ACTION,
+                        ArgType.STRING,
+                        "path"),
+
+    BRUTE_PW_FILE("--password-file",
+                  "password file for the bruteforce attack",
+                  Arguments.store(),
+                  OptionGroup.ACTION,
+                  ArgType.STRING,
+                  "path"),
+
     INVOKE_OBJ_NAME("object-name",
                     "ObjectName of the targeted MBean",
                     Arguments.store(),
@@ -237,6 +265,13 @@ public enum BeanshooterOption implements Option {
                          OptionGroup.CONNECTION,
                          ArgType.STRING,
                          "method"),
+
+    NO_PROGRESS("--no-progress",
+                "do not display a progress bar",
+                Arguments.storeTrue(),
+                OptionGroup.ACTION,
+                ArgType.BOOL
+                ),
 
     YSO("--yso",
         "location of ysoserial.jar for deserialization attacks",
