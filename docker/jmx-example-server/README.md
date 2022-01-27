@@ -22,3 +22,17 @@ Here is a summarized overview of the exposed services:
 * ``0.0.0.0:4448`` - *JMXMP* endpoint with `TLS CRAM-MD5` *SASL* profile
 * ``0.0.0.0:4449`` - *JMXMP* endpoint with `TLS NTLM` *SASL* profile
 * ``0.0.0.0:9010`` - *RMI registry* binding a *JMX remote object* that does not require authentication
+
+
+### Credentials
+
+----
+
+* All *JMXMP* endpoints that require authentication (`4446-4449`) and the
+  *JMX* service listening on `1099` use the following credentials:
+  * `controlRole:control`
+  * `monitorRole:monitor`
+
+* The password protected *JMX* service on port `1090` uses the following credentials:
+  * `admin:admin`
+
