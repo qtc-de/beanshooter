@@ -11,7 +11,12 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.sasl.RealmCallback;
 import javax.security.sasl.RealmChoiceCallback;
 
+import de.qtc.beanshooter.exceptions.AuthenticationException;
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.SaslProfileException;
+import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
+import de.qtc.beanshooter.plugin.PluginSystem;
 
 /**
  * When using the JMXMP protocol for connecting to a JMX server, SASL authentication is supported.
@@ -112,6 +117,44 @@ public enum SASLMechanism {
         }
 
         return mechanisms;
+    }
+
+    /**
+     * Attempt to autodetect the SASL mechanism of the remote server. This is not 100% reliable.
+     * One of the most difficult problems is that SASL authentication seems to ignore the TLS profile
+     * in case of incorrect credentials. That means that e.g. the server profile TLS SASL PLAIN reports
+     * wrong credentials being used even when the client profile is SASL PLAIN. Only with valid credentials,
+     * a reliable enumeration is possible.
+     *
+     * @param host remote MBean server host
+     * @param port remote MBean server port
+     * @param env JMX environment to use for the connection
+     * @return the SASL mechanism used by the server or null, if the mechanism could not be detected
+     */
+    public static SASLMechanism detectMechanis(String host, int port, Map<String,Object> env)
+    {
+        for (SASLMechanism mechanism : SASLMechanism.values())
+        {
+            BeanshooterOption.CONN_SASL.setValue(mechanism.name().toLowerCase());
+
+            try
+            {
+                PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
+                return mechanism;
+            }
+
+            catch (SaslProfileException e)
+            {
+                ExceptionHandler.showStackTrace(e);
+            }
+
+            catch (AuthenticationException e)
+            {
+                return mechanism;
+            }
+        }
+
+        return null;
     }
 
     /**

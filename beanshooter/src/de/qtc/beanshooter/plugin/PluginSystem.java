@@ -18,6 +18,7 @@ import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.MalformedPluginException;
 import de.qtc.beanshooter.exceptions.MismatchedURIException;
+import de.qtc.beanshooter.exceptions.SaslMissingException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
@@ -168,13 +169,23 @@ public class PluginSystem {
         }
         catch( AuthenticationException e)
         {
+            if( e instanceof SaslMissingException)
+            {
+                Logger.eprintlnMixedYellow("Caught", "SaslMissingException", "while connecting to the JMX service.");
+                Logger.eprintlnMixedBlue("The sever requires a", "SASL profile (--sasl)", "to be specified.");
+                e.showDetails();
+
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
+            }
+
             if( e instanceof SaslProfileException)
             {
                 Logger.eprintlnMixedYellow("Caught", "SaslProfileException", "while connecting to the JMX service.");
                 Logger.eprintlnMixedBlue("The specified", "SASL profile", "does not match the server SASL profile.");
                 e.showDetails();
 
-                ExceptionHandler.showStackTrace(e.getOriginalException());
+                ExceptionHandler.showStackTrace(e);
                 Utils.exit();
             }
 
@@ -184,7 +195,7 @@ public class PluginSystem {
                 Logger.eprintlnMixedBlue("The specified", "target host", "does not match the configured SASL host.");
                 e.showDetails();
 
-                ExceptionHandler.showStackTrace(e.getOriginalException());
+                ExceptionHandler.showStackTrace(e);
                 Utils.exit();
             }
 
@@ -194,7 +205,7 @@ public class PluginSystem {
                 Logger.eprintlnMixedBlue("The targeted JMX endpoint probably", "requires authentication.");
                 e.showDetails();
 
-                ExceptionHandler.showStackTrace(e.getOriginalException());
+                ExceptionHandler.showStackTrace(e);
                 Utils.exit();
             }
         }
@@ -288,5 +299,16 @@ public class PluginSystem {
     public static Object getPayloadObject(Operation op, String gadgetName, String gadgetCmd)
     {
         return payloadProvider.getPayloadObject(op, gadgetName, gadgetCmd);
+    }
+
+    /**
+     * Returns the currently configured MBeanServerProvider class that implements the
+     * IMBeanServerProvider interface.
+     *
+     * @return Configured MBeanServerProvider
+     */
+    public static IMBeanServerProvider getMBeanServerProvider()
+    {
+        return mBeanServerProvider;
     }
 }

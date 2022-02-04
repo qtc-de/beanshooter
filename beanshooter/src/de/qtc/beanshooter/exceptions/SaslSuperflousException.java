@@ -6,16 +6,16 @@ package de.qtc.beanshooter.exceptions;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public class SaslProfileException extends AuthenticationException {
+public class SaslSuperflousException extends SaslProfileException {
 
     private static final long serialVersionUID = 1L;
 
-    public SaslProfileException(Exception e)
+    public SaslSuperflousException(Exception e)
     {
         super(e, false);
     }
 
-    public SaslProfileException(Exception e, boolean showDetails)
+    public SaslSuperflousException(Exception e, boolean showDetails)
     {
         super(e, showDetails);
     }

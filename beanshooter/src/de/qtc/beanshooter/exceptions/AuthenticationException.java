@@ -61,4 +61,22 @@ public class AuthenticationException extends Exception {
         if( showDetails )
             Logger.eprintlnMixedYellow("Original Exception:", origException.getMessage());
     }
+
+    /**
+     * Override the original printStackTrace method to print the stack trace of the original
+     * Exception.
+     */
+    public void printStackTrace()
+    {
+        origException.printStackTrace();
+    }
+
+    /**
+     * Override the original getMessage method to return the message of the original
+     * Exception.
+     */
+    public String getMessage()
+    {
+        return origException.getMessage();
+    }
 }

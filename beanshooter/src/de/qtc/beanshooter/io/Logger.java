@@ -234,6 +234,11 @@ public class Logger {
         log(prefix() + first + " " + red(second));
     }
 
+    public static void printlnMixedRed(String first, String second, String third)
+    {
+        log(prefix() + first + " " + red(second) + " " + third);
+    }
+
     public static void printlnPlainMixedRed(String first, String second)
     {
         log(first + " " + red(second));

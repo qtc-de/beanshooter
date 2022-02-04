@@ -16,6 +16,7 @@ import javax.management.remote.rmi.RMIServer;
 
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.networking.RMIEndpoint;
 import de.qtc.beanshooter.networking.RMIRegistryEndpoint;
@@ -28,11 +29,8 @@ import de.qtc.beanshooter.utils.Utils;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public class RMIProvider implements IMBeanServerProvider {
-
-    private RMIEndpoint endpoint;
-    private RMIRegistryEndpoint regEndpoint;
-
+public class RMIProvider implements IMBeanServerProvider
+{
     /**
      * Obtain an MBeanServerConnection from the specified endpoint. How the endpoint is obtained depends
      * on other command line arguments.
@@ -42,22 +40,23 @@ public class RMIProvider implements IMBeanServerProvider {
     @Override
     public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env) throws AuthenticationException
     {
-        endpoint = new RMIEndpoint(host, port);
-        regEndpoint = new RMIRegistryEndpoint(endpoint);
+        RMIRegistryEndpoint regEndpoint = new RMIRegistryEndpoint(host, port);
 
         RMIServer rmiServer = null;
         RMIConnector rmiConnector = null;
         MBeanServerConnection connection = null;
 
-        if( BeanshooterOption.TARGET_OBJID_CONNECTION.notNull() ) {
-
+        if( BeanshooterOption.TARGET_OBJID_CONNECTION.notNull() )
+        {
             ObjID objID = Utils.parseObjID(BeanshooterOption.TARGET_OBJID_CONNECTION.getValue());
-            RMIConnection conn = getRMIConnectionByObjID(objID);
+            RMIConnection conn = getRMIConnectionByObjID(regEndpoint, objID);
 
             rmiServer = new FakeRMIServer(conn);
+        }
 
-        } else {
-            rmiServer = getRMIServer();
+        else
+        {
+            rmiServer = getRMIServer(regEndpoint);
         }
 
         rmiConnector = new RMIConnector(rmiServer, env);
@@ -69,6 +68,12 @@ public class RMIProvider implements IMBeanServerProvider {
         } catch (IOException e) {
 
             Throwable t = ExceptionHandler.getCause(e);
+
+            if(t instanceof java.io.InvalidClassException)
+                throw new InvalidLoginClassException(e);
+
+            if(t instanceof java.lang.ClassNotFoundException)
+                throw new InvalidLoginClassException(e);
 
             Logger.resetIndent();
             Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while invoking the newClient method.");
@@ -109,15 +114,15 @@ public class RMIProvider implements IMBeanServerProvider {
      * @param env environment to use for regular JMX logins
      * @return RMIConnection to an remote MBeanServer
      */
-    public RMIConnection getRMIConnection(Map<String,Object> env)
+    public RMIConnection getRMIConnection(RMIRegistryEndpoint regEndpoint, Map<String,Object> env)
     {
         if( BeanshooterOption.TARGET_OBJID_CONNECTION.notNull() ) {
 
             ObjID objID = Utils.parseObjID(BeanshooterOption.TARGET_OBJID_CONNECTION.getValue());
-            return getRMIConnectionByObjID(objID);
+            return getRMIConnectionByObjID(regEndpoint, objID);
         }
 
-        RMIServer server = getRMIServer();
+        RMIServer server = getRMIServer(regEndpoint);
         return getRMIConnectionByLogin(server, env);
     }
 
@@ -149,7 +154,7 @@ public class RMIProvider implements IMBeanServerProvider {
      * @param objID ObjID value of the remote object to connect to
      * @return RMIConnection to the remote MBeanServer
      */
-    private RMIConnection getRMIConnectionByObjID(ObjID objID)
+    private RMIConnection getRMIConnectionByObjID(RMIEndpoint endpoint, ObjID objID)
     {
         RemoteRef ref = endpoint.getRemoteRef(objID);
         RemoteObjectInvocationHandler handler = new RemoteObjectInvocationHandler(ref);
@@ -163,15 +168,15 @@ public class RMIProvider implements IMBeanServerProvider {
      *
      * @return RMIServer object
      */
-    private RMIServer getRMIServer()
+    public RMIServer getRMIServer(RMIRegistryEndpoint regEndpoint)
     {
-        if( BeanshooterOption.TARGET_OBJID_SERVER.notNull() ) {
-
+        if( BeanshooterOption.TARGET_OBJID_SERVER.notNull() )
+        {
             ObjID objID = Utils.parseObjID(BeanshooterOption.TARGET_OBJID_SERVER.getValue());
-            return getRMIServerByObjID(objID);
+            return getRMIServerByObjID(regEndpoint, objID);
         }
 
-        return getRMIServerByLookup();
+        return getRMIServerByLookup(regEndpoint);
     }
 
     /**
@@ -180,7 +185,7 @@ public class RMIProvider implements IMBeanServerProvider {
      * @param objID ObjID value of the targeted RMIServer
      * @return RMIServer object
      */
-    private RMIServer getRMIServerByObjID(ObjID objID)
+    private RMIServer getRMIServerByObjID(RMIEndpoint endpoint, ObjID objID)
     {
         RemoteRef ref = endpoint.getRemoteRef(objID);
         RemoteObjectInvocationHandler handler = new RemoteObjectInvocationHandler(ref);
@@ -194,7 +199,7 @@ public class RMIProvider implements IMBeanServerProvider {
      * @param boundName boundName to lookup on the RMI registry
      * @return RMIServer object
      */
-    private RMIServer getRMIServerByLookup(String boundName)
+    private RMIServer getRMIServerByLookup(RMIRegistryEndpoint regEndpoint, String boundName)
     {
         RMIServer returnValue = null;
 
@@ -218,10 +223,10 @@ public class RMIProvider implements IMBeanServerProvider {
 
      * @return RMIServer object
      */
-    private RMIServer getRMIServerByLookup()
+    private RMIServer getRMIServerByLookup(RMIRegistryEndpoint regEndpoint)
     {
         if( BeanshooterOption.TARGET_BOUND_NAME.notNull() )
-            return getRMIServerByLookup(BeanshooterOption.TARGET_BOUND_NAME.getValue());
+            return getRMIServerByLookup(regEndpoint, BeanshooterOption.TARGET_BOUND_NAME.getValue());
 
         String[] boundNames = regEndpoint.getBoundNames();
         Remote[] remoteObjects = Utils.filterJmxEndpoints(regEndpoint.lookup(boundNames));

@@ -210,6 +210,13 @@ public enum BeanshooterOption implements Option {
                         ArgType.STRING,
                         "cmd"),
 
+    SERIAL_PREAUTH("--preauth",
+                   "attempt pre authentication deserialization",
+                   Arguments.storeTrue(),
+                   OptionGroup.ACTION,
+                   ArgType.BOOL
+                   ),
+
     BRUTE_USER("--username",
                  "username for the bruteforce attack",
                   Arguments.store(),

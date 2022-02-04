@@ -13,7 +13,9 @@ import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.cli.SASLMechanism;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.SaslMissingException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
+import de.qtc.beanshooter.exceptions.SaslSuperflousException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOperation;
 import de.qtc.beanshooter.operation.BeanshooterOption;
@@ -83,10 +85,10 @@ public class JMXMPProvider implements IMBeanServerProvider {
                 throw new SaslProfileException(e, true);
 
             if( t instanceof IOException && message.contains("not require any profile but the server mandates on") )
-                throw new SaslProfileException(e, true);
+                throw new SaslMissingException(e, true);
 
             if( t instanceof IOException && message.contains("The server does not support any profile") )
-                throw new SaslProfileException(e, true);
+                throw new SaslSuperflousException(e, true);
 
             Logger.eprintlnMixedYellow("Caught unexpected", "IOException", "while connecting to the specified JMX service.");
             ExceptionHandler.showStackTrace(e);

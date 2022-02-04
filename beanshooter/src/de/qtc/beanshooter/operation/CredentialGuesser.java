@@ -55,7 +55,7 @@ public class CredentialGuesser
         Logger.lineBreak();
         Logger.increaseIndent();
 
-        int threads =ArgumentHandler.require(BeanshooterOption.BRUTE_THREADS);
+        int threads = ArgumentHandler.require(BeanshooterOption.BRUTE_THREADS);
         ExecutorService pool = Executors.newFixedThreadPool(threads);
 
         for(Entry<String,Set<String>> entry : credentials.entrySet())

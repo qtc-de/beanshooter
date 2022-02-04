@@ -22,9 +22,15 @@ public class ExceptionHandler {
     private static void sslOption()
     {
         if(BeanshooterOption.CONN_SSL.getBool())
+        {
             Logger.eprintlnMixedBlue("You probably used", "--ssl", "on a plaintext connection?");
+        }
+
         else
-            Logger.eprintlnMixedYellow("You can retry the operation using the", "--ssl", "option.");
+        {
+            Logger.eprintMixedYellow("You can retry the operation using the", "--ssl", "or ");
+            Logger.printlnPlainMixedYellowFirst("--jmxmp", "option.");
+        }
     }
 
     /**
@@ -194,7 +200,7 @@ public class ExceptionHandler {
     public static void noJRMPServer(Exception e, String during1, String during2)
     {
         Logger.eprintlnMixedYellow("Caught unexpected", "ConnectIOException", "during " + during1 + " " + during2 + ".");
-        Logger.eprintMixedBlue("Remote endpoint is either", "no RMI endpoint", "or uses an");
+        Logger.eprintMixedBlue("Remote endpoint is probably", "no RMI endpoint", "or uses an");
         Logger.eprintlnPlainBlue(" SSL socket.");
 
         ExceptionHandler.sslOption();
@@ -398,6 +404,15 @@ public class ExceptionHandler {
             throw new AuthenticationException(e);
 
         if( t instanceof java.lang.SecurityException && message.contains("Bad credentials") )
+            throw new AuthenticationException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Credentials required") )
+            throw new AuthenticationException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("None of LM and NTLM verified") )
+            throw new AuthenticationException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Invalid credential type") )
             throw new AuthenticationException(e);
 
         Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "while connecting to the specified JMX service.");

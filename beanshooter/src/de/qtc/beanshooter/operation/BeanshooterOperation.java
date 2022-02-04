@@ -97,6 +97,7 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.TARGET_BOUND_NAME,
             BeanshooterOption.TARGET_OBJID_SERVER,
             BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_JMXMP,
             BeanshooterOption.CONN_FOLLOW,
             BeanshooterOption.CONN_SSL,
             BeanshooterOption.CONN_USER,
@@ -119,9 +120,12 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.CONN_SSL,
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_SASL,
             BeanshooterOption.SERIAL_GADGET_NAME,
             BeanshooterOption.SERIAL_GADGET_CMD,
             BeanshooterOption.YSO,
+            BeanshooterOption.SERIAL_PREAUTH,
     }),
 
 

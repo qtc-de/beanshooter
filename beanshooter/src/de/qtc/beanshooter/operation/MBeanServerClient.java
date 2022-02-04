@@ -1,13 +1,14 @@
 package de.qtc.beanshooter.operation;
 
 import java.io.IOException;
-import java.rmi.UnmarshalException;
+import java.util.Set;
 
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
@@ -127,14 +128,28 @@ public class MBeanServerClient {
         } catch (InstanceNotFoundException e) {
 
         } catch (MBeanRegistrationException e) {
-
+            //TODO
             e.printStackTrace();
 
         } catch (IOException e) {
+            //TODO
             e.printStackTrace();
         }
 
         Logger.println("MBean was successfully removed.");
+    }
+
+    public Set<ObjectInstance> getMBeans()
+    {
+        try {
+            return conn.queryMBeans(null, null);
+
+        } catch (IOException e) {
+            // TODO
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     /**
@@ -149,10 +164,9 @@ public class MBeanServerClient {
      * @throws InstanceNotFoundException
      * @throws MBeanException
      * @throws ReflectionException
-     * @throws UnmarshalException
      * @throws IOException
      */
-    public Object invoke(ObjectName name, String methodName, Object... args) throws MBeanException, ReflectionException, UnmarshalException
+    public Object invoke(ObjectName name, String methodName, Object... args) throws  IOException, MBeanException, ReflectionException
     {
         String[] argumentTypes = new String[args.length];
 
@@ -168,14 +182,6 @@ public class MBeanServerClient {
             Logger.eprintlnMixedYellow("Caught unexpected", "InstanceNotFoundException", "while calling invoke.");
             Logger.eprintlnMixedBlue("The specified MBean", name.toString(), "does probably not exist on the endpoint.");
             Utils.exit();
-
-        } catch( IOException e ) {
-
-            if( e instanceof java.rmi.UnmarshalException ) {
-                throw (java.rmi.UnmarshalException)e;
-            }
-
-            ExceptionHandler.ioException(e, "invoke");
         }
 
         return result;
