@@ -201,8 +201,9 @@ public class EnumHelper
 
         if (BeanshooterOption.CONN_JMXMP.getBool())
         {
-            Logger.printlnMixedYellow("JMXMP serial check is","work in progress", "but endpoints are usually vulnerable.");
+            Logger.printlnMixedYellow("- JMXMP serial check is","work in progress", "but endpoints are usually vulnerable.");
             Logger.statusUndecided("Configuration");
+            Logger.decreaseIndent();
             return;
         }
 
