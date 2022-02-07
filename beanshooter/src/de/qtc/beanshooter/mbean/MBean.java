@@ -9,6 +9,7 @@ import de.qtc.beanshooter.cli.Operation;
 import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.mbean.mlet.MLetOperation;
 import de.qtc.beanshooter.mbean.mlet.MLetOption;
+import de.qtc.beanshooter.mbean.tomcat.MemoryUserDatabaseMBeanOperation;
 import de.qtc.beanshooter.mbean.tonkabean.TonkaBeanOperation;
 import de.qtc.beanshooter.mbean.tonkabean.TonkaBeanOption;
 import de.qtc.beanshooter.utils.Utils;
@@ -38,7 +39,17 @@ public enum MBean implements IMBean
          null,
          MLetOperation.values(),
          MLetOption.values()
-        );
+        ),
+
+    MEMORY_USER_DATABASE(
+           "tomcat",
+           "tomcat MemoryUserDatabaseMBean used for user management",
+            Utils.getObjectName("Users:type=UserDatabase,database=UserDatabase"),
+            "package org.apache.catalina.mbeans.MemoryUserDatabaseMBean",
+            null,
+            MemoryUserDatabaseMBeanOperation.values(),
+            new Option[] {}
+           );
 
     private String name;
     private String description;
