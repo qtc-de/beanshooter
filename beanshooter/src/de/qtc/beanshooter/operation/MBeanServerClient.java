@@ -3,6 +3,7 @@ package de.qtc.beanshooter.operation;
 import java.io.IOException;
 import java.util.Set;
 
+import javax.management.AttributeNotFoundException;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
@@ -185,5 +186,33 @@ public class MBeanServerClient {
         }
 
         return result;
+    }
+
+    /**
+     * Wrapper around the getAttribute function from the MBeanServerConnection.
+     *
+     * @param conn MBeanServerConnection to invoke the function on
+     * @param name ObjectName of the MBean to invoke the function on
+     * @param methodName function name to invoke
+     * @param args arguments to use for the call
+     * @return return value of the MBean call.
+     * @throws InstanceNotFoundException
+     * @throws MBeanException
+     * @throws ReflectionException
+     * @throws IOException
+     */
+    public Object getAttribute(ObjectName name, String attributeName) throws AttributeNotFoundException, MBeanException, ReflectionException, IOException
+    {
+        try
+        {
+            return conn.getAttribute(name, attributeName);
+
+        } catch( InstanceNotFoundException e ) {
+            Logger.eprintlnMixedYellow("Caught unexpected", "InstanceNotFoundException", "while calling invoke.");
+            Logger.eprintlnMixedBlue("The specified MBean", name.toString(), "does probably not exist on the endpoint.");
+            Utils.exit();
+        }
+
+        return null;
     }
 }

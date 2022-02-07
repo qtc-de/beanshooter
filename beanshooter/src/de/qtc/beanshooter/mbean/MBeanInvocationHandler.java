@@ -41,6 +41,9 @@ public class MBeanInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
     {
+        if( method.getName().equals("getAttribute") )
+            return conn.getAttribute(objName, (String) args[0]);
+
         return conn.invoke(objName, method.getName(), args, Utils.typesToString(method.getParameterTypes()));
     }
 }

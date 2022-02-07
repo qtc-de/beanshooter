@@ -280,6 +280,22 @@ public enum BeanshooterOption implements Option {
                 ArgType.BOOL
                 ),
 
+    LIST_FILTER_CLASS("--class-filter",
+                      "only display MBeans implementing classes that contain the specified string",
+                      Arguments.store(),
+                      OptionGroup.ACTION,
+                      ArgType.STRING,
+                          "filter"
+                     ),
+
+    LIST_FILTER_OBJ("--obj-filter",
+                      "only display MBeans with an ObjectName containing the specified string",
+                      Arguments.store(),
+                      OptionGroup.ACTION,
+                      ArgType.STRING,
+                      "filter"
+                    ),
+
     YSO("--yso",
         "location of ysoserial.jar for deserialization attacks",
         Arguments.store(),

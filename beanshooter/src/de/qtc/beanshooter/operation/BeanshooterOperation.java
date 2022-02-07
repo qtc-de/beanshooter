@@ -104,6 +104,26 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.CONN_PASS,
     }),
 
+    LIST("list", "list available MBEans on the remote MBean server", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.LIST_FILTER_CLASS,
+            BeanshooterOption.LIST_FILTER_OBJ,
+    }),
+
 
     SERIAL("serial", "perform a deserialization attack", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
@@ -127,9 +147,6 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.YSO,
             BeanshooterOption.SERIAL_PREAUTH,
     }),
-
-
-    TOMCAT("tomcat", "attempts to obtain stored credentials from tomcat based JMX", new Option[] {}),
 
     UNDEPLOY("undeploy", "undeploys the specified MBEAN from the JMX server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,

@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.RuntimeMBeanException;
@@ -104,6 +105,9 @@ public class Dispatcher {
         mBeanServerClient.unregisterMBean(mBeanObjectName);
     };
 
+    /**
+     * Enumerate common vulnerabilities on the targeted JMX server.
+     */
     public void enumerate()
     {
         boolean access = false;
@@ -135,7 +139,6 @@ public class Dispatcher {
         Logger.lineBreak();
         enumHelper.enumMBeans();
     }
-
 
     /**
      * The serial action performs an deserialization attack on the remote MBeanServer. It uses the
@@ -230,7 +233,7 @@ public class Dispatcher {
     };
 
     /**
-     * Performs a brureforce attack on the targeted JMX endpoint
+     * Attempt to bruteforce valid credentials on the targeted JMX endpoint.
      */
     public void brute()
     {
@@ -249,14 +252,38 @@ public class Dispatcher {
         guesser.startGuessing();
     };
 
+    /**
+     * List available MBeans on the remote MBeanServer.
+     */
+    public void list()
+    {
+        MBeanServerClient mBeanServerClient = getMBeanServerClient();
+        Set<ObjectInstance> instances = mBeanServerClient.getMBeans();
+
+        Logger.println("Available MBeans:");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        for(ObjectInstance instance : instances)
+        {
+            if( BeanshooterOption.LIST_FILTER_CLASS.notNull() &&
+                !instance.getClassName().toLowerCase().contains(BeanshooterOption.LIST_FILTER_CLASS.getValue()))
+            {
+                continue;
+            }
+
+            if( BeanshooterOption.LIST_FILTER_OBJ.notNull() &&
+                !instance.getObjectName().toString().toLowerCase().contains(BeanshooterOption.LIST_FILTER_OBJ.getValue()))
+            {
+                continue;
+            }
+
+            Logger.printMixedYellow("-", instance.getClassName(), "");
+            Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
+        }
+
+        Logger.decreaseIndent();
+    };
 
     public void invoke() {};
-
-    public void downloadFile() {};
-    public void shell() {};
-    public void status() {};
-
-    public void tomcat() {};
-    public void uploadFile() {};
-
 }
