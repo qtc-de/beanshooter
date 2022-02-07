@@ -1,0 +1,23 @@
+version: '3.7'
+
+services:
+    tomcat:
+      image: tomcat:latest
+      entrypoint: /opt/start.sh
+      environment:
+        - > 
+          _JAVA_OPTIONS=
+          -Djavax.net.ssl.keyStorePassword=password
+          -Djavax.net.ssl.keyStore=/opt/store.p12
+          -Djavax.net.ssl.keyStoreType=pkcs12
+          -Djava.rmi.server.hostname=iinsecure.dev
+          -Dcom.sun.management.jmxremote
+          -Dcom.sun.management.jmxremote.ssl=false
+          -Dcom.sun.management.jmxremote.local.only=false
+          -Dcom.sun.management.jmxremote.authenticate=false
+          -Dcom.sun.management.jmxremote.port=1090
+          -Dcom.sun.management.jmxremote.rmi.port=1099
+      volumes: 
+        - ./resources/trust/store.p12:/opt/store.p12
+        - ./resources/scripts/start.sh:/opt/start.sh
+        - ./resources/conf/tomcat-users.xml:/usr/local/tomcat/conf/tomcat-users.xml
