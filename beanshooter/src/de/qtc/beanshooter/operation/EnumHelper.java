@@ -1,8 +1,12 @@
 package de.qtc.beanshooter.operation;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
@@ -37,11 +41,55 @@ public class EnumHelper
     }
 
     /**
+     * If a password and a username was specified for the enum action, we perform a regular login.
+     *
+     * @return true if login was successful
+     */
+    public boolean login()
+    {
+        Map<String, Object> env = ArgumentHandler.getEnv();
+
+        Logger.printlnBlue("Checking specified credentials:");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        try
+        {
+            MBeanServerConnection conn = PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
+
+            Logger.printlnMixedYellowFirst("- Login successful!", "The specified credentials are correct.");
+            Logger.printMixedBlue("  Username:", BeanshooterOption.CONN_USER.getValue(), " - ");
+            Logger.printlnPlainMixedBlue("Password:", BeanshooterOption.CONN_PASS.getValue());
+
+            client = new MBeanServerClient(conn);
+            return true;
+        }
+
+        catch (AuthenticationException e)
+        {
+            Logger.printlnMixedYellow("- Caught", "AuthenticationException", "during login attempt.");
+            Logger.statusUndecided("Configuration");
+            ExceptionHandler.showStackTrace(e);
+        }
+
+        catch (Exception e) {
+            Logger.printlnMixedYellow("- Caught unexpected", e.getClass().getName(), "during login attempt.");
+            Logger.statusUndecided("Configuration");
+            ExceptionHandler.showStackTrace(e);
+        }
+
+        finally {
+            Logger.decreaseIndent();
+        }
+
+        return false;
+    }
+
+    /**
      * Attempts a login without credentials on the remote MBeanServer. Success or failure is reported within
      * the status messages.
      *
-     * @param printIntro
-     * @return true if access is possible
+     * @return true if unauthenticated access is possible
      */
     public boolean enumAccess()
     {
@@ -99,7 +147,7 @@ public class EnumHelper
      * checks the exception that is thrown by the server. The first mechanism that does not throw an exception based
      * on a SASL profile mismatch is interpreted as the configured server mechanism.
      *
-     * @return true if access is possible
+     * @return true if unauthenticated access is possible
      */
     public boolean enumSASL()
     {
@@ -240,21 +288,43 @@ public class EnumHelper
      * Enumerate the available MBeans on the target system and dispaly their class names together
      * with their ObjectNames.
      */
-    public void enumMBeans()
+    public Set<ObjectInstance> enumMBeans()
     {
         if (client == null)
-            return;
+            return new HashSet<ObjectInstance>();
 
-        Logger.printlnBlue("Listing available MBeans:");
+        Logger.printlnBlue("Checking available MBeans:");
         Logger.lineBreak();
         Logger.increaseIndent();
 
         Set<ObjectInstance> mbeans = client.getMBeans();
-        for(ObjectInstance instance : mbeans)
+
+        List<String> classNames = mbeans.stream().map(i -> i.getClassName()).collect(Collectors.toList());
+        classNames.removeAll(Arrays.asList(ArgumentHandler.getInstance().getFromConfig("defaultMBeans").split(" ")));
+
+        Logger.printlnMixedYellowFirst("- " + mbeans.size(), "MBeans are currently registred on the MBean server.");
+
+        if( classNames.size() == 0 )
         {
-            Logger.printMixedYellow("-", instance.getClassName(), "");
-            Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
+            Logger.printlnMixedBlue("  Found", "0", "non default MBeans.");
         }
+
+        else
+        {
+            Logger.printlnMixedBlue("  Listing", String.valueOf(classNames.size()), "non default MBeans:");
+
+            for(ObjectInstance instance : mbeans)
+            {
+                if (!classNames.contains(instance.getClassName()))
+                    continue;
+
+                Logger.printMixedYellow("  -", instance.getClassName(), "");
+                Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
+            }
+        }
+
+        Logger.decreaseIndent();
+        return mbeans;
     }
 
     /**

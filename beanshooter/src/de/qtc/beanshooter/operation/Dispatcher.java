@@ -17,6 +17,7 @@ import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.WordlistHandler;
+import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -117,27 +118,24 @@ public class Dispatcher {
 
         EnumHelper enumHelper = new EnumHelper(host, port);
 
-        if(BeanshooterOption.CONN_JMXMP.getBool())
-        {
-            access = enumHelper.enumSASL();
-            Logger.lineBreak();
+        if( BeanshooterOption.CONN_USER.notNull() && BeanshooterOption.CONN_PASS.notNull())
+            access = enumHelper.login();
 
-            enumHelper.enumSerial();
-        }
+        else if(BeanshooterOption.CONN_JMXMP.getBool())
+            access = enumHelper.enumSASL();
 
         else
-        {
             access = enumHelper.enumAccess();
-            Logger.lineBreak();
 
-            enumHelper.enumSerial();
-        }
+        Logger.lineBreak();
+        enumHelper.enumSerial();
 
         if (!access)
             return;
 
         Logger.lineBreak();
-        enumHelper.enumMBeans();
+        Set<ObjectInstance> mbeans = enumHelper.enumMBeans();
+        MBean.performEnumActions(mbeans);
     }
 
     /**

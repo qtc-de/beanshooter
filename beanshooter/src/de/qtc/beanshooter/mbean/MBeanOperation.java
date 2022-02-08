@@ -230,6 +230,9 @@ public enum MBeanOperation implements Operation {
 
             for( Operation operation : bean.getOperations() )
             {
+                if(operation.getName().equals("ENUM"))
+                    continue;
+
                 Subparser opParser = subparsers.addParser(operation.getName().toLowerCase()).help(operation.getDescription());
                 OptionHandler.addOptions(operation, opParser);
             }

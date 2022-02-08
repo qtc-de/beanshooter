@@ -36,11 +36,42 @@ public class TomcatUser
      */
     public void listUser()
     {
-        Logger.printMixedBlueFirst("Username:\t", "");
-        Logger.printlnPlainYellow(username);
+        Logger.println(new String(new char[40]).replace("\0", "-"));
 
-        Logger.printlnMixedBlueFirst("Password:\t", password);
-        Logger.printlnMixedBlueFirst("Roles:\t\t", String.join(", ", roles));
-        Logger.printlnMixedBlueFirst("Groups:\t\t", String.join(", ", groups));
+        Logger.printlnBlue("Username:");
+        Logger.increaseIndent();
+        Logger.printlnYellow(username);
+        Logger.decreaseIndent();
+
+        Logger.printlnBlue("Password:");
+        Logger.increaseIndent();
+        Logger.printlnYellow(password);
+        Logger.decreaseIndent();
+
+        if( roles.length > 0 )
+        {
+            Logger.printlnBlue("Roles:");
+            Logger.increaseIndent();
+
+            for(String role : roles)
+            {
+                Logger.printlnYellow(role);
+            }
+
+            Logger.decreaseIndent();
+        }
+
+        if( groups.length > 0 )
+        {
+            Logger.printlnBlue("Groups:");
+            Logger.increaseIndent();
+
+            for(String group : groups)
+            {
+                Logger.printlnYellow(group);
+            }
+
+            Logger.decreaseIndent();
+        }
     }
 }

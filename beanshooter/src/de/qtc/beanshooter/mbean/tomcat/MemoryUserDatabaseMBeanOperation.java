@@ -14,6 +14,8 @@ import de.qtc.beanshooter.operation.BeanshooterOption;
  */
 public enum MemoryUserDatabaseMBeanOperation implements Operation {
 
+    ENUM("enumerate", "supplemental enum operation", new Option[] {}),
+
     LIST("list", "list available users on the tomcat server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,

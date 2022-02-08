@@ -83,7 +83,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
         if( users.length == 0 )
         {
-            Logger.printlnMixedYellow("tomcat server", "does not", "contain any user configuration.");
+            Logger.printlnMixedYellow("tomcat server", "does not", "contain any users.");
             return;
         }
 
@@ -94,6 +94,38 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         {
             Logger.lineBreak();
             user.listUser();
+        }
+
+        Logger.decreaseIndent();
+    }
+
+    /**
+     * List available users on the tomcat server.
+     */
+    public void enumerate()
+    {
+        Logger.printlnBlue("Enumerating tomcat users:");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        TomcatUser[] users = getUsers();
+        if( users.length == 0 )
+        {
+            Logger.printlnMixedYellow("- tomcat server", "does not", "contain any users.");
+        }
+
+        else
+        {
+            Logger.printlnMixedYellow("- Listing", String.valueOf(users.length), "tomcat users:");
+            Logger.increaseIndent();
+
+            for(TomcatUser user : users)
+            {
+                Logger.lineBreak();
+                user.listUser();
+            }
+
+            Logger.decreaseIndent();
         }
 
         Logger.decreaseIndent();

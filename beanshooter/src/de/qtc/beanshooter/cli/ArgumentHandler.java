@@ -119,6 +119,17 @@ public class ArgumentHandler
     }
 
     /**
+     * Obtain an item from the beanshooter configuration file.
+     *
+     * @param property the property to lookup
+     * @return configured value for this property
+     */
+    public String getFromConfig(String property)
+    {
+        return (String) config.get(property);
+    }
+
+    /**
      * Returns the user specified beanshooter action.
      *
      * @return Operation requested by the client

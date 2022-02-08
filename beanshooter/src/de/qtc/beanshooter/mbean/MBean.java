@@ -2,11 +2,14 @@ package de.qtc.beanshooter.mbean;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import de.qtc.beanshooter.cli.Operation;
 import de.qtc.beanshooter.cli.Option;
+import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.mlet.MLetOperation;
 import de.qtc.beanshooter.mbean.mlet.MLetOption;
 import de.qtc.beanshooter.mbean.tomcat.MemoryUserDatabaseMBeanOperation;
@@ -171,6 +174,25 @@ public enum MBean implements IMBean
     }
 
     /**
+     * Find a member of the MBean enum by it's ObjectName.
+     *
+     * @param objectName ObjectName to loom for
+     * @return MBean member that matches the specified ObjectName
+     */
+    public static MBean getMBean(ObjectName objectName)
+    {
+        MBean returnValue = null;
+
+        for(MBean bean : MBean.values())
+        {
+            if( bean.objectName.equals(objectName) )
+                returnValue = bean;
+        }
+
+        return returnValue;
+    }
+
+    /**
      * Return a list of available MBean members.
      *
      * @return List of avaulable MBean members
@@ -183,5 +205,40 @@ public enum MBean implements IMBean
             mBeanNames.add(bean.getName());
 
         return mBeanNames;
+    }
+
+    /**
+     * During beanshooters enum operation, beanshooter attempts to list available MBeans on the
+     * remote MBeanServer. The result (Set<ObjectInstance>) is passed into this function, which
+     * checks whether one of the available MBeans is present within the MBean enum. If this is
+     * the case, beanshooter checks for an Operation with the name ENUM within the MBean operations.
+     * If such an Operation is found, it is invoked.
+     *
+     * The idea behind this is to allow triggering additional enum actions for specific MBeans.
+     * E.g. enumerating tomcat users on a JMX endpoint only makes sense if the corresponding
+     * MBean is present. With the performEnumActions functions, we can just implement an ENUM
+     * operation for the MemoryUserDatabaseMBean and it triggers automatically when this bean is
+     * present.
+     *
+     * @param instances enumerated MBean instances available on the remote MBeanServer
+     */
+    public static void performEnumActions(Set<ObjectInstance> instances)
+    {
+        for(ObjectInstance instance : instances)
+        {
+            MBean mbean = MBean.getMBean(instance.getObjectName());
+
+            if(mbean == null)
+                continue;
+
+            for(Operation op : mbean.getOperations())
+            {
+                if(op.getName().equals("ENUM"))
+                {
+                    Logger.lineBreak();
+                    op.invoke();
+                }
+            }
+        }
     }
 }

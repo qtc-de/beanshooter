@@ -14,7 +14,6 @@ import javax.security.sasl.RealmChoiceCallback;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
-import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.PluginSystem;
 
