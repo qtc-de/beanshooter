@@ -22,9 +22,11 @@ import de.qtc.beanshooter.exceptions.SaslMissingException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
+import de.qtc.beanshooter.plugin.providers.ArgumentProvider;
 import de.qtc.beanshooter.plugin.providers.JMXMPProvider;
 import de.qtc.beanshooter.plugin.providers.JNDIProvider;
 import de.qtc.beanshooter.plugin.providers.RMIProvider;
+import de.qtc.beanshooter.plugin.providers.ResponseHandlerProvider;
 import de.qtc.beanshooter.plugin.providers.SocketFactoryProvider;
 import de.qtc.beanshooter.plugin.providers.YsoSerialProvider;
 import de.qtc.beanshooter.utils.Utils;
@@ -41,6 +43,8 @@ public class PluginSystem {
     private static IMBeanServerProvider mBeanServerProvider;
     private static ISocketFactoryProvider socketFactoryProvider;
     private static IPayloadProvider payloadProvider;
+    private static IArgumentProvider argumentProvider;
+    private static IResponseHandler responseHandler;
 
     private static final String manifestAttribute = "BeanshooterPluginClass";
 
@@ -56,6 +60,8 @@ public class PluginSystem {
         mBeanServerProvider = selectProvider();
         socketFactoryProvider = new SocketFactoryProvider();
         payloadProvider = new YsoSerialProvider();
+        argumentProvider = new ArgumentProvider();
+        responseHandler = new ResponseHandlerProvider();
 
         if(pluginPath != null)
             loadPlugin(pluginPath);
@@ -124,7 +130,16 @@ public class PluginSystem {
         } if(pluginInstance instanceof IPayloadProvider) {
             payloadProvider = (IPayloadProvider)pluginInstance;
             inUse = true;
+
+        } if(pluginInstance instanceof IArgumentProvider) {
+            argumentProvider = (IArgumentProvider)pluginInstance;
+            inUse = true;
+
+        } if(pluginInstance instanceof IResponseHandler) {
+            responseHandler = (IResponseHandler)pluginInstance;
+            inUse = true;
         }
+
 
         if(!inUse) {
             Logger.eprintMixedBlue("Plugin", pluginPath, "was successfully loaded, but is ");
@@ -310,5 +325,27 @@ public class PluginSystem {
     public static IMBeanServerProvider getMBeanServerProvider()
     {
         return mBeanServerProvider;
+    }
+
+    /**
+     * Pass the user supplied argument String to the ArgumentProvider and return the resulting
+     * Object array.
+     *
+     * @param argumentString user supplied argument string
+     * @return Object arry parsed from the string
+     */
+    public static Object[] getArgumentArray(String argumentString)
+    {
+        return argumentProvider.getArgumentArray(argumentString);
+    }
+
+    /**
+     * Handle the response object from the MBean server.
+     *
+     * @param response object returned from the MBean server
+     */
+    public static void handleResponse(Object response)
+    {
+        responseHandler.handleResponse(response);
     }
 }

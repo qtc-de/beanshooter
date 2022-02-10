@@ -161,14 +161,14 @@ public enum BeanshooterOption implements Option {
                        ArgType.STRING,
                        "addr"),
 
-    DEPLOY_BEAN_CLASS("--classname",
+    DEPLOY_BEAN_CLASS("classname",
                       "classname of the MBean to deploy",
                       Arguments.store(),
                       OptionGroup.BEAN,
                       ArgType.STRING,
                       "name"),
 
-    DEPLOY_BEAN_NAME("--object-name",
+    DEPLOY_BEAN_NAME("object-name",
                      "object name of the MBean to deploy",
                      Arguments.store(),
                      OptionGroup.BEAN,
@@ -182,7 +182,7 @@ public enum BeanshooterOption implements Option {
                     ArgType.STRING,
                     "path"),
 
-    UNDEPLOY_BEAN_NAME("--object-name",
+    UNDEPLOY_BEAN_NAME("object-name",
                      "object name of the MBean to remove",
                      Arguments.store(),
                      OptionGroup.BEAN,
@@ -265,6 +265,13 @@ public enum BeanshooterOption implements Option {
                           OptionGroup.ACTION,
                           ArgType.STRING,
                           "args"),
+
+    INVOKE_LITERAL("--literal",
+                   "also invoke methods starting with get as normal methods",
+                   Arguments.storeTrue(),
+                   OptionGroup.ACTION,
+                   ArgType.BOOL
+                   ),
 
     CONN_SASL("--sasl",
                          "SASL mechanism to use for the connection",

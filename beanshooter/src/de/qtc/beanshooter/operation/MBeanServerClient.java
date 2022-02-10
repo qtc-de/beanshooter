@@ -169,12 +169,16 @@ public class MBeanServerClient {
      */
     public Object invoke(ObjectName name, String methodName, Object... args) throws  IOException, MBeanException, ReflectionException
     {
-        String[] argumentTypes = new String[args.length];
-
-        for(int ctr = 0; ctr < args.length; ctr++)
-            argumentTypes[ctr] = args[ctr].getClass().getName();
-
         Object result = null;
+        String[] argumentTypes = null;
+
+        if (args != null)
+        {
+            argumentTypes = new String[args.length];
+
+            for(int ctr = 0; ctr < args.length; ctr++)
+                argumentTypes[ctr] = args[ctr].getClass().getName();
+        }
 
         try {
             result = conn.invoke(name, methodName, args, argumentTypes);

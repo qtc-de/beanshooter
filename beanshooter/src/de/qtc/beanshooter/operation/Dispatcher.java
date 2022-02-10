@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import javax.management.AttributeNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
@@ -90,7 +91,7 @@ public class Dispatcher {
         ObjectName mBeanObjectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.DEPLOY_BEAN_NAME));
 
         MBeanServerClient mBeanServerClient = getMBeanServerClient();
-        mBeanServerClient.deployMBean(mBeanClassName, mBeanObjectName, ArgumentHandler.require(BeanshooterOption.DEPLOY_JAR_FILE));
+        mBeanServerClient.deployMBean(mBeanClassName, mBeanObjectName, BeanshooterOption.DEPLOY_JAR_FILE.getValue());
 
         Logger.decreaseIndent();
     }
@@ -283,5 +284,39 @@ public class Dispatcher {
         Logger.decreaseIndent();
     };
 
-    public void invoke() {};
+    /**
+     * Invoke a method on an MBean. This allows the user to manually specify an object name, a method name
+     * and the desired arguments and invokes the corresponding call on the MBeanServer.
+     */
+    public void invoke()
+    {
+        ArgumentHandler.requireAllOf(BeanshooterOption.INVOKE_METHOD_ARGS, BeanshooterOption.INVOKE_OBJ_NAME, BeanshooterOption.INVOKE_METHOD_NAME);
+
+        ObjectName objectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.INVOKE_OBJ_NAME));
+        String methodName = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD_NAME);
+        String argumentString = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD_ARGS);
+
+        Object[] argumentArray = PluginSystem.getArgumentArray(argumentString);
+        MBeanServerClient client = getMBeanServerClient();
+
+        try
+        {
+            Object result;
+
+            if(methodName.startsWith("get") && !BeanshooterOption.INVOKE_LITERAL.getBool())
+                result = client.getAttribute(objectName, methodName.substring(3));
+
+            else
+                result = client.invoke(objectName, methodName, argumentArray);
+
+            PluginSystem.handleResponse(result);
+        }
+
+        catch (MBeanException | ReflectionException | AttributeNotFoundException | IOException e)
+        {
+            Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while invoking %s on %s.", methodName, objectName.toString()));
+            Logger.println("beanshooter does not handle exceptions for custom method invocations.");
+            ExceptionHandler.stackTrace(e);
+        }
+    };
 }
