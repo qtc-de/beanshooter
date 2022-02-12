@@ -38,6 +38,18 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_SASL,
     }),
 
+    EXPORT("export", "create an export of the MBean", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.EXPORT_DIR,
+            BeanshooterOption.EXPORT_JAR,
+            BeanshooterOption.EXPORT_MLET,
+            BeanshooterOption.EXPORT_URL
+    }),
+
     DEPLOY("deploy", "deploys the specified MBean on the JMX server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -60,9 +72,6 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.DEPLOY_STAGER_URL,
             BeanshooterOption.DEPLOY_STAGER_PORT,
             BeanshooterOption.DEPLOY_STAGER_ADDR,
-            BeanshooterOption.DEPLOY_BEAN_CLASS,
-            BeanshooterOption.DEPLOY_BEAN_NAME,
-            BeanshooterOption.DEPLOY_JAR_FILE,
     }),
 
     UNDEPLOY("undeploy", "undeploys the specified MBEAN from the JMX server", new Option[] {
@@ -82,7 +91,6 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-            BeanshooterOption.UNDEPLOY_BEAN_NAME,
     });
 
     private Method method;
@@ -239,6 +247,9 @@ public enum MBeanOperation implements Operation {
 
             for( MBeanOperation operation : MBeanOperation.values())
             {
+                if( operation.getName().equals("EXPORT") && bean.getJarName() == null )
+                    continue;
+
                 Subparser opParser = subparsers.addParser(operation.getName().toLowerCase()).help(operation.getDescription());
                 OptionHandler.addOptions(operation, opParser);
             }

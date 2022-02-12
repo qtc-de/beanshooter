@@ -1,8 +1,16 @@
 package de.qtc.beanshooter.mbean;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+
 import javax.management.ObjectName;
 
+import de.qtc.beanshooter.cli.ArgumentHandler;
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.networking.JarHandler;
+import de.qtc.beanshooter.networking.MLetHandler;
+import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.operation.MBeanServerClient;
 
 /**
@@ -94,4 +102,55 @@ public class Dispatcher extends de.qtc.beanshooter.operation.Dispatcher
         MBeanServerClient mBeanServerClient = getMBeanServerClient();
         mBeanServerClient.unregisterMBean(mBeanObjectName);
     }
+
+    /**
+     * This function allows exporting the bean and/or a corresponding MLet HTML file to the file system.
+     * This is useful in cases where you cannot use beanshooter as a stager, e.g. when loading an MBean via
+     * SMB.
+     */
+    public void export()
+    {
+        boolean exported = false;
+        String filename = bean.getJarName();
+
+        try
+        {
+            JarHandler jarHandler = new JarHandler(bean.getJarName(), false, null);
+
+            if( BeanshooterOption.EXPORT_JAR.notNull() )
+            {
+                filename = BeanshooterOption.EXPORT_JAR.getValue();
+                jarHandler.export(filename);
+                exported = true;
+            }
+
+            String url = BeanshooterOption.EXPORT_URL.getValue("");
+            MLetHandler mletHandler = new MLetHandler(url, bean.getMBeanClass(), filename, bean.getObjectName().toString(), false);
+
+            if( BeanshooterOption.EXPORT_MLET.notNull() )
+            {
+                ArgumentHandler.require(BeanshooterOption.EXPORT_URL);
+                mletHandler.export(BeanshooterOption.EXPORT_MLET.getValue());
+                exported = true;
+            }
+
+            if(exported)
+                return;
+
+            ArgumentHandler.require(BeanshooterOption.EXPORT_URL);
+            String exportDir = BeanshooterOption.EXPORT_DIR.getValue(".");
+
+            filename = Paths.get(exportDir, filename).toString();
+            jarHandler.export(filename);
+
+            filename = Paths.get(exportDir, "index.html").toString();
+            mletHandler.export(filename);
+        }
+
+        catch( IOException e )
+        {
+            ExceptionHandler.handleFileWrite(e, filename, true);
+        }
+    }
+
 }

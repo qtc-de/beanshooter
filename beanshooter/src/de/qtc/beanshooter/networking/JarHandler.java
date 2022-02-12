@@ -87,7 +87,7 @@ public class JarHandler implements HttpHandler {
      */
     public void export(String filename) throws IOException
     {
-        Logger.printlnMixedBlue("Exporting MBean jar file:", filename);
+        Logger.printlnMixedYellow("Exporting MBean jar file:", filename);
 
         File file = new File(filename);
         Files.write(file.toPath(), jarContent);

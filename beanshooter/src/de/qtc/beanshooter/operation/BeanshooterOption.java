@@ -128,6 +128,38 @@ public enum BeanshooterOption implements Option {
               ArgType.STRING,
               "jndi"),
 
+    EXPORT_DIR("--export-dir",
+            "export tonka bean and mlet file to the specified dir",
+            Arguments.store(),
+            OptionGroup.ACTION,
+            ArgType.STRING,
+             "dir"
+            ),
+
+     EXPORT_JAR("--export-jar",
+                "export the tonka bean to the specified filename",
+                Arguments.store(),
+                OptionGroup.ACTION,
+                ArgType.STRING,
+                 "filename"
+                ),
+
+     EXPORT_MLET("--export-mlet",
+                 "export an MLet HTML file to the specified location",
+                 Arguments.store(),
+                 OptionGroup.ACTION,
+                 ArgType.STRING,
+                 "filename"
+                 ),
+
+     EXPORT_URL("--stager-url",
+                "URL of the stager server to use within the MLet HTML file",
+                Arguments.store(),
+                OptionGroup.ACTION,
+                ArgType.STRING,
+                "url"
+                ),
+
     DEPLOY_STAGER_ONLY("--stager-only",
                        "only launch the stager HTTP server",
                        Arguments.storeTrue(),
@@ -409,7 +441,29 @@ public enum BeanshooterOption implements Option {
             return (T)value;
 
         } catch( ClassCastException e ) {
-            ExceptionHandler.internalError("RMGOption.getValue", "ClassCastException was caught.");
+            ExceptionHandler.internalError("Beanshooter.getValue", "ClassCastException was caught.");
+        }
+
+        return null;
+    }
+
+    /**
+     * Returns the value stored within the option. If the value is null, return the specified
+     * default value.
+     *
+     * @return value stored within the option
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getValue(T def)
+    {
+        if( value == null )
+            return def;
+
+        try {
+            return (T)value;
+
+        } catch( ClassCastException e ) {
+            ExceptionHandler.internalError("Beanshooter.getValue", "ClassCastException was caught.");
         }
 
         return null;

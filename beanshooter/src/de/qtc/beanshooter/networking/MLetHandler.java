@@ -70,16 +70,15 @@ public class MLetHandler implements HttpHandler {
      */
     public void export(String filename) throws IOException
     {
-        Logger.println("Exporting mlet:");
+        Logger.printlnMixedYellow("Exporting MLet HTML file to:", filename);
         Logger.increaseIndent();
 
         printInfo();
 
         Logger.decreaseIndent();
-        Logger.lineBreak();
 
         File file = new File(filename);
-        Files.write(file.toPath(), mLet.getBytes());
+        Files.write(file.toPath(), mLetResponse.getBytes());
     }
 
     /**

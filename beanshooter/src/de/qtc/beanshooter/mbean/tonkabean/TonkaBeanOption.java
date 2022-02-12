@@ -174,7 +174,7 @@ public enum TonkaBeanOption implements Option
             return (T)value;
 
         } catch( ClassCastException e ) {
-            ExceptionHandler.internalError("RMGOption.getValue", "ClassCastException was caught.");
+            ExceptionHandler.internalError("Beanshooter.getValue", "ClassCastException was caught.");
         }
 
         return null;
@@ -196,7 +196,7 @@ public enum TonkaBeanOption implements Option
             return (T)value;
 
         } catch( ClassCastException e ) {
-            ExceptionHandler.internalError("RMGOption.getValue", "ClassCastException was caught.");
+            ExceptionHandler.internalError("Beanshooter.getValue", "ClassCastException was caught.");
         }
 
         return null;

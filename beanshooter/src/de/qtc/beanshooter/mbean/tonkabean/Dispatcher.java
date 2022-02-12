@@ -30,7 +30,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 {
     private File cwd;
     private Map<String,String> env;
-    private final TonkaBeanMBean tonkaBean;
+    private TonkaBeanMBean tonkaBean;
 
     /**
      * Creates the dispatcher that operates on the Tonka MBean.
@@ -40,6 +40,9 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         super(MBean.TONKA);
         cwd = new File(".");
         env = new HashMap<String,String>();
+
+        if(BeanshooterOption.TARGET_HOST.isNull())
+            return;
 
         MBeanInvocationHandler invo = new MBeanInvocationHandler(bean.getObjectName(), getMBeanServerConnection());
         tonkaBean = (TonkaBeanMBean) Proxy.newProxyInstance(Dispatcher.class.getClassLoader(),

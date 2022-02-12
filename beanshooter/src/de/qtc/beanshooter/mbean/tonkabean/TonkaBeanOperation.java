@@ -13,8 +13,8 @@ import de.qtc.beanshooter.operation.BeanshooterOption;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public enum TonkaBeanOperation implements Operation {
-
+public enum TonkaBeanOperation implements Operation
+{
     EXEC("execute", "execute a command on the MBeanServer", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
