@@ -217,7 +217,7 @@ public enum BeanshooterOption implements Option {
     UNDEPLOY_BEAN_NAME("object-name",
                      "object name of the MBean to remove",
                      Arguments.store(),
-                     OptionGroup.BEAN,
+                     OptionGroup.ACTION,
                      ArgType.STRING,
                      "name"),
 
