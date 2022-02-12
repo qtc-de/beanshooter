@@ -15,21 +15,23 @@ public enum TonkaBeanOption implements Option
              Arguments.store(),
              OptionGroup.ACTION,
              ArgType.STRING
-           ),
+             ),
 
     EXEC_CWD("--cwd",
              "working directory to execute the command in",
              Arguments.store(),
              OptionGroup.ACTION,
-             ArgType.STRING
-            ),
+             ArgType.STRING,
+             "cwd"
+             ),
 
     EXEC_ENV("--env",
              "environment variables to use with the command",
              Arguments.store(),
              OptionGroup.ACTION,
-             ArgType.STRING
-               ),
+             ArgType.STRING,
+             "env"
+             ),
 
     EXEC_HEX("--hex",
              "return the command output as hexstring",
@@ -41,27 +43,30 @@ public enum TonkaBeanOption implements Option
               "write the command output into a file",
               Arguments.store(),
               OptionGroup.ACTION,
-              ArgType.STRING),
+              ArgType.STRING,
+              "file"
+              ),
 
     EXEC_RAW("--raw",
              "return the raw output of the command without diagnostic messages",
              Arguments.storeTrue(),
              OptionGroup.ACTION,
-             ArgType.BOOL),
+             ArgType.BOOL
+             ),
 
     UPLOAD_SOURCE("local",
                   "local file to upload onto the server",
                   Arguments.store(),
                   OptionGroup.ACTION,
                   ArgType.STRING
-                 ),
+                  ),
 
     UPLOAD_DEST("remote",
                 "remote path to upload the file to",
                 Arguments.store(),
                 OptionGroup.ACTION,
                 ArgType.STRING
-               ),
+                ),
 
     DOWNLOAD_SOURCE("remote",
                     "remote path to download the file from",
@@ -75,7 +80,7 @@ public enum TonkaBeanOption implements Option
                   Arguments.store(),
                   OptionGroup.ACTION,
                   ArgType.STRING
-                ),
+                  ),
     ;
 
     private final String name;
