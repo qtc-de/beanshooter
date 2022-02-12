@@ -125,6 +125,7 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.CONN_SSL,
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
             BeanshooterOption.LIST_FILTER_CLASS,
             BeanshooterOption.LIST_FILTER_OBJ,
     }),
