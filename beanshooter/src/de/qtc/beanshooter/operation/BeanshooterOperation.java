@@ -106,6 +106,7 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.CONN_SSL,
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
     }),
 
     LIST("list", "list available MBEans on the remote MBean server", new Option[] {
