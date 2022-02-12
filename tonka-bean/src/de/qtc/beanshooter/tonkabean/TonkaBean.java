@@ -17,6 +17,16 @@ import java.util.Map;
 public class TonkaBean implements TonkaBeanMBean
 {
     /**
+     * The main function is only used for debugging purposes (e.g. is the compiled tonka bean working
+     * as expected). It prints just a static string to stdout.
+     *
+     * @param argv command line parameters. Ignored.
+     */
+    public static void main(String[] argv)
+    {
+        System.out.println("Hi there! I'm the TonkaBean. Deploy me on a JMX service and let's have some fun :)");
+    }
+    /**
      * Checks whether the specified path is an existing directory on the server and returns
      * the normalized form of it.
      *
