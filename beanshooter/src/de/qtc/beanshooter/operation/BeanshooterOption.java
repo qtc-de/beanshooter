@@ -196,16 +196,16 @@ public enum BeanshooterOption implements Option {
     DEPLOY_BEAN_CLASS("classname",
                       "classname of the MBean to deploy",
                       Arguments.store(),
-                      OptionGroup.BEAN,
-                      ArgType.STRING,
-                      "name"),
+                      OptionGroup.ACTION,
+                      ArgType.STRING
+                      ),
 
     DEPLOY_BEAN_NAME("object-name",
                      "object name of the MBean to deploy",
                      Arguments.store(),
-                     OptionGroup.BEAN,
-                     ArgType.STRING,
-                     "name"),
+                     OptionGroup.ACTION,
+                     ArgType.STRING
+                     ),
 
     DEPLOY_JAR_FILE("--jar",
                     "jar archive to deploy",
