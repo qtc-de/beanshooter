@@ -195,7 +195,7 @@ public enum MBean implements IMBean
     /**
      * Return a list of available MBean members.
      *
-     * @return List of avaulable MBean members
+     * @return List of available MBean members
      */
     public static List<String> getBeanNames()
     {
@@ -203,6 +203,26 @@ public enum MBean implements IMBean
 
         for( MBean bean : MBean.values())
             mBeanNames.add(bean.getName());
+
+        return mBeanNames;
+    }
+
+    /**
+     * Return a list of available MBean members that have a jar file defined.
+     *
+     * @return List of available MBean members that have a jar file defined
+     */
+    public static List<String> getLoadableBeanNames()
+    {
+        List<String> mBeanNames = new ArrayList<String>();
+
+        for( MBean bean : MBean.values())
+        {
+            if( bean.jarFileName == null )
+                continue;
+
+            mBeanNames.add(bean.getName());
+        }
 
         return mBeanNames;
     }

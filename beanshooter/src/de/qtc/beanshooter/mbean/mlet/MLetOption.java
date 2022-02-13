@@ -16,19 +16,19 @@ import net.sourceforge.argparse4j.inf.Namespace;
  */
 public enum MLetOption implements Option
 {
-    LOAD_URL("url",
-             "URL to load the MBean from",
-             Arguments.store(),
-             OptionGroup.ACTION,
-             ArgType.STRING
-            ),
-
     LOAD_BEAN("bean",
               "name of the bean to load ('custom' for custom MBean)",
               Arguments.store(),
               OptionGroup.ACTION,
               ArgType.STRING
              ),
+
+    LOAD_URL("url",
+             "URL to load the MBean from",
+             Arguments.store(),
+             OptionGroup.ACTION,
+             ArgType.STRING
+            ),
 
     LOAD_CLASS_NAME("--class-name",
                     "class name of the MBean to load",

@@ -132,7 +132,7 @@ public class OptionHandler {
 
         if( option == MLetOption.LOAD_BEAN )
         {
-            List<String> mBeanNames = MBean.getBeanNames();
+            List<String> mBeanNames = MBean.getLoadableBeanNames();
             mBeanNames.add("custom");
             arg.choices(mBeanNames);
         }
