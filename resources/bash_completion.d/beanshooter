@@ -7,7 +7,7 @@ type _comp_get_parameter &> /dev/null || return
 
 function _beanshooter() {
 
-    local cur prev words cword opts arg args gadgets value_options operations sasl_mechanisms
+    local cur prev words cword opts arg args gadgets value_options operations sasl_mechanisms tonka_actions mlet_actions tomcat_actios mbeans mbean_actions
     _init_completion || return
 
     value_options="--class-name --jar-file --object-name --config --plugin --bound-name --objid-server --objid-connection"
@@ -27,6 +27,12 @@ function _beanshooter() {
 
     operations="brute invoke deploy enum list serial undeploy tonka mlet tomcat"
     sasl_mechanisms="plain digest cram gssapi ntlm"
+
+    mbeans="tonka mlet tomcat"
+    mbean_actions="status deploy undeploy"
+    tonka_actions="exec background shell upload download export ${mbean_actions}"
+    mlet_actions="load ${mbean_actions}"
+    tomcat_actions="list ${mbean_actions}"
 
     if [[ $cword -eq 1 ]]; then
 
@@ -67,6 +73,7 @@ function _beanshooter() {
             opts="$opts --ssl"
             opts="$opts --jmxmp"
             opts="$opts --sasl"
+
         else
             return 0
         fi
@@ -294,6 +301,405 @@ function _beanshooter() {
 
         else
             return 0
+        fi
+
+    elif _comp_contains "${mbeans}" "${words[1]}"; then
+
+        if [[ ${words[2]} == "deploy" ]]; then
+
+            if _comp_contains "--config --plugin" $prev; then
+                _filedir
+                return 0
+
+            elif _comp_contains "--sasl" $prev; then
+                opts="${sasl_mechanisms}"
+
+            elif _comp_contains "--stager-url" $prev; then
+                opts="http:// file:// ftp://"
+                compopt -o nospace
+
+            elif _comp_contains "--username --password --bound-name --objid-server --objid-connection --stager-port" $prev; then
+                return 0
+
+            elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+                opts="--help"
+                opts="$opts --stager-only"
+                opts="$opts --no-stager"
+                opts="$opts --stager-url"
+                opts="$opts --stager-port"
+                opts="$opts --stager-host"
+                opts="$opts --config"
+                opts="$opts --verbose"
+                opts="$opts --plugin"
+                opts="$opts --no-color"
+                opts="$opts --stack-trace"
+                opts="$opts --bound-name"
+                opts="$opts --objid-server"
+                opts="$opts --objid-connection"
+                opts="$opts target"
+                opts="$opts --follow"
+                opts="$opts --ssl"
+                opts="$opts --jmxmp"
+                opts="$opts --username"
+                opts="$opts --password"
+                opts="$opts --sasl"
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[2]} == "undeploy" ]]; then
+
+            if _comp_contains "--config --plugin" $prev; then
+                _filedir
+                return 0
+
+            elif _comp_contains "--sasl" $prev; then
+                opts="${sasl_mechanisms}"
+
+            elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
+                return 0
+
+            elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+                opts="--help"
+                opts="$opts --stager-only"
+                opts="$opts --no-stager"
+                opts="$opts --stager-url"
+                opts="$opts --stager-port"
+                opts="$opts --stager-host"
+                opts="$opts --config"
+                opts="$opts --verbose"
+                opts="$opts --plugin"
+                opts="$opts --no-color"
+                opts="$opts --stack-trace"
+                opts="$opts --bound-name"
+                opts="$opts --objid-server"
+                opts="$opts --objid-connection"
+                opts="$opts target"
+                opts="$opts --follow"
+                opts="$opts --ssl"
+                opts="$opts --jmxmp"
+                opts="$opts --username"
+                opts="$opts --password"
+                opts="$opts --sasl"
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[2]} == "status" ]]; then
+
+            if _comp_contains "--config --plugin" $prev; then
+                _filedir
+                return 0
+
+            elif _comp_contains "--sasl" $prev; then
+                opts="${sasl_mechanisms}"
+
+            elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
+                return 0
+
+            elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+                opts="--help"
+                opts="$opts --stager-only"
+                opts="$opts --no-stager"
+                opts="$opts --stager-url"
+                opts="$opts --stager-port"
+                opts="$opts --stager-host"
+                opts="$opts --config"
+                opts="$opts --verbose"
+                opts="$opts --plugin"
+                opts="$opts --no-color"
+                opts="$opts --stack-trace"
+                opts="$opts --bound-name"
+                opts="$opts --objid-server"
+                opts="$opts --objid-connection"
+                opts="$opts target"
+                opts="$opts --follow"
+                opts="$opts --ssl"
+                opts="$opts --jmxmp"
+                opts="$opts --username"
+                opts="$opts --password"
+                opts="$opts --sasl"
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[1]} == "tonka" ]]; then
+
+            if [[ $cword -eq 2 ]]; then
+
+                if [[ $cur == -* ]]; then
+                    opts="--help"
+                else
+                    opts="$tonka_actions"
+                fi
+
+            elif [[ ${words[2]} == "exec" ]]; then
+
+                if _comp_contains "--config --plugin --output-file" $prev; then
+                    _filedir
+                    return 0
+
+                elif _comp_contains "--sasl" $prev; then
+                    opts="${sasl_mechanisms}"
+
+                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection --cwd --env" $prev; then
+                    return 0
+
+                elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                    opts="--help"
+                    opts="$opts --cwd"
+                    opts="$opts --env"
+                    opts="$opts --hex"
+                    opts="$opts --output-file"
+                    opts="$opts --raw"
+                    opts="$opts --config"
+                    opts="$opts --verbose"
+                    opts="$opts --plugin"
+                    opts="$opts --no-color"
+                    opts="$opts --stack-trace"
+                    opts="$opts --bound-name"
+                    opts="$opts --objid-server"
+                    opts="$opts --objid-connection"
+                    opts="$opts --follow"
+                    opts="$opts --ssl"
+                    opts="$opts --jmxmp"
+                    opts="$opts --username"
+                    opts="$opts --password"
+                    opts="$opts --sasl"
+
+                else
+                    return 0
+                fi
+
+            elif [[ ${words[2]} == "background" ]]; then
+
+                if _comp_contains "--config --plugin" $prev; then
+                    _filedir
+                    return 0
+
+                elif _comp_contains "--sasl" $prev; then
+                    opts="${sasl_mechanisms}"
+
+                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection --cwd --env" $prev; then
+                    return 0
+
+                elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                    opts="--help"
+                    opts="$opts --cwd"
+                    opts="$opts --env"
+                    opts="$opts --config"
+                    opts="$opts --verbose"
+                    opts="$opts --plugin"
+                    opts="$opts --no-color"
+                    opts="$opts --stack-trace"
+                    opts="$opts --bound-name"
+                    opts="$opts --objid-server"
+                    opts="$opts --objid-connection"
+                    opts="$opts --follow"
+                    opts="$opts --ssl"
+                    opts="$opts --jmxmp"
+                    opts="$opts --username"
+                    opts="$opts --password"
+                    opts="$opts --sasl"
+
+                else
+                    return 0
+                fi
+
+            elif [[ ${words[2]} == "shell" ]]; then
+
+                if _comp_contains "--config --plugin" $prev; then
+                    _filedir
+                    return 0
+
+                elif _comp_contains "--sasl" $prev; then
+                    opts="${sasl_mechanisms}"
+
+                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
+                    return 0
+
+                elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                    opts="--help"
+                    opts="$opts --config"
+                    opts="$opts --verbose"
+                    opts="$opts --plugin"
+                    opts="$opts --no-color"
+                    opts="$opts --stack-trace"
+                    opts="$opts --bound-name"
+                    opts="$opts --objid-server"
+                    opts="$opts --objid-connection"
+                    opts="$opts --follow"
+                    opts="$opts --ssl"
+                    opts="$opts --jmxmp"
+                    opts="$opts --username"
+                    opts="$opts --password"
+                    opts="$opts --sasl"
+
+                else
+                    return 0
+                fi
+
+            elif _comp_contains "upload download" ${words[2]}; then
+
+                if _comp_contains "--config --plugin" $prev; then
+                    _filedir
+                    return 0
+
+                elif _comp_contains "--sasl" $prev; then
+                    opts="${sasl_mechanisms}"
+
+                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
+                    return 0
+
+                elif [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
+                    opts="--help"
+                    opts="$opts --config"
+                    opts="$opts --verbose"
+                    opts="$opts --plugin"
+                    opts="$opts --no-color"
+                    opts="$opts --stack-trace"
+                    opts="$opts --bound-name"
+                    opts="$opts --objid-server"
+                    opts="$opts --objid-connection"
+                    opts="$opts --follow"
+                    opts="$opts --ssl"
+                    opts="$opts --jmxmp"
+                    opts="$opts --username"
+                    opts="$opts --password"
+                    opts="$opts --sasl"
+
+                elif [[ $args -eq 5  || $args -eq 6 ]]; then
+                    _filedir
+                    return
+
+                else
+                    return 0
+                fi
+
+            elif [[ ${words[2]} == "export" ]]; then
+
+                if _comp_contains "--config --plugin --export-dir --export-jar --export-mlet" $prev; then
+                    _filedir
+                    return 0
+
+                elif _comp_contains "--stager-url" $prev; then
+                    opts="http:// file:// ftp://"
+                    compopt -o nospace
+
+                elif _comp_contains "--sasl" $prev; then
+                    opts="${sasl_mechanisms}"
+
+                elif [[ $cur == -* ]] || [[ $args -ge 3 ]]; then
+                    opts="--help"
+                    opts="$opts --export-dir"
+                    opts="$opts --export-jar"
+                    opts="$opts --export-mlet"
+                    opts="$opts --stager-url"
+                    opts="$opts --config"
+                    opts="$opts --verbose"
+                    opts="$opts --plugin"
+                    opts="$opts --no-color"
+                    opts="$opts --stack-trace"
+
+                else
+                    return 0
+                fi
+            fi
+
+        elif [[ ${words[1]} == "mlet" ]]; then
+
+            if [[ $cword -eq 2 ]]; then
+
+                if [[ $cur == -* ]]; then
+                    opts="--help"
+                else
+                    opts="$mlet_actions"
+                fi
+
+            elif [[ ${words[2]} == "load" ]]; then
+
+                if _comp_contains "--config --plugin --output-file" $prev; then
+                    _filedir
+                    return 0
+
+                elif _comp_contains "--sasl" $prev; then
+                    opts="${sasl_mechanisms}"
+
+                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection --class-name --object-name" $prev; then
+                    return 0
+
+                elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                    opts="--help"
+                    opts="$opts --class-name"
+                    opts="$opts --jar-file"
+                    opts="$opts --object-name"
+                    opts="$opts --config"
+                    opts="$opts --verbose"
+                    opts="$opts --plugin"
+                    opts="$opts --no-color"
+                    opts="$opts --stack-trace"
+                    opts="$opts --bound-name"
+                    opts="$opts --objid-server"
+                    opts="$opts --objid-connection"
+                    opts="$opts --follow"
+                    opts="$opts --ssl"
+                    opts="$opts --jmxmp"
+                    opts="$opts --username"
+                    opts="$opts --password"
+                    opts="$opts --sasl"
+
+                else
+                    return 0
+                fi
+
+            fi
+
+        elif [[ ${words[1]} == "tomcat" ]]; then
+
+            if [[ $cword -eq 2 ]]; then
+
+                if [[ $cur == -* ]]; then
+                    opts="--help"
+                else
+                    opts="$tomcat_actions"
+                fi
+
+            elif [[ ${words[2]} == "list" ]]; then
+
+                if _comp_contains "--config --plugin --output-file" $prev; then
+                    _filedir
+                    return 0
+
+                elif _comp_contains "--sasl" $prev; then
+                    opts="${sasl_mechanisms}"
+
+                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
+                    return 0
+
+                elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+                    opts="--help"
+                    opts="$opts --config"
+                    opts="$opts --verbose"
+                    opts="$opts --plugin"
+                    opts="$opts --no-color"
+                    opts="$opts --stack-trace"
+                    opts="$opts --bound-name"
+                    opts="$opts --objid-server"
+                    opts="$opts --objid-connection"
+                    opts="$opts --follow"
+                    opts="$opts --ssl"
+                    opts="$opts --jmxmp"
+                    opts="$opts --username"
+                    opts="$opts --password"
+                    opts="$opts --sasl"
+
+                else
+                    return 0
+                fi
+            fi
         fi
     fi
 
