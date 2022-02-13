@@ -116,7 +116,7 @@ function _beanshooter() {
 
     elif [[ ${words[1]} == "deploy" ]]; then
 
-        if _comp_contains "--config --plugin" $prev; then
+        if _comp_contains "--config --plugin --jar" $prev; then
             _filedir
             return 0
 
@@ -210,8 +210,6 @@ function _beanshooter() {
 
         elif [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
             opts="--help"
-            opts="$opts --class-filter"
-            opts="$opts --obj-filter"
             opts="$opts --config"
             opts="$opts --verbose"
             opts="$opts --plugin"
@@ -225,6 +223,7 @@ function _beanshooter() {
             opts="$opts --jmxmp"
             opts="$opts --username"
             opts="$opts --password"
+            opts="$opts --sasl"
 
         else
             return 0
@@ -401,11 +400,6 @@ function _beanshooter() {
 
             elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
                 opts="--help"
-                opts="$opts --stager-only"
-                opts="$opts --no-stager"
-                opts="$opts --stager-url"
-                opts="$opts --stager-port"
-                opts="$opts --stager-host"
                 opts="$opts --config"
                 opts="$opts --verbose"
                 opts="$opts --plugin"
@@ -414,7 +408,6 @@ function _beanshooter() {
                 opts="$opts --bound-name"
                 opts="$opts --objid-server"
                 opts="$opts --objid-connection"
-                opts="$opts target"
                 opts="$opts --follow"
                 opts="$opts --ssl"
                 opts="$opts --jmxmp"
@@ -631,7 +624,7 @@ function _beanshooter() {
                 elif _comp_contains "--username --password --bound-name --objid-server --objid-connection --class-name --object-name" $prev; then
                     return 0
 
-                elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                elif [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
                     opts="--help"
                     opts="$opts --class-name"
                     opts="$opts --jar-file"
@@ -650,6 +643,13 @@ function _beanshooter() {
                     opts="$opts --username"
                     opts="$opts --password"
                     opts="$opts --sasl"
+
+                elif [[ $args -eq 5 ]]; then
+                    opts="tonka custom"
+
+                elif [[ $args -eq 6 ]]; then
+                    opts="http:// file:// ftp://"
+                    compopt -o nospace
 
                 else
                     return 0
