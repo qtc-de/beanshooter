@@ -1,0 +1,28 @@
+version: '3.7'
+
+services:
+    beanshooter:
+      image: ghcr.io/qtc-de/beanshooter/jmx-example-server:1.0
+      build: .
+        #environment:
+        #  - > 
+        #    _JAVA_OPTIONS=
+        #    -Djava.rmi.server.hostname=iinsecure.dev
+        #    -Djavax.net.ssl.keyStorePassword=password
+        #    -Djavax.net.ssl.keyStore=/opt/store.p12
+        #    -Djavax.net.ssl.keyStoreType=pkcs12
+        #    -Dcom.sun.management.jmxremote
+        #    -Dcom.sun.management.jmxremote.local.only=false
+        #    -Dcom.sun.management.jmxremote.authenticate=true
+        #    -Dcom.sun.management.jmxremote.port=1099
+        #    -Dcom.sun.management.jmxremote.rmi.port=1099
+        #    -Dcom.sun.management.jmxremote.ssl=true
+        #    -Dcom.sun.management.jmxremote.registry.ssl=true
+        #    -Dcom.sun.management.jmxremote.password.file=/opt/jmxremote.password
+        #    -Dcom.sun.management.jmxremote.access.file=/opt/jmxremote.access
+        #volumes: 
+        #  - ./resources/trust/store.p12:/opt/store.p12
+        #  - ./resources/scripts/start.sh:/opt/start.sh
+        #  - ./resources/conf/jmxmp.access:/opt/jmxmp.access
+        #  - ./resources/conf/jmxremote.access:/opt/jmxremote.access
+        #  - ./resources/conf/jmxremote.password:/opt/jmxremote.password

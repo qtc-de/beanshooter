@@ -1,21 +1,9 @@
-name: master maven CI
+name: feature branch maven CI
 
 on:
   push:
-
     branches:
-      - master
-    paths:
-      - 'beanshooter/pom.xml'
-      - 'beanshooter/src/**'
-      - 'tonka-bean/pom.xml'
-      - 'tonka-bean/src/**'
-      - 'pom.xml'
-
-  pull_request:
-
-    branches:
-      - master
+      - 'feat/**'
     paths:
       - 'beanshooter/pom.xml'
       - 'beanshooter/src/**'
@@ -47,9 +35,3 @@ jobs:
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-
-    - name: Archive generated JAR file
-      uses: actions/upload-artifact@v2
-      with:
-        name: beanshooter-master-artifact
-        path: target/beanshooter-*

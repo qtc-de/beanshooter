@@ -10,7 +10,7 @@
         <version>3.0.0</version>
     </parent>
 
-    <artifactId>tonka-bean</artifactId>
+    <artifactId>beanshooter</artifactId>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,9 +18,56 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
+    <dependencies>
+
+        <dependency>
+          <groupId>net.sourceforge.argparse4j</groupId>
+          <artifactId>argparse4j</artifactId>
+          <version>0.9.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.8.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.27.0-GA</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.external</groupId>
+            <artifactId>opendmk_jmxremote_optional_jar</artifactId>
+            <version>1.0-b01-ea</version>
+        </dependency>
+
+    </dependencies>
+
     <build>
 
         <sourceDirectory>src</sourceDirectory>
+
+        <resources>
+
+          <resource>
+             <directory>.</directory>
+             <includes>
+                 <include>config.properties</include>
+                 <include>default-credentials.txt</include>
+             </includes>
+          </resource>
+
+          <resource>
+              <directory>../tonka-bean/target</directory>
+             <includes>
+                 <include>tonka-bean*</include>
+             </includes>
+          </resource>
+
+        </resources>
 
         <plugins>
           <plugin>
@@ -34,16 +81,17 @@
                 </execution>
               </executions>
               <configuration>
-                <finalName>tonka-bean-${project.version}</finalName>
+                <finalName>beanshooter-${project.version}</finalName>
                 <archive>
                     <manifest>
-                        <mainClass>de.qtc.beanshooter.tonkabean.TonkaBean</mainClass>
+                        <mainClass>de.qtc.beanshooter.Starter</mainClass>
                         <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                     </manifest>
                 </archive>
                 <descriptorRefs>
                   <descriptorRef>jar-with-dependencies</descriptorRef>
                 </descriptorRefs>
+                <outputDirectory>../target</outputDirectory>
               </configuration>
           </plugin>
 
@@ -58,5 +106,6 @@
               </executions>
           </plugin>
         </plugins>
+
     </build>
 </project>
