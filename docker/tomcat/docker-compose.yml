@@ -2,7 +2,8 @@ version: '3.7'
 
 services:
     tomcat:
-      image: tomcat:latest
+      image: ghcr.io/qtc-de/beanshooter/tomcat-example-server:1.0
+      build: .
       entrypoint: /opt/start.sh
       environment:
         - > 
