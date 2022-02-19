@@ -51,7 +51,7 @@ public class ArgumentHandler
     public ArgumentHandler(String[] argv)
     {
         parser = ArgumentParsers.newFor("beanshooter").build();
-        parser.description("beanshooter v" + ArgumentHandler.class.getPackage().getImplementationVersion() + " - a JMX Vulnerability Scanner");
+        parser.description("beanshooter v" + ArgumentHandler.class.getPackage().getImplementationVersion() + " - a JMX enumeration and attacking tool");
 
         Subparsers subparsers = parser.addSubparsers().help(" ").metavar(" ").dest("action");
         BeanshooterOperation.addSubparsers(subparsers);

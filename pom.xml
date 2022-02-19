@@ -9,7 +9,7 @@
     <name>reactor</name>
     <packaging>pom</packaging>
     <version>3.0.0</version>
-    <description>JMX Vulnerability Scanner</description>
+    <description>JMX enumeration and attacking tool</description>
 
     <modules>
         <module>tonka-bean</module>
