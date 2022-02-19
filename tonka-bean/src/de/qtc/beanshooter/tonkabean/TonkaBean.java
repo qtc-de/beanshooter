@@ -24,7 +24,8 @@ public class TonkaBean implements TonkaBeanMBean
      */
     public static void main(String[] argv)
     {
-        System.out.println("Hi there! I'm the TonkaBean. Deploy me on a JMX service and let's have some fun :)");
+        String version = "TonkaBean v" + TonkaBean.class.getPackage().getImplementationVersion();
+        System.out.println(String.format("%s - Deploy me on a JMX service and let's have some fun :)", version));
     }
     /**
      * Checks whether the specified path is an existing directory on the server and returns
