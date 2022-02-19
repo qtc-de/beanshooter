@@ -38,15 +38,8 @@ public class TomcatUser
     {
         Logger.println(new String(new char[40]).replace("\0", "-"));
 
-        Logger.printlnBlue("Username:");
-        Logger.increaseIndent();
-        Logger.printlnYellow(username);
-        Logger.decreaseIndent();
-
-        Logger.printlnBlue("Password:");
-        Logger.increaseIndent();
-        Logger.printlnYellow(password);
-        Logger.decreaseIndent();
+        Logger.printlnMixedBlueYellow("Username:", "", username);
+        Logger.printlnMixedBlueYellow("Password:", "", password);
 
         if( roles.length > 0 )
         {
@@ -55,7 +48,7 @@ public class TomcatUser
 
             for(String role : roles)
             {
-                Logger.printlnYellow(role);
+                Logger.printlnMixedYellow("  ", role);
             }
 
             Logger.decreaseIndent();
@@ -68,7 +61,7 @@ public class TomcatUser
 
             for(String group : groups)
             {
-                Logger.printlnYellow(group);
+                Logger.printlnMixedYellow("  ", group);
             }
 
             Logger.decreaseIndent();
