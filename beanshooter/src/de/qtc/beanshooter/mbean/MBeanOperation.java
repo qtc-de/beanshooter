@@ -38,6 +38,14 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_SASL,
     }),
 
+    INFO("info", "print detailed information about the MBean", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+    }),
+
     EXPORT("export", "create an export of the MBean", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,

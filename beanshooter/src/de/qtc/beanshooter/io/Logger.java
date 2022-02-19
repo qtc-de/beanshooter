@@ -289,6 +289,16 @@ public class Logger {
         log(prefix() + first + " " + blue(second) + " " + third);
     }
 
+    public static void printlnMixedBlueYellow(String first, String second, String third)
+    {
+        log(prefix() + blue(first) + " " + second + " " + yellow(third));
+    }
+
+    public static void printlnMixedBlueRed(String first, String second, String third)
+    {
+        log(prefix() + blue(first) + " " + second + " " + red(third));
+    }
+
     public static void printlnMixedYellow(String first, String second)
     {
         log(prefix() + first + " " + yellow(second));

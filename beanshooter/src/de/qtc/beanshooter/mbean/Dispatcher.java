@@ -34,6 +34,27 @@ public class Dispatcher extends de.qtc.beanshooter.operation.Dispatcher
     }
 
     /**
+     * Print detailed information about the MBean.
+     */
+    public void info()
+    {
+        String jarFile = bean.getJarName();
+
+        Logger.printlnYellow(bean.getName());
+        Logger.increaseIndent();
+
+        Logger.printlnMixedBlueYellow("Object Name:", "\t", bean.getObjectName().toString());
+        Logger.printlnMixedBlueYellow("Class Name:", "\t", bean.getMBeanClass());
+
+        if( jarFile != null )
+            Logger.printlnMixedBlueYellow("Jar File:", "\t", "available (" + jarFile + ")");
+        else
+            Logger.printlnMixedBlueRed("Jar File:", "\t", "not available");
+
+        Logger.decreaseIndent();
+    }
+
+    /**
      * Determine whether the configured MBean is registered on the server.
      *
      * @return true if MBean is registered, false otherwise
