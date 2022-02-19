@@ -83,7 +83,7 @@ $ cp resources/bash_completion.d/beanshooter ~/bash_completion.d/
 -----
 
 The different *beanshooter* operations can be divided into two groups: *basic operations* and *MBean operations*. Whereas
-*baisc operations* are used to perform general operations on a *JMX* endpoint, *MBean operations* target a specific *MBean*
+*basic operations* are used to perform general operations on a *JMX* endpoint, *MBean operations* target a specific *MBean*
 to interact with. For more details, check the usage examples in the following sections.
 
 ```console
@@ -110,6 +110,33 @@ positional arguments:
 
 named arguments:
   -h, --help             show this help message and exit
+```
+
+
+### Basic Operations
+
+---
+
+Basic operations are general purpose operations that can be performed on a JMX service. These are usually
+operations that do not target a specific MBean or that target an MBean with no builtin support by beanshooter.
+
+#### Brute
+
+The `brute` action performs a bruteforce attack on a password protected *JMX* service. When running with no additional
+optional arguments, *beanshooter* users a builtin wordlist with a few common username-password combinations. For more
+dedicated attacks you should use the `--username-file` and `--password-file` options to specify more exhaustive wordlists.
+
+```console
+[qtc@devbox ~]$ beanshooter brute 172.17.0.2 1090
+[+] Reading wordlists for the brute action.
+[+] 	Reading credentials from internal wordlist.
+[+]
+[+] Starting bruteforce attack with 10 credentials.
+[+]
+[+] 	Found valid credentials: admin:admin
+[+] 	[10 / 10] [########################################] 100%
+[+]
+[+] done.
 ```
 
 
