@@ -82,12 +82,6 @@ $ cp resources/bash_completion.d/beanshooter ~/bash_completion.d/
 
 -----
 
-In the following, short examples for each available operation are presented. All presented examples are based on the
-[jmx-example-server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Fjmx-example-server)
-and the [tomcat-example-server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Ftomcat-example-server).
-Both of them are contained within this repository in the [docker](/docker) folder and can be used to practice *JMX* enumeration.
-You can either build the corresponding containers yourself or load them directly from the *GitHub Container Registry*.
-
 The different *beanshooter* operations can be divided into two groups: *basic operations* and *MBean operations*. Whereas
 *baisc operations* are used to perform general operations on a *JMX* endpoint, *MBean operations* target a specific *MBean*
 to interact with. For more details, check the usage examples in the following sections.
@@ -117,5 +111,15 @@ positional arguments:
 named arguments:
   -h, --help             show this help message and exit
 ```
+
+
+### Example Server
+
+---
+
+Most of the examples presented above are based on the [jmx-example-server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Fjmx-example-server)
+and the [tomcat-example-server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Ftomcat-example-server).
+These servers are contained within this repository in the [docker](/docker) folder and can be used to practice *JMX* enumeration.
+You can either build the corresponding containers yourself or load them directly from the *GitHub Container Registry*.
 
 Copyright 2022, Tobias Neitzel and the *beanshooter* contributors.
