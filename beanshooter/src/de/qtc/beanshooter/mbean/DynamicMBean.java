@@ -76,4 +76,13 @@ public class DynamicMBean implements IMBean
     {
         return jarFile;
     }
+
+    /**
+     * DynamicMBean instances always return "dynamic" as their associated name.
+     */
+    @Override
+    public String getName()
+    {
+        return "dynamic";
+    }
 }

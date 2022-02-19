@@ -29,7 +29,7 @@ function _beanshooter() {
     sasl_mechanisms="plain digest cram gssapi ntlm"
 
     mbeans="tonka mlet tomcat"
-    mbean_actions="status deploy undeploy"
+    mbean_actions="status deploy undeploy info"
     tonka_actions="exec background shell upload download export ${mbean_actions}"
     mlet_actions="load ${mbean_actions}"
     tomcat_actions="list ${mbean_actions}"
@@ -414,6 +414,24 @@ function _beanshooter() {
                 opts="$opts --username"
                 opts="$opts --password"
                 opts="$opts --sasl"
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[2]} == "info" ]]; then
+
+            if _comp_contains "--config --plugin" $prev; then
+                _filedir
+                return 0
+
+            elif [[ $cur == -* ]] || [[ $args -ge 3 ]]; then
+                opts="--help"
+                opts="$opts --config"
+                opts="$opts --verbose"
+                opts="$opts --plugin"
+                opts="$opts --no-color"
+                opts="$opts --stack-trace"
 
             else
                 return 0

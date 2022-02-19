@@ -15,4 +15,5 @@ public interface IMBean
     public ObjectName getObjectName();
     public String getMBeanClass();
     public String getJarName();
+    public String getName();
 }
