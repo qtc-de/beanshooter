@@ -118,6 +118,9 @@ public class MBeanServerClient {
                     Logger.printlnPlainMixedYellow(" and", "--stager-url", "options to provide an implementation.");
                     Utils.exit();
                 }
+
+            } else {
+                ExceptionHandler.unexpectedException(e, "deploying", "MBean", true);
             }
 
         } catch (Exception e) {

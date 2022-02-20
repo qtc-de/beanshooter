@@ -3,9 +3,11 @@ package de.qtc.beanshooter.mbean.mlet;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.net.URL;
+import java.util.Set;
 
 import javax.management.MBeanException;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -126,7 +128,13 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
         try
         {
-            mlet.getMBeansFromURL(url);
+            Set<Object> result = mlet.getMBeansFromURL(url);
+
+            for(Object o : result)
+            {
+                if( o instanceof Exception)
+                    throw (Exception)o;
+            }
         }
 
         catch(MBeanException e)
@@ -134,18 +142,18 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Throwable t = ExceptionHandler.getCause(e);
 
             Logger.resetIndent();
-            Logger.printMixedYellow("Caught", t.getClass().getName(), "while invoking ");
+            Logger.eprintMixedYellow("Caught", t.getClass().getName(), "while invoking ");
             Logger.printlnPlainBlue("getMBeansFromURL");
 
             if( t instanceof java.net.NoRouteToHostException )
             {
-                Logger.printlnMixedBlue("MBeanServer is unable to connect to", urlString + ".");
+                Logger.eprintlnMixedBlue("MBeanServer is unable to connect to", urlString + ".");
             }
 
             else if( t instanceof java.net.ConnectException )
             {
                 if( t.getMessage().contains("Connection refused") )
-                    Logger.printlnMixedBlue("Target", urlString, "refused the connection.");
+                    Logger.eprintlnMixedBlue("Target", urlString, "refused the connection.");
 
                 else
                     ExceptionHandler.unknownReason(e);
@@ -156,10 +164,10 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                 if( t.getMessage().contains("MLET tag not defined in file") )
                 {
                     if( url.getProtocol().equals("file") )
-                        Logger.printlnMixedBlue("The specified resource", urlString, "was found, but is not a valid MLET resource.");
+                        Logger.eprintlnMixedBlue("The specified resource", urlString, "was found, but is not a valid MLET resource.");
 
                     else
-                        Logger.printlnMixedYellow("The specified resource", urlString, "was either not found or is not a valid MLET resource.");
+                        Logger.eprintlnMixedYellow("The specified resource", urlString, "was either not found or is not a valid MLET resource.");
                 }
 
                 else
@@ -176,7 +184,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             else if( t instanceof IOException )
             {
                 if( t.getMessage().contains("Invalid Http response") )
-                    Logger.printlnMixedBlue("The specified endpoint", urlString, "returned an invalid HTTP response.");
+                    Logger.eprintlnMixedBlue("The specified endpoint", urlString, "returned an invalid HTTP response.");
 
                 else
                     ExceptionHandler.unknownReason(e);
@@ -189,6 +197,22 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
             ExceptionHandler.showStackTrace(e);
             Utils.exit();
+        }
+
+        catch(ReflectionException e)
+        {
+            Logger.lineBreak();
+            Logger.resetIndent();
+
+            Logger.eprintlnMixedYellow("Caught", "ReflectionException", "while loading MBean.");
+            Logger.eprintlnMixedBlue("This usually means that the supplied MBean class", "was not", "valid.");
+            ExceptionHandler.showStackTrace(e);
+            Utils.exit();
+        }
+
+        catch(Exception e)
+        {
+            ExceptionHandler.unexpectedException(e, "loading", "MBean", true);
         }
 
         finally

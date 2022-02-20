@@ -1,6 +1,7 @@
 package de.qtc.beanshooter.mbean.mlet;
 
 import java.net.URL;
+import java.util.Set;
 
 import javax.management.MBeanException;
 
@@ -13,5 +14,5 @@ import javax.management.MBeanException;
  */
 public interface MLetMBean
 {
-    public void getMBeansFromURL(URL url) throws MBeanException;
+    public Set<Object> getMBeansFromURL(URL url) throws MBeanException;
 }
