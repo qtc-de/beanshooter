@@ -12,7 +12,7 @@ function _beanshooter() {
 
     value_options="--class-name --jar-file --object-name --config --plugin --bound-name --objid-server --objid-connection"
     value_options="$value_options --username --password --export-dir --export-mlet --export-jar --stager-url --stager-port"
-    value_options="$value_options --stager-host --jar --threads --username-file --password-file --sasl --class-filter"
+    value_options="$value_options --stager-host --threads --username-file --password-file --sasl --class-filter"
     value_options="$value_options  --obj-filter --yso --cwd --env --output-file"
 
     _count_args "" "@(${value_options// /|})"
@@ -116,7 +116,7 @@ function _beanshooter() {
 
     elif [[ ${words[1]} == "deploy" ]]; then
 
-        if _comp_contains "--config --plugin --jar" $prev; then
+        if _comp_contains "--config --plugin --jar-file" $prev; then
             _filedir
             return 0
 
@@ -155,7 +155,7 @@ function _beanshooter() {
             opts="$opts --username"
             opts="$opts --password"
             opts="$opts --sasl"
-            opts="$opts --jar"
+            opts="$opts --jar-file"
 
         else
             return 0
