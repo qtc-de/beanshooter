@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.Set;
 
 import javax.management.MBeanException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
@@ -199,12 +200,12 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Utils.exit();
         }
 
-        catch(ReflectionException e)
+        catch(ReflectionException | NotCompliantMBeanException e)
         {
             Logger.lineBreak();
             Logger.resetIndent();
 
-            Logger.eprintlnMixedYellow("Caught", "ReflectionException", "while loading MBean.");
+            Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while loading MBean.");
             Logger.eprintlnMixedBlue("This usually means that the supplied MBean class", "was not", "valid.");
             ExceptionHandler.showStackTrace(e);
             Utils.exit();
