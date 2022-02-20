@@ -309,7 +309,8 @@ public class Dispatcher {
             else
                 result = client.invoke(objectName, methodName, argumentArray);
 
-            PluginSystem.handleResponse(result);
+            if( result != null )
+                PluginSystem.handleResponse(result);
         }
 
         catch (MBeanException | ReflectionException | AttributeNotFoundException | IOException e)
