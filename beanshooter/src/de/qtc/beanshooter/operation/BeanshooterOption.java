@@ -207,7 +207,7 @@ public enum BeanshooterOption implements Option {
                      ArgType.STRING
                      ),
 
-    DEPLOY_JAR_FILE("--jar",
+    DEPLOY_JAR_FILE("--jar-file",
                     "jar archive to deploy",
                     Arguments.store(),
                     OptionGroup.ACTION,
