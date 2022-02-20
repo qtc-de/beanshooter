@@ -290,6 +290,7 @@ public class Dispatcher {
      */
     public void invoke()
     {
+        Utils.disableWarning();
         ArgumentHandler.requireAllOf(BeanshooterOption.INVOKE_METHOD_ARGS, BeanshooterOption.INVOKE_OBJ_NAME, BeanshooterOption.INVOKE_METHOD_NAME);
 
         ObjectName objectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.INVOKE_OBJ_NAME));
@@ -301,7 +302,7 @@ public class Dispatcher {
 
         try
         {
-            Object result;
+            Object result = null;
 
             if(methodName.startsWith("get") && !BeanshooterOption.INVOKE_LITERAL.getBool())
                 result = client.getAttribute(objectName, methodName.substring(3));
@@ -311,6 +312,8 @@ public class Dispatcher {
 
             if( result != null )
                 PluginSystem.handleResponse(result);
+            else
+                Logger.printlnBlue("Call was successful.");
         }
 
         catch (MBeanException | ReflectionException | AttributeNotFoundException | IOException e)

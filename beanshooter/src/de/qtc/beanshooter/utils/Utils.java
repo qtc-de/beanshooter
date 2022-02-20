@@ -3,6 +3,7 @@ package de.qtc.beanshooter.utils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -436,5 +437,24 @@ public class Utils {
         }
 
         return result;
+    }
+
+    /**
+     * This code was copied from the following link and is just used to disable the annoying reflection warnings:
+     *
+     * https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
+     */
+    @SuppressWarnings("restriction")
+    public static void disableWarning()
+    {
+        try {
+            Field theUnsafe = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            sun.misc.Unsafe u = (sun.misc.Unsafe) theUnsafe.get(null);
+
+            Class<?> cls = Class.forName("jdk.internal.module.IllegalAccessLogger");
+            Field logger = cls.getDeclaredField("logger");
+            u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
+        } catch (Exception e) {}
     }
 }
