@@ -43,7 +43,7 @@
       + [load](#mlet-load)
     - [tomcat](#tomcat)
       + [list](#tomcat-list)
-
+- [JMXMP](#jmxmp)
 - [Example Server](#example-server)
 
 
@@ -339,6 +339,62 @@ The `undeploy` action removes the *MBean* with the specified `ObjectName` from t
 [+] Removing MBean with ObjectName qtc.test:type=Example from the MBeanServer.
 [+] MBean was successfully removed.
 ```
+
+
+### JMXMP
+
+---
+
+*JMX* services can use different connector types. The by far most commonly used connector is *Java RMI*, which
+allows access to *JMX* based on the *Java RMI* protocol. Another popular connector is the *JMX Message Protocol*
+(*JMXMP*) that, despite being outdated, is still encountered quite often. *beanshooter* has builtin *JMXMP* support
+and attempts to connect via *JMXMP* when using the `--jmxmp` option:
+
+```console
+[qtc@devbox ~]$ beanshooter enum 172.17.0.2 4444 --jmxmp
+[+] Checking servers SASL configuration:
+[+]
+[+] 	- Remote JMXMP server does not use SASL.
+[+] 	  Login is possible without specifying credentials.
+[+] 	  Vulnerability Status: Vulnerable
+[+]
+[+] Checking pre-auth deserialization behavior:
+[+]
+[+] 	- JMXMP serial check is work in progress but endpoints are usually vulnerable.
+[+] 	  Configuration Status: Undecided
+[+]
+[+] Checking available MBeans:
+[+]
+[+] 	- 22 MBeans are currently registred on the MBean server.
+[+] 	  Found 0 non default MBeans.
+```
+
+Authenticated *JMXMP* endpoints are usually protected using *SASL*. With *SASL* enabled, a *JMX* endpoint usually requires
+the client to connect with a specific *SASL Profile*. Available profiles for *beanshooter* are:
+
+* plain
+* digest
+* cram
+* ntlm
+* gssapi
+
+Each of them can optionally paired with *TLS* by using the `--ssl` option. When using the `enum` action on a *SASL* protected
+*JMXMP* endpoint, *beanshooter* attempts to enumerate the required *SASL* profile. Whereas determining the required *SASL*
+mechanism is usually possible, the required *TLS* setting cannot be obtained:
+
+```console
+[qtc@devbox ~]$ beanshooter enum 172.17.0.2 4449 --jmxmp
+[+] Checking servers SASL configuration:
+[+]
+[+] 	- Remote JMXMP server uses SASL/NTLM SASL profile.
+[+] 	  Vulnerability Status: Non Vulnerable
+[+]
+[+] Checking pre-auth deserialization behavior:
+[+]
+[+] 	- JMXMP serial check is work in progress but endpoints are usually vulnerable.
+[+] 	  Configuration Status: Undecided
+```
+
 
 ### Example Server
 
