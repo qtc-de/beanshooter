@@ -116,7 +116,7 @@ public class MBeanServerClient {
             }
 
         } catch (Exception e) {
-            ExceptionHandler.unexpectedException(e, "registering", "MLet", true);
+            ExceptionHandler.unexpectedException(e, "registering", "MBean", true);
         }
 
         Logger.printMixedBlue("MBean with object name", mBeanObjectName.toString(), "was ");
