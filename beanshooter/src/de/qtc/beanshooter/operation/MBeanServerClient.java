@@ -111,8 +111,13 @@ public class MBeanServerClient {
 
                     Logger.decreaseIndent();
 
-                } else
-                    ExceptionHandler.unexpectedException(e, "deploy", "MBean", true);
+                } else {
+                    Logger.lineBreak();
+                    Logger.eprintlnMixedBlue("The specified class", className, "is not known to the server.");
+                    Logger.eprintMixedYellow("Use the", "--jar-file");
+                    Logger.printlnPlainMixedYellow(" and", "--stager-url", "options to provide an implementation.");
+                    Utils.exit();
+                }
             }
 
         } catch (Exception e) {

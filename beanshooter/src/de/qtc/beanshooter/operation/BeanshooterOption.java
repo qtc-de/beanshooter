@@ -210,7 +210,7 @@ public enum BeanshooterOption implements Option {
     DEPLOY_JAR_FILE("--jar",
                     "jar archive to deploy",
                     Arguments.store(),
-                    OptionGroup.BEAN,
+                    OptionGroup.ACTION,
                     ArgType.STRING,
                     "path"),
 
