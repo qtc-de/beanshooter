@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -173,6 +174,12 @@ public class Utils {
     public static ObjectName getObjectName(String name)
     {
         ObjectName objName = null;
+
+        if(name.equals("random") || name.isEmpty())
+        {
+            String[] randomStuff = UUID.randomUUID().toString().split("-");
+            name = String.format("%s:%s=%s", randomStuff[0], randomStuff[1], randomStuff[2]);
+        }
 
         try {
             objName = new ObjectName(name);
