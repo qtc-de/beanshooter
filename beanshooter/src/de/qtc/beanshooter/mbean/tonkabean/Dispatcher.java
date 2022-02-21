@@ -199,7 +199,8 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         Logger.printMixedYellow("Saving remote file", downloadSrc.getPath(), "to local path ");
         Logger.printlnPlainBlue(localFile.getAbsolutePath());
 
-        try {
+        try
+        {
             byte[] content = tonkaBean.downloadFile(downloadSrc.getPath());
             FileOutputStream stream = new FileOutputStream(localFile);
 

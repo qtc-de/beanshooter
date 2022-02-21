@@ -3,9 +3,12 @@ package de.qtc.beanshooter.mbean;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.utils.Utils;
 
 /**
@@ -41,9 +44,24 @@ public class MBeanInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
     {
-        if( method.getName().equals("getAttribute") )
-            return conn.getAttribute(objName, (String) args[0]);
+        Object retValue = null;
 
-        return conn.invoke(objName, method.getName(), args, Utils.typesToString(method.getParameterTypes()));
+        try {
+            if( method.getName().equals("getAttribute") )
+                retValue = conn.getAttribute(objName, (String) args[0]);
+
+            else
+                retValue = conn.invoke(objName, method.getName(), args, Utils.typesToString(method.getParameterTypes()));
+
+        } catch( InstanceNotFoundException e ) {
+            Logger.resetIndent();
+
+            if(Logger.printCount != 0)
+                Logger.lineBreak();
+
+            ExceptionHandler.handleInstanceNotFound(e, objName.toString());
+        }
+
+        return retValue;
     }
 }
