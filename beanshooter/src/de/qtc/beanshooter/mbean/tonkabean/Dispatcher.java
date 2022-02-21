@@ -191,15 +191,13 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         String downloadDest = TonkaBeanOption.DOWNLOAD_DEST.<String>getValue();
         File downloadSrc = new File(TonkaBeanOption.DOWNLOAD_SOURCE.<String>getValue());
 
-        if(downloadDest.endsWith(File.separator))
-            downloadDest = downloadDest + downloadSrc.getName();
-
         File localFile = new File(downloadDest);
-        String destination = localFile.toPath().normalize().toAbsolutePath().toString();
 
+        if(localFile.isDirectory())
+            localFile = Paths.get(downloadDest, downloadSrc.getName()).normalize().toFile();
 
         Logger.printMixedYellow("Saving remote file", downloadSrc.getPath(), "to local path ");
-        Logger.printlnPlainBlue(destination);
+        Logger.printlnPlainBlue(localFile.getAbsolutePath());
 
         try {
             byte[] content = tonkaBean.downloadFile(downloadSrc.getPath());
@@ -219,7 +217,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
         catch (IOException e)
         {
-            ExceptionHandler.handleFileWrite(e, destination, true);
+            ExceptionHandler.handleFileWrite(e, localFile.getAbsolutePath(), true);
         }
     }
 
