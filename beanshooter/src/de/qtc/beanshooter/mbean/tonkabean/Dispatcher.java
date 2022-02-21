@@ -449,6 +449,9 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         if( !destination.isAbsolute() )
             destination = Paths.get(".", destination.getPath()).toAbsolutePath().normalize().toFile();
 
+        if( destination.isDirectory() )
+            destination = Paths.get(destination.toPath().toString(), source.getName()).toFile();
+
         try
         {
             byte[] content = tonkaBean.downloadFile(source.getPath());
