@@ -632,7 +632,7 @@ function _beanshooter() {
 
             elif [[ ${words[2]} == "load" ]]; then
 
-                if _comp_contains "--config --plugin --output-file" $prev; then
+                if _comp_contains "--config --plugin --jar-file" $prev; then
                     _filedir
                     return 0
 
