@@ -107,6 +107,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Logger.lineBreak();
         }
 
+        StagerServer server = null;
         URL url = Utils.parseUrl(urlString);
 
         String mBeanClassName = mbean.getMBeanClass();
@@ -123,7 +124,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
         if( !BeanshooterOption.DEPLOY_NO_STAGER.getBool() && protocol.equals("http") && Utils.isLocal(host) )
         {
-            StagerServer server = new StagerServer(host, port, false);
+            server = new StagerServer(host, port, false);
             server.start(urlString, jarFile ,mBeanClassName, mBeanObjectName.toString());
         }
 
@@ -219,6 +220,9 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         finally
         {
             Logger.decreaseIndent();
+
+            if(server != null)
+                server.stop();
         }
     }
 
@@ -232,5 +236,6 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         IMBean bean = getMbean();
 
         loadMBeanFromURL(bean, url);
+        Logger.printlnBlue("MBean was loaded successfully.");
     }
 }
