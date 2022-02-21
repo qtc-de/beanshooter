@@ -209,9 +209,7 @@ public class MBeanServerClient {
             result = conn.invoke(name, methodName, args, argumentTypes);
 
         } catch( InstanceNotFoundException e ) {
-            Logger.eprintlnMixedYellow("Caught unexpected", "InstanceNotFoundException", "while calling invoke.");
-            Logger.eprintlnMixedBlue("The specified MBean", name.toString(), "does probably not exist on the endpoint.");
-            Utils.exit();
+            ExceptionHandler.handleInstanceNotFound(e, name.toString());
         }
 
         return result;

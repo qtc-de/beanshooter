@@ -247,6 +247,13 @@ public class ExceptionHandler {
             Utils.exit();
     }
 
+    public static void handleInstanceNotFound(Exception e, String name)
+    {
+        Logger.eprintlnMixedYellow("Caught unexpected", "InstanceNotFoundException", "while calling invoke.");
+        Logger.eprintlnMixedBlue("The specified MBean", name, "does probably not exist on the endpoint.");
+        Utils.exit();
+    }
+
     public static void credentialException(Exception e)
     {
         Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while connecting to the JMX server.");
