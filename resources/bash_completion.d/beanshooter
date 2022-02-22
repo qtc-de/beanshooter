@@ -25,7 +25,7 @@ function _beanshooter() {
     gadgets="$gadgets JRMPClient JRMPListener JSON1 JavassistWeld1 Jdk7u21 Jython1 MozillaRhino1 MozillaRhino2"
     gadgets="$gadgets Myfaces1 Myfaces2 ROME Spring1 Spring2 URLDNS Vaadin1 Wicket1"
 
-    operations="brute invoke deploy enum list serial undeploy tonka mlet tomcat"
+    operations="brute invoke deploy enum list serial stager undeploy tonka mlet tomcat"
     sasl_mechanisms="plain digest cram gssapi ntlm"
 
     mbeans="tonka mlet tomcat"
@@ -229,7 +229,6 @@ function _beanshooter() {
             return 0
         fi
 
-
     elif [[ ${words[1]} == "serial" ]]; then
 
         if _comp_contains "--config --plugin --yso" $prev; then
@@ -268,6 +267,41 @@ function _beanshooter() {
             return 0
         fi
 
+    elif [[ ${words[1]} == "stager" ]]; then
+
+        if _comp_contains "--config --plugin --jar-file" $prev; then
+            _filedir
+            return 0
+
+        elif _comp_contains "--stager-url" $prev; then
+            opts="http:// file:// ftp://"
+            compopt -o nospace
+
+        elif _comp_contains "--class-name --object-name" $prev; then
+            return 0
+
+        elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+            opts="--help"
+            opts="$opts --stager-url"
+            opts="$opts --class-name"
+            opts="$opts --jar-file"
+            opts="$opts --object-name"
+            opts="$opts --config"
+            opts="$opts --verbose"
+            opts="$opts --plugin"
+            opts="$opts --no-color"
+            opts="$opts --stack-trace"
+
+        elif [[ $args -eq 2 ]]; then
+            _ip_addresses
+            return 0
+
+        elif [[ $args -eq 4 ]]; then
+            opts="tonka custom"
+
+        else
+            return 0
+        fi
 
     elif [[ ${words[1]} == "undeploy" ]]; then
 
