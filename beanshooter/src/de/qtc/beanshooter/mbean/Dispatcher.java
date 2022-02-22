@@ -136,7 +136,7 @@ public class Dispatcher extends de.qtc.beanshooter.operation.Dispatcher
 
         try
         {
-            JarHandler jarHandler = new JarHandler(bean.getJarName(), false, null);
+            JarHandler jarHandler = new JarHandler(bean.getJarName(), null);
 
             if( BeanshooterOption.EXPORT_JAR.notNull() )
             {
@@ -146,7 +146,7 @@ public class Dispatcher extends de.qtc.beanshooter.operation.Dispatcher
             }
 
             String url = BeanshooterOption.EXPORT_URL.getValue("");
-            MLetHandler mletHandler = new MLetHandler(url, bean.getMBeanClass(), filename, bean.getObjectName().toString(), false);
+            MLetHandler mletHandler = new MLetHandler(url, bean.getMBeanClass(), filename, bean.getObjectName().toString(), null);
 
             if( BeanshooterOption.EXPORT_MLET.notNull() )
             {

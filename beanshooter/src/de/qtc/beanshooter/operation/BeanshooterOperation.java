@@ -6,6 +6,7 @@ import de.qtc.beanshooter.cli.Operation;
 import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.cli.OptionHandler;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.mbean.mlet.MLetOption;
 import net.sourceforge.argparse4j.inf.Subparser;
 import net.sourceforge.argparse4j.inf.Subparsers;
 
@@ -152,6 +153,21 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.SERIAL_GADGET_CMD,
             BeanshooterOption.YSO,
             BeanshooterOption.SERIAL_PREAUTH,
+    }),
+
+    STAGER("stager", "start a stager server to deliver MBeans", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            MLetOption.LOAD_BEAN,
+            BeanshooterOption.STAGER_PORT,
+            BeanshooterOption.STAGER_HOST,
+            BeanshooterOption.DEPLOY_STAGER_URL,
+            MLetOption.LOAD_CLASS_NAME,
+            MLetOption.LOAD_OBJECT_NAME,
+            MLetOption.LOAD_JAR_FILE,
     }),
 
     UNDEPLOY("undeploy", "undeploys the specified MBEAN from the JMX server", new Option[] {

@@ -55,7 +55,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      *
      * @return instance of IMBean that contains the required information for an deployment.
      */
-    private IMBean getMbean()
+    public static IMBean getMbean()
     {
         String beanName = ArgumentHandler.require( MLetOption.LOAD_BEAN );
 

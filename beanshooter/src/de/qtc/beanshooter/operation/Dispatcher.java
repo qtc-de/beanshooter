@@ -2,6 +2,7 @@ package de.qtc.beanshooter.operation;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 
 import javax.management.AttributeNotFoundException;
@@ -18,7 +19,9 @@ import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.WordlistHandler;
+import de.qtc.beanshooter.mbean.IMBean;
 import de.qtc.beanshooter.mbean.MBean;
+import de.qtc.beanshooter.networking.StagerServer;
 import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -322,5 +325,28 @@ public class Dispatcher {
             Logger.println("beanshooter does not handle exceptions for custom method invocations.");
             ExceptionHandler.stackTrace(e);
         }
-    };
+    }
+
+    /**
+     * Start the stager server and serve the MBean specified by the command line parameters.
+     */
+    public void stager()
+    {
+        int port = BeanshooterOption.STAGER_PORT.getValue();
+        String host = BeanshooterOption.STAGER_HOST.getValue();
+
+        StagerServer server = new StagerServer(host, port, true);
+
+        String url = BeanshooterOption.DEPLOY_STAGER_URL.getValue(String.format("http://%s:%d", host, port));
+        IMBean bean = de.qtc.beanshooter.mbean.mlet.Dispatcher.getMbean();
+
+        server.start(url, bean.getJarName(), bean.getMBeanClass(), bean.getObjectName().toString());
+        Logger.print("Press Enter to stop listening.");
+
+        Scanner scanner = new Scanner(System.in);
+        scanner.nextLine();
+        scanner.close();
+
+        server.stop();
+    }
 }

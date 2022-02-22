@@ -27,7 +27,6 @@ public class JarHandler implements HttpHandler {
 
     private final String digest;
     private final byte[] jarContent;
-    private final boolean stagerOnly;
     private final StagerServer parent;
 
     /**
@@ -38,10 +37,9 @@ public class JarHandler implements HttpHandler {
      * @param parent the parent StagerServer where the handler is used
      * @throws IOException
      */
-    public JarHandler(String filename, boolean stagerOnly, StagerServer parent) throws IOException
+    public JarHandler(String filename, StagerServer parent) throws IOException
     {
         this.parent = parent;
-        this.stagerOnly = stagerOnly;
         this.jarContent = getJar(filename);
         this.digest = Utils.md5sum(jarContent);
     }
@@ -101,8 +99,8 @@ public class JarHandler implements HttpHandler {
      */
     public void handle(HttpExchange t) throws IOException
     {
-        if( stagerOnly ) {
-            System.out.println("");
+        if( parent.isStagerOnly() ) {
+            Logger.printlnPlain("");
             Logger.lineBreak();
         }
 
@@ -112,20 +110,17 @@ public class JarHandler implements HttpHandler {
         Logger.printlnMixedYellow("Incoming request from:", requestee.getHostName());
         Logger.printlnMixedYellow("Requested resource:", requestURL);
 
-        Logger.printlnMixedBlue("Sending jar file with md5sum:", digest);
+        if( parent.isStagerOnly() ) {
+            Logger.printMixedBlue("Sending jar file with md5sum:", digest);
+        } else {
+            Logger.printlnMixedBlue("Sending jar file with md5sum:", digest);
+            Logger.lineBreak();
+        }
 
         t.sendResponseHeaders(200, jarContent.length);
         OutputStream os = t.getResponseBody();
 
         os.write(jarContent, 0, jarContent.length);
         os.close();
-
-        Logger.lineBreak();
-
-        if( stagerOnly )
-            Logger.printlnBlue("Press Enter to stop listening...");
-
-        else
-            parent.stop();
     }
 }

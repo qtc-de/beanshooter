@@ -305,12 +305,26 @@ public enum BeanshooterOption implements Option {
                    ArgType.BOOL
                    ),
 
+    STAGER_HOST("host",
+                "the IP address to listen on",
+                Arguments.store(),
+                OptionGroup.ACTION,
+                ArgType.STRING,
+                ),
+
+    STAGER_PORT("port",
+                "the port to start the stager on",
+                Arguments.store(),
+                OptionGroup.ACTION,
+                ArgType.INT
+                ),
+
     CONN_SASL("--sasl",
-                         "SASL mechanism to use for the connection",
-                         Arguments.store(),
-                         OptionGroup.CONNECTION,
-                         ArgType.STRING,
-                         "method"),
+              "SASL mechanism to use for the connection",
+              Arguments.store(),
+              OptionGroup.CONNECTION,
+              ArgType.STRING,
+              "method"),
 
     NO_PROGRESS("--no-progress",
                 "do not display a progress bar",

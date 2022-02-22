@@ -41,6 +41,16 @@ public class StagerServer
     }
 
     /**
+     * Returns value of the stagerOnly property.
+     *
+     * @return true if the StagerServer is a stagerOnly server.
+     */
+    public boolean isStagerOnly()
+    {
+        return stagerOnly;
+    }
+
+    /**
      * Startup the HTTP server and register the corresponding handlers.
      *
      * @param url url where the MBean is served
@@ -55,21 +65,19 @@ public class StagerServer
             Logger.printlnMixedBlue("Creating HTTP server on:", host + ":" + port);
 
             String jarName = UUID.randomUUID().toString().replace("-", "");
-            Logger.increaseIndent();
 
             Logger.printlnMixedBlue("Creating MLetHandler for endpoint:", "/");
-            server.createContext("/", new MLetHandler(url, beanClass, jarName, objectName, stagerOnly));
+            server.createContext("/", new MLetHandler(url, beanClass, jarName, objectName, this));
 
             Logger.printlnMixedBlue("Creating JarHandler for endpoint:", "/" + jarName);
-            server.createContext("/" + jarName, new JarHandler(jarFile, stagerOnly, this));
+            server.createContext("/" + jarName, new JarHandler(jarFile, this));
 
             server.setExecutor(null);
 
-            Logger.println("Starting HTTP server... ");
+            Logger.printlnYellow("Starting HTTP server.");
             Logger.println("");
-            server.start();
 
-            Logger.decreaseIndent();
+            server.start();
 
         } catch( IOException e ) {
 

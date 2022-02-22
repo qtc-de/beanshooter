@@ -26,8 +26,8 @@ public class MLetHandler implements HttpHandler {
     private final String jarName;
     private final String mBeanClass;
     private final String objectName;
-    private final boolean stagerOnly;
     private final String mLetResponse;
+    private final StagerServer parent;
 
     private static final String mLet = "<html><mlet code=\"%s\" archive=\"%s\" name=\"%s\" codebase=\"%s\"></mlet></html>";
 
@@ -40,13 +40,13 @@ public class MLetHandler implements HttpHandler {
      * @param objectName the objectName of the MBean to load
      * @param stagerOnly whether or not the parent StagerServer was spawned by the stager action
      */
-    public MLetHandler(String url, String beanClass, String jarName, String objectName, boolean stagerOnly)
+    public MLetHandler(String url, String beanClass, String jarName, String objectName, StagerServer parent)
     {
         this.url = url;
         this.jarName = jarName;
         this.mBeanClass = beanClass;
         this.objectName = objectName;
-        this.stagerOnly = stagerOnly;
+        this.parent = parent;
 
         this.mLetResponse = String.format(mLet, this.mBeanClass, this.jarName, this.objectName, this.url);
     }
@@ -59,7 +59,11 @@ public class MLetHandler implements HttpHandler {
         Logger.printlnMixedBlue(Logger.padRight("Class:", 10), mBeanClass);
         Logger.printlnMixedBlue(Logger.padRight("Archive:", 10), jarName);
         Logger.printlnMixedBlue(Logger.padRight("Object:", 10), objectName);
-        Logger.printlnMixedBlue(Logger.padRight("Codebase:", 10), url);
+
+        if( parent != null && parent.isStagerOnly() )
+            Logger.printMixedBlue(Logger.padRight("Codebase:", 10), url);
+        else
+            Logger.printlnMixedBlue(Logger.padRight("Codebase:", 10), url);
     }
 
     /**
@@ -87,8 +91,8 @@ public class MLetHandler implements HttpHandler {
      */
     public void handle(HttpExchange t) throws IOException
     {
-        if( stagerOnly ) {
-            System.out.println("");
+        if( parent.isStagerOnly() ) {
+            Logger.printlnPlain("");
             Logger.lineBreak();
         }
 
@@ -103,16 +107,14 @@ public class MLetHandler implements HttpHandler {
         Logger.increaseIndent();
 
         printInfo();
-
         Logger.decreaseIndent();
-        Logger.lineBreak();
+
+        if( !parent.isStagerOnly() )
+            Logger.lineBreak();
 
         t.sendResponseHeaders(200, mLetResponse.length());
         OutputStream os = t.getResponseBody();
         os.write(mLetResponse.getBytes());
         os.close();
-
-        if( stagerOnly )
-            Logger.printlnBlue("Press Enter to stop listening...");
     }
 }
