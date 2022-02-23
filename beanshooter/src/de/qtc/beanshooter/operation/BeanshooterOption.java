@@ -309,7 +309,7 @@ public enum BeanshooterOption implements Option {
                 "the IP address to listen on",
                 Arguments.store(),
                 OptionGroup.ACTION,
-                ArgType.STRING,
+                ArgType.STRING
                 ),
 
     STAGER_PORT("port",
