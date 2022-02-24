@@ -113,7 +113,7 @@ public class EnumHelper
         }
 
         catch (ApacheKarafException e) {
-            Logger.printlnMixedYellow("- Remote MBean server", "requires authentication", "and seems to be Apache Karaf.");
+            Logger.printlnMixedYellow("- Remote MBean server", "requires authentication", "(Apache Karaf)");
             Logger.statusOk();
 
             Logger.decreaseIndent();
