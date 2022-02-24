@@ -14,6 +14,7 @@ import javax.management.remote.rmi.RMIConnection;
 import javax.management.remote.rmi.RMIConnector;
 import javax.management.remote.rmi.RMIServer;
 
+import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
@@ -93,6 +94,9 @@ public class RMIProvider implements IMBeanServerProvider
                 if( BeanshooterOption.TARGET_OBJID_CONNECTION.isNull() )
                     Logger.eprintlnMixedYellow("The JMX", "bound name", "within the RMI registry is probably pointing to an invalid server.");
 
+            } else if( t instanceof java.io.EOFException || t instanceof java.net.SocketException ) {
+                Logger.eprintln("The JMX server closed the connection. This usually indicates a networking problem.");
+
             } else {
                 ExceptionHandler.unknownReason(e);
             }
@@ -102,6 +106,13 @@ public class RMIProvider implements IMBeanServerProvider
 
         } catch( SecurityException e ) {
             ExceptionHandler.handleSecurityException(e);
+
+        } catch( java.lang.IllegalArgumentException e ) {
+
+            if( e.getMessage().contains("Expected String[2]") )
+                throw new ApacheKarafException(e);
+
+            throw e;
         }
 
         return connection;

@@ -404,6 +404,9 @@ public class ExceptionHandler {
         if( t instanceof java.lang.SecurityException && message.contains("Authentication required") )
             throw new AuthenticationException(e);
 
+        if( t instanceof java.lang.SecurityException && message.contains("Authentication failed") )
+            throw new AuthenticationException(e);
+
         if( t instanceof java.lang.SecurityException && message.contains("Mismatched URI") )
             throw new MismatchedURIException(e, true);
 
@@ -420,6 +423,9 @@ public class ExceptionHandler {
             throw new AuthenticationException(e);
 
         if( t instanceof java.lang.SecurityException && message.contains("Invalid credential type") )
+            throw new AuthenticationException(e);
+
+        if( t instanceof javax.security.auth.login.FailedLoginException && message.contains("login failed"))
             throw new AuthenticationException(e);
 
         Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "while connecting to the specified JMX service.");

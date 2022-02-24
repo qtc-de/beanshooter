@@ -14,6 +14,7 @@ import javax.management.MBeanServerConnection;
 import javax.net.SocketFactory;
 
 import de.qtc.beanshooter.cli.Operation;
+import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.MalformedPluginException;
@@ -208,6 +209,17 @@ public class PluginSystem {
             {
                 Logger.eprintlnMixedYellow("Caught", "MisMatchedURIException", "while connecting to the JMX service.");
                 Logger.eprintlnMixedBlue("The specified", "target host", "does not match the configured SASL host.");
+                e.showDetails();
+
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
+            }
+
+            else if( e instanceof ApacheKarafException )
+            {
+                Logger.eprintlnMixedYellow("Caught", "ApacheKarafException", "while connecting to the JMX service.");
+                Logger.eprintlnMixedBlue("The targeted JMX service is probably spawned by", "Apache Karaf", "and requires authentication.");
+                Logger.eprintlnMixedYellow("You can attempt to login using Apache Karaf default credentials:", "karaf:karaf");
                 e.showDetails();
 
                 ExceptionHandler.showStackTrace(e);

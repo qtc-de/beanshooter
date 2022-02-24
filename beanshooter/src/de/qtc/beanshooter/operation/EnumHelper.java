@@ -14,6 +14,7 @@ import javax.management.remote.JMXConnector;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.cli.SASLMechanism;
+import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
@@ -109,11 +110,73 @@ public class EnumHelper
             return true;
         }
 
+        catch (ApacheKarafException e) {
+            Logger.printlnMixedYellow("- Remote MBean server", "requires authentication", "and seems to be Apache Karaf.");
+            Logger.statusOk();
+
+            Logger.decreaseIndent();
+            Logger.lineBreak();
+
+            return enumKaraf();
+        }
+
         catch (AuthenticationException e) {
             String message = e.getMessage();
 
             if (isCredentialException(message)) {
                 Logger.printlnMixedYellow("- Remote MBean server", "requires authentication.");
+                Logger.statusOk();
+            }
+
+            else {
+                Logger.printlnMixedYellow("- Caught unexpected", "AuthenticationException", "during login attempt.");
+                Logger.statusUndecided("Vulnerability");
+            }
+
+            ExceptionHandler.showStackTrace(e);
+        }
+
+        catch (Exception e) {
+            Logger.printlnMixedYellow("- Caught unexpected", e.getClass().getName(), "during login attempt.");
+            Logger.statusUndecided("Vulnerability");
+            ExceptionHandler.showStackTrace(e);
+        }
+
+        finally {
+            Logger.decreaseIndent();
+        }
+
+        return false;
+    }
+
+    /**
+     * Attempts to login using Apache Karaf default credentials.
+     *
+     * @return true if Apache Karaf default credentials work on the endpoint
+     */
+    public boolean enumKaraf()
+    {
+        Map<String, Object> env = ArgumentHandler.getEnv("karaf", "karaf");
+
+        Logger.printlnBlue("Checking for Apache Karaf default credentials:");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        try {
+            MBeanServerConnection conn = PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
+
+            Logger.printlnMixedYellow("- Login with default credentials", "karaf:karaf", "was successful.");
+            Logger.statusVulnerable();
+
+            client = new MBeanServerClient(conn);
+            return true;
+        }
+
+        catch (AuthenticationException e) {
+            String message = e.getMessage();
+
+            if (isCredentialException(message)) {
+                Logger.printlnMixedYellow("- Default credentials", "are not", "in use.");
                 Logger.statusOk();
             }
 
