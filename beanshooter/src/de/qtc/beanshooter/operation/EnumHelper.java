@@ -18,8 +18,10 @@ import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
+import de.qtc.beanshooter.exceptions.MissingCredentialsException;
 import de.qtc.beanshooter.exceptions.SaslMissingException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
+import de.qtc.beanshooter.exceptions.WrongCredentialsException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.plugin.PluginSystem;
 
@@ -121,9 +123,8 @@ public class EnumHelper
         }
 
         catch (AuthenticationException e) {
-            String message = e.getMessage();
 
-            if (isCredentialException(message)) {
+            if (e instanceof MissingCredentialsException) {
                 Logger.printlnMixedYellow("- Remote MBean server", "requires authentication.");
                 Logger.statusOk();
             }
@@ -173,9 +174,8 @@ public class EnumHelper
         }
 
         catch (AuthenticationException e) {
-            String message = e.getMessage();
 
-            if (isCredentialException(message)) {
+            if (e instanceof WrongCredentialsException) {
                 Logger.printlnMixedYellow("- Default credentials", "are not", "in use.");
                 Logger.statusOk();
             }
@@ -388,23 +388,5 @@ public class EnumHelper
 
         Logger.decreaseIndent();
         return mbeans;
-    }
-
-    /**
-     * Checks whether an Exception message was related to missing credentials.
-     *
-     * @param message Exception message
-     * @return true if the message complains about missing credentials
-     */
-    private boolean isCredentialException(String message)
-    {
-        String[] authMessages = new String[] { "Credentials required", "Authentication required" };
-
-        for (String item : authMessages)
-
-            if (message.contains(item))
-                return true;
-
-        return false;
     }
 }

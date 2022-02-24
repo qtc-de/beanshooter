@@ -399,34 +399,34 @@ public class ExceptionHandler {
         String message = t.getMessage();
 
         if( t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed") )
-            throw new AuthenticationException(e);
+            throw new WrongCredentialsException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Credentials required") )
+            throw new MissingCredentialsException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Mismatched URI") )
+            throw new MismatchedURIException(e, true);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Bad credentials") )
+            throw new WrongCredentialsException(e);
 
         if( t instanceof java.lang.SecurityException && message.contains("Authentication required") )
+            throw new MissingCredentialsException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("None of LM and NTLM verified") )
+            throw new WrongCredentialsException(e);
+
+        if( t instanceof java.lang.SecurityException && message.contains("Invalid credential type") )
             throw new AuthenticationException(e);
 
         if( t instanceof java.lang.SecurityException && message.contains("Authentication failed") )
             throw new AuthenticationException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Mismatched URI") )
-            throw new MismatchedURIException(e, true);
-
         if( t instanceof java.lang.SecurityException && message.contains("Invalid response") )
             throw new AuthenticationException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Bad credentials") )
-            throw new AuthenticationException(e);
-
-        if( t instanceof java.lang.SecurityException && message.contains("Credentials required") )
-            throw new AuthenticationException(e);
-
-        if( t instanceof java.lang.SecurityException && message.contains("None of LM and NTLM verified") )
-            throw new AuthenticationException(e);
-
-        if( t instanceof java.lang.SecurityException && message.contains("Invalid credential type") )
-            throw new AuthenticationException(e);
-
         if( t instanceof javax.security.auth.login.FailedLoginException && message.contains("login failed"))
-            throw new AuthenticationException(e);
+            throw new WrongCredentialsException(e);
 
         Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "while connecting to the specified JMX service.");
         stackTrace(e);
