@@ -38,6 +38,7 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.BRUTE_USER,
             BeanshooterOption.BRUTE_PASSWORD,
             BeanshooterOption.BRUTE_THREADS,
+            BeanshooterOption.BRUTE_FIRST,
             BeanshooterOption.NO_PROGRESS,
     }),
 

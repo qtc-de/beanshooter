@@ -18,12 +18,14 @@ import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
+import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.MissingCredentialsException;
 import de.qtc.beanshooter.exceptions.SaslMissingException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.exceptions.WrongCredentialsException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.plugin.PluginSystem;
+import de.qtc.beanshooter.utils.Utils;
 
 /**
  * Helper class to divide the different checks during the enum action into separate functions.
@@ -388,5 +390,76 @@ public class EnumHelper
 
         Logger.decreaseIndent();
         return mbeans;
+    }
+
+    /**
+     * Checks whether the targeted JMX server requires credentials.
+     *
+     * @return true if credentials are required
+     */
+    public boolean requriesLogin()
+    {
+        Map<String, Object> env = ArgumentHandler.getEnv(null, null);
+
+        try {
+            PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
+            return false;
+        }
+
+        catch(AuthenticationException e) {
+
+            if(e instanceof MissingCredentialsException)
+                return true;
+
+            if(e instanceof SaslProfileException)
+            {
+                Logger.printlnMixedBlue("Caught", "SaslProfileException", "during login attempt.");
+                Logger.printlnMixedYellow("Use the", "--sasl", "option to specify a matching SASL profile.");
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
+            }
+
+            ExceptionHandler.unexpectedException(e, "login", "attempt", true);
+        }
+
+        return true;
+    }
+
+    /**
+     * Performs a login attempt with a dummy username and a dummy password. The JMX service is expected to
+     * raise a WrongCredentialsException. If this is not the case, there is probably a connection error.
+     */
+    public void checkLoginFormat()
+    {
+        Map<String, Object> env = ArgumentHandler.getEnv("beanshooter", "beanshooter");
+
+        try {
+            PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
+        }
+
+        catch(AuthenticationException e) {
+
+            if(e instanceof WrongCredentialsException)
+                return;
+
+            if(e instanceof MismatchedURIException)
+            {
+                Logger.printlnMixedYellow("Caught", "MismatchedURIException", "during login attempt.");
+                Logger.printlnMixedBlueFirst("Digest authentication", "requires the correct hostname to be used.");
+                Logger.printlnMixedBlue("Original error message:", e.getMessage());
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
+            }
+
+            if(e instanceof SaslProfileException)
+            {
+                Logger.printlnMixedBlue("Caught", "SaslProfileException", "during login attempt.");
+                Logger.printlnMixedYellow("Use the", "--sasl", "option to specify a matching SASL profile.");
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
+            }
+
+            ExceptionHandler.unexpectedException(e, "login", "attempt", true);
+        }
     }
 }

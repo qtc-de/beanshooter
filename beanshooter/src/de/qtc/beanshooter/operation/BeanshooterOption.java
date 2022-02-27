@@ -228,6 +228,12 @@ public enum BeanshooterOption implements Option {
                   ArgType.INT,
                   "threads"),
 
+    BRUTE_FIRST("--first",
+                "stop after finding a valid credential pair",
+                Arguments.storeTrue(),
+                OptionGroup.ACTION,
+                ArgType.BOOL),
+
     SERIAL_GADGET_NAME("gadget",
                          "gadget to use for the deserialization attack",
                          Arguments.store(),

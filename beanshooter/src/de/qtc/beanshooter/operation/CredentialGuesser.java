@@ -28,6 +28,8 @@ public class CredentialGuesser
     private final GuessingProgressBar bar;
     private final Map<String,Set<String>> credentials;
 
+    private ExecutorService pool;
+
     /**
      * Create a CredentialGuesser by specifying a target and the credential map that should be used.
      *
@@ -55,8 +57,18 @@ public class CredentialGuesser
         Logger.lineBreak();
         Logger.increaseIndent();
 
+        EnumHelper enumHelper = new EnumHelper(host, port);
+        if( BeanshooterOption.CONN_SASL.isNull() && !enumHelper.requriesLogin() )
+        {
+            Logger.printlnMixedYellow("The targeted JMX service accepts", "unauthenticated", "connections.");
+            Logger.println("No need to bruteforce credentials.");
+            return;
+        }
+
+        enumHelper.checkLoginFormat();
+
         int threads = ArgumentHandler.require(BeanshooterOption.BRUTE_THREADS);
-        ExecutorService pool = Executors.newFixedThreadPool(threads);
+        pool = Executors.newFixedThreadPool(threads);
 
         for(Entry<String,Set<String>> entry : credentials.entrySet())
         {
@@ -143,6 +155,9 @@ public class CredentialGuesser
                 {
                     PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
                     bar.printSuccess(username, password);
+
+                    if( BeanshooterOption.BRUTE_FIRST.getBool() )
+                        pool.shutdownNow();
                 }
 
                 catch (AuthenticationException e) {}
