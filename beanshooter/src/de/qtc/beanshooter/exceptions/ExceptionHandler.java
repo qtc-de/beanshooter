@@ -426,7 +426,11 @@ public class ExceptionHandler {
             throw new AuthenticationException(e);
 
         if( t instanceof java.lang.SecurityException && message.contains("Invalid response") )
-            throw new AuthenticationException(e);
+
+            if( message.contains("javax.security.sasl.SaslException") && BeanshooterOption.CONN_SASL.getValue().equals("cram"))
+                throw new WrongCredentialsException(e);
+            else
+                throw new AuthenticationException(e);
 
         if( t instanceof javax.security.auth.login.FailedLoginException && message.contains("login failed"))
             throw new WrongCredentialsException(e);

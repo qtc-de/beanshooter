@@ -21,6 +21,7 @@ import de.qtc.beanshooter.exceptions.MalformedPluginException;
 import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.SaslMissingException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
+import de.qtc.beanshooter.exceptions.WrongCredentialsException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.providers.ArgumentProvider;
@@ -220,6 +221,15 @@ public class PluginSystem {
                 Logger.eprintlnMixedYellow("Caught", "ApacheKarafException", "while connecting to the JMX service.");
                 Logger.eprintlnMixedBlue("The targeted JMX service is probably spawned by", "Apache Karaf", "and requires authentication.");
                 Logger.eprintlnMixedYellow("You can attempt to login using Apache Karaf default credentials:", "karaf:karaf");
+                e.showDetails();
+
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
+            }
+
+            else if( e instanceof WrongCredentialsException) {
+                Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
+                Logger.eprintlnMixedBlue("The specified credentials are most likely", "incorrect.");
                 e.showDetails();
 
                 ExceptionHandler.showStackTrace(e);
