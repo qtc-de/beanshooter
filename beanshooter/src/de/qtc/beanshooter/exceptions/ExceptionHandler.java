@@ -174,7 +174,7 @@ public class ExceptionHandler {
     public static void connectionRefused(Exception e, String during1, String during2)
     {
         Logger.eprintlnMixedYellow("Caught unexpected", "ConnectException", "during " + during1 + " " + during2 + ".");
-        Logger.eprintMixedBlue("Target", "refused", "the connection.");
+        Logger.eprintlnMixedBlue("Target", "refused", "the connection.");
         Logger.printlnPlainMixedBlue(" The specified port is probably", "closed.");
         showStackTrace(e);
         Utils.exit();
@@ -399,6 +399,9 @@ public class ExceptionHandler {
         String message = t.getMessage();
 
         if( t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed") )
+            throw new WrongCredentialsException(e);
+
+        if( t instanceof javax.security.auth.login.FailedLoginException && message.contains("Invalid username or password") )
             throw new WrongCredentialsException(e);
 
         if( t instanceof java.lang.SecurityException && message.contains("Credentials required") )
