@@ -59,6 +59,7 @@ function _beanshooter() {
             opts="$opts --threads"
             opts="$opts --username"
             opts="$opts --password"
+            opts="$opts --first"
             opts="$opts --username-file"
             opts="$opts --password-file"
             opts="$opts --no-progress"
