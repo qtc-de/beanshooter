@@ -1,0 +1,14 @@
+tester:
+  title: brute action
+  description: |-
+    Perform tests on beanshooters brute action
+
+  id: '01-01'
+  groups:
+    - brute
+    - target
+  id_pattern: '01-01-{:02}'
+
+testers:
+  - ./rmi/tricot.yml
+  - ./jmxmp/tricot.yml

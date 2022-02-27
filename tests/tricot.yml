@@ -1,0 +1,30 @@
+tester:
+  name:       beanshooter
+  title:      beanshooter tests
+  error_mode: break
+  description: |-
+    Launches some end-to-end tests for beanshooter
+
+  requires:
+      files:
+        - /opt/ysoserial.jar
+      commands:
+        - beanshooter
+      version:
+        ge: 1.9.0
+
+variables:
+  volume: /tmp/beanshooter-tricot-test/
+  volume-d: /rce/
+  OPTIONS:
+    - --no-color
+
+plugins:
+  - mkdir:
+      force: false
+      cleanup: true
+      dirs:
+        - ${volume}
+
+testers:
+  - ./jmx-example-server/tricot.yml

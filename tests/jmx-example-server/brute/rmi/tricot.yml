@@ -1,0 +1,93 @@
+tester:
+  title: brute action (RMI)
+  description: |-
+    Perform tests on beanshooters brute action for RMI based connections
+
+  id: '01-01-01'
+  groups:
+    - rmi
+  id_pattern: '01-01-01-{:02}'
+
+tests:
+  - title: Bruteforce Unauth JMX
+    description: |-
+      Performs a bruteforce attack on a JMX endpoint that
+      does not require authentication. It is expected that
+      beanshooter detects that no credentials are required.
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - The targeted JMX service accepts unauthenticated connections.
+            - No need to bruteforce credentials.
+
+  - title: Bruteforce Plain JMX
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint that
+      requires credentials. Valid credentials are admin:admin
+      and it is expecetd that beanshooter finds them.
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: admin:admin'
+
+  - title: Bruteforce JMX default Auth
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint that
+      requires credentials. Valid credentials are monitorRole:monitor
+      and controlRole:control. beanshooter should find both of them.
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: monitorRole:monitor'
+            - 'Found valid credentials: controlRole:control'
+
+  - title: Bruteforce JMX default Auth (--first)
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint that
+      requires credentials. Valid credentials are monitorRole:monitor
+      and controlRole:control. Since the --first option is used,
+      beanshooter is expected to abort after finding the first
+      credential pair (--thredas 1 is requried due to the low amount
+      of credentials within the default wordlist).
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - --first
+      - --threads
+      - 1
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: controlRole:control'
+          invert:
+            - '100%'
+            - 'Found valid credentials: monitorRole:monitor'
