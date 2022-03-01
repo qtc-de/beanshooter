@@ -70,21 +70,27 @@ public class RMIProvider implements IMBeanServerProvider
 
             Throwable t = ExceptionHandler.getCause(e);
 
-            if(t instanceof java.io.InvalidClassException)
+            if (t instanceof java.io.InvalidClassException)
                 throw new InvalidLoginClassException(e);
 
-            if(t instanceof java.lang.ClassNotFoundException)
+            else if (t instanceof java.lang.ClassNotFoundException)
                 throw new InvalidLoginClassException(e);
+
+            else if (t instanceof java.rmi.ConnectIOException)
+                ExceptionHandler.connectIOException(e, "newclient");
 
             Logger.resetIndent();
             Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while invoking the newClient method.");
 
-            if( t instanceof java.net.ConnectException ) {
+            if (t instanceof java.rmi.NoSuchObjectException)
+                Logger.eprintlnMixedBlue("You probably specified an", "ObjID value", "that does not exist on the server.");
 
-                if( t.getMessage().contains("Connection refused") ) {
+            else if (t instanceof java.net.ConnectException ) {
+
+                if (t.getMessage().contains("Connection refused") ) {
                     Logger.eprintlnMixedBlue("The JMX remote object", "refused", "the connection.");
 
-                } else if( t.getMessage().contains("Network is unreachable") ) {
+                } else if (t.getMessage().contains("Network is unreachable") ) {
                     Logger.eprintlnMixedBlue("The JMX remote object is", "unreachable.");
 
                 } else {
@@ -94,7 +100,7 @@ public class RMIProvider implements IMBeanServerProvider
                 if( BeanshooterOption.TARGET_OBJID_CONNECTION.isNull() )
                     Logger.eprintlnMixedYellow("The JMX", "bound name", "within the RMI registry is probably pointing to an invalid server.");
 
-            } else if( t instanceof java.io.EOFException || t instanceof java.net.SocketException ) {
+            } else if (t instanceof java.io.EOFException || t instanceof java.net.SocketException ) {
                 Logger.eprintln("The JMX server closed the connection. This usually indicates a networking problem.");
 
             } else {

@@ -2,6 +2,7 @@ package de.qtc.beanshooter;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.cli.Operation;
+import de.qtc.beanshooter.utils.Utils;
 
 /**
  * The Stater class handles the startup process of beanshooter. beanshooter actions
@@ -16,6 +17,7 @@ public class Starter
     public static void main(String[] argv)
     {
         ArgumentHandler handler = new ArgumentHandler(argv);
+        Utils.disableWarning();
         Operation operation = handler.getAction();
         operation.invoke();
     }

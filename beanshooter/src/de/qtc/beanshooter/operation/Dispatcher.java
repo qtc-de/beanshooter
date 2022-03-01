@@ -293,7 +293,6 @@ public class Dispatcher {
      */
     public void invoke()
     {
-        Utils.disableWarning();
         ArgumentHandler.requireAllOf(BeanshooterOption.INVOKE_METHOD_ARGS, BeanshooterOption.INVOKE_OBJ_NAME, BeanshooterOption.INVOKE_METHOD_NAME);
 
         ObjectName objectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.INVOKE_OBJ_NAME));
