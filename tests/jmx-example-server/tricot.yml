@@ -68,3 +68,4 @@ variables:
 
 testers:
   - ./brute/tricot.yml
+  - ./list/tricot.yml
