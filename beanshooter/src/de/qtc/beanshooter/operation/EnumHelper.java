@@ -363,9 +363,10 @@ public class EnumHelper
         Logger.increaseIndent();
 
         Set<ObjectInstance> mbeans = client.getMBeans();
+        ArgumentHandler arg = ArgumentHandler.getInstance();
 
         List<String> classNames = mbeans.stream().map(i -> i.getClassName()).collect(Collectors.toList());
-        classNames.removeAll(Arrays.asList(ArgumentHandler.getInstance().getFromConfig("defaultMBeans").split(" ")));
+        classNames.removeAll(Arrays.asList(arg.getFromConfig("defaultMBeans").split(" ")));
 
         Logger.printlnMixedYellowFirst("- " + mbeans.size(), "MBeans are currently registred on the MBean server.");
 
@@ -377,13 +378,18 @@ public class EnumHelper
         else
         {
             Logger.printlnMixedBlue("  Listing", String.valueOf(classNames.size()), "non default MBeans:");
+            List<String> interestingMBeans = Arrays.asList(arg.getFromConfig("interestingMBeans").split(" "));
 
             for(ObjectInstance instance : mbeans)
             {
                 if (!classNames.contains(instance.getClassName()))
                     continue;
 
-                Logger.printMixedYellow("  -", instance.getClassName(), "");
+                if (interestingMBeans.contains(instance.getClassName()))
+                    Logger.printMixedRed("  -", instance.getClassName(), "");
+                else
+                    Logger.printMixedYellow("  -", instance.getClassName(), "");
+
                 Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
             }
         }

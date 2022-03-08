@@ -48,7 +48,7 @@ public enum MBean implements IMBean
            "tomcat",
            "tomcat MemoryUserDatabaseMBean used for user management",
             Utils.getObjectName("Users:type=UserDatabase,database=UserDatabase"),
-            "package org.apache.catalina.mbeans.MemoryUserDatabaseMBean",
+            "org.apache.catalina.mbeans.MemoryUserDatabaseMBean",
             null,
             MemoryUserDatabaseMBeanOperation.values(),
             new Option[] {}

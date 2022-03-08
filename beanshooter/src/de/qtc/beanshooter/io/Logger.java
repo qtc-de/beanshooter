@@ -229,6 +229,16 @@ public class Logger {
         elog(yellow(msg));
     }
 
+    public static void printMixedRed(String first, String second)
+    {
+        log(prefix() + first + " " + red(second), false);
+    }
+
+    public static void printMixedRed(String first, String second, String third)
+    {
+        log(prefix() + first + " " + red(second) + " " + third, false);
+    }
+
     public static void printlnMixedRed(String first, String second)
     {
         log(prefix() + first + " " + red(second));

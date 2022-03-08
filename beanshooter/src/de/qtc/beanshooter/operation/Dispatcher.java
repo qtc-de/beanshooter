@@ -1,6 +1,8 @@
 package de.qtc.beanshooter.operation;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -262,6 +264,9 @@ public class Dispatcher {
         MBeanServerClient mBeanServerClient = getMBeanServerClient();
         Set<ObjectInstance> instances = mBeanServerClient.getMBeans();
 
+        ArgumentHandler arg = ArgumentHandler.getInstance();
+        List<String> interestingMBeans = Arrays.asList(arg.getFromConfig("interestingMBeans").split(" "));
+
         Logger.println("Available MBeans:");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -280,7 +285,11 @@ public class Dispatcher {
                 continue;
             }
 
-            Logger.printMixedYellow("-", instance.getClassName(), "");
+            if (interestingMBeans.contains(instance.getClassName()))
+                Logger.printMixedRed("  -", instance.getClassName(), "");
+            else
+                Logger.printMixedYellow("  -", instance.getClassName(), "");
+
             Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
         }
 
