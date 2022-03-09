@@ -24,6 +24,7 @@ import de.qtc.beanshooter.exceptions.SaslMissingException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.exceptions.WrongCredentialsException;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -378,7 +379,7 @@ public class EnumHelper
         else
         {
             Logger.printlnMixedBlue("  Listing", String.valueOf(classNames.size()), "non default MBeans:");
-            List<String> interestingMBeans = Arrays.asList(arg.getFromConfig("interestingMBeans").split(" "));
+            List<String> interestingMBeans = MBean.getBeanClasses();
 
             for(ObjectInstance instance : mbeans)
             {

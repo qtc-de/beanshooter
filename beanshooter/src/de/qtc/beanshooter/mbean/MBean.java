@@ -208,6 +208,21 @@ public enum MBean implements IMBean
     }
 
     /**
+     * Return a list of available MBean classes.
+     *
+     * @return List of available MBean classes
+     */
+    public static List<String> getBeanClasses()
+    {
+        List<String> mBeanNames = new ArrayList<String>();
+
+        for( MBean bean : MBean.values())
+            mBeanNames.add(bean.getMBeanClass());
+
+        return mBeanNames;
+    }
+
+    /**
      * Return a list of available MBean members that have a jar file defined.
      *
      * @return List of available MBean members that have a jar file defined
