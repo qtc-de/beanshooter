@@ -1,0 +1,72 @@
+tester:
+  title: list action (JMXMP)
+  description: |-
+    Perform tests on beanshooters list action for JMXMP based connections
+
+  id: '01-05-02'
+  groups:
+    - jmxmp
+  id_pattern: '01-05-02-{:02}'
+
+tests:
+  - title: List Unauth JMX
+    description: |-
+      Performs the list action on an unauthenticated JMX service
+
+    command:
+      - beanshooter
+      - list
+      - ${JMXMP_UNAUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Available MBeans:'
+            - 'javax.management.MBeanServerDelegate (JMImplementation:type=MBeanServerDelegate)'
+            - 'sun.management.MemoryManagerImpl (java.lang:name=Metaspace Manager,type=MemoryManager)'
+
+  - title: List Plain JMX
+    description: |-
+      Performs the list action on an JMX service that uses plain authentication
+
+    command:
+      - beanshooter
+      - list
+      - ${JMXMP_PLAIN}
+      - ${OPTIONS}
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Available MBeans:'
+            - 'javax.management.MBeanServerDelegate (JMImplementation:type=MBeanServerDelegate)'
+            - 'sun.management.MemoryManagerImpl (java.lang:name=Metaspace Manager,type=MemoryManager)'
+
+  - title: List NTLM JMX
+    description: |-
+      Performs the list action on an JMX service that uses NTLM authentication
+
+    command:
+      - beanshooter
+      - list
+      - ${TARGET_NTLM}
+      - ${OPTIONS}
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Available MBeans:'
+            - 'javax.management.MBeanServerDelegate (JMImplementation:type=MBeanServerDelegate)'
+            - 'sun.management.MemoryManagerImpl (java.lang:name=Metaspace Manager,type=MemoryManager)'
