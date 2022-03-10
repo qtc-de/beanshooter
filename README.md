@@ -11,7 +11,7 @@
 ![](https://img.shields.io/badge/java-8%2b-blue)
 [![](https://img.shields.io/badge/license-GPL%20v3.0-blue)](https://github.com/qtc-de/beanshooter/blob/master/LICENSE)
 
-![beanshooter example](https://tneitzel.eu/73201a92878c0aba7c3419b7403ab604/beanshooter-intro.mp4)
+![beanshooter example](https://tneitzel.eu/73201a92878c0aba7c3419b7403ab604/beanshooter-intro.gif)
 
 ### Table of Contents
 
