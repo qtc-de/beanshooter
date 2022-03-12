@@ -174,7 +174,7 @@ public class ExceptionHandler {
     public static void connectionRefused(Exception e, String during1, String during2)
     {
         Logger.eprintlnMixedYellow("Caught unexpected", "ConnectException", "during " + during1 + " " + during2 + ".");
-        Logger.eprintlnMixedBlue("Target", "refused", "the connection.");
+        Logger.eprintMixedBlue("Target", "refused", "the connection.");
         Logger.printlnPlainMixedBlue(" The specified port is probably", "closed.");
         showStackTrace(e);
         Utils.exit();
