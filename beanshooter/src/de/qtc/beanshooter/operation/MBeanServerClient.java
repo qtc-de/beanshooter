@@ -123,6 +123,19 @@ public class MBeanServerClient {
                 ExceptionHandler.unexpectedException(e, "deploying", "MBean", true);
             }
 
+        } catch (SecurityException e) {
+
+            Logger.lineBreak();
+
+            if( e.getMessage().contains("Invalid access level") )
+                ExceptionHandler.insufficientPermission(e, "registering MBean", true);
+
+            else if( e.getMessage().contains("Creating an MBean that is a ClassLoader is forbidden") )
+                ExceptionHandler.protectedEndpoint(e, "registering MBean", true);
+
+            else
+                ExceptionHandler.unexpectedException(e, "registering", "MBean", true);
+
         } catch (Exception e) {
             ExceptionHandler.unexpectedException(e, "registering", "MBean", true);
         }
@@ -148,6 +161,17 @@ public class MBeanServerClient {
         catch (InstanceNotFoundException e)
         {
             Logger.println("MBean is not registered. Nothing to do.");
+            return;
+
+        } catch (SecurityException e) {
+
+            Logger.lineBreak();
+
+            if( e.getMessage().contains("Invalid access level") )
+                ExceptionHandler.insufficientPermission(e, "unregistering MBean", true);
+
+            else
+                ExceptionHandler.unexpectedException(e, "unregistering", "MBean", true);
         }
 
         catch (MBeanRegistrationException | IOException e)

@@ -180,6 +180,24 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void insufficientPermission(Exception e, String during, boolean exit)
+    {
+        Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while " + during);
+        Logger.eprintlnMixedBlue("The specified user has", "insufficient permission", "to perform the requested action.");
+
+        showStackTrace(e);
+        Utils.exit(exit);
+    }
+
+    public static void protectedEndpoint(Exception e, String during, boolean exit)
+    {
+        Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while " + during);
+        Logger.eprintlnMixedBlue("The target endpoint uses a", "jmxremote.access", "file that prevents certain actions.");
+
+        showStackTrace(e);
+        Utils.exit(exit);
+    }
+
     public static void sslError(Exception e, String during1, String during2)
     {
         Logger.eprintlnMixedYellow("Caught unexpected", "SSLException", "during " + during1 + " " + during2 + ".");
@@ -345,8 +363,8 @@ public class ExceptionHandler {
 
         if( t instanceof java.io.EOFException )
         {
-            Logger.printlnMixedYellow("Caught unexpected", "EOFException", "while waiting for a server response.");
-            Logger.println("The server has probably terminated the connection.");
+            Logger.eprintlnMixedYellow("Caught unexpected", "EOFException", "while waiting for a server response.");
+            Logger.eprintln("The server has probably terminated the connection.");
             ExceptionHandler.showStackTrace(e);
             Utils.exit();
         }
@@ -360,10 +378,10 @@ public class ExceptionHandler {
         if( t instanceof IOException )
         {
             if(message.contains("error=2,"))
-                Logger.printlnMixedYellow("Unknown command:", commandArray[0]);
+                Logger.eprintlnMixedYellow("Unknown command:", commandArray[0]);
 
             else if(message.contains("error=13,"))
-                Logger.printlnYellow("Permission denied.");
+                Logger.eprintlnYellow("Permission denied.");
         }
 
         else
@@ -450,8 +468,8 @@ public class ExceptionHandler {
     public static void deserialClassNotFound(ClassNotFoundException e)
     {
         if( e.getMessage().contains("DeserializationCanary") ) {
-            Logger.printlnMixedBlue("MBeanServer attempted to deserialize the", "DeserializationCanary", "class.");
-            Logger.printlnMixedYellow("Deserialization attack was", "probably successful.");
+            Logger.eprintlnMixedBlue("MBeanServer attempted to deserialize the", "DeserializationCanary", "class.");
+            Logger.eprintlnMixedYellow("Deserialization attack was", "probably successful.");
 
         } else {
             Logger.eprintlnMixedYellow("Caught", "ClassNotFoundException", "after the payload object was sent.");
@@ -499,15 +517,15 @@ public class ExceptionHandler {
     public static void unknownReason(Exception e, String during)
     {
         Throwable t = ExceptionHandler.getCause(e);
-        Logger.printlnMixedYellow("Caught unexpected", t.getClass().getName(), during);
+        Logger.eprintlnMixedYellow("Caught unexpected", t.getClass().getName(), during);
 
         ExceptionHandler.unknownReason(e);
     }
 
     public static void unknownReason(Exception e)
     {
-        Logger.printlnMixedBlue("The exception occured unexpected and was not caught by", "beanshooter.");
-        Logger.println("Please report the exception to help improving the exception handling :)");
+        Logger.eprintlnMixedBlue("The exception occured unexpected and was not caught by", "beanshooter.");
+        Logger.eprintln("Please report the exception to help improving the exception handling :)");
         ExceptionHandler.stackTrace(e);
         Utils.exit();
     }
