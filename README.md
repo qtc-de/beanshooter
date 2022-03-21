@@ -748,6 +748,9 @@ mechanism is usually possible, the required *TLS* setting cannot be obtained:
 
 ---
 
+![](https://github.com/qtc-de/beanshooter/workflows/example%20server%20-%20master/badge.svg?branch=master)
+![](https://github.com/qtc-de/beanshooter/workflows/example%20server%20-%20develop/badge.svg?branch=develop)
+
 Most of the examples presented above are based on the [jmx-example-server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Fjmx-example-server)
 and the [tomcat-example-server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Ftomcat-example-server).
 These servers are contained within this repository in the [docker](/docker) folder and can be used to practice *JMX* enumeration.
