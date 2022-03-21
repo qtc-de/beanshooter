@@ -1,0 +1,12 @@
+tester:
+  title: list action
+  description: |-
+    Perform tests on beanshooters list action
+
+  id: '01-05'
+  groups:
+    - list
+    - target
+
+testers:
+  - ./rmi/tricot.yml

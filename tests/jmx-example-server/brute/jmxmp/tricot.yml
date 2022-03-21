@@ -1,0 +1,128 @@
+tester:
+  title: brute action (JMXMP)
+  description: |-
+    Perform tests on beanshooters brute action for JMXMP based connections
+
+  id: '01-01-02'
+  groups:
+    - jmxmp
+  id_pattern: '01-01-02-{:02}'
+
+
+tests:
+  - title: Bruteforce Unauth JMXMP
+    description: |-
+      Performs a bruteforce attack on a JMXMP endpoint that
+      does not require authentication. It is expected that
+      beanshooter detects that no credentials are required.
+
+    command:
+      - beanshooter
+      - brute
+      - ${JMXMP_UNAUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - The targeted JMX service accepts unauthenticated connections.
+            - No need to bruteforce credentials.
+
+  - title: Bruteforce Unauth JMXMP (TLS)
+    description: |-
+      Performs a bruteforce attack on a JMXMP endpoint that
+      does not require authentication. It is expected that
+      beanshooter detects that no credentials are required.
+
+    command:
+      - beanshooter
+      - brute
+      - ${JMXMP_TLS}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - The targeted JMX service accepts unauthenticated connections.
+            - No need to bruteforce credentials.
+
+  - title: Bruteforce Plain JMXMP
+    description: |-
+      Peforms a bruteforce attack on a JMXMP with TLS PLAIN SASL
+      profile configured. Valid credentials are monitorRole:monitor
+      and controlRole:control and beanshooter is expected to find both
+      of them.
+
+    command:
+      - beanshooter
+      - brute
+      - ${JMXMP_PLAIN}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: monitorRole:monitor'
+            - 'Found valid credentials: controlRole:control'
+
+  - title: Bruteforce Digest JMXMP
+    description: |-
+      Peforms a bruteforce attack on a JMXMP with TLS Digest SASL
+      profile configured. This is expected to lead to an exception,
+      because the Digest SASL profile requires an exact hostname
+      to work.
+
+    command:
+      - beanshooter
+      - brute
+      - ${JMXMP_DIGEST}
+      - ${OPTIONS}
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Digest authentication requires the correct hostname to be used.'
+
+  - title: Bruteforce CRAM JMXMP
+    description: |-
+      Peforms a bruteforce attack on a JMXMP with TLS CRAM SASL
+      profile configured. Valid credentials are monitorRole:monitor
+      and controlRole:control and beanshooter is expected to find both
+      of them.
+
+    command:
+      - beanshooter
+      - brute
+      - ${JMXMP_CRAM}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: monitorRole:monitor'
+            - 'Found valid credentials: controlRole:control'
+
+  - title: Bruteforce NTLM JMXMP
+    description: |-
+      Peforms a bruteforce attack on a JMXMP with TLS NTLM SASL
+      profile configured. Valid credentials are monitorRole:monitor
+      and controlRole:control and beanshooter is expected to find both
+      of them.
+
+    command:
+      - beanshooter
+      - brute
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: monitorRole:monitor'
+            - 'Found valid credentials: controlRole:control'

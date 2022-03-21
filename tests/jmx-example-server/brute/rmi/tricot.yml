@@ -1,0 +1,202 @@
+tester:
+  title: brute action (RMI)
+  description: |-
+    Perform tests on beanshooters brute action for RMI based connections
+
+  id: '01-01-01'
+  groups:
+    - rmi
+  id_pattern: '01-01-01-{:02}'
+
+variables:
+  username_file: /tmp/beanshooter_usernames.tmp
+  password_file: /tmp/beanshooter_passwords.tmp
+
+plugins:
+  - tempfile:
+      path: ${username_file}
+      content: |-
+        Tony
+        Carlos
+        admin
+  - tempfile:
+      path: ${password_file}
+      content: |-
+        password
+        secret
+        secure
+        admin
+
+tests:
+  - title: Bruteforce Unauth JMX
+    description: |-
+      Performs a bruteforce attack on a JMX endpoint that
+      does not require authentication. It is expected that
+      beanshooter detects that no credentials are required.
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - The targeted JMX service accepts unauthenticated connections.
+            - No need to bruteforce credentials.
+
+  - title: Bruteforce Plain JMX
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint that
+      requires credentials. Valid credentials are admin:admin
+      and it is expecetd that beanshooter finds them.
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: admin:admin'
+
+  - title: Bruteforce JMX default Auth
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint that
+      requires credentials. Valid credentials are monitorRole:monitor
+      and controlRole:control. beanshooter should find both of them.
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: monitorRole:monitor'
+            - 'Found valid credentials: controlRole:control'
+
+  - title: Bruteforce JMX default Auth (--first)
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint that
+      requires credentials. Valid credentials are monitorRole:monitor
+      and controlRole:control. Since the --first option is used,
+      beanshooter is expected to abort after finding the first
+      credential pair (--thredas 1 is requried due to the low amount
+      of credentials within the default wordlist).
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - --first
+      - --threads
+      - 1
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: controlRole:control'
+          invert:
+            - '100%'
+            - 'Found valid credentials: monitorRole:monitor'
+
+  - title: Bruteforce JMX with fixed username and password
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint with a fixed
+      username and a fixed password (actually this makes no sense,
+      but hey, let's test it).
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: admin:admin'
+            - '[1 / 1]'
+            - '100%'
+
+  - title: Bruteforce JMX with custom wordlist (username)
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint with a fixed
+      password and a custom username list.
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username-file
+      - ${username_file}
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: admin:admin'
+            - '[3 / 3]'
+            - '100%'
+
+  - title: Bruteforce JMX with custom wordlist (password)
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint with a fixed
+      username and a custom password list.
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username
+      - admin
+      - --password-file
+      - ${password_file}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: admin:admin'
+            - '[4 / 4]'
+            - '100%'
+
+  - title: Bruteforce JMX with custom wordlist (both)
+    description: |-
+      Peforms a bruteforce attack on a JMX endpoint with a custom
+      username and a custom password list.
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username-file
+      - ${username_file}
+      - --password-file
+      - ${password_file}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: admin:admin'
+            - '[12 / 12]'
+            - '100%'

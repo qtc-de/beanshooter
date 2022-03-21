@@ -1,0 +1,85 @@
+tester:
+  title: brute error cases
+  description: |-
+    Performs some test on error cases that can occur during the brute action
+
+  id: '01-01-03'
+  groups:
+    - error
+  id_pattern: '01-01-03-{:02}'
+
+
+tests:
+  - title: Missing Password
+    description: |-
+      Perform a bruteforce attack with a specified username but a missing
+      password.
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username
+      - carlos
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - No password(s) specified for the brute action
+
+  - title: Missing Username
+    description: |-
+      Perform a bruteforce attack with a specified password but a missing
+      username.
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --password
+      - secret
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - No username(s) specified for the brute action.
+
+  - title: Non existing user wordlist
+    description: |-
+      Perform a bruteforce attack with a non existing user wordlist
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username-file
+      - /nonono
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified file /nonono seems not to exis
+
+  - title: Non existing password wordlist
+    description: |-
+      Perform a bruteforce attack with a non existing password wordlist
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --password-file
+      - /nonono
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified file /nonono seems not to exis
