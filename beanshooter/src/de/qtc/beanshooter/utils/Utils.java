@@ -479,7 +479,7 @@ public class Utils {
         int functionStart = signature.indexOf(' ');
         int argumentsStart = signature.indexOf('(');
 
-        if (functionStart < argumentsStart)
+        if (functionStart > 0 && functionStart < argumentsStart)
             signature = signature.substring(functionStart);
 
         return "void " + signature;
