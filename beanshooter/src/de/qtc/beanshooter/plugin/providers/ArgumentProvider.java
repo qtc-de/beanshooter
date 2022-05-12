@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.IArgumentProvider;
 import de.qtc.beanshooter.utils.Utils;
 import javassist.CannotCompileException;
@@ -162,32 +163,35 @@ public class ArgumentProvider implements IArgumentProvider
      */
     private String wrap(String argument, Class<?> type)
     {
-        if (type == int.class)
-            return String.format("Integer.valueOf(%s)", argument);
+        if (!BeanshooterOption.INVOKE_NO_WRAP.getBool())
+        {
+            if (type == int.class)
+                return String.format("Integer.valueOf(%s)", argument);
 
-        if (type == long.class)
-            return String.format("Long.valueOf(%s)", argument);
+            if (type == long.class)
+                return String.format("Long.valueOf(%s)", argument);
 
-        if (type == short.class)
-            return String.format("Short.valueOf(%s)", argument);
+            if (type == short.class)
+                return String.format("Short.valueOf(%s)", argument);
 
-        if (type == double.class)
-            return String.format("Double.valueOf(%s)", argument);
+            if (type == double.class)
+                return String.format("Double.valueOf(%s)", argument);
 
-        if (type == float.class)
-            return String.format("Float.valueOf(%s)", argument);
+            if (type == float.class)
+                return String.format("Float.valueOf(%s)", argument);
 
-        if (type == byte.class)
-            return String.format("Byte.valueOf(%s)", argument);
+            if (type == byte.class)
+                return String.format("Byte.valueOf(%s)", argument);
 
-        if (type == boolean.class)
-            return String.format("Boolean.valueOf({})", argument);
+            if (type == boolean.class)
+                return String.format("Boolean.valueOf({})", argument);
 
-        if (type == char.class)
-            return String.format("Char.valueOf({})", argument);
+            if (type == char.class)
+                return String.format("Char.valueOf({})", argument);
 
-        if (type == String.class)
-            return String.format("\"%s\"", argument);
+            if (type == String.class)
+                return String.format("\"%s\"", argument);
+        }
 
         return argument;
     }

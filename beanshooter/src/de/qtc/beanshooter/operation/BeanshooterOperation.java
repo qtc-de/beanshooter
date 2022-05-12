@@ -63,6 +63,7 @@ public enum BeanshooterOperation implements Operation {
              BeanshooterOption.INVOKE_METHOD_ARGS,
              BeanshooterOption.INVOKE_LITERAL,
              BeanshooterOption.INVOKE_METHOD,
+             BeanshooterOption.INVOKE_NO_WRAP,
     }),
 
     DEPLOY("deploy", "deploys the specified MBean on the JMX server", new Option[] {

@@ -312,6 +312,13 @@ public enum BeanshooterOption implements Option {
                   "sig"
                   ),
 
+    INVOKE_NO_WRAP("--no-wrap",
+                   "prevent autowrapping of primitive types",
+                   Arguments.storeTrue(),
+                   OptionGroup.ACTION,
+                   ArgType.BOOL
+                   ),
+
     STAGER_HOST("host",
                 "the IP address to listen on",
                 Arguments.store(),
