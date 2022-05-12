@@ -168,7 +168,7 @@ public class Dispatcher {
                 MBeanServerClient mBeanServerClient = getMBeanServerClient();
                 ObjectName loggingMBean = Utils.getObjectName("java.util.logging:type=Logging");
 
-                mBeanServerClient.invoke(loggingMBean, "getLoggerLevel", payloadObject);
+                mBeanServerClient.invoke(loggingMBean, "getLoggerLevel", null, payloadObject);
             }
 
         } catch ( MBeanException | ReflectionException  e) {
@@ -299,13 +299,16 @@ public class Dispatcher {
      */
     public void invoke()
     {
-        ArgumentHandler.requireAllOf(BeanshooterOption.INVOKE_METHOD_ARGS, BeanshooterOption.INVOKE_OBJ_NAME, BeanshooterOption.INVOKE_METHOD_NAME);
+        ArgumentHandler.requireAllOf(BeanshooterOption.INVOKE_METHOD_ARGS, BeanshooterOption.INVOKE_OBJ_NAME, BeanshooterOption.INVOKE_METHOD);
 
         ObjectName objectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.INVOKE_OBJ_NAME));
-        String methodName = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD_NAME);
-        String argumentString = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD_ARGS);
+        String signature = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD);
+        List<String> argumentStringArray = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD_ARGS);
 
-        Object[] argumentArray = PluginSystem.getArgumentArray(argumentString);
+        String[] argumentTypes = PluginSystem.getArgumentTypes(signature);
+        Object[] argumentArray = PluginSystem.getArgumentArray(argumentStringArray.toArray(new String[0]));
+        String methodName = PluginSystem.getMethodName(signature);
+
         MBeanServerClient client = getMBeanServerClient();
 
         try
@@ -316,7 +319,7 @@ public class Dispatcher {
                 result = client.getAttribute(objectName, methodName.substring(3));
 
             else
-                result = client.invoke(objectName, methodName, argumentArray);
+                result = client.invoke(objectName, methodName, argumentTypes, argumentArray);
 
             if( result != null )
                 PluginSystem.handleResponse(result);

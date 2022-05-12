@@ -350,15 +350,39 @@ public class PluginSystem {
     }
 
     /**
-     * Pass the user supplied argument String to the ArgumentProvider and return the resulting
-     * Object array.
+     * Pass the user supplied argumentArray to the ArgumentProvider and return the resulting
+     * object array.
      *
-     * @param argumentString user supplied argument string
-     * @return Object arry parsed from the string
+     * @param argumentArray user supplied argument array
+     * @return Object array parsed from the string
      */
-    public static Object[] getArgumentArray(String argumentString)
+    public static Object[] getArgumentArray(String[] argumentArray)
     {
-        return argumentProvider.getArgumentArray(argumentString);
+        return argumentProvider.getArgumentArray(argumentArray);
+    }
+
+    /**
+     * Pass the user supplied method signature to the ArgumentProvider and return the resulting
+     * string array of parameter types.
+     *
+     * @param signature user supplied method signature
+     * @return String array containing the parsed parameter type names
+     */
+    public static String[] getArgumentTypes(String signature)
+    {
+        return argumentProvider.getArgumentTypes(signature);
+    }
+
+    /**
+     * Pass the user supplied method signature to the ArgumentProvider and return the resulting
+     * method name parsed from the signature.
+     *
+     * @param signature user supplied method signature
+     * @return the method name that was contained in the signature
+     */
+    public static String getMethodName(String signature)
+    {
+        return argumentProvider.getMethodName(signature);
     }
 
     /**

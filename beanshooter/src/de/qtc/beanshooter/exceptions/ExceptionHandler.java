@@ -530,6 +530,30 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void invalidSignature(Throwable e, String signature)
+    {
+        Logger.eprintlnMixedYellow("The specified method signature", signature, "is invalid.");
+        Logger.eprintlnMixedBlue("The method signature has to be a valid method signature like:", "int example(String test, int test2)");
+        Logger.eprintlnMixedYellow("Make sure to use", "full qualified", "class names and that all classes are available on the classpath.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void invalidArgumentException(Throwable e, String argumentString)
+    {
+        Logger.eprintlnMixedYellow("The specified argument string", argumentString, "is invalid.");
+        Logger.eprintlnMixedBlue("Make sure to use", "full qualified", "class names and that all classes are available within the classpath.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void argumentCountMismatch(int actual, int expected)
+    {
+        Logger.eprintlnYellow("Insufficient number of arguments for the specified signature.");
+        Logger.eprintlnMixedBlueFirst("Expected " + expected, "arguments, but only", "got " + actual);
+        Utils.exit();
+    }
+
     /**
      * Taken from https://stackoverflow.com/questions/17747175/how-can-i-loop-through-exception-getcause-to-find-root-cause-with-detail-messa
      * Returns the actual cause of an exception.

@@ -209,6 +209,7 @@ public class MBeanServerClient {
      * @param conn MBeanServerConnection to invoke the function on
      * @param name ObjectName of the MBean to invoke the function on
      * @param methodName function name to invoke
+     * @param argTypes array of argument type names for the desired method
      * @param args arguments to use for the call
      * @return return value of the MBean call.
      * @throws InstanceNotFoundException
@@ -216,21 +217,20 @@ public class MBeanServerClient {
      * @throws ReflectionException
      * @throws IOException
      */
-    public Object invoke(ObjectName name, String methodName, Object... args) throws  IOException, MBeanException, ReflectionException
+    public Object invoke(ObjectName name, String methodName, String[] argTypes, Object... args) throws  IOException, MBeanException, ReflectionException
     {
         Object result = null;
-        String[] argumentTypes = null;
 
-        if (args != null)
+        if (argTypes == null && args != null)
         {
-            argumentTypes = new String[args.length];
+            argTypes = new String[args.length];
 
             for(int ctr = 0; ctr < args.length; ctr++)
-                argumentTypes[ctr] = args[ctr].getClass().getName();
+                argTypes[ctr] = args[ctr].getClass().getName();
         }
 
         try {
-            result = conn.invoke(name, methodName, args, argumentTypes);
+            result = conn.invoke(name, methodName, args, argTypes);
 
         } catch( InstanceNotFoundException e ) {
             ExceptionHandler.handleInstanceNotFound(e, name.toString());

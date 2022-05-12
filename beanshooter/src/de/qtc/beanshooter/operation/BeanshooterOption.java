@@ -290,19 +290,12 @@ public enum BeanshooterOption implements Option {
                     ArgType.STRING,
                     "objname"),
 
-    INVOKE_METHOD_NAME("method",
-                       "name of the method to invoke",
+    INVOKE_METHOD_ARGS("arg",
+                       "argument to use for the call",
                        Arguments.store(),
                        OptionGroup.ACTION,
-                       ArgType.STRING,
-                       "method"),
-
-    INVOKE_METHOD_ARGS("args",
-                          "argument string to use for the call",
-                          Arguments.store(),
-                          OptionGroup.ACTION,
-                          ArgType.STRING,
-                          "args"),
+                       ArgType.ARRAY,
+                       "arg"),
 
     INVOKE_LITERAL("--literal",
                    "also invoke methods starting with get as normal methods",
@@ -310,6 +303,14 @@ public enum BeanshooterOption implements Option {
                    OptionGroup.ACTION,
                    ArgType.BOOL
                    ),
+
+    INVOKE_METHOD("--signature",
+                  "the method to call on the targeted object name",
+                  Arguments.store(),
+                  OptionGroup.ACTION,
+                  ArgType.STRING,
+                  "sig"
+                  ),
 
     STAGER_HOST("host",
                 "the IP address to listen on",

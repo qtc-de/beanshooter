@@ -60,9 +60,9 @@ public enum BeanshooterOperation implements Operation {
              BeanshooterOption.CONN_PASS,
              BeanshooterOption.CONN_SASL,
              BeanshooterOption.INVOKE_OBJ_NAME,
-             BeanshooterOption.INVOKE_METHOD_NAME,
              BeanshooterOption.INVOKE_METHOD_ARGS,
              BeanshooterOption.INVOKE_LITERAL,
+             BeanshooterOption.INVOKE_METHOD,
     }),
 
     DEPLOY("deploy", "deploys the specified MBean on the JMX server", new Option[] {

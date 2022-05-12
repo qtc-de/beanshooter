@@ -464,4 +464,24 @@ public class Utils {
             u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
         } catch (Exception e) {}
     }
+
+    /**
+     * Removes the return value from a function and replaces it with void.
+     *
+     * @param signature user specified function signature
+     * @return function signature with void as return type
+     */
+    public static String makeVoid(String signature)
+    {
+        signature = signature.strip();
+        signature = signature.replaceAll(" *\\(", "(");
+
+        int functionStart = signature.indexOf(' ');
+        int argumentsStart = signature.indexOf('(');
+
+        if (functionStart < argumentsStart)
+            signature = signature.substring(functionStart);
+
+        return "void " + signature;
+    }
 }

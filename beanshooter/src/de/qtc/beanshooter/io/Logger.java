@@ -429,7 +429,7 @@ public class Logger {
         elog(eprefix() + blue(first) + " " + second);
     }
 
-    public static void erintlnMixedBlueFirst(String first, String second, String third)
+    public static void eprintlnMixedBlueFirst(String first, String second, String third)
     {
         elog(eprefix() + blue(first) + " " + second + " " + blue(third));
     }

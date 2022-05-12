@@ -130,6 +130,9 @@ public class OptionHandler {
         if( option == BeanshooterOption.CONN_SASL )
             arg.choices(SASLMechanism.getMechanisms());
 
+        if (option == BeanshooterOption.INVOKE_METHOD_ARGS)
+            arg.nargs("*");
+
         if( option == MLetOption.LOAD_BEAN )
         {
             List<String> mBeanNames = MBean.getLoadableBeanNames();
