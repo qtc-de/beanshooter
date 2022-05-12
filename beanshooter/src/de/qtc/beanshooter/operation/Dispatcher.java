@@ -299,11 +299,9 @@ public class Dispatcher {
      */
     public void invoke()
     {
-        ArgumentHandler.requireAllOf(BeanshooterOption.INVOKE_METHOD_ARGS, BeanshooterOption.INVOKE_OBJ_NAME, BeanshooterOption.INVOKE_METHOD);
-
         ObjectName objectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.INVOKE_OBJ_NAME));
         String signature = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD);
-        List<String> argumentStringArray = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD_ARGS);
+        List<String> argumentStringArray = BeanshooterOption.INVOKE_METHOD_ARGS.getValue();
 
         String[] argumentTypes = PluginSystem.getArgumentTypes(signature);
         Object[] argumentArray = PluginSystem.getArgumentArray(argumentStringArray.toArray(new String[0]));
