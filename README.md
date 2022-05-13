@@ -149,25 +149,32 @@ dedicated attacks you should use the `--username-file` and `--password-file` opt
 #### Invoke
 
 The `invoke` action can be used to invoke an arbitrary method on an *MBean* that has already been deployed on a *JMX* endpoint.
-Apart from the target, the `invoke` action requires the `ObjectName` of the targeted *MBean*, the method name you want to invoke
-and the arguments to use for the call. *MBean* attributes can also be obtained by this action, by using the corresponding getter
-function as method. The following listing shows an example, where the `getLoggerNames` function is invoked on the `Logging` *MBean*:
+Apart from the target, the `invoke` action requires the `ObjectName` of the targeted *MBean* and the method signature you
+want to invoke. If the specified method expects arguments, these also have to be specified. *MBean* attributes can also be
+obtained by this action, by using the corresponding getter function as method. The following listing shows an example, where
+the `getLoggerNames` function is invoked on the `Logging` *MBean*:
 
 ```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' getLoggerNames ''
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'getLoggerNames()'
 [+] sun.rmi.transport.tcp
 [+] sun.rmi.server.call
 [+] sun.rmi.loader
 ...
 ```
 
-When invoking a method that requires arguments, the last *beanshooter* argument is evaluated as *Java code* and attempted to be
-parsed as `Object[]`. The following listing shows an example, where the `getLoggerNames` function is invoked on the `Logging` *MBean*.
+When invoking a method that requires parameters, the trailing *beanshooter* arguments are evaluated as *Java code*. Simple argument
+types like integers or strings can just be passed by specifying their corresponding value. Complex argument types can be constructed
+as you would do it from *Java* (e.g. `'new java.util.HashMap()'`). The following listing shows an example, where the `setLoggerNames`
+function is invoked on the `Logging` *MBean*:
 
 ```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' setLoggerLevel '"sun.rmi.transport.tcp", "INFO"'
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'setLoggerLevel(String arg1, String arg2)' 'sun.rmi.transport.tcp' 'INFO'
 [+] Call was successful
 ```
+
+For more complex argument types that require some initialization, you can use *beanshooters PluginSystem* and define a custom
+class that implements the [IArgumentProvider Interface](beanshooter/src/de/qtc/beanshooter/plugin/IArgumentProvider.java).
+
 
 #### Deploy
 
