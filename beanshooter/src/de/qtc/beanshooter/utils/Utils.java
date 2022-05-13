@@ -473,7 +473,7 @@ public class Utils {
      */
     public static String makeVoid(String signature)
     {
-        signature = signature.strip();
+        signature = signature.trim();
         signature = signature.replaceAll(" *\\(", "(");
 
         int functionStart = signature.indexOf(' ');
