@@ -184,10 +184,10 @@ public class ArgumentProvider implements IArgumentProvider
                 return String.format("Byte.valueOf(%s)", argument);
 
             if (type == boolean.class)
-                return String.format("Boolean.valueOf({})", argument);
+                return String.format("Boolean.valueOf(%s)", argument);
 
             if (type == char.class)
-                return String.format("Char.valueOf({})", argument);
+                return String.format("Char.valueOf(%s)", argument);
 
             if (type == String.class)
                 return String.format("\"%s\"", argument);
