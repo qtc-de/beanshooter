@@ -168,7 +168,7 @@ as you would do it from *Java* (e.g. `'new java.util.HashMap()'`). The following
 function is invoked on the `Logging` *MBean*:
 
 ```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'setLoggerLevel(String arg1, String arg2)' 'sun.rmi.transport.tcp' 'INFO'
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'setLoggerLevel(String arg1, String arg2)' sun.rmi.transport.tcp INFO
 [+] Call was successful
 ```
 
