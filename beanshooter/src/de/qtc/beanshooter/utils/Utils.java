@@ -310,7 +310,6 @@ public class Utils {
         }
 
         for(int ctr = 0; ctr < splitResult.length; ctr++)
-
             splitResult[ctr] = Utils.stripQuotes(splitResult[ctr]);
 
         return splitResult;

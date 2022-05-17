@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -27,6 +30,37 @@ public class TonkaBean implements TonkaBeanMBean
         String version = "TonkaBean v" + TonkaBean.class.getPackage().getImplementationVersion();
         System.out.println(String.format("%s - Deploy me on a JMX service and let's have some fun :)", version));
     }
+
+    /**
+     * Verify that the MBean is working as expected by returning the string "pong!";
+     *
+     * @return static string "pong!"
+     */
+    public String ping()
+    {
+        return "pong!";
+    }
+
+    /**
+     * Return the username that runs the MBeanServer.
+     *
+     * @return the username the MBeanServer is running with.
+     */
+    public String[] shellInit()
+    {
+        String[] returnValue = new String[3];
+        returnValue[0] = System.getProperty("user.name");
+
+        try {
+            returnValue[1] = java.net.InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            returnValue[1] = null;
+        }
+
+        returnValue[2] = File.pathSeparator;
+        return returnValue;
+    }
+
     /**
      * Checks whether the specified path is an existing directory on the server and returns
      * the normalized form of it.
@@ -34,12 +68,20 @@ public class TonkaBean implements TonkaBeanMBean
      * @param path file system path to check
      * @return normalized File
      */
-    public File toServerDir(File path) throws IOException
+    public String toServerDir(String path, String change) throws IOException, InvalidPathException
     {
-        if( !path.isDirectory() )
-            throw new IOException("Specified path " + path.toString() + " is not a directory.");
+        File changeFile = new File(change);
 
-        return path.getAbsoluteFile();
+        if (changeFile.isAbsolute())
+            changeFile = Paths.get(change).normalize().toAbsolutePath().toFile();
+
+        else
+            changeFile = Paths.get(path, change).normalize().toAbsolutePath().toFile();
+
+        if( !changeFile.isDirectory() )
+            throw new IOException("Specified path " + changeFile.getAbsolutePath() + " is not a valid directory.");
+
+        return changeFile.getAbsolutePath();
     }
 
     /**
@@ -52,12 +94,12 @@ public class TonkaBean implements TonkaBeanMBean
      * @param env environment variables to use for the call
      * @return byte array containing the command output (stdout + stderr)
      */
-    public byte[] executeCommand(String[] command, File cwd, Map<String,String> env) throws IOException, InterruptedException
+    public byte[] executeCommand(String[] command, String cwd, Map<String,String> env) throws IOException, InterruptedException
     {
         ProcessBuilder builder = new ProcessBuilder(command);
-        builder.directory(cwd);
+        builder.directory(new File(cwd));
         builder.environment().putAll(env);
-        builder.redirectErrorStream();
+        builder.redirectErrorStream(true);
 
         Process proc = builder.start();
         proc.waitFor();
@@ -74,32 +116,12 @@ public class TonkaBean implements TonkaBeanMBean
      * @param cwd working directory for the call
      * @param env environment variables to use for the call
      */
-    public void executeCommandBackground(String[] command, File cwd, Map<String,String> env) throws IOException
+    public void executeCommandBackground(String[] command, String cwd, Map<String,String> env) throws IOException
     {
         ProcessBuilder builder = new ProcessBuilder(command);
-        builder.directory(cwd);
+        builder.directory(new File(cwd));
         builder.environment().putAll(env);
         builder.start();
-    }
-
-    /**
-     * Return the username that runs the MBeanServer.
-     *
-     * @return the username the MBeanServer is running with.
-     */
-    public String username()
-    {
-        return System.getProperty("user.name");
-    }
-
-    /**
-     * Verify that the MBean is working as expected by returning the string "pong!";
-     *
-     * @return static string "pong!"
-     */
-    public String ping()
-    {
-        return "pong!";
     }
 
     /**

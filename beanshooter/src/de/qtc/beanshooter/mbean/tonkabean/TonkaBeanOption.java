@@ -10,6 +10,14 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 public enum TonkaBeanOption implements Option
 {
+    SHELL_CMD("--shell",
+              "the shell command to use for execution",
+              Arguments.store(),
+              OptionGroup.ACTION,
+              ArgType.STRING,
+              "shell"
+              ),
+
     EXEC_CMD("cmd",
              "command to execute",
              Arguments.store(),

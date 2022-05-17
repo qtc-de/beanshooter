@@ -79,6 +79,7 @@ public enum TonkaBeanOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            TonkaBeanOption.SHELL_CMD,
     }),
 
     UPLOAD("upload", "upload a file to the MBeanServer", new Option[] {
