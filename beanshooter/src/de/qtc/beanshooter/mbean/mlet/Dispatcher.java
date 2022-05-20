@@ -118,6 +118,9 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         String host = url.getHost();
         String protocol = url.getProtocol();
 
+        if (port == -1)
+            port = url.getDefaultPort();
+
         Logger.printlnMixedBlue("Loading MBean from", urlString);
         Logger.lineBreak();
         Logger.increaseIndent();
