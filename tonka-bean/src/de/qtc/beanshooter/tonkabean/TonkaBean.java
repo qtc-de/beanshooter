@@ -51,13 +51,13 @@ public class TonkaBean implements TonkaBeanMBean
         String[] returnValue = new String[3];
         returnValue[0] = System.getProperty("user.name");
 
-        try {
-            returnValue[1] = java.net.InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            returnValue[1] = null;
-        }
+        if (File.separator == "/")
+            returnValue[1] = System.getenv("HOSTNAME");
+        else
+            returnValue[1] = System.getenv("COMPUTERNAME");
 
-        returnValue[2] = File.pathSeparator;
+        returnValue[2] = File.separator;
+
         return returnValue;
     }
 

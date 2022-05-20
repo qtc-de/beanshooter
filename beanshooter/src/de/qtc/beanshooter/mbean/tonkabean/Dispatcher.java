@@ -259,7 +259,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Logger.printPlain("$ ");
             command = console.readLine();
 
-        } while( handleShellCommand(command, shell) );
+        } while (handleShellCommand(command, shell));
     }
 
     /**
@@ -274,7 +274,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         if( command == null )
             return false;
 
-        String[] commandArray = command.trim().split(" ", 1);
+        String[] commandArray = command.trim().split(" ", 2);
         List<String> shell = new ArrayList<String>(shellCmd);
 
         switch(commandArray[0])
@@ -289,30 +289,35 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                 break;
 
             case "!background":
+            case "!back":
                 if(commandArray.length > 1)
                     shellCommandBackground(commandArray[1], shell, env);
                 break;
 
             case "!download":
+            case "!get":
                 if(commandArray.length > 1)
                     shellDownload(commandArray[1]);
                 break;
 
             case "!upload":
+            case "!put":
                 if(commandArray.length > 1)
                     shellUpload(commandArray[1]);
                 break;
 
+            case "!environ":
             case "!env":
                 env.putAll(Utils.parseEnvironmentString(command));
                 break;
 
             case "!help":
+            case "!h":
                 shellHelp();
                 break;
 
             default:
-                shellCommand(command, shellCmd, env);
+                shellCommand(command, shell, env);
         }
 
         return true;
@@ -409,23 +414,23 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     {
         String[] arguments = Utils.splitSpaces(argument, 1);
 
-        File source = new File(Utils.expandPath(arguments[1]));
+        File source = new File(Utils.expandPath(arguments[0]));
         File destination = new File(source.getName());
 
-        if( arguments.length > 2 )
-            destination = new File(arguments[2]);
+        if (arguments.length > 1)
+            destination = new File(arguments[1]);
 
-        if( !destination.isAbsolute() )
+        if (!destination.isAbsolute())
             destination = Paths.get(cwd, destination.getPath()).toAbsolutePath().normalize().toFile();
 
-        if( !source.isAbsolute() )
+        if (!source.isAbsolute())
             source = Paths.get(".", source.getPath()).toAbsolutePath().normalize().toFile();
 
         try
         {
             byte[] content = Utils.readFile(source);
             tonkaBean.uploadFile(destination.getPath(), content);
-            Logger.printlnPlainMixedYellowFirst(content.length + " bytes", "were written to", destination.getPath());
+            Logger.printlnPlainMixedBlueFirst(content.length + " bytes", "were written to", destination.getPath());
         }
 
         catch (MBeanException e)
@@ -450,19 +455,19 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     {
         String[] arguments = Utils.splitSpaces(argument, 1);
 
-        File source = new File(arguments[1]);
+        File source = new File(arguments[0]);
         File destination = new File(source.getName());
 
-        if( arguments.length > 2 )
-            destination = new File(Utils.expandPath(arguments[2]));
+        if (arguments.length > 1)
+            destination = new File(Utils.expandPath(arguments[1]));
 
-        if( !source.isAbsolute() )
+        if (!source.isAbsolute())
             source = Paths.get(cwd, source.getPath()).toAbsolutePath().normalize().toFile();
 
-        if( !destination.isAbsolute() )
+        if (!destination.isAbsolute())
             destination = Paths.get(".", destination.getPath()).toAbsolutePath().normalize().toFile();
 
-        if( destination.isDirectory() )
+        if (destination.isDirectory())
             destination = Paths.get(destination.toPath().toString(), source.getName()).toFile();
 
         try
@@ -473,7 +478,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             stream.write(content);
             stream.close();
 
-            Logger.printlnPlainMixedYellowFirst(content.length + " bytes", "were written to", destination.getPath());
+            Logger.printlnPlainMixedBlueFirst(content.length + " bytes", "were written to", destination.getPath());
         }
 
         catch (MBeanException e)
@@ -555,6 +560,6 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         else
             ExceptionHandler.internalError("Dispatcher.getShell", "Unhandeled path separator: " + separator);
 
-        return null;
+        return shell;
     }
 }
