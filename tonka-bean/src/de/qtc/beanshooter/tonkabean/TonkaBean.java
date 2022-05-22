@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -32,13 +31,16 @@ public class TonkaBean implements TonkaBeanMBean
     }
 
     /**
-     * Verify that the MBean is working as expected by returning the string "pong!";
+     * Return the currently deployed MBean version.
      *
-     * @return static string "pong!"
+     * @return MBean version
      */
-    public String ping()
+    public String version()
     {
-        return "pong!";
+        String tonkaVersion = this.getClass().getPackage().getImplementationVersion();
+        String javaVersion = System.getProperty("java.version");
+
+        return String.format("TonkaBean v%s on Java v%s", tonkaVersion, javaVersion);
     }
 
     /**
@@ -94,7 +96,7 @@ public class TonkaBean implements TonkaBeanMBean
      * @param env environment variables to use for the call
      * @return byte array containing the command output (stdout + stderr)
      */
-    public byte[] executeCommand(String[] command, String cwd, Map<String,String> env) throws IOException, InterruptedException
+    public byte[] executeCommand(String[] command, String cwd, Map<String,String> env, boolean background) throws IOException, InterruptedException
     {
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.directory(new File(cwd));
@@ -102,26 +104,12 @@ public class TonkaBean implements TonkaBeanMBean
         builder.redirectErrorStream(true);
 
         Process proc = builder.start();
+
+        if (background)
+            return null;
+
         proc.waitFor();
-
         return readInputStream(proc.getInputStream());
-    }
-
-    /**
-     * Execute the specified operating system command in the background. Commands need to be specified as an array
-     * with the executable in the first position followed by the arguments for the call. Furthermore, the directory
-     * to execute the command in and environment variables can be specified.
-     *
-     * @param command String array that specified the operating system command
-     * @param cwd working directory for the call
-     * @param env environment variables to use for the call
-     */
-    public void executeCommandBackground(String[] command, String cwd, Map<String,String> env) throws IOException
-    {
-        ProcessBuilder builder = new ProcessBuilder(command);
-        builder.directory(new File(cwd));
-        builder.environment().putAll(env);
-        builder.start();
     }
 
     /**

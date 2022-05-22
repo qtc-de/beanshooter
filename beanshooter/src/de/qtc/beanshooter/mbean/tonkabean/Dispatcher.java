@@ -54,29 +54,79 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                                                             invo);
     }
 
+    /**
+     * Obtain the version from a deployed tonka bean and display it.
+     */
+    public void version()
+    {
+        try {
+            Logger.printlnBlue(tonkaBean.version());
+
+        } catch (MBeanException e) {
+            ExceptionHandler.unexpectedException(e, "obtaining", "version", true);
+        }
+    }
 
     /**
-     * Dispatcher for the executeCommand action. Obtains the specified command from the command line and passes
-     * it to the TokaBean on the remote MBeanServer. Optionally allows the current working directory and the
-     * environment variables to be specified on the command line.
+     * Executes a command by obtaining the command string from the command line (EXEC_CMD) and splitting
+     * it on spaces. The resulting list is passed to the TonkaBean and executed via ProcessBuilder. If
+     * --shell was specified, the shell string is split and forms the initial command list. The specified
+     * command is then appended as a single list argument to emulate a shell execution.
+     *
+     * This function is only a wrapper around the executeCommand function, which performs the actual
+     * execution.
      */
     public void execute()
     {
+        List<String> cmdList = new ArrayList<String>();
         String command = ArgumentHandler.require(TonkaBeanOption.EXEC_CMD);
-        String[] commandArray = Utils.splitSpaces(command, 1);
 
-        String cwd = TonkaBeanOption.EXEC_CWD.<String>getValue(".");
+        if (TonkaBeanOption.SHELL_CMD.notNull())
+        {
+            String shellStr = ArgumentHandler.require(TonkaBeanOption.SHELL_CMD);
+            cmdList.addAll(Arrays.asList(Utils.splitSpaces(shellStr.trim(), 1)));
+            cmdList.add(command);
+        }
+
+        else
+            cmdList.addAll(Arrays.asList(Utils.splitSpaces(command, 1)));
+
+        executeCommand(cmdList);
+    }
+
+    /**
+     * Executes a command by obtaining a command array from the command line and passing it to the
+     * TonkaBean. This method distinguishes from the execute method due to the possibility to specify
+     * the argument array directly.
+     */
+    public void executeArray()
+    {
+        List<String> cmdList = ArgumentHandler.require(TonkaBeanOption.EXEC_ARRAY);
+        executeCommand(cmdList);
+    }
+
+    /**
+     * The executeCommand function is intended to be called from the execute or executeArray functions.
+     * It performs the actual method call to the TonkaBean and displays the results.
+     */
+    public void executeCommand(List<String> command)
+    {
+        String cwd = TonkaBeanOption.EXEC_CWD.getValue(".");
+        boolean background = TonkaBeanOption.EXEC_BACK.getBool();
         Map<String,String> env = Utils.parseEnvironmentString(TonkaBeanOption.EXEC_ENV.<String>getValue(""));
 
         if( TonkaBeanOption.EXEC_RAW.getBool() )
             Logger.disableStdout();
 
         Logger.printMixedYellow("Invoking the", "executeCommand", "method with argument: ");
-        Logger.printlnPlainBlue(String.join(" ", commandArray));
+        Logger.printlnPlainBlue(String.join(" ", command));
 
         try
         {
-            byte[] result = tonkaBean.executeCommand(commandArray, cwd, env);
+            byte[] result = tonkaBean.executeCommand(command.toArray(new String[0]), cwd, env, background);
+
+            if (background)
+                return;
 
             Logger.printlnBlue("The call was successful");
             Logger.lineBreak();
@@ -107,42 +157,12 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         catch (MBeanException e)
         {
             ExceptionHandler.handleMBeanGeneric(e);
-            ExceptionHandler.handleExecException(e, commandArray);
+            ExceptionHandler.handleExecException(e, command);
         }
 
         catch( IOException e )
         {
             ExceptionHandler.handleFileWrite(e, TonkaBeanOption.EXEC_FILE.<String>getValue(), true);
-        }
-    }
-
-
-    /**
-     * Dispatcher for the executeCommandBackground action. Obtains the specified command from the command line and
-     * passes it to the TokaBean on the remote MBeanServer. Optionally allows the current working directory and the
-     * environment variables to be specified on the command line.
-     */
-    public void executeBackground()
-    {
-        String command = ArgumentHandler.require(TonkaBeanOption.EXEC_CMD);
-        String[] commandArray = Utils.splitSpaces(command, 1);
-
-        String cwd = TonkaBeanOption.EXEC_CWD.<String>getValue(".");
-        Map<String,String> env = Utils.parseEnvironmentString(TonkaBeanOption.EXEC_ENV.<String>getValue(""));
-
-        Logger.printMixedYellow("Invoking the", "executeCommand", "method with argument: ");
-        Logger.printlnPlainBlue(commandArray.toString());
-
-        try
-        {
-            tonkaBean.executeCommandBackground(commandArray, cwd, env);
-            Logger.printlnBlue("The call was successful");
-        }
-
-        catch (MBeanException e)
-        {
-            ExceptionHandler.handleMBeanGeneric(e);
-            ExceptionHandler.handleExecException(e, commandArray);
         }
     }
 
@@ -244,10 +264,6 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         String separator = shellVars[2];
 
         List<String> shell = getShell(separator);
-        String shellCmd = TonkaBeanOption.SHELL_CMD.getValue(null);
-
-        if (shellCmd != null)
-            shell = Arrays.asList(shellCmd.trim().split(" "));
 
         if (hostname == null)
             hostname = targetHost;
@@ -291,7 +307,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             case "!background":
             case "!back":
                 if(commandArray.length > 1)
-                    shellCommandBackground(commandArray[1], shell, env);
+                    shellCommand(commandArray[1], shell, env, true);
                 break;
 
             case "!download":
@@ -317,7 +333,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                 break;
 
             default:
-                shellCommand(command, shell, env);
+                shellCommand(command, shell, env, false);
         }
 
         return true;
@@ -352,44 +368,27 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     }
 
     /**
-     * Execute the specified shell command in the background.
-     *
-     * @param commandArray command array to execute
-     * @param cwd current working directory to operate in
-     * @param env environment variables to use for the call
-     */
-    private void shellCommandBackground(String command, List<String> shell, Map<String,String> env)
-    {
-        shell.add(command);
-        String[] commandArray = shell.toArray(new String[0]);
-
-        try
-        {
-            tonkaBean.executeCommandBackground(commandArray, cwd, env);
-            System.out.println("Executing command in the background...");
-        }
-
-        catch (MBeanException e)
-        {
-            ExceptionHandler.handleShellExecException(e, commandArray);
-        }
-    }
-
-    /**
      * Execute the specified shell command and write the output to stdout.
      *
      * @param commandArray command array to execute
      * @param cwd current working directory to operate in
      * @param env environment variables to use for the call
      */
-    private void shellCommand(String command, List<String> shell, Map<String,String> env)
+    private void shellCommand(String command, List<String> shell, Map<String,String> env, boolean background)
     {
         shell.add(command);
         String[] commandArray = shell.toArray(new String[0]);
 
         try
         {
-            byte[] result = tonkaBean.executeCommand(commandArray, cwd, env);
+            byte[] result = tonkaBean.executeCommand(commandArray, cwd, env, background);
+
+            if (background)
+            {
+                Logger.printlnBlue("Command is executed in the background.");
+                return;
+            }
+
             System.out.write(result);
         }
 
@@ -543,6 +542,11 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
     private List<String> getShell(String separator)
     {
+        String shellCmd = TonkaBeanOption.SHELL_CMD.getValue(null);
+
+        if (shellCmd != null)
+            return Arrays.asList(shellCmd.trim().split(" "));
+
         List<String> shell = new ArrayList<String>();
 
         if (separator.equals("/"))

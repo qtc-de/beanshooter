@@ -14,12 +14,11 @@ import javax.management.RuntimeMBeanException;
  */
 public interface TonkaBeanMBean
 {
-    public String ping() throws MBeanException;
+    public String version() throws MBeanException;
     public String[] shellInit() throws MBeanException;
     public String toServerDir(String cwd, String change) throws MBeanException, RuntimeMBeanException;
 
-    public byte[] executeCommand(String[] cmd, String cwd, Map<String,String> env) throws MBeanException;
-    public void executeCommandBackground(String[] cmd, String cwd, Map<String,String> env) throws MBeanException ;
+    public byte[] executeCommand(String[] cmd, String cwd, Map<String,String> env, boolean background) throws MBeanException;
 
     public byte[] downloadFile(String filename) throws MBeanException;
     public String uploadFile(String destination, byte[] content) throws MBeanException;

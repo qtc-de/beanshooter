@@ -15,6 +15,25 @@ import de.qtc.beanshooter.operation.BeanshooterOption;
  */
 public enum TonkaBeanOperation implements Operation
 {
+    VERSION("version", "obtain version information from a deployed tonka bean", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
+    }),
+
     EXEC("execute", "execute a command on the MBeanServer", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -38,9 +57,11 @@ public enum TonkaBeanOperation implements Operation
             TonkaBeanOption.EXEC_FILE,
             TonkaBeanOption.EXEC_HEX,
             TonkaBeanOption.EXEC_RAW,
+            TonkaBeanOption.EXEC_BACK,
+            TonkaBeanOption.SHELL_CMD,
     }),
 
-    BACKGROUND("executeBackground", "execute a command on the MBeanServer in the background", new Option[] {
+    EXECARRAY("executeArray", "execute a command specified as array on the MBeanServer", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -57,9 +78,13 @@ public enum TonkaBeanOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-            TonkaBeanOption.EXEC_CMD,
+            TonkaBeanOption.EXEC_ARRAY,
             TonkaBeanOption.EXEC_ENV,
             TonkaBeanOption.EXEC_CWD,
+            TonkaBeanOption.EXEC_FILE,
+            TonkaBeanOption.EXEC_HEX,
+            TonkaBeanOption.EXEC_RAW,
+            TonkaBeanOption.EXEC_BACK,
     }),
 
     SHELL("shell", "start an semi interactive shell", new Option[] {

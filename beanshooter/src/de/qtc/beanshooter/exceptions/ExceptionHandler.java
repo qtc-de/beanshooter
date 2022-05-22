@@ -1,6 +1,8 @@
 package de.qtc.beanshooter.exceptions;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.List;
 
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
@@ -370,7 +372,19 @@ public class ExceptionHandler {
         }
     }
 
-    public static void handleExecException(Exception e, String[] commandArray)
+    public static void noSuchMethod(Exception e, Method m)
+    {
+        String signature = BeanshooterOption.INVOKE_METHOD.getValue(m.toGenericString());
+
+        Logger.eprintlnMixedYellow("A method with signature", signature, "does not exist on the endpoint.");
+        Logger.eprintln("If you invoked a deployed MBean, make sure that the correct version was deployed");
+
+        Logger.eprintln("");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void handleExecException(Exception e, List<String> commandArray)
     {
         Throwable t = ExceptionHandler.getCause(e);
         String message =  t.getMessage();
@@ -378,7 +392,7 @@ public class ExceptionHandler {
         if( t instanceof IOException )
         {
             if(message.contains("error=2,"))
-                Logger.eprintlnMixedYellow("Unknown command:", commandArray[0]);
+                Logger.eprintlnMixedYellow("Unknown command:", commandArray.get(0));
 
             else if(message.contains("error=13,"))
                 Logger.eprintlnYellow("Permission denied.");

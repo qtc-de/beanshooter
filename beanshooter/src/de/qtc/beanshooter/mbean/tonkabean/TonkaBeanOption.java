@@ -18,12 +18,26 @@ public enum TonkaBeanOption implements Option
               "shell"
               ),
 
+    EXEC_BACK("--background",
+              "execute the command in the background",
+              Arguments.storeTrue(),
+              OptionGroup.ACTION,
+              ArgType.BOOL
+              ),
+
     EXEC_CMD("cmd",
              "command to execute",
              Arguments.store(),
              OptionGroup.ACTION,
              ArgType.STRING
              ),
+
+    EXEC_ARRAY("cmd",
+               "command to execute",
+               Arguments.store(),
+               OptionGroup.ACTION,
+               ArgType.ARRAY
+               ),
 
     EXEC_CWD("--cwd",
              "working directory to execute the command in",
