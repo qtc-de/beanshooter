@@ -141,7 +141,7 @@ public class ArgumentProvider implements IArgumentProvider
     private String wrapArguments(String[] argumentArray)
     {
         if (argumentArray.length != targetMethod.getParameterCount())
-            ExceptionHandler.argumentCountMismatch(targetMethod.getParameterCount(), argumentArray.length);
+            ExceptionHandler.argumentCountMismatch(argumentArray.length, targetMethod.getParameterCount());
 
         List<String> wrappedArgs = new ArrayList<String>();
         Class<?>[] paramTypes = targetMethod.getParameterTypes();

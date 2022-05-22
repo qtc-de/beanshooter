@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import javax.management.AttributeNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
@@ -313,7 +312,7 @@ public class Dispatcher {
         {
             Object result = null;
 
-            if(methodName.startsWith("get") && !BeanshooterOption.INVOKE_LITERAL.getBool())
+            if(methodName.startsWith("get") && argumentArray.length == 0 && !BeanshooterOption.INVOKE_LITERAL.getBool())
                 result = client.getAttribute(objectName, methodName.substring(3));
 
             else
@@ -325,7 +324,7 @@ public class Dispatcher {
                 Logger.printlnBlue("Call was successful.");
         }
 
-        catch (MBeanException | ReflectionException | AttributeNotFoundException | IOException e)
+        catch (MBeanException | ReflectionException | IOException e)
         {
             Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while invoking %s on %s.", methodName, objectName.toString()));
             Logger.println("beanshooter does not handle exceptions for custom method invocations.");

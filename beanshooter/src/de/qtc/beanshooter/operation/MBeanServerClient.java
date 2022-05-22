@@ -225,15 +225,28 @@ public class MBeanServerClient {
         {
             argTypes = new String[args.length];
 
-            for(int ctr = 0; ctr < args.length; ctr++)
+            for (int ctr = 0; ctr < args.length; ctr++)
                 argTypes[ctr] = args[ctr].getClass().getName();
         }
 
-        try {
+        try
+        {
             result = conn.invoke(name, methodName, args, argTypes);
+        }
 
-        } catch( InstanceNotFoundException e ) {
+        catch (InstanceNotFoundException e)
+        {
             ExceptionHandler.handleInstanceNotFound(e, name.toString());
+        }
+
+        catch (ReflectionException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof java.lang.NoSuchMethodException)
+                ExceptionHandler.noSuchMethod(e, methodName);
+
+            throw e;
         }
 
         return result;
@@ -252,16 +265,21 @@ public class MBeanServerClient {
      * @throws ReflectionException
      * @throws IOException
      */
-    public Object getAttribute(ObjectName name, String attributeName) throws AttributeNotFoundException, MBeanException, ReflectionException, IOException
+    public Object getAttribute(ObjectName name, String attributeName) throws MBeanException, ReflectionException, IOException
     {
         try
         {
             return conn.getAttribute(name, attributeName);
+        }
 
-        } catch( InstanceNotFoundException e ) {
-            Logger.eprintlnMixedYellow("Caught unexpected", "InstanceNotFoundException", "while calling invoke.");
-            Logger.eprintlnMixedBlue("The specified MBean", name.toString(), "does probably not exist on the endpoint.");
-            Utils.exit();
+        catch (InstanceNotFoundException e)
+        {
+            ExceptionHandler.handleInstanceNotFound(e, name.toString());
+        }
+
+        catch (AttributeNotFoundException e)
+        {
+            ExceptionHandler.noSuchAttribute(e, attributeName);
         }
 
         return null;

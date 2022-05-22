@@ -1,7 +1,6 @@
 package de.qtc.beanshooter.exceptions;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.List;
 
 import de.qtc.beanshooter.io.Logger;
@@ -372,14 +371,20 @@ public class ExceptionHandler {
         }
     }
 
-    public static void noSuchMethod(Exception e, Method m)
+    public static void noSuchMethod(Exception e, String method)
     {
-        String signature = BeanshooterOption.INVOKE_METHOD.getValue(m.toGenericString());
+        String signature = BeanshooterOption.INVOKE_METHOD.getValue(method);
 
         Logger.eprintlnMixedYellow("A method with signature", signature, "does not exist on the endpoint.");
-        Logger.eprintln("If you invoked a deployed MBean, make sure that the correct version was deployed");
+        Logger.eprintln("If you invoked a deployed MBean, make sure that the correct version was deployed.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
 
-        Logger.eprintln("");
+    public static void noSuchAttribute(Exception e, String attr)
+    {
+        Logger.eprintlnMixedYellow("An attribute with name", attr, "does not exist on the endpoint.");
+        Logger.eprintln("If you invoked a deployed MBean, make sure that the correct version was deployed.");
         ExceptionHandler.showStackTrace(e);
         Utils.exit();
     }
@@ -563,7 +568,7 @@ public class ExceptionHandler {
 
     public static void argumentCountMismatch(int actual, int expected)
     {
-        Logger.eprintlnYellow("Insufficient number of arguments for the specified signature.");
+        Logger.eprintlnYellow("Mismatching number of arguments for the specified signature.");
         Logger.eprintlnMixedBlueFirst("Expected " + expected, "arguments, but only", "got " + actual);
         Utils.exit();
     }
