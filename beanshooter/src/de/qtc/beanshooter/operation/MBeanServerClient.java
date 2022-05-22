@@ -96,7 +96,7 @@ public class MBeanServerClient {
                     Logger.lineBreak();
                     Logger.increaseIndent();
 
-                    Logger.println("MBean class is not known to the server.");
+                    Logger.println("MBean class is not known by the server.");
 
                     if( BeanshooterOption.DEPLOY_STAGER_URL.isNull() )
                     {
@@ -113,9 +113,9 @@ public class MBeanServerClient {
 
                 } else {
                     Logger.lineBreak();
-                    Logger.eprintlnMixedBlue("The specified class", className, "is not known to the server.");
+                    Logger.eprintlnMixedBlue("The specified class", className, "is not known by the server.");
                     Logger.eprintMixedYellow("Use the", "--jar-file");
-                    Logger.printlnPlainMixedYellow(" and", "--stager-url", "options to provide an implementation.");
+                    Logger.eprintlnPlainMixedYellow(" and", "--stager-url", "options to provide an implementation.");
                     Utils.exit();
                 }
 

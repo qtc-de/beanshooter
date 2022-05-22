@@ -186,6 +186,7 @@ public class Utils {
 
         } catch (MalformedObjectNameException e) {
             Logger.eprintlnMixedYellow("The specified ObjectName", name, "is invalid.");
+            Logger.eprintlnMixedBlue("Valid ObjectNames look like this:", "de.qtc.beanshooter:version=1");
             exit();
         }
 
