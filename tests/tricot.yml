@@ -7,7 +7,7 @@ tester:
 
   requires:
       files:
-        - /opt/ysoserial.jar
+        - /opt/Yso/ysoserial-master-SNAPSHOT.jar
       commands:
         - beanshooter
       version:
