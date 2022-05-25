@@ -186,7 +186,7 @@ public class Logger {
 
     public static void eprintlnYellow(String msg)
     {
-        elog(prefix() + yellow(msg));
+        elog(eprefix() + yellow(msg));
     }
 
     public static void printlnPlainBlue(String msg)
@@ -442,6 +442,11 @@ public class Logger {
     public static void eprintlnMixedBlueFirst(String first, String second, String third)
     {
         elog(eprefix() + blue(first) + " " + second + " " + blue(third));
+    }
+
+    public static void eprintMixedBlueFirst(String first, String second, String third)
+    {
+        elog(eprefix() + blue(first) + " " + second + " " + blue(third), false);
     }
 
     public static void eprintlnMixedYellowFirst(String first, String second)

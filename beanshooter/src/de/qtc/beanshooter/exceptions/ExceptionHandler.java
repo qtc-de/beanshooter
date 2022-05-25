@@ -568,8 +568,9 @@ public class ExceptionHandler {
 
     public static void argumentCountMismatch(int actual, int expected)
     {
-        Logger.eprintlnYellow("Mismatching number of arguments for the specified signature.");
-        Logger.eprintlnMixedBlueFirst("Expected " + expected, "arguments, but only", "got " + actual);
+        Logger.eprintln("Mismatching number of arguments for the specified signature.");
+        Logger.eprintMixedBlueFirst("Expected " + expected, "argument(s), but", "got " + actual);
+        Logger.printlnPlain(" arguments.");
         Utils.exit();
     }
 

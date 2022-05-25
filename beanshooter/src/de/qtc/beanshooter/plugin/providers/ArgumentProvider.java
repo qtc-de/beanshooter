@@ -39,8 +39,11 @@ public class ArgumentProvider implements IArgumentProvider
      */
      public Object[] getArgumentArray(String[] arguments)
      {
-         if( arguments.length == 0 )
-             return null;
+         if (arguments.length != targetMethod.getParameterCount())
+             ExceptionHandler.argumentCountMismatch(arguments.length, targetMethod.getParameterCount());
+
+         else if( arguments.length == 0 )
+             return new Object[] {};
 
          Object[] result = null;
          ClassPool pool = ClassPool.getDefault();
@@ -140,9 +143,6 @@ public class ArgumentProvider implements IArgumentProvider
      */
     private String wrapArguments(String[] argumentArray)
     {
-        if (argumentArray.length != targetMethod.getParameterCount())
-            ExceptionHandler.argumentCountMismatch(argumentArray.length, targetMethod.getParameterCount());
-
         List<String> wrappedArgs = new ArrayList<String>();
         Class<?>[] paramTypes = targetMethod.getParameterTypes();
 
