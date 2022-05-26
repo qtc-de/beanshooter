@@ -11,3 +11,4 @@ tester:
 testers:
   - ./rmi/tricot.yml
   - ./jmxmp/tricot.yml
+  - ./error/tricot.yml
