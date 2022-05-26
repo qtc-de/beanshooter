@@ -106,16 +106,12 @@ public class EnumHelper
                 Logger.statusUndecided("Configuration");
             }
 
-              else if (e instanceof MismatchedURIException)
-              {
-                  String message = e.getMessage();
-                  message = message.substring(message.lastIndexOf(" ") + 1);
-                  message = message.replace("jmxmp/", "");
-
+            else if (e instanceof MismatchedURIException)
+            {
                 Logger.eprintlnMixedYellow("- Caught", "MismatchedURIException", "during login attempt.");
-                Logger.eprintlnMixedBlue("  Target needs to be accessed by the following hostname:", message);
+                Logger.eprintlnMixedBlue("  Target needs to be accessed by the following hostname:", ((MismatchedURIException)e).getUri());
                 Logger.statusUndecided("Configuration");
-              }
+            }
 
             else
             {
@@ -511,7 +507,7 @@ public class EnumHelper
             {
                 Logger.printlnMixedYellow("Caught", "MismatchedURIException", "during login attempt.");
                 Logger.printlnMixedBlueFirst("Digest authentication", "requires the correct hostname to be used.");
-                Logger.printlnMixedBlue("Original error message:", e.getMessage());
+                Logger.printlnMixedBlue("The following hostname is expected by the server:", ((MismatchedURIException)e).getUri());
                 ExceptionHandler.showStackTrace(e);
                 Utils.exit();
             }
