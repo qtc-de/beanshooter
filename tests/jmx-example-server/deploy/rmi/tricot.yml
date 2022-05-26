@@ -227,6 +227,28 @@ tests:
       all:
         - deployed
 
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean was successfully removed
+
+
+  - title: Undeploy MLet
+    description: |-
+      Undeploy MLet Bean
+
+    command:
+      - beanshooter
+      - undeploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - DefaultDomain:type=MLet
+
+    conditions:
+      all:
+        - deployed
+
       on_success:
         deployed: False
 

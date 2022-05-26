@@ -1,7 +1,7 @@
 tester:
-  title: invoke action
+  title: enum action
   description: |-
-    Perform tests on beanshooters invoke action
+    Perform tests on beanshooters enum action
 
   id: '01-04'
   groups:
