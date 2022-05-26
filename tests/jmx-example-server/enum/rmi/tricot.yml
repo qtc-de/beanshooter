@@ -1,0 +1,113 @@
+tester:
+  title: enum action (RMI)
+  description: |-
+    Perform tests on beanshooters enum action for RMI based connections
+
+  id: '01-04-01'
+  groups:
+    - rmi
+  id_pattern: '01-04-01-{:02}'
+
+
+tests:
+  - title: Unauth enum
+    description: |-
+      Perform the enum operation on an endpoint without authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Remote MBean server does not require authentication
+            - Remote MBeanServer accepted the payload class
+            - 22 MBeans are currently registred on the MBean server
+
+
+  - title: Plain enum
+    description: |-
+      Perform the enum operation on an endpoint with plain authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Remote MBean server requires authentication
+            - Remote MBeanServer accepted the payload class
+
+
+  - title: Plain enum (with creds)
+    description: |-
+      Perform the enum operation on an endpoint with plain authentication
+      and valid credentials.
+
+    command:
+      - beanshooter
+      - enum
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Login successful! The specified credentials are correct
+            - Remote MBeanServer accepted the payload class
+            - 22 MBeans are currently registred on the MBean server
+
+
+  - title: JMX enum
+    description: |-
+      Perform the enum operation on an endpoint with JMX authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Remote MBean server requires authentication
+            - Remote MBeanServer rejected the payload class
+
+
+  - title: JMX enum (with creds)
+    description: |-
+      Perform the enum operation on an endpoint with JMX authentication
+      and valid credentials.
+
+    command:
+      - beanshooter
+      - enum
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - --username
+      - monitorRole
+      - --password
+      - monitor
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Login successful! The specified credentials are correct
+            - Remote MBeanServer rejected the payload class
+            - 22 MBeans are currently registred on the MBean server

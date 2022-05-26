@@ -1,0 +1,237 @@
+tester:
+  title: enum action (JMXMP)
+  description: |-
+    Perform tests on beanshooters enum action for JMXMP based connections
+
+  id: '01-04-02'
+  groups:
+    - jmxmp
+  id_pattern: '01-04-02-{:02}'
+
+
+tests:
+  - title: Unauth enum
+    description: |-
+      Perform the enum operation on an endpoint without authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${JMXMP_UNAUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Remote JMXMP server does not use SASL
+            - Login is possible without specifying credentials
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+            - 22 MBeans are currently registred on the MBean server
+
+
+  - title: TLS enum
+    description: |-
+      Perform the enum operation on an endpoint with SASL TLS authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${JMXMP_TLS}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Remote JMXMP server uses TLS SASL profile
+            - Login is possible without credentials when using the --ssl option
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+            - 22 MBeans are currently registred on the MBean server
+
+
+  - title: PLAIN enum
+    description: |-
+      Perform the enum operation on an endpoint with SASL PLAIN authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4446
+      - --jmxmp
+      - --no-color
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Remote JMXMP server uses SASL/PLAIN SASL profile
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+
+
+  - title: PLAIN enum (with creds)
+    description: |-
+      Perform the enum operation on an endpoint with SASL PLAIN authentication
+      with credentials
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4446
+      - --ssl
+      - --jmxmp
+      - --no-color
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Remote JMXMP server uses TLS SASL/PLAIN SASL profile
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+
+
+  - title: Digest enum
+    description: |-
+      Perform the enum operation on an endpoint with SASL Digest authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4447
+      - --jmxmp
+      - --no-color
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Remote JMXMP server uses SASL/DIGEST-MD5 SASL profile'
+            - 'Credentials are requried and the following hostname must be used: iinsecure.dev'
+            - 'JMXMP serial check is work in progress but endpoints are usually vulnerable'
+
+
+  - title: Digest enum (with creds)
+    description: |-
+      Perform the enum operation on an endpoint with SASL Digest authentication
+      with credentials
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4447
+      - --ssl
+      - --jmxmp
+      - --no-color
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Caught MismatchedURIException during login attempt'
+            - 'Target needs to be accessed by the following hostname: iinsecure.dev'
+
+
+  - title: CRAM enum
+    description: |-
+      Perform the enum operation on an endpoint with SASL CRAM authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4448
+      - --jmxmp
+      - --no-color
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Remote JMXMP server uses SASL/CRAM-MD5 SASL profile'
+            - 'JMXMP serial check is work in progress but endpoints are usually vulnerable'
+
+
+  - title: CRAM enum (with creds)
+    description: |-
+      Perform the enum operation on an endpoint with SASL CRAM authentication
+      with credentials
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4448
+      - --ssl
+      - --jmxmp
+      - --no-color
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Login successful! The specified credentials are correct
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+            - 22 MBeans are currently registred on the MBean server
+
+
+  - title: NTLM enum
+    description: |-
+      Perform the enum operation on an endpoint with SASL NTLM authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4449
+      - --jmxmp
+      - --no-color
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Remote JMXMP server uses SASL/NTLM SASL profile'
+            - 'JMXMP serial check is work in progress but endpoints are usually vulnerable'
+
+
+  - title: NTLM enum (with creds)
+    description: |-
+      Perform the enum operation on an endpoint with SASL NTLM authentication
+      with credentials
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4449
+      - --ssl
+      - --jmxmp
+      - --no-color
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Login successful! The specified credentials are correct
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+            - 22 MBeans are currently registred on the MBean server
