@@ -116,6 +116,7 @@ public class EnumHelper
             else
             {
                 Logger.printlnMixedYellow("- Caught", "AuthenticationException", "during login attempt.");
+                Logger.println("  The specified credentials are probably invalid.");
                 Logger.statusUndecided("Configuration");
             }
 

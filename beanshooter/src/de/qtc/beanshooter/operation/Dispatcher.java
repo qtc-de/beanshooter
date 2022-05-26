@@ -141,6 +141,21 @@ public class Dispatcher {
                 access = enumHelper.enumAccess();
                 Logger.lineBreak();
             }
+
+            else
+            {
+                Logger.printlnBlue("Checking servers SASL configuration");
+                Logger.lineBreak();
+                Logger.increaseIndent();
+
+                Logger.printlnMixedBlue("- SASL profile was manually specified but", "no credentials", "were provided.");
+                Logger.printMixedYellow("  Use the", "--username", "and ");
+                Logger.printlnPlainMixedYellowFirst("--password", "options to provide credentials.");
+                Logger.statusUndecided("Configuration");
+
+                Logger.decreaseIndent();
+                Logger.lineBreak();
+            }
         }
 
         enumHelper.enumSerial();

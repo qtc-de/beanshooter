@@ -30,7 +30,7 @@ public class ExceptionHandler {
         else
         {
             Logger.eprintMixedYellow("You can retry the operation using the", "--ssl", "or ");
-            Logger.printlnPlainMixedYellowFirst("--jmxmp", "option.");
+            Logger.eprintlnPlainMixedYellowFirst("--jmxmp", "option.");
         }
     }
 
