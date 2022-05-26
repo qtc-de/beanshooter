@@ -122,16 +122,27 @@ public class Dispatcher {
 
         EnumHelper enumHelper = new EnumHelper(host, port);
 
-        if( BeanshooterOption.CONN_USER.notNull() && BeanshooterOption.CONN_PASS.notNull())
-            access = enumHelper.login();
-
-        else if(BeanshooterOption.CONN_JMXMP.getBool())
+        if (BeanshooterOption.CONN_JMXMP.getBool() && BeanshooterOption.CONN_SASL.isNull())
+        {
             access = enumHelper.enumSASL();
+            Logger.lineBreak();
+        }
 
-        else
-            access = enumHelper.enumAccess();
+        if (!access)
+        {
+            if (BeanshooterOption.CONN_USER.notNull() && BeanshooterOption.CONN_PASS.notNull())
+            {
+                access = enumHelper.login();
+                Logger.lineBreak();
+            }
 
-        Logger.lineBreak();
+            else if(BeanshooterOption.CONN_SASL.isNull())
+            {
+                access = enumHelper.enumAccess();
+                Logger.lineBreak();
+            }
+        }
+
         enumHelper.enumSerial();
 
         if (!access)
