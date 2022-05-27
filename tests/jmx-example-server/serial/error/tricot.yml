@@ -1,0 +1,30 @@
+tester:
+  title: serial action (Error)
+  description: |-
+    Perform tests on beanshooters error handling for the serial action
+
+  id: '01-06-03'
+  groups:
+    - error
+  id_pattern: '01-06-03-{:02}'
+
+
+tests:
+  - title: Wrong gadget name
+    description: |-
+      Use a non existing gadget name
+
+    command:
+      - beanshooter
+      - serial
+      - ${JMXMP_UNAUTH}
+      - ${OPTIONS}
+      - CommonsCollections1337
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - Caught unexpected java.lang.reflect.InvocationTargetException
+            - You probably specified a wrong gadget name or an invalid gadget argument

