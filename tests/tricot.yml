@@ -10,6 +10,9 @@ tester:
         - /opt/yso.jar
       commands:
         - beanshooter
+        - curl
+        - head
+        - xxd
       version:
         ge: 1.10.0
 
