@@ -366,12 +366,18 @@ public class Dispatcher {
         String url = BeanshooterOption.DEPLOY_STAGER_URL.getValue(String.format("http://%s:%d", host, port));
         IMBean bean = de.qtc.beanshooter.mbean.mlet.Dispatcher.getMbean();
 
-        server.start(url, bean.getJarName(), bean.getMBeanClass(), bean.getObjectName().toString());
+        server.start(Utils.parseUrl(url), bean.getJarName(), bean.getMBeanClass(), bean.getObjectName().toString());
         Logger.print("Press Enter to stop listening.");
 
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
-        scanner.close();
+        try (Scanner scanner = new Scanner(System.in))
+        {
+            scanner.nextLine();
+        }
+
+        catch (java.util.NoSuchElementException e)
+        {
+            Logger.printlnPlain("");
+        }
 
         server.stop();
     }

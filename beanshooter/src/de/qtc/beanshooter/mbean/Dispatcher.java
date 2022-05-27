@@ -1,6 +1,8 @@
 package de.qtc.beanshooter.mbean;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Paths;
 
 import javax.management.ObjectName;
@@ -12,6 +14,7 @@ import de.qtc.beanshooter.networking.JarHandler;
 import de.qtc.beanshooter.networking.MLetHandler;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.operation.MBeanServerClient;
+import de.qtc.beanshooter.utils.Utils;
 
 /**
  * Dispatcher class for generic MBean operations. Contains operations that are supported
@@ -131,46 +134,38 @@ public class Dispatcher extends de.qtc.beanshooter.operation.Dispatcher
      */
     public void export()
     {
-        boolean exported = false;
-        String filename = bean.getJarName();
+        String current = null;
+        JarHandler jarHandler = null;
+        MLetHandler mletHandler = null;
+
+        String exportDir = BeanshooterOption.EXPORT_DIR.getValue(".");
+        String jarFileName = Paths.get(exportDir, BeanshooterOption.EXPORT_JAR.getValue(bean.getJarName())).toString();
+        String mLetFileName =  Paths.get(exportDir, BeanshooterOption.EXPORT_MLET.getValue("index.html")).toString();
+        String jarName = (new File(jarFileName)).getName();
 
         try
         {
-            JarHandler jarHandler = new JarHandler(bean.getJarName(), null);
-
-            if( BeanshooterOption.EXPORT_JAR.notNull() )
+            if (BeanshooterOption.EXPORT_JAR.notNull() || BeanshooterOption.EXPORT_MLET.isNull())
             {
-                filename = BeanshooterOption.EXPORT_JAR.getValue();
-                jarHandler.export(filename);
-                exported = true;
+                jarHandler = new JarHandler(bean.getJarName(), null);
+
+                current = jarFileName;
+                jarHandler.export(jarFileName);
             }
 
-            String url = BeanshooterOption.EXPORT_URL.getValue("");
-            MLetHandler mletHandler = new MLetHandler(url, bean.getMBeanClass(), filename, bean.getObjectName().toString(), null);
-
-            if( BeanshooterOption.EXPORT_MLET.notNull() )
+            if (BeanshooterOption.EXPORT_MLET.notNull() || BeanshooterOption.EXPORT_JAR.isNull())
             {
-                ArgumentHandler.require(BeanshooterOption.EXPORT_URL);
-                mletHandler.export(BeanshooterOption.EXPORT_MLET.getValue());
-                exported = true;
+                URL url = Utils.parseUrl(ArgumentHandler.require(BeanshooterOption.EXPORT_URL));
+                mletHandler = new MLetHandler(url, bean.getMBeanClass(), jarName, bean.getObjectName().toString(), null);
+
+                current = mLetFileName;
+                mletHandler.export(mLetFileName);
             }
-
-            if(exported)
-                return;
-
-            ArgumentHandler.require(BeanshooterOption.EXPORT_URL);
-            String exportDir = BeanshooterOption.EXPORT_DIR.getValue(".");
-
-            filename = Paths.get(exportDir, filename).toString();
-            jarHandler.export(filename);
-
-            filename = Paths.get(exportDir, "index.html").toString();
-            mletHandler.export(filename);
         }
 
         catch( IOException e )
         {
-            ExceptionHandler.handleFileWrite(e, filename, true);
+            ExceptionHandler.handleFileWrite(e, current, true);
         }
     }
 

@@ -128,7 +128,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         if( !BeanshooterOption.DEPLOY_NO_STAGER.getBool() && protocol.equals("http") && Utils.isLocal(host) )
         {
             server = new StagerServer(host, port, false);
-            server.start(urlString, jarFile ,mBeanClassName, mBeanObjectName.toString());
+            server.start(url, jarFile ,mBeanClassName, mBeanObjectName.toString());
         }
 
         try

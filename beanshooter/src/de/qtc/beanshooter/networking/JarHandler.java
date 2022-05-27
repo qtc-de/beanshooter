@@ -12,6 +12,7 @@ import org.apache.commons.io.IOUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -58,14 +59,24 @@ public class JarHandler implements HttpHandler {
     {
         File file = new File(filename);
 
-        if( file.exists() )
-            return Files.readAllBytes(file.toPath());
+        if (file.exists())
+        {
+            try
+            {
+                return Files.readAllBytes(file.toPath());
+            }
+
+            catch (IOException e)
+            {
+                ExceptionHandler.handleFileRead(e, file.getAbsolutePath(), true);
+            }
+        }
 
         InputStream stream = this.getClass().getResourceAsStream("/" + filename);
         byte[] content = IOUtils.toByteArray(stream);
 
-        if( content.length == 0 ) {
-
+        if (content.length == 0)
+        {
             Logger.resetIndent();
             Logger.lineBreak();
             Logger.eprintln("Error while creating HTTP JarHandler.");
