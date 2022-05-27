@@ -477,6 +477,49 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void handleAuthenticationException(AuthenticationException e)
+    {
+        if( e instanceof SaslMissingException)
+        {
+            Logger.eprintlnMixedYellow("Caught", "SaslMissingException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The sever requires a", "SASL profile (--sasl)", "to be specified.");
+        }
+
+        if( e instanceof SaslProfileException)
+        {
+            Logger.eprintlnMixedYellow("Caught", "SaslProfileException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The specified", "SASL profile", "does not match the server SASL profile.");
+        }
+
+        else if( e instanceof MismatchedURIException )
+        {
+            Logger.eprintlnMixedYellow("Caught", "MisMatchedURIException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The specified", "target host", "does not match the configured SASL host.");
+        }
+
+        else if( e instanceof ApacheKarafException )
+        {
+            Logger.eprintlnMixedYellow("Caught", "ApacheKarafException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The targeted JMX service is probably spawned by", "Apache Karaf", "and requires authentication.");
+            Logger.eprintlnMixedYellow("You can attempt to login using Apache Karaf default credentials:", "karaf:karaf");
+        }
+
+        else if( e instanceof WrongCredentialsException)
+        {
+            Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The specified credentials are most likely", "incorrect.");
+        }
+
+        else
+        {
+            Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The targeted JMX endpoint probably", "requires authentication.");
+        }
+
+        e.showDetails();
+        ExceptionHandler.showStackTrace(e);
+    }
+
     public static void ysoNotPresent(String location)
     {
         Logger.eprintlnMixedBlue("Unable to find ysoserial library in path", location);
