@@ -1,0 +1,98 @@
+tester:
+  title: export action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters export action
+
+  id: '02-03-02'
+  groups:
+    - error
+  id_pattern: '02-03-02-{:02}'
+
+
+tests:
+  - title: Missing Stager URL
+    description: |-
+      Perform a full export without specifying a stager url
+
+    command:
+      - beanshooter
+      - tonka
+      - export
+      - --no-color
+
+    extractors:
+      - regex:
+          pattern: 'tonka-bean-.+\.jar$'
+          variable: 'jar-name'
+          on_miss: 'break'
+          multiline: true
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Exporting MBean jar file: ./tonka-bean-'
+            - 'Error: The specified aciton requires the --stager-url option'
+      - file_exists:
+          cleanup: true
+          files:
+            - ${jar-name}
+          invert:
+            - inex.html
+
+
+  - title: Non writable directory (jar file)
+    description: |-
+      Perform a jar export on a non writable directory
+
+    command:
+      - beanshooter
+      - tonka
+      - export
+      - --no-color
+      - --export-jar
+      - /root/test
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Missing the required permissions to write to: /root/test'
+
+
+  - title: Export on directory (mlet file)
+    description: |-
+      Perform an mlet export on a directory
+
+    command:
+      - beanshooter
+      - tonka
+      - export
+      - --no-color
+      - --export-mlet
+      - /root
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The specified path /root is an existing directory'
+
+
+  - title: Export on non existend directory
+    description: |-
+      Perform an export on a non existing directory
+
+    command:
+      - beanshooter
+      - tonka
+      - export
+      - --export-dir /tmp/dududadadidi
+      - --no-color
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The parent directory of /tmp/dududadadidi/'
+            - 'seems not to exist'

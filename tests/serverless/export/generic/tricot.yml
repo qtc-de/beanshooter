@@ -1,0 +1,120 @@
+tester:
+  title: export action (Generic)
+  description: |-
+    Perform tests on beanshooters export action
+
+  id: '02-03-01'
+  groups:
+    - generic
+  id_pattern: '02-03-01-{:02}'
+
+
+tests:
+  - title: Export Tonka
+    description: |-
+      Check the export action of the tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - export
+      - --no-color
+      - --stager-url
+      - http://127.0.0.1
+
+    extractors:
+      - regex:
+          pattern: 'tonka-bean-.+\.jar$'
+          variable: 'jar-name'
+          on_miss: 'break'
+          multiline: true
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Exporting MBean jar file: ./tonka-bean-'
+            - 'Exporting MLet HTML file to: ./index.html'
+            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+      - file_exists:
+          cleanup: true
+          files:
+              - ${jar-name}
+              - index.html
+
+
+  - title: Export Tonka (jar only)
+    description: |-
+      Check the export action of the tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - export
+      - --no-color
+      - --export-jar
+      - tonka.jar
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Exporting MBean jar file: ./tonka.jar'
+      - file_exists:
+          cleanup: true
+          files:
+              - tonka.jar
+
+
+  - title: Export Tonka (mlet only)
+    description: |-
+      Check the export action of the tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - export
+      - --no-color
+      - --export-mlet
+      - mlet.html
+      - --stager-url
+      - http://127.0.0.1
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Exporting MLet HTML file to: ./mlet.html'
+            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+      - file_exists:
+          cleanup: true
+          files:
+              - mlet.html
+
+
+  - title: Export Tonka (with --export-dir)
+    description: |-
+      Check the export action of the tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - export
+      - --no-color
+      - --export-dir
+      - /tmp
+      - --stager-url
+      - http://127.0.0.1
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Exporting MBean jar file: /tmp/tonka-bean-'
+            - 'Exporting MLet HTML file to: /tmp/index.html'
+            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+      - file_exists:
+          cleanup: true
+          files:
+              - /tmp/${jar-name}
+              - /tmp/index.html
