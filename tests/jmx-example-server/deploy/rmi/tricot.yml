@@ -156,7 +156,7 @@ tests:
       - tonka
       - export
       - --stager-url
-      - '${DOCKER-GW}:8000'
+      - 'http://${DOCKER-GW}:8000'
 
     conditions:
       on_success:

@@ -3,10 +3,10 @@ tester:
   description: |-
     Perform tests on beanshooters stager action
 
-  id: '01-07-01'
+  id: '02-01-01'
   groups:
     - generic
-  id_pattern: '01-07-01-{:02}'
+  id_pattern: '02-01-01-{:02}'
 
 
 plugins:

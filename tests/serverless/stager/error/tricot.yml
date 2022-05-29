@@ -3,10 +3,10 @@ tester:
   description: |-
     Perform tests on the error handling of beanshooters stager action
 
-  id: '01-07-02'
+  id: '02-01-02'
   groups:
     - error
-  id_pattern: '01-07-02-{:02}'
+  id_pattern: '02-01-02-{:02}'
 
 
 plugins:
@@ -27,6 +27,7 @@ tests:
       - tonka
       - --no-color
 
+    timeout: 5
     validators:
       - error: True
       - contains:
@@ -47,6 +48,7 @@ tests:
       - tonka
       - --no-color
 
+    timeout: 5
     validators:
       - error: True
       - contains:
@@ -73,6 +75,7 @@ tests:
       - de.qtc.beanshooter.TestClass
       - --no-color
 
+    timeout: 5
     validators:
       - error: True
       - contains:
@@ -99,6 +102,7 @@ tests:
       - de.qtc.beanshooter.TestClass
       - --no-color
 
+    timeout: 5
     validators:
       - error: True
       - contains:

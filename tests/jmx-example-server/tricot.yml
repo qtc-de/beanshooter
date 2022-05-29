@@ -73,4 +73,3 @@ testers:
   - ./enum/tricot.yml
   - ./list/tricot.yml
   - ./serial/tricot.yml
-  - ./stager/tricot.yml
