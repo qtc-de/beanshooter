@@ -292,7 +292,7 @@ public class ExceptionHandler {
         Throwable t = ExceptionHandler.getCause(e);
         String message = t.getMessage();
 
-        if(t instanceof java.io.FileNotFoundException)
+        if (t instanceof java.io.FileNotFoundException)
         {
             Logger.eprintlnMixedYellow("Caught", "FileNotFoundException", "while opening output file.");
 
@@ -308,6 +308,15 @@ public class ExceptionHandler {
             else
                 unexpectedException(e, "writing", "file", exit);
         }
+
+        else if (t instanceof java.nio.file.AccessDeniedException)
+            Logger.eprintlnMixedBlue("Missing the required permissions to write to:", path);
+
+        else if (t instanceof java.nio.file.NoSuchFileException)
+            Logger.eprintlnMixedBlue("The parent directory of", path, "seems not to exist.");
+
+        else if (t instanceof java.nio.file.FileSystemException && t.getMessage().contains("Is a directory"))
+            Logger.eprintlnMixedBlue("The specified path", path, "is an existing directory.");
 
         else
             unexpectedException(e, "writing", "file", exit);

@@ -12,6 +12,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.Remote;
 import java.rmi.server.ObjID;
 import java.rmi.server.UID;
@@ -483,5 +485,23 @@ public class Utils {
             signature = signature.substring(functionStart);
 
         return "void " + signature;
+    }
+
+    /**
+     * Joins two paths. If the second specified path is an absolute path, it is returned instead
+     * of being joined.
+     *
+     * @param first  first path to join the second with
+     * @param second  second path to join
+     * @return joined path, or second if absolute
+     */
+    public static Path joinIfRelative(String first, String second)
+    {
+        File secondPath = new File(second);
+
+        if (secondPath.isAbsolute())
+            return secondPath.toPath();
+
+        return Paths.get(first, second);
     }
 }

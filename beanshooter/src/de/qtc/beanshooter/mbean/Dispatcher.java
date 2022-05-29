@@ -3,7 +3,6 @@ package de.qtc.beanshooter.mbean;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 
 import javax.management.ObjectName;
 
@@ -139,8 +138,8 @@ public class Dispatcher extends de.qtc.beanshooter.operation.Dispatcher
         MLetHandler mletHandler = null;
 
         String exportDir = BeanshooterOption.EXPORT_DIR.getValue(".");
-        String jarFileName = Paths.get(exportDir, BeanshooterOption.EXPORT_JAR.getValue(bean.getJarName())).toString();
-        String mLetFileName =  Paths.get(exportDir, BeanshooterOption.EXPORT_MLET.getValue("index.html")).toString();
+        String jarFileName = Utils.joinIfRelative(exportDir, BeanshooterOption.EXPORT_JAR.getValue(bean.getJarName())).toString();
+        String mLetFileName =  Utils.joinIfRelative(exportDir, BeanshooterOption.EXPORT_MLET.getValue("index.html")).toString();
         String jarName = (new File(jarFileName)).getName();
 
         try
