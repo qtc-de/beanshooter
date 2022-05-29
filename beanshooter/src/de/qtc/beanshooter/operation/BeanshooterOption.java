@@ -160,12 +160,6 @@ public enum BeanshooterOption implements Option {
                 "url"
                 ),
 
-    DEPLOY_STAGER_ONLY("--stager-only",
-                       "only launch the stager HTTP server",
-                       Arguments.storeTrue(),
-                       OptionGroup.ACTION,
-                       ArgType.BOOL),
-
     DEPLOY_NO_STAGER("--no-stager",
                      "do not launch the stager HTTP server",
                      Arguments.storeTrue(),

@@ -75,7 +75,6 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-            BeanshooterOption.DEPLOY_STAGER_ONLY,
             BeanshooterOption.DEPLOY_NO_STAGER,
             BeanshooterOption.DEPLOY_STAGER_URL,
             BeanshooterOption.DEPLOY_STAGER_PORT,
