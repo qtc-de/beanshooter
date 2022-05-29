@@ -102,8 +102,7 @@ public class StagerServer
 
             else if (t instanceof java.net.SocketException && t.getMessage().contains("Permission denied"))
             {
-                Logger.printlnMixedBlue("You don't have sufficient permissions to bind port", String.valueOf(port), "on this host.");
-
+                Logger.eprintlnMixedBlue("You don't have sufficient permissions to bind port", String.valueOf(port), "on this host.");
             }
 
             else
@@ -123,10 +122,15 @@ public class StagerServer
             if (e.getMessage().contains("port out of range"))
             {
                 Logger.eprintlnMixedYellow("Caught", "IllegalArgumentException", "while creating the stager server.");
-                Logger.printlnMixedBlue("The specified port", String.valueOf(port), "is out of range.");
-                Logger.printlnMixedYellow("Specify a port within the range", String.format("0-%s", Short.MAX_VALUE * 2 + 1));
+                Logger.eprintlnMixedBlue("The specified port", String.valueOf(port), "is out of range.");
+                Logger.eprintlnMixedYellow("Specify a port within the range", String.format("0-%s", Short.MAX_VALUE * 2 + 1));
                 ExceptionHandler.showStackTrace(e);
                 Utils.exit();
+            }
+
+            else
+            {
+                ExceptionHandler.unknownReason(e);
             }
         }
     }

@@ -100,7 +100,7 @@ public class MBeanServerClient {
 
                     if( BeanshooterOption.DEPLOY_STAGER_URL.isNull() )
                     {
-                        Logger.printlnMixedYellow("You can use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
+                        Logger.eprintlnMixedYellow("Use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
                         Utils.exit();
                     }
 

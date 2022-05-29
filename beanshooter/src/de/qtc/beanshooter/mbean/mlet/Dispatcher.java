@@ -125,7 +125,15 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             port = BeanshooterOption.DEPLOY_STAGER_PORT.getValue();
 
         if (BeanshooterOption.DEPLOY_STAGER_ADDR.notNull())
+        {
             host = BeanshooterOption.DEPLOY_STAGER_ADDR.getValue();
+
+            if (!Utils.isLocal(host))
+            {
+                Logger.eprintlnMixedYellow("The specified address", host, "is not available on your local device.");
+                Utils.exit();
+            }
+        }
 
         Logger.printlnMixedBlue("Loading MBean from", urlString);
         Logger.lineBreak();

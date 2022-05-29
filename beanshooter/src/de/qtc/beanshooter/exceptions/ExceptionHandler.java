@@ -183,7 +183,7 @@ public class ExceptionHandler {
 
     public static void insufficientPermission(Exception e, String during, boolean exit)
     {
-        Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while " + during);
+        Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while " + during + ".");
         Logger.eprintlnMixedBlue("The specified user has", "insufficient permission", "to perform the requested action.");
 
         showStackTrace(e);
