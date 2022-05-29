@@ -121,6 +121,12 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         if (port == -1)
             port = url.getDefaultPort();
 
+        if (BeanshooterOption.DEPLOY_STAGER_PORT.notNull())
+            port = BeanshooterOption.DEPLOY_STAGER_PORT.getValue();
+
+        if (BeanshooterOption.DEPLOY_STAGER_ADDR.notNull())
+            host = BeanshooterOption.DEPLOY_STAGER_ADDR.getValue();
+
         Logger.printlnMixedBlue("Loading MBean from", urlString);
         Logger.lineBreak();
         Logger.increaseIndent();
