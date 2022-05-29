@@ -494,10 +494,16 @@ public class ExceptionHandler {
             Logger.eprintlnMixedBlue("The sever requires a", "SASL profile (--sasl)", "to be specified.");
         }
 
-        if( e instanceof SaslProfileException)
+        else if( e instanceof SaslProfileException)
         {
             Logger.eprintlnMixedYellow("Caught", "SaslProfileException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The specified", "SASL profile", "does not match the server SASL profile.");
+
+            if (BeanshooterOption.CONN_SSL.getBool())
+                Logger.eprintlnMixedYellow("If you are confident that you are using the correct profile, try without the", "--ssl", "option");
+
+            else
+                Logger.eprintlnMixedYellow("If you are confident that you are using the correct profile, try to use the", "--ssl", "option");
         }
 
         else if( e instanceof MismatchedURIException )
