@@ -1,0 +1,76 @@
+tester:
+  title: TonkaBean related tests
+  description: |-
+    Testing the tonka bean requires a separate JMX server, since the
+    bean was already loaded during the tests for the generic deploy
+    actions. Also in this tests, we need to be careful. Once deployed
+    once, the class is known to the JMX server and we cannot redeploy
+    it.
+
+  id: '03'
+  groups:
+    - tonka
+
+containers:
+  - name: 'jmx-example-server'
+    image: 'ghcr.io/qtc-de/beanshooter/jmx-example-server:1.0'
+    volumes:
+      - '${volume}:${volume-d}'
+    aliases:
+      DOCKER-jmx-example-server-IP: DOCKER-IP
+      DOCKER-jmx-example-server-GATEWAY: DOCKER-GW
+    init: 10
+
+variables:
+  TARGET_UNAUTH:
+    - ${DOCKER-IP}
+    - 9010
+  TARGET_PLAIN:
+    - ${DOCKER-IP}
+    - 1090
+  TARGET_JMX:
+    - ${DOCKER-IP}
+    - 1099
+    - --ssl
+  JMXMP_UNAUTH:
+    - ${DOCKER-IP}
+    - 4444
+    - --jmxmp
+  JMXMP_TLS:
+    - ${DOCKER-IP}
+    - 4445
+    - --jmxmp
+    - --ssl
+  JMXMP_PLAIN:
+    - ${DOCKER-IP}
+    - 4446
+    - --jmxmp
+    - --ssl
+    - --sasl
+    - plain
+  JMXMP_DIGEST:
+    - ${DOCKER-IP}
+    - 4447
+    - --jmxmp
+    - --ssl
+    - --sasl
+    - digest
+  JMXMP_CRAM:
+    - ${DOCKER-IP}
+    - 4448
+    - --jmxmp
+    - --ssl
+    - --sasl
+    - cram
+  JMXMP_NTLM:
+    - ${DOCKER-IP}
+    - 4449
+    - --jmxmp
+    - --ssl
+    - --sasl
+    - ntlm
+
+testers:
+  - ./deploy/tricot.yml
+  - ./version/tricot.yml
+  - ./status/tricot.yml

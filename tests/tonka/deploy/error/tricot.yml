@@ -1,0 +1,196 @@
+tester:
+  title: tonka deploy action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters tonka deploy action
+
+  id: '03-01-01'
+  groups:
+    - error
+  id_pattern: '03-01-01-{:02}'
+
+
+tests:
+  - title: No stager
+    description: |-
+      Attempt to deploy the tonka bean without spcifying a stager
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - MBean class is not known by the server
+            - Use the --stager-url option to load the MBean from remote
+
+
+  - title: Invalid URL
+    description: |-
+      Attempt to deploy the tonka bean from an invalid stager URL
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - --stager-url
+      - xyz://127.0.0.1
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'MBean class is not known by the server'
+            - 'The specified URL xyz://127.0.0.1 is invalid'
+
+
+  - title: Invalid Stager port
+    description: |-
+      Attempt to deploy the tonka bean from an invalid stager port
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - --stager-url
+      - http://127.0.0.1
+      - --stager-port
+      - 80
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Caught java.net.SocketException while creating the stager server'
+            - "You don't have sufficient permissions to bind port 80 on this host"
+
+
+  - title: Invalid Stager addr
+    description: |-
+      Attempt to deploy the tonka bean from an invalid stager addr
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - --stager-url
+      - http://127.0.0.1
+      - --stager-host
+      - 8.8.8.8
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'MBean class is not known by the server'
+            - 'The specified address 8.8.8.8 is not available on your local device'
+
+
+  - title: Closed Stager
+    description: |-
+      Attempt to deploy the tonka bean from a closed stager
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - --stager-url
+      - 'http://${DOCKER-GW}:8000'
+      - --no-stager
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Caught java.net.ConnectException while invoking getMBeansFromURL'
+            - 'Target http://${DOCKER-GW}:8000 refused the connection'
+
+
+  - title: Closed Stager (PLAIN Auth)
+    description: |-
+      Attempt to deploy the tonka bean from a closed stager
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --stager-url
+      - 'http://${DOCKER-GW}:8000'
+      - --no-stager
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Caught java.net.ConnectException while invoking getMBeansFromURL'
+            - 'Target http://${DOCKER-GW}:8000 refused the connection'
+
+
+  - title: Closed Stager (JMX Auth)
+    description: |-
+      Attempt to deploy the tonka bean from a closed stager
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - --stager-url
+      - 'http://${DOCKER-GW}:8000'
+      - --no-stager
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Caught java.lang.SecurityException while registering MBean.'
+            - 'The specified user has insufficient permission to perform the requested action'
+
+
+  - title: Closed Stager (JMXMP NTLM)
+    description: |-
+      Attempt to deploy the tonka bean from a closed stager
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - --stager-url
+      - 'http://${DOCKER-GW}:8000'
+      - --no-stager
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Caught java.net.ConnectException while invoking getMBeansFromURL'
+            - 'Target http://${DOCKER-GW}:8000 refused the connection'

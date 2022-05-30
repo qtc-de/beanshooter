@@ -1,0 +1,12 @@
+tester:
+  title: tonka version action
+  description: |-
+    Perform tests on beanshooters tonka version action
+
+  id: '03-02'
+  groups:
+    - version
+
+testers:
+  - ./rmi/tricot.yml
+  - ./jmxmp/tricot.yml

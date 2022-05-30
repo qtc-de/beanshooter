@@ -1,0 +1,33 @@
+tester:
+  title: tonka status action (JMXMP)
+  description: |-
+    Perform tests on beanshooters tonka status action for JMXMP based connections
+
+  id: '03-03-02'
+  groups:
+    - jmxmp
+  id_pattern: '03-03-02-{:02}'
+
+tests:
+  - title: Plain status call
+    description: |-
+      Call the status action on a deployed tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - status
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean Status: deployed'
+            - 'Class Name: de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'Object Name: MLetTonkaBean:name=TonkaBean,id=1'

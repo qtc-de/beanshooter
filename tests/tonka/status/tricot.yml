@@ -1,0 +1,12 @@
+tester:
+  title: tonka status action
+  description: |-
+    Perform tests on beanshooters tonka status action
+
+  id: '03-03'
+  groups:
+    - status
+
+testers:
+  - ./rmi/tricot.yml
+  - ./jmxmp/tricot.yml
