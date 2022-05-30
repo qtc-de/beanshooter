@@ -162,7 +162,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
             Logger.resetIndent();
             Logger.eprintMixedYellow("Caught", t.getClass().getName(), "while invoking ");
-            Logger.printlnPlainBlue("getMBeansFromURL");
+            Logger.eprintlnPlainBlue("getMBeansFromURL");
 
             if( t instanceof java.net.NoRouteToHostException )
             {
