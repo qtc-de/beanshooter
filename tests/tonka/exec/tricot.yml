@@ -1,0 +1,13 @@
+tester:
+  title: tonka exec action
+  description: |-
+    Perform tests on beanshooters tonka exec action
+
+  id: '03-04'
+  groups:
+    - exec
+
+testers:
+  - ./rmi/tricot.yml
+  - ./jmxmp/tricot.yml
+  - ./error/tricot.yml

@@ -74,3 +74,4 @@ testers:
   - ./deploy/tricot.yml
   - ./version/tricot.yml
   - ./status/tricot.yml
+  - ./exec/tricot.yml
