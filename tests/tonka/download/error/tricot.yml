@@ -1,0 +1,86 @@
+tester:
+  title: tonka download action (ERROR)
+  description: |-
+    Perform tests on the error handling of beanshooters tonka download action
+
+  id: '03-06-03'
+  groups:
+    - error
+  id_pattern: '03-06-03-{:02}'
+
+
+tests:
+  - title: Download non existing file
+    description: |-
+      Attempt to download a non existing file
+
+    command:
+      - beanshooter
+      - tonka
+      - download
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - --username
+      - controlRole
+      - --password
+      - control
+      - /etc/passwd42
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The specified file /etc/passwd42 seems not to exist'
+      - file_exists:
+          invert:
+            - passwd42
+
+
+  - title: Download directory
+    description: |-
+      Attempt to download a directory
+
+    command:
+      - beanshooter
+      - tonka
+      - download
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - --username
+      - controlRole
+      - --password
+      - control
+      - /etc
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The specified path /etc is an existing directory'
+      - file_exists:
+          invert:
+            - passwd42
+
+
+  - title: Download to non writable directory
+    description: |-
+      Attempt to download to a non writable directory
+
+    command:
+      - beanshooter
+      - tonka
+      - download
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - --username
+      - controlRole
+      - --password
+      - control
+      - /etc/passwd
+      - /root/passwd
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Missing the required permissions to write to: /root/passwd'
