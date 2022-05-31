@@ -128,13 +128,18 @@ public class TonkaBean implements TonkaBeanMBean
      * Write the specified byte array to the specified destination on the file system of the server.
      *
      * @param destination file system path on the MBean Server
+     * @param file original filename (only used when destination is a directory)
      * @param content byte array containing the desired file content
      * @return resulting file system path of the newly generated file
      */
-    public String uploadFile(String destination, byte[] content) throws IOException
+    public String uploadFile(String destination, String filename, byte[] content) throws IOException
     {
         File file = new File(destination);
-        FileOutputStream stream = new FileOutputStream(destination);
+
+        if (file.isDirectory())
+            file = Paths.get(destination, filename).toFile();
+
+        FileOutputStream stream = new FileOutputStream(file.getPath());
 
         stream.write(content);
         stream.close();

@@ -137,6 +137,12 @@ public class OptionHandler {
         if (option == TonkaBeanOption.EXEC_ARRAY)
             arg.nargs("+");
 
+        if (option == TonkaBeanOption.DOWNLOAD_DEST)
+            arg.nargs("?");
+
+        if (option == TonkaBeanOption.UPLOAD_DEST)
+            arg.nargs("?");
+
         if( option == MLetOption.LOAD_BEAN )
         {
             List<String> mBeanNames = MBean.getLoadableBeanNames();

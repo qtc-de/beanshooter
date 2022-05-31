@@ -172,15 +172,13 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      */
     public void upload()
     {
-        ArgumentHandler.requireAllOf(TonkaBeanOption.UPLOAD_DEST, TonkaBeanOption.UPLOAD_SOURCE);
+        String uploadDest = TonkaBeanOption.UPLOAD_DEST.getValue(null);
+        File uploadFile = new File(ArgumentHandler.<String>require(TonkaBeanOption.UPLOAD_SOURCE));
 
-        String uploadDest = TonkaBeanOption.UPLOAD_DEST.getValue();
-
-        File uploadFile = new File(TonkaBeanOption.UPLOAD_SOURCE.<String>getValue());
         String uploadSrc = uploadFile.toPath().normalize().toAbsolutePath().toString();
 
-        if( uploadDest.endsWith(File.separator) )
-            uploadDest = uploadDest + uploadFile.getName();
+        if (uploadDest == null)
+            uploadDest = ".";
 
         Logger.printMixedYellow("Uploading local file", uploadSrc, "to path ");
         Logger.printlnPlainMixedBlueFirst(uploadDest, "on the MBeanSerer.");
@@ -188,8 +186,8 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         try
         {
             byte[] content = Utils.readFile(uploadFile);
-            tonkaBean.uploadFile(uploadDest, content);
-            Logger.printlnMixedYellowFirst(content.length + " bytes", "uploaded successfully.");
+            String finalPath = tonkaBean.uploadFile(uploadDest, uploadFile.getName(), content);
+            Logger.printlnMixedYellowFirst(content.length + " bytes", "were written to", finalPath);
         }
 
         catch ( MBeanException e)
@@ -210,10 +208,11 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      */
     public void download()
     {
-        ArgumentHandler.requireAllOf(TonkaBeanOption.DOWNLOAD_DEST, TonkaBeanOption.DOWNLOAD_SOURCE);
+        String downloadDest = TonkaBeanOption.DOWNLOAD_DEST.<String>getValue(null);
+        File downloadSrc = new File(ArgumentHandler.<String>require(TonkaBeanOption.DOWNLOAD_SOURCE));
 
-        String downloadDest = TonkaBeanOption.DOWNLOAD_DEST.<String>getValue();
-        File downloadSrc = new File(TonkaBeanOption.DOWNLOAD_SOURCE.<String>getValue());
+        if (downloadDest == null)
+            downloadDest = downloadSrc.getName();
 
         File localFile = new File(downloadDest);
 
@@ -231,7 +230,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             stream.write(content);
             stream.close();
 
-            Logger.printlnMixedYellowFirst(content.length + " bytes", "were written.");
+            Logger.printlnMixedYellowFirst(content.length + " bytes", "were written to", localFile.getAbsolutePath());
         }
 
         catch (MBeanException e)
@@ -414,7 +413,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         String[] arguments = Utils.splitSpaces(argument, 1);
 
         File source = new File(Utils.expandPath(arguments[0]));
-        File destination = new File(source.getName());
+        File destination = new File(".");
 
         if (arguments.length > 1)
             destination = new File(arguments[1]);
@@ -428,8 +427,8 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         try
         {
             byte[] content = Utils.readFile(source);
-            tonkaBean.uploadFile(destination.getPath(), content);
-            Logger.printlnPlainMixedBlueFirst(content.length + " bytes", "were written to", destination.getPath());
+            String finalPath = tonkaBean.uploadFile(destination.getPath(), source.getName(), content);
+            Logger.printlnPlainMixedBlueFirst(content.length + " bytes", "were written to", finalPath);
         }
 
         catch (MBeanException e)

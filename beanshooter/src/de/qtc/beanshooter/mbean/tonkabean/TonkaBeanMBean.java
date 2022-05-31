@@ -21,5 +21,5 @@ public interface TonkaBeanMBean
     public byte[] executeCommand(String[] cmd, String cwd, Map<String,String> env, boolean background) throws MBeanException;
 
     public byte[] downloadFile(String filename) throws MBeanException;
-    public String uploadFile(String destination, byte[] content) throws MBeanException;
+    public String uploadFile(String destination, String filename, byte[] content) throws MBeanException;
 }
