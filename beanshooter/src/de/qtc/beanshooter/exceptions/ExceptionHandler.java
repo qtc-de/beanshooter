@@ -1,5 +1,6 @@
 package de.qtc.beanshooter.exceptions;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -329,10 +330,11 @@ public class ExceptionHandler {
     {
         Throwable t = ExceptionHandler.getCause(e);
         String message = t.getMessage();
+        File file = new File(path);
 
         if(t instanceof java.nio.file.NoSuchFileException)
         {
-            if(message.contains(path))
+            if(message.contains(file.getName()))
                 Logger.eprintlnMixedBlue("The specified file", path, "seems not to exist.");
 
             else

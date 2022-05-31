@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -134,17 +135,17 @@ public class TonkaBean implements TonkaBeanMBean
      */
     public String uploadFile(String destination, String filename, byte[] content) throws IOException
     {
-        File file = new File(destination);
+        Path path = Paths.get(destination);
 
-        if (file.isDirectory())
-            file = Paths.get(destination, filename).toFile();
+        if (path.toFile().isDirectory())
+            path = Paths.get(destination, filename);
 
-        FileOutputStream stream = new FileOutputStream(file.getPath());
+        FileOutputStream stream = new FileOutputStream(path.toString());
 
         stream.write(content);
         stream.close();
 
-        return file.getAbsolutePath();
+        return path.normalize().toAbsolutePath().toString();
     }
 
     /**
