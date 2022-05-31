@@ -47,9 +47,8 @@ public class JarHandler implements HttpHandler {
 
     /**
      * Loads the specified Jar file into memory. The method first checks whether the specified
-     * Jar file exists on the file system. If this is not the case, the filename is interpreted
-     * as name of a Jar file within the beanshooter Jar file. This is there the tonka bean is
-     * stored.
+     * Jar file exists within the beanshooter jar file. If this is not the case, the jar file
+     * is searched on the file system.
      *
      * @param filename path of the Jar file to serve
      * @return content of the Jar file
@@ -57,6 +56,12 @@ public class JarHandler implements HttpHandler {
      */
     private byte[] getJar(String filename) throws IOException
     {
+        InputStream stream = this.getClass().getResourceAsStream("/" + filename);
+        byte[] content = IOUtils.toByteArray(stream);
+
+        if (content.length != 0)
+            return content;
+
         File file = new File(filename);
 
         if (file.exists())
@@ -72,10 +77,7 @@ public class JarHandler implements HttpHandler {
             }
         }
 
-        InputStream stream = this.getClass().getResourceAsStream("/" + filename);
-        byte[] content = IOUtils.toByteArray(stream);
-
-        if (content.length == 0)
+        else
         {
             Logger.resetIndent();
             Logger.lineBreak();
