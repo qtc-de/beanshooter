@@ -635,6 +635,34 @@ public class ExceptionHandler {
     }
 
     /**
+     * Walks down a stacktrace and searches for a specific exception name.
+     * If it finds the corresponding name, the corresponding Throwable is returned.
+     *
+     * @param name Exception name to look for.
+     * @param e stack trace to search in.
+     * @return identified Throwable.
+     */
+    public static Throwable getThrowable(String name, Throwable e)
+    {
+        if( e.getClass().getSimpleName().equals(name) )
+            return e;
+
+        Throwable exception = e;
+        Throwable cause = e.getCause();
+
+        while((exception != cause) && (cause != null)) {
+
+            if( cause.getClass().getSimpleName().equals(name))
+                return cause;
+
+            exception = cause;
+            cause = exception.getCause();
+        }
+
+        return null;
+    }
+
+    /**
      * Taken from https://stackoverflow.com/questions/17747175/how-can-i-loop-through-exception-getcause-to-find-root-cause-with-detail-messa
      * Returns the actual cause of an exception.
      *

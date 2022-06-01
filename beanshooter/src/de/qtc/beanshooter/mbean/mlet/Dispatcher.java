@@ -211,6 +211,14 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
             else
             {
+                Throwable serviceNotFound = ExceptionHandler.getThrowable("ServiceNotFoundException", e);
+
+                if (serviceNotFound != null && serviceNotFound.getMessage().contains("Problems while parsing URL"))
+                {
+                    Logger.eprintlnMixedBlue("The specified URL", urlString, "seems to be invalid.");
+                    Utils.exit();
+                }
+
                 ExceptionHandler.unknownReason(e);
             }
 
