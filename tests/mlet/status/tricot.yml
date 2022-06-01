@@ -1,0 +1,12 @@
+tester:
+  title: mlet status action
+  description: |-
+    Perform tests on beanshooters mlet status action
+
+  id: '04-01'
+  groups:
+    - status
+
+testers:
+  - ./rmi/tricot.yml
+  - ./jmxmp/tricot.yml

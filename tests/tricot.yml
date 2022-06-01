@@ -33,3 +33,4 @@ testers:
   - ./jmx-example-server/tricot.yml
   - ./serverless/tricot.yml
   - ./tonka/tricot.yml
+  - ./mlet/tricot.yml
