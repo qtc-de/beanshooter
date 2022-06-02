@@ -1,0 +1,52 @@
+tester:
+  title: mlet load action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters mlet load action
+
+  id: '04-02-01'
+  groups:
+    - error
+  id_pattern: '04-02-01-{:02}'
+
+
+tests:
+  - title: No stager
+    description: |-
+      Attempt to load a custom bean without spcifying the required information
+
+    command:
+      - beanshooter
+      - mlet
+      - load
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - custom
+      - 'http://127.0.0.1'
+      - --no-stager
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Error: The specified aciton requires the --class-name, --object-name, --jar-file options'
+
+
+  - title: Closed stager port
+    description: |-
+      Attempt to load the tonka bean without opening a stager port
+
+    command:
+      - beanshooter
+      - mlet
+      - load
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - tonka
+      - 'http://127.0.0.1'
+      - --no-stager
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Target http://127.0.0.1 refused the connection'
