@@ -41,7 +41,7 @@ https://user-images.githubusercontent.com/49147108/157600758-12124037-4e22-4c60-
       + [undeploy](#generic-undeploy)
     - [tonka](#tonka)
       + [exec](#tonka-exec)
-      + [background](#tonka-background)
+      + [execarray](#tonka-execarray)
       + [shell](#tonka-shell)
       + [upload](#tonka-upload)
       + [download](#tonka-download)
@@ -61,9 +61,9 @@ https://user-images.githubusercontent.com/49147108/157600758-12124037-4e22-4c60-
 installed, just execute the following commands to create an executable ``.jar`` file:
 
 ```console
-$ git clone https://github.com/qtc-de/beanshooter
-$ cd beanshooter
-$ mvn package
+[qtc@devbox ~]$ git clone https://github.com/qtc-de/beanshooter
+[qtc@devbox ~]$ cd beanshooter
+[qtc@devbox ~]$ mvn package
 ```
 
 You can also use prebuild packages that are created for [each release](https://github.com/qtc-de/beanshooter/releases).
@@ -80,7 +80,7 @@ copying the [completion script](/resources/bash_completion.d/beanshooter) to you
 autocompletion.
 
 ```console
-$ cp resources/bash_completion.d/beanshooter ~/bash_completion.d/
+[qtc@devbox ~]$ cp resources/bash_completion.d/beanshooter ~/bash_completion.d/
 ```
 
 
@@ -99,7 +99,7 @@ usage: beanshooter [-h]   ...
 beanshooter v3.0.0 - a JMX enumeration and attacking tool
 
 positional arguments:
-                          
+
  Basic Operations
     brute                bruteforce JMX credentials
     invoke               invoke the specified method on the specified MBean
