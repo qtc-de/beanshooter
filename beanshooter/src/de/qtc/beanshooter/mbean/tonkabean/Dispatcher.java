@@ -532,11 +532,11 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         Logger.printlnPlainMixedBlueFirst(Logger.padRight("  <cmd>", 30), "execute the specified command");
         Logger.printlnPlainMixedBlueFirst(Logger.padRight("  cd <dir>", 30), "change working directory on the server");
         Logger.printlnPlainMixedBlueFirst(Logger.padRight("  exit|quit", 30), "exit the shell");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !help", 30), "print this help menu");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !env <env-str>", 30), "set new environment variables in key=value format");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !upload <src> <dst>", 30), "upload a file to the remote MBeanServer");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !download <src> <dst>", 30), "download a file from the remote MBeanServer");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !background <cmd>", 30), "executes the specified command in the background");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !help|!h", 30), "print this help menu");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !environ|!env <key>=<value>", 30), "set new environment variables in key=value format");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !upload|!put <src> <dst>", 30), "upload a file to the remote MBeanServer");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !download|!get <src> <dst>", 30), "download a file from the remote MBeanServer");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !background|!back <cmd>", 30), "executes the specified command in the background");
     }
 
     private List<String> getShell(String separator)

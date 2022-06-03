@@ -286,7 +286,6 @@ function _beanshooter() {
                     opts="$opts --hex"
                     opts="$opts --output-file"
                     opts="$opts --raw"
-                    opts="$opts --shell"
                     opts="$opts --username"
                     opts="$opts --password"
                     opts="$opts $conn_opts"

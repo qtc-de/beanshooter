@@ -115,6 +115,7 @@ public class Dispatcher {
     public void enumerate()
     {
         boolean access = false;
+        boolean enumerated = false;
 
         String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
         int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
@@ -125,6 +126,9 @@ public class Dispatcher {
         {
             access = enumHelper.enumSASL();
             Logger.lineBreak();
+
+            if (!BeanshooterOption.CONN_SASL.isNull())
+                enumerated = true;
         }
 
         if (!access)
@@ -135,13 +139,13 @@ public class Dispatcher {
                 Logger.lineBreak();
             }
 
-            else if(BeanshooterOption.CONN_SASL.isNull())
+            else if (BeanshooterOption.CONN_SASL.isNull())
             {
                 access = enumHelper.enumAccess();
                 Logger.lineBreak();
             }
 
-            else
+            else if (!enumerated)
             {
                 Logger.printlnBlue("Checking servers SASL configuration");
                 Logger.lineBreak();
