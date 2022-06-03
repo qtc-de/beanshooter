@@ -556,6 +556,26 @@ The `exec` action can be used to invoke a single command on the *JMX* service:
 uid=0(root) gid=0(root) groups=0(root)
 ```
 
+The last argument of the exec operation is expected to be a string. When the `--shell` option is not
+used, this string is split on spaces (quotes aware) and passed as an array to the `ProcessBuilder`
+class on the server side.
+
+If `--shell` was used, the specified shell string is split on spaces and the resulting array is
+joined with the specified argument string before passing it to the `ProcessBuilder` class. This
+allows shell like execution with correctly interpreted shell special characters:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka exec 172.17.0.2 9010 --shell 'ash -c' 'echo $HOSTNAME'
+[+] Invoking the executeCommand method with argument: ash -c echo $HOSTNAME
+[+] The call was successful
+[+]
+[+] Server response:
+fee2d783023b
+```
+
+For convenience, common shells are automatically suffixed with the required command string argument.
+Therefore, `--shell ash` is automatically converted to `--shell 'ash -c'`.
+
 #### Tonka Background
 
 The `background` action executes a single command on the *JMX* server and does not wait for the command
