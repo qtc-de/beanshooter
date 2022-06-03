@@ -34,3 +34,4 @@ testers:
   - ./serverless/tricot.yml
   - ./tonka/tricot.yml
   - ./mlet/tricot.yml
+  - ./tomcat/tricot.yml

@@ -1,0 +1,12 @@
+tester:
+  title: tomcat list action
+  description: |-
+    Perform tests on beanshooters tomcat list action
+
+  id: '05-02'
+  groups:
+    - list
+
+testers:
+  - ./rmi/tricot.yml
+  - ./error/tricot.yml
