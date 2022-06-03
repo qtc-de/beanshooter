@@ -162,9 +162,9 @@ the `getLoggerNames` function is invoked on the `Logging` *MBean*:
 ...
 ```
 
-When invoking a method that requires parameters, the trailing *beanshooter* arguments are evaluated as *Java code*. Simple argument
+When invoking a method that requires parameters, the specified *beanshooter* arguments are evaluated as *Java code*. Simple argument
 types like integers or strings can just be passed by specifying their corresponding value. Complex argument types can be constructed
-as you would do it from *Java* (e.g. `'new java.util.HashMap()'`). The following listing shows an example, where the `setLoggerNames`
+as you would do it in *Java* (e.g. `'new java.util.HashMap()'`). The following listing shows an example, where the `setLoggerNames`
 function is invoked on the `Logging` *MBean*:
 
 ```console
@@ -248,7 +248,7 @@ The `enum` action enumerates some configuration details on a *JMX* endpoint. It 
 [+] 	  Configuration Status: Non Defau
 ```
 
-When no authentication is required, or when you specify valid credentials, the `enum` action also attempts to
+When authentication is not required, or when you specify valid credentials, the `enum` action also attempts to
 enumerate some further information from the *JMX* endpoint. This includes a list of non default *MBeans* and
 e.g. the user accounts registered on a *Apache tomcat* server:
 
@@ -293,6 +293,23 @@ e.g. the user accounts registered on a *Apache tomcat* server:
 [+] 			   Users:type=Role,rolename="admin-script",database=UserDatabase
 [...]
 ```
+
+When invoking the `enum` action on a *SASL* protected endpoint, *beanshooter* attempts to enumerate the *SASL* profile
+that is configured for the server. This is only possible to a certain extend and the *TLS* configuration of the server
+cannot be enumerated. If the *SASL* profile identified by *beanshooter* does not work, you should always retry with/without
+the `--ssl` option:
+
+```console
+[qtc@devbox ~]$ beanshooter enum 172.17.0.2 4447 --jmxmp
+[+] Checking servers SASL configuration:
+[+]
+[+] 	- Remote JMXMP server uses SASL/DIGEST-MD5 SASL profile.
+[+] 	  Credentials are requried and the following hostname must be used: iinsecure.dev
+[+] 	  Notice: TLS setting cannot be enumerated and --ssl may be required.
+[+] 	  Vulnerability Status: Non Vulnerable
+...
+```
+
 
 #### List
 
