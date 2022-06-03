@@ -83,8 +83,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
         if (TonkaBeanOption.SHELL_CMD.notNull())
         {
-            String shellStr = ArgumentHandler.require(TonkaBeanOption.SHELL_CMD);
-            cmdList.addAll(Arrays.asList(Utils.splitSpaces(shellStr.trim(), 1)));
+            cmdList = getShell(null);
             cmdList.add(command);
         }
 
@@ -118,8 +117,8 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         if( TonkaBeanOption.EXEC_RAW.getBool() )
             Logger.disableStdout();
 
-        Logger.printMixedYellow("Invoking the", "executeCommand", "method with argument: ");
-        Logger.printlnPlainBlue(String.join(" ", command));
+        Logger.printMixedYellow("Invoking the", "executeCommand", "method with arguments: ");
+        Logger.printlnPlainBlue(Arrays.toString(command.toArray(new String[0])));
 
         try
         {
@@ -539,30 +538,90 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !background|!back <cmd>", 30), "executes the specified command in the background");
     }
 
+    /**
+     * Obtain the shell arguments to execute a command with. This function first checks whether a user
+     * specified shell command exists. If this is the case, it is split on spaces and optionally appended
+     * with the required string execution option.
+     *
+     * If no shell command was specified, the function checks the specified separator char to decide whether
+     * a Unix or Windows operating system is targeted. Depending on this information, it selects a shell.
+     *
+     * @param separator  file system path separator on the targeted system
+     * @return shell array to use for command execution
+     */
     private List<String> getShell(String separator)
     {
+        List<String> shell = new ArrayList<String>();
         String shellCmd = TonkaBeanOption.SHELL_CMD.getValue(null);
 
         if (shellCmd != null)
-            return Arrays.asList(shellCmd.trim().split(" "));
-
-        List<String> shell = new ArrayList<String>();
-
-        if (separator.equals("/"))
         {
-            shell.add("sh");
-            shell.add("-c");
+            shell.addAll(Arrays.asList(shellCmd.trim().split(" ")));
+            addShellArgument(shell);
+
+            return shell;
         }
 
-        else if (separator.equals("\\"))
+        if (separator != null)
         {
-            shell.add("cmd.exe");
-            shell.add("/C");
+            if (separator.equals("/"))
+            {
+                shell.add("sh");
+                shell.add("-c");
+            }
+
+            else if (separator.equals("\\"))
+            {
+                shell.add("cmd.exe");
+                shell.add("/C");
+            }
+
+            else
+                ExceptionHandler.internalError("Dispatcher.getShell", "Unhandeled path separator: " + separator);
         }
 
         else
-            ExceptionHandler.internalError("Dispatcher.getShell", "Unhandeled path separator: " + separator);
+            ExceptionHandler.internalError("Dispatcher.getShell", "Called without a separator");
 
         return shell;
+    }
+
+    /**
+     * Takes the user specified shell command and optionally appends the required argument for string execution.
+     * If the shell command has options already, it is simply returned. Otherwise, the shell command is compared
+     * to some default shells and the corresponding argument is appended.
+     *
+     * @param command  user specified shell command as List (split on spaces)
+     */
+    private void addShellArgument(List<String> command)
+    {
+        if (command.size() > 1)
+            return;
+
+        String shellCommand = command.get(0);
+
+        for (char sep : new char[] { '/', '\\' })
+        {
+            int index = shellCommand.lastIndexOf(sep);
+
+            if (index > 0)
+                shellCommand = shellCommand.substring(index);
+        }
+
+        switch (shellCommand)
+        {
+            case "sh":
+            case "ash":
+            case "bash":
+            case "powershell":
+            case "powershell.exe":
+                command.add("-c");
+                break;
+
+            case "cmd":
+            case "cmd.exe":
+                command.add("/C");
+                break;
+        }
     }
 }
