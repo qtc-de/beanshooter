@@ -7,13 +7,15 @@ type _comp_get_parameter &> /dev/null || return
 
 function _beanshooter() {
 
-    local cur prev words cword opts arg args gadgets value_options operations sasl_mechanisms tonka_actions mlet_actions tomcat_actios mbeans mbean_actions
+    local cur prev words cword opts arg args gadgets value_options operations sasl_mechanisms tonka_actions mlet_actions
+    local tomcat_actios mbeans mbean_actions general_opts conn_opts stager_opts unguessable file_like
+
     _init_completion || return
 
-    value_options="--class-name --jar-file --object-name --config --plugin --bound-name --objid-server --objid-connection"
-    value_options="$value_options --username --password --export-dir --export-mlet --export-jar --stager-url --stager-port"
-    value_options="$value_options --stager-host --threads --username-file --password-file --sasl --class-filter"
-    value_options="$value_options  --obj-filter --yso --cwd --env --output-file"
+    file_like="--jar-file --config --plugin --export-dir --export-mlet --export-jar --username-file --password-file --yso --output-file"
+    unguessable="--class-name --object-name --bound-name --objid-server --objid-connection --username --password --stager-port --threads"
+    unguessable="$unguessable --class-filter --obj-filter --cwd --env --signature --shell"
+    value_options="$file_like $unguessable --stager-url --stager-host --sasl"
 
     _count_args "" "@(${value_options// /|})"
     _comp_get_parameter 3
@@ -27,10 +29,14 @@ function _beanshooter() {
 
     operations="brute invoke deploy enum list serial stager undeploy tonka mlet tomcat"
     sasl_mechanisms="plain digest cram gssapi ntlm"
+    general_opts="--help --config --verbose --plugin --no-color --stack-trace"
+    conn_opts="--follow --ssl --jmxmp --sasl"
+    target_opts="--bound-name --objid-server --objid-connection"
+    stager_opts="--stager-host --stager-port --no-stager --stager-url"
 
     mbeans="tonka mlet tomcat"
     mbean_actions="status deploy undeploy info"
-    tonka_actions="exec background shell upload download export ${mbean_actions}"
+    tonka_actions="version exec execarray shell upload download export ${mbean_actions}"
     mlet_actions="load ${mbean_actions}"
     tomcat_actions="list ${mbean_actions}"
 
@@ -42,189 +48,97 @@ function _beanshooter() {
             opts="$operations"
         fi
 
+    elif [[ $prev == "--sasl" ]]; then
+        opts="${sasl_mechanisms}"
+
+    elif [[ $prev == "--stager-host" ]]; then
+        _ip_addresses
+        return 0
+
+    elif [[ $prev == "--stager-url" ]]; then
+        opts="http:// file:// ftp://"
+        compopt -o nospace
+
+    elif _comp_contains "$file_like" $prev; then
+        _filedir
+        return 0
+
+    elif _comp_contains "$unguessable" $prev; then
+        return 0
+
     elif [[ ${words[1]} == "brute" ]]; then
 
-        if _comp_contains "--config --plugin --username-file --password-file" $prev; then
-            _filedir
-            return 0
-
-        elif _comp_contains "--sasl" $prev; then
-            opts="${sasl_mechanisms}"
-
-        elif _comp_contains "--threads --username --password --bound-name --objid-server" $prev; then
-            return 0
-
-        elif [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
-            opts="--help"
-            opts="$opts --threads"
+        if [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
+            opts="--threads"
             opts="$opts --username"
             opts="$opts --password"
             opts="$opts --first"
             opts="$opts --username-file"
             opts="$opts --password-file"
             opts="$opts --no-progress"
-            opts="$opts --config"
-            opts="$opts --verbose"
-            opts="$opts --plugin"
-            opts="$opts --no-color"
-            opts="$opts --stack-trace"
             opts="$opts --bound-name"
             opts="$opts --objid-server"
-            opts="$opts --follow"
-            opts="$opts --ssl"
-            opts="$opts --jmxmp"
-            opts="$opts --sasl"
+            opts="$opts $conn_opts"
+            opts="$opts $general_opts"
 
         else
             return 0
         fi
-
 
     elif [[ ${words[1]} == "invoke" ]]; then
 
-        if _comp_contains "--config --plugin" $prev; then
-            _filedir
-            return 0
-
-        elif _comp_contains "--sasl" $prev; then
-            opts="${sasl_mechanisms}"
-
-        elif _comp_contains "--bound-name --objid-server --objid-connection" $prev; then
-            return 0
-
-        elif [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
-            opts="--help"
-            opts="$opts --literal"
-            opts="$opts --config"
-            opts="$opts --verbose"
-            opts="$opts --plugin"
-            opts="$opts --no-color"
-            opts="$opts --stack-trace"
-            opts="$opts --bound-name"
-            opts="$opts --objid-server"
-            opts="$opts --objid-connection"
-            opts="$opts --follow"
-            opts="$opts --ssl"
-            opts="$opts --jmxmp"
+        if [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
+            opts="--literal"
+            opts="$opts --signature"
+            opts="$opts --no-wrap"
             opts="$opts --username"
             opts="$opts --password"
-            opts="$opts --sasl"
+            opts="$opts $conn_opts"
+            opts="$opts $target_opts"
+            opts="$opts $general_opts"
 
         else
             return 0
         fi
-
 
     elif [[ ${words[1]} == "deploy" ]]; then
 
-        if _comp_contains "--config --plugin --jar-file" $prev; then
-            _filedir
-            return 0
-
-        elif _comp_contains "--stager-host" $prev; then
-            _ip_addresses
-            return 0
-
-        elif _comp_contains "--stager-url" $prev; then
-            opts="http:// file:// ftp://"
-            compopt -o nospace
-
-        elif _comp_contains "--sasl" $prev; then
-            opts="${sasl_mechanisms}"
-
-        elif _comp_contains "--username --password --stager-port --bound-name --objid-server --objid-connection" $prev; then
-            return 0
-
-        elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-            opts="--help"
-            opts="$opts --stager-only"
-            opts="$opts --no-stager"
-            opts="$opts --stager-url"
-            opts="$opts --stager-port"
-            opts="$opts --stager-host"
-            opts="$opts --config"
-            opts="$opts --verbose"
-            opts="$opts --plugin"
-            opts="$opts --no-color"
-            opts="$opts --stack-trace"
-            opts="$opts --bound-name"
-            opts="$opts --objid-server"
-            opts="$opts --objid-connection"
-            opts="$opts --follow"
-            opts="$opts --ssl"
-            opts="$opts --jmxmp"
-            opts="$opts --username"
+        if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+            opts="--username"
             opts="$opts --password"
-            opts="$opts --sasl"
             opts="$opts --jar-file"
+            opts="$opts $conn_opts"
+            opts="$opts $stager_opts"
+            opts="$opts $target_opts"
+            opts="$opts $general_opts"
 
         else
             return 0
         fi
-
 
     elif [[ ${words[1]} == "enum" ]]; then
 
-        if _comp_contains "--config --plugin" $prev; then
-            _filedir
-            return 0
-
-        elif _comp_contains "--sasl" $prev; then
-            opts="${sasl_mechanisms}"
-
-        elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
-            return 0
-
-        elif [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
-            opts="--help"
-            opts="$opts --config"
-            opts="$opts --verbose"
-            opts="$opts --plugin"
-            opts="$opts --no-color"
-            opts="$opts --stack-trace"
-            opts="$opts --bound-name"
-            opts="$opts --objid-server"
-            opts="$opts --objid-connection"
-            opts="$opts --follow"
-            opts="$opts --sasl"
-            opts="$opts --ssl"
-            opts="$opts --jmxmp"
-            opts="$opts --username"
+        if [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
+            opts="--username"
             opts="$opts --password"
+            opts="$opts $conn_opts"
+            opts="$opts $target_opts"
+            opts="$opts $general_opts"
 
         else
             return 0
         fi
 
-
     elif [[ ${words[1]} == "list" ]]; then
 
-        if _comp_contains "--config --plugin" $prev; then
-            _filedir
-            return 0
-
-        elif _comp_contains "--sasl" $prev; then
-            opts="${sasl_mechanisms}"
-
-        elif _comp_contains "--class-filter --obj-filter --username --password --bound-name --objid-server --objid-connection" $prev; then
-            return 0
-
-        elif [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
-            opts="--help"
-            opts="$opts --config"
-            opts="$opts --verbose"
-            opts="$opts --plugin"
-            opts="$opts --no-color"
-            opts="$opts --stack-trace"
-            opts="$opts --bound-name"
-            opts="$opts --objid-server"
-            opts="$opts --objid-connection"
-            opts="$opts --follow"
-            opts="$opts --ssl"
-            opts="$opts --jmxmp"
-            opts="$opts --username"
+        if [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
+            opts="--username"
             opts="$opts --password"
-            opts="$opts --sasl"
+            opts="$opts --class-filter"
+            opts="$opts --obj-filter"
+            opts="$opts $conn_opts"
+            opts="$opts $target_opts"
+            opts="$opts $general_opts"
 
         else
             return 0
@@ -232,34 +146,14 @@ function _beanshooter() {
 
     elif [[ ${words[1]} == "serial" ]]; then
 
-        if _comp_contains "--config --plugin --yso" $prev; then
-            _filedir
-            return 0
-
-        elif _comp_contains "--sasl" $prev; then
-            opts="${sasl_mechanisms}"
-
-        elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
-            return 0
-
-        elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-            opts="--help"
-            opts="$opts --preauth"
+        if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+            opts="--preauth"
             opts="$opts --yso"
-            opts="$opts --config"
-            opts="$opts --verbose"
-            opts="$opts --plugin"
-            opts="$opts --no-color"
-            opts="$opts --stack-trace"
-            opts="$opts --bound-name"
-            opts="$opts --objid-server"
-            opts="$opts --objid-connection"
-            opts="$opts --follow"
-            opts="$opts --ssl"
-            opts="$opts --jmxmp"
             opts="$opts --username"
             opts="$opts --password"
-            opts="$opts --sasl"
+            opts="$opts $conn_opts"
+            opts="$opts $target_opts"
+            opts="$opts $general_opts"
 
         elif [[ $args -eq 4 ]]; then
             opts="$gadgets"
@@ -270,28 +164,12 @@ function _beanshooter() {
 
     elif [[ ${words[1]} == "stager" ]]; then
 
-        if _comp_contains "--config --plugin --jar-file" $prev; then
-            _filedir
-            return 0
-
-        elif _comp_contains "--stager-url" $prev; then
-            opts="http:// file:// ftp://"
-            compopt -o nospace
-
-        elif _comp_contains "--class-name --object-name" $prev; then
-            return 0
-
-        elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-            opts="--help"
-            opts="$opts --stager-url"
-            opts="$opts --class-name"
+        if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+            opts="--class-name"
             opts="$opts --jar-file"
             opts="$opts --object-name"
-            opts="$opts --config"
-            opts="$opts --verbose"
-            opts="$opts --plugin"
-            opts="$opts --no-color"
-            opts="$opts --stack-trace"
+            opts="$opts --stager-url"
+            opts="$opts $general_opts"
 
         elif [[ $args -eq 2 ]]; then
             _ip_addresses
@@ -306,32 +184,12 @@ function _beanshooter() {
 
     elif [[ ${words[1]} == "undeploy" ]]; then
 
-        if _comp_contains "--config --plugin" $prev; then
-            _filedir
-            return 0
-
-        elif _comp_contains "--sasl" $prev; then
-            opts="${sasl_mechanisms}"
-
-        elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
-            return 0
-
-        elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-            opts="--help"
-            opts="$opts --config"
-            opts="$opts --verbose"
-            opts="$opts --plugin"
-            opts="$opts --no-color"
-            opts="$opts --stack-trace"
-            opts="$opts --bound-name"
-            opts="$opts --objid-server"
-            opts="$opts --objid-connection"
-            opts="$opts --follow"
-            opts="$opts --ssl"
-            opts="$opts --jmxmp"
-            opts="$opts --username"
+        if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+            opts="--username"
             opts="$opts --password"
-            opts="$opts --sasl"
+            opts="$opts $conn_opts"
+            opts="$opts $target_opts"
+            opts="$opts $general_opts"
 
         else
             return 0
@@ -341,42 +199,13 @@ function _beanshooter() {
 
         if [[ ${words[2]} == "deploy" ]]; then
 
-            if _comp_contains "--config --plugin" $prev; then
-                _filedir
-                return 0
-
-            elif _comp_contains "--sasl" $prev; then
-                opts="${sasl_mechanisms}"
-
-            elif _comp_contains "--stager-url" $prev; then
-                opts="http:// file:// ftp://"
-                compopt -o nospace
-
-            elif _comp_contains "--username --password --bound-name --objid-server --objid-connection --stager-port" $prev; then
-                return 0
-
-            elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                opts="--help"
-                opts="$opts --stager-only"
-                opts="$opts --no-stager"
-                opts="$opts --stager-url"
-                opts="$opts --stager-port"
-                opts="$opts --stager-host"
-                opts="$opts --config"
-                opts="$opts --verbose"
-                opts="$opts --plugin"
-                opts="$opts --no-color"
-                opts="$opts --stack-trace"
-                opts="$opts --bound-name"
-                opts="$opts --objid-server"
-                opts="$opts --objid-connection"
-                opts="$opts target"
-                opts="$opts --follow"
-                opts="$opts --ssl"
-                opts="$opts --jmxmp"
-                opts="$opts --username"
+            if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+                opts="--username"
                 opts="$opts --password"
-                opts="$opts --sasl"
+                opts="$opts $conn_opts"
+                opts="$opts $stager_opts"
+                opts="$opts $target_opts"
+                opts="$opts $general_opts"
 
             else
                 return 0
@@ -384,38 +213,13 @@ function _beanshooter() {
 
         elif [[ ${words[2]} == "undeploy" ]]; then
 
-            if _comp_contains "--config --plugin" $prev; then
-                _filedir
-                return 0
-
-            elif _comp_contains "--sasl" $prev; then
-                opts="${sasl_mechanisms}"
-
-            elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
-                return 0
-
-            elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                opts="--help"
-                opts="$opts --stager-only"
-                opts="$opts --no-stager"
-                opts="$opts --stager-url"
-                opts="$opts --stager-port"
-                opts="$opts --stager-host"
-                opts="$opts --config"
-                opts="$opts --verbose"
-                opts="$opts --plugin"
-                opts="$opts --no-color"
-                opts="$opts --stack-trace"
-                opts="$opts --bound-name"
-                opts="$opts --objid-server"
-                opts="$opts --objid-connection"
-                opts="$opts target"
-                opts="$opts --follow"
-                opts="$opts --ssl"
-                opts="$opts --jmxmp"
-                opts="$opts --username"
+            if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+                opts="--username"
                 opts="$opts --password"
-                opts="$opts --sasl"
+                opts="$opts $conn_opts"
+                opts="$opts $stager_opts"
+                opts="$opts $target_opts"
+                opts="$opts $general_opts"
 
             else
                 return 0
@@ -423,32 +227,12 @@ function _beanshooter() {
 
         elif [[ ${words[2]} == "status" ]]; then
 
-            if _comp_contains "--config --plugin" $prev; then
-                _filedir
-                return 0
-
-            elif _comp_contains "--sasl" $prev; then
-                opts="${sasl_mechanisms}"
-
-            elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
-                return 0
-
-            elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                opts="--help"
-                opts="$opts --config"
-                opts="$opts --verbose"
-                opts="$opts --plugin"
-                opts="$opts --no-color"
-                opts="$opts --stack-trace"
-                opts="$opts --bound-name"
-                opts="$opts --objid-server"
-                opts="$opts --objid-connection"
-                opts="$opts --follow"
-                opts="$opts --ssl"
-                opts="$opts --jmxmp"
-                opts="$opts --username"
+            if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+                opts="--username"
                 opts="$opts --password"
-                opts="$opts --sasl"
+                opts="$opts $conn_opts"
+                opts="$opts $target_opts"
+                opts="$opts $general_opts"
 
             else
                 return 0
@@ -456,17 +240,8 @@ function _beanshooter() {
 
         elif [[ ${words[2]} == "info" ]]; then
 
-            if _comp_contains "--config --plugin" $prev; then
-                _filedir
-                return 0
-
-            elif [[ $cur == -* ]] || [[ $args -ge 3 ]]; then
-                opts="--help"
-                opts="$opts --config"
-                opts="$opts --verbose"
-                opts="$opts --plugin"
-                opts="$opts --no-color"
-                opts="$opts --stack-trace"
+            if [[ $cur == -* ]] || [[ $args -ge 3 ]]; then
+                opts="$general_opts"
 
             else
                 return 0
@@ -484,72 +259,39 @@ function _beanshooter() {
 
             elif [[ ${words[2]} == "exec" ]]; then
 
-                if _comp_contains "--config --plugin --output-file" $prev; then
-                    _filedir
-                    return 0
-
-                elif _comp_contains "--sasl" $prev; then
-                    opts="${sasl_mechanisms}"
-
-                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection --cwd --env" $prev; then
-                    return 0
-
-                elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-                    opts="--help"
+                if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                    opts="--background"
                     opts="$opts --cwd"
                     opts="$opts --env"
                     opts="$opts --hex"
                     opts="$opts --output-file"
                     opts="$opts --raw"
-                    opts="$opts --config"
-                    opts="$opts --verbose"
-                    opts="$opts --plugin"
-                    opts="$opts --no-color"
-                    opts="$opts --stack-trace"
-                    opts="$opts --bound-name"
-                    opts="$opts --objid-server"
-                    opts="$opts --objid-connection"
-                    opts="$opts --follow"
-                    opts="$opts --ssl"
-                    opts="$opts --jmxmp"
+                    opts="$opts --shell"
                     opts="$opts --username"
                     opts="$opts --password"
-                    opts="$opts --sasl"
+                    opts="$opts $conn_opts"
+                    opts="$opts $target_opts"
+                    opts="$opts $general_opts"
 
                 else
                     return 0
                 fi
 
-            elif [[ ${words[2]} == "background" ]]; then
+            elif [[ ${words[2]} == "execarray" ]]; then
 
-                if _comp_contains "--config --plugin" $prev; then
-                    _filedir
-                    return 0
-
-                elif _comp_contains "--sasl" $prev; then
-                    opts="${sasl_mechanisms}"
-
-                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection --cwd --env" $prev; then
-                    return 0
-
-                elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-                    opts="--help"
+                if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                    opts="--background"
                     opts="$opts --cwd"
                     opts="$opts --env"
-                    opts="$opts --config"
-                    opts="$opts --verbose"
-                    opts="$opts --plugin"
-                    opts="$opts --no-color"
-                    opts="$opts --stack-trace"
-                    opts="$opts --bound-name"
-                    opts="$opts --objid-server"
-                    opts="$opts --objid-connection"
-                    opts="$opts --follow"
-                    opts="$opts --ssl"
-                    opts="$opts --jmxmp"
+                    opts="$opts --hex"
+                    opts="$opts --output-file"
+                    opts="$opts --raw"
+                    opts="$opts --shell"
                     opts="$opts --username"
                     opts="$opts --password"
-                    opts="$opts --sasl"
+                    opts="$opts $conn_opts"
+                    opts="$opts $target_opts"
+                    opts="$opts $general_opts"
 
                 else
                     return 0
@@ -557,32 +299,13 @@ function _beanshooter() {
 
             elif [[ ${words[2]} == "shell" ]]; then
 
-                if _comp_contains "--config --plugin" $prev; then
-                    _filedir
-                    return 0
-
-                elif _comp_contains "--sasl" $prev; then
-                    opts="${sasl_mechanisms}"
-
-                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
-                    return 0
-
-                elif [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-                    opts="--help"
-                    opts="$opts --config"
-                    opts="$opts --verbose"
-                    opts="$opts --plugin"
-                    opts="$opts --no-color"
-                    opts="$opts --stack-trace"
-                    opts="$opts --bound-name"
-                    opts="$opts --objid-server"
-                    opts="$opts --objid-connection"
-                    opts="$opts --follow"
-                    opts="$opts --ssl"
-                    opts="$opts --jmxmp"
-                    opts="$opts --username"
+                if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                    opts="--username"
                     opts="$opts --password"
-                    opts="$opts --sasl"
+                    opts="$opts --shell"
+                    opts="$opts $conn_opts"
+                    opts="$opts $target_opts"
+                    opts="$opts $general_opts"
 
                 else
                     return 0
@@ -590,32 +313,12 @@ function _beanshooter() {
 
             elif _comp_contains "upload download" ${words[2]}; then
 
-                if _comp_contains "--config --plugin" $prev; then
-                    _filedir
-                    return 0
-
-                elif _comp_contains "--sasl" $prev; then
-                    opts="${sasl_mechanisms}"
-
-                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
-                    return 0
-
-                elif [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
-                    opts="--help"
-                    opts="$opts --config"
-                    opts="$opts --verbose"
-                    opts="$opts --plugin"
-                    opts="$opts --no-color"
-                    opts="$opts --stack-trace"
-                    opts="$opts --bound-name"
-                    opts="$opts --objid-server"
-                    opts="$opts --objid-connection"
-                    opts="$opts --follow"
-                    opts="$opts --ssl"
-                    opts="$opts --jmxmp"
-                    opts="$opts --username"
+                if [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
+                    opts="--username"
                     opts="$opts --password"
-                    opts="$opts --sasl"
+                    opts="$opts $conn_opts"
+                    opts="$opts $target_opts"
+                    opts="$opts $general_opts"
 
                 elif [[ $args -eq 5  || $args -eq 6 ]]; then
                     _filedir
@@ -627,28 +330,12 @@ function _beanshooter() {
 
             elif [[ ${words[2]} == "export" ]]; then
 
-                if _comp_contains "--config --plugin --export-dir --export-jar --export-mlet" $prev; then
-                    _filedir
-                    return 0
-
-                elif _comp_contains "--stager-url" $prev; then
-                    opts="http:// file:// ftp://"
-                    compopt -o nospace
-
-                elif _comp_contains "--sasl" $prev; then
-                    opts="${sasl_mechanisms}"
-
-                elif [[ $cur == -* ]] || [[ $args -ge 3 ]]; then
-                    opts="--help"
-                    opts="$opts --export-dir"
+                if [[ $cur == -* ]] || [[ $args -ge 3 ]]; then
+                    opts="--export-dir"
                     opts="$opts --export-jar"
                     opts="$opts --export-mlet"
                     opts="$opts --stager-url"
-                    opts="$opts --config"
-                    opts="$opts --verbose"
-                    opts="$opts --plugin"
-                    opts="$opts --no-color"
-                    opts="$opts --stack-trace"
+                    opts="$opts $general_opts"
 
                 else
                     return 0
@@ -667,35 +354,18 @@ function _beanshooter() {
 
             elif [[ ${words[2]} == "load" ]]; then
 
-                if _comp_contains "--config --plugin --jar-file" $prev; then
-                    _filedir
-                    return 0
-
-                elif _comp_contains "--sasl" $prev; then
-                    opts="${sasl_mechanisms}"
-
-                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection --class-name --object-name" $prev; then
-                    return 0
-
-                elif [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
-                    opts="--help"
-                    opts="$opts --class-name"
+                if [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
+                    opts="--class-name"
                     opts="$opts --jar-file"
                     opts="$opts --object-name"
-                    opts="$opts --config"
-                    opts="$opts --verbose"
-                    opts="$opts --plugin"
-                    opts="$opts --no-color"
-                    opts="$opts --stack-trace"
-                    opts="$opts --bound-name"
-                    opts="$opts --objid-server"
-                    opts="$opts --objid-connection"
-                    opts="$opts --follow"
-                    opts="$opts --ssl"
-                    opts="$opts --jmxmp"
                     opts="$opts --username"
                     opts="$opts --password"
-                    opts="$opts --sasl"
+                    opts="$opts --stager-port"
+                    opts="$opts --stager-host"
+                    opts="$opts --no-stager"
+                    opts="$opts $conn_opts"
+                    opts="$opts $target_opts"
+                    opts="$opts $general_opts"
 
                 elif [[ $args -eq 5 ]]; then
                     opts="tonka custom"
@@ -722,32 +392,12 @@ function _beanshooter() {
 
             elif [[ ${words[2]} == "list" ]]; then
 
-                if _comp_contains "--config --plugin --output-file" $prev; then
-                    _filedir
-                    return 0
-
-                elif _comp_contains "--sasl" $prev; then
-                    opts="${sasl_mechanisms}"
-
-                elif _comp_contains "--username --password --bound-name --objid-server --objid-connection" $prev; then
-                    return 0
-
-                elif [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                    opts="--help"
-                    opts="$opts --config"
-                    opts="$opts --verbose"
-                    opts="$opts --plugin"
-                    opts="$opts --no-color"
-                    opts="$opts --stack-trace"
-                    opts="$opts --bound-name"
-                    opts="$opts --objid-server"
-                    opts="$opts --objid-connection"
-                    opts="$opts --follow"
-                    opts="$opts --ssl"
-                    opts="$opts --jmxmp"
-                    opts="$opts --username"
+                if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+                    opts="--username"
                     opts="$opts --password"
-                    opts="$opts --sasl"
+                    opts="$opts $conn_opts"
+                    opts="$opts $target_opts"
+                    opts="$opts $general_opts"
 
                 else
                     return 0
