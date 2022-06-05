@@ -605,7 +605,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             int index = shellCommand.lastIndexOf(sep);
 
             if (index > 0)
-                shellCommand = shellCommand.substring(index);
+                shellCommand = shellCommand.substring(index + 1);
         }
 
         switch (shellCommand)
