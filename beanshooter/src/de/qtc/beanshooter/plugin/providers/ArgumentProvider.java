@@ -190,7 +190,7 @@ public class ArgumentProvider implements IArgumentProvider
                 return String.format("Char.valueOf(%s)", argument);
 
             if (type == String.class)
-                return String.format("\"%s\"", argument);
+                return String.format("\"%s\"", argument.replace("\"", "\\\""));
         }
 
         return argument;
