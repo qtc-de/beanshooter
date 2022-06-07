@@ -5,12 +5,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.management.MBeanException;
+import javax.management.RuntimeMBeanException;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -28,7 +32,7 @@ import de.qtc.beanshooter.utils.Utils;
  */
 public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 {
-    private File cwd;
+    private String cwd;
     private Map<String,String> env;
     private TonkaBeanMBean tonkaBean;
 
@@ -38,7 +42,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     public Dispatcher()
     {
         super(MBean.TONKA);
-        cwd = new File(".");
+        cwd = ".";
         env = new HashMap<String,String>();
 
         if(BeanshooterOption.TARGET_HOST.isNull())
@@ -50,29 +54,78 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                                                             invo);
     }
 
+    /**
+     * Obtain the version from a deployed tonka bean and display it.
+     */
+    public void version()
+    {
+        try {
+            Logger.printlnBlue(tonkaBean.version());
+
+        } catch (MBeanException e) {
+            ExceptionHandler.unexpectedException(e, "obtaining", "version", true);
+        }
+    }
 
     /**
-     * Dispatcher for the executeCommand action. Obtains the specified command from the command line and passes
-     * it to the TokaBean on the remote MBeanServer. Optionally allows the current working directory and the
-     * environment variables to be specified on the command line.
+     * Executes a command by obtaining the command string from the command line (EXEC_CMD) and splitting
+     * it on spaces. The resulting list is passed to the TonkaBean and executed via ProcessBuilder. If
+     * --shell was specified, the shell string is split and forms the initial command list. The specified
+     * command is then appended as a single list argument to emulate a shell execution.
+     *
+     * This function is only a wrapper around the executeCommand function, which performs the actual
+     * execution.
      */
     public void execute()
     {
+        List<String> cmdList = new ArrayList<String>();
         String command = ArgumentHandler.require(TonkaBeanOption.EXEC_CMD);
-        String[] commandArray = Utils.splitSpaces(command, 1);
 
-        File cwd = new File(TonkaBeanOption.EXEC_CWD.<String>getValue("."));
+        if (TonkaBeanOption.SHELL_CMD.notNull())
+        {
+            cmdList = getShell(null);
+            cmdList.add(command);
+        }
+
+        else
+            cmdList.addAll(Arrays.asList(Utils.splitSpaces(command, 1)));
+
+        executeCommand(cmdList);
+    }
+
+    /**
+     * Executes a command by obtaining a command array from the command line and passing it to the
+     * TonkaBean. This method distinguishes from the execute method due to the possibility to specify
+     * the argument array directly.
+     */
+    public void executeArray()
+    {
+        List<String> cmdList = ArgumentHandler.require(TonkaBeanOption.EXEC_ARRAY);
+        executeCommand(cmdList);
+    }
+
+    /**
+     * The executeCommand function is intended to be called from the execute or executeArray functions.
+     * It performs the actual method call to the TonkaBean and displays the results.
+     */
+    public void executeCommand(List<String> command)
+    {
+        String cwd = TonkaBeanOption.EXEC_CWD.getValue(".");
+        boolean background = TonkaBeanOption.EXEC_BACK.getBool();
         Map<String,String> env = Utils.parseEnvironmentString(TonkaBeanOption.EXEC_ENV.<String>getValue(""));
 
         if( TonkaBeanOption.EXEC_RAW.getBool() )
             Logger.disableStdout();
 
-        Logger.printMixedYellow("Invoking the", "executeCommand", "method with argument: ");
-        Logger.printlnPlainBlue(String.join(" ", commandArray));
+        Logger.printMixedYellow("Invoking the", "executeCommand", "method with arguments: ");
+        Logger.printlnPlainBlue(Arrays.toString(command.toArray(new String[0])));
 
         try
         {
-            byte[] result = tonkaBean.executeCommand(commandArray, cwd, env);
+            byte[] result = tonkaBean.executeCommand(command.toArray(new String[0]), cwd, env, background);
+
+            if (background)
+                return;
 
             Logger.printlnBlue("The call was successful");
             Logger.lineBreak();
@@ -103,42 +156,12 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         catch (MBeanException e)
         {
             ExceptionHandler.handleMBeanGeneric(e);
-            ExceptionHandler.handleExecException(e, commandArray);
+            ExceptionHandler.handleExecException(e, command);
         }
 
         catch( IOException e )
         {
             ExceptionHandler.handleFileWrite(e, TonkaBeanOption.EXEC_FILE.<String>getValue(), true);
-        }
-    }
-
-
-    /**
-     * Dispatcher for the executeCommandBackground action. Obtains the specified command from the command line and
-     * passes it to the TokaBean on the remote MBeanServer. Optionally allows the current working directory and the
-     * environment variables to be specified on the command line.
-     */
-    public void executeBackground()
-    {
-        String command = ArgumentHandler.require(TonkaBeanOption.EXEC_CMD);
-        String[] commandArray = Utils.splitSpaces(command, 1);
-
-        File cwd = new File(TonkaBeanOption.EXEC_CWD.<String>getValue("."));
-        Map<String,String> env = Utils.parseEnvironmentString(TonkaBeanOption.EXEC_ENV.<String>getValue(""));
-
-        Logger.printMixedYellow("Invoking the", "executeCommand", "method with argument: ");
-        Logger.printlnPlainBlue(commandArray.toString());
-
-        try
-        {
-            tonkaBean.executeCommandBackground(commandArray, cwd, env);
-            Logger.printlnBlue("The call was successful");
-        }
-
-        catch (MBeanException e)
-        {
-            ExceptionHandler.handleMBeanGeneric(e);
-            ExceptionHandler.handleExecException(e, commandArray);
         }
     }
 
@@ -148,15 +171,13 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      */
     public void upload()
     {
-        ArgumentHandler.requireAllOf(TonkaBeanOption.UPLOAD_DEST, TonkaBeanOption.UPLOAD_SOURCE);
+        String uploadDest = TonkaBeanOption.UPLOAD_DEST.getValue(null);
+        File uploadFile = new File(ArgumentHandler.<String>require(TonkaBeanOption.UPLOAD_SOURCE));
 
-        String uploadDest = TonkaBeanOption.UPLOAD_DEST.getValue();
-
-        File uploadFile = new File(TonkaBeanOption.UPLOAD_SOURCE.<String>getValue());
         String uploadSrc = uploadFile.toPath().normalize().toAbsolutePath().toString();
 
-        if( uploadDest.endsWith(File.separator) )
-            uploadDest = uploadDest + uploadFile.getName();
+        if (uploadDest == null)
+            uploadDest = ".";
 
         Logger.printMixedYellow("Uploading local file", uploadSrc, "to path ");
         Logger.printlnPlainMixedBlueFirst(uploadDest, "on the MBeanSerer.");
@@ -164,8 +185,8 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         try
         {
             byte[] content = Utils.readFile(uploadFile);
-            tonkaBean.uploadFile(uploadDest, content);
-            Logger.printlnMixedYellowFirst(content.length + " bytes", "uploaded successfully.");
+            String finalPath = tonkaBean.uploadFile(uploadDest, uploadFile.getName(), content);
+            Logger.printlnMixedYellowFirst(content.length + " bytes", "were written to", finalPath);
         }
 
         catch ( MBeanException e)
@@ -186,10 +207,11 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      */
     public void download()
     {
-        ArgumentHandler.requireAllOf(TonkaBeanOption.DOWNLOAD_DEST, TonkaBeanOption.DOWNLOAD_SOURCE);
+        String downloadDest = TonkaBeanOption.DOWNLOAD_DEST.<String>getValue(null);
+        File downloadSrc = new File(ArgumentHandler.<String>require(TonkaBeanOption.DOWNLOAD_SOURCE));
 
-        String downloadDest = TonkaBeanOption.DOWNLOAD_DEST.<String>getValue();
-        File downloadSrc = new File(TonkaBeanOption.DOWNLOAD_SOURCE.<String>getValue());
+        if (downloadDest == null)
+            downloadDest = downloadSrc.getName();
 
         File localFile = new File(downloadDest);
 
@@ -207,7 +229,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             stream.write(content);
             stream.close();
 
-            Logger.printlnMixedYellowFirst(content.length + " bytes", "were written.");
+            Logger.printlnMixedYellowFirst(content.length + " bytes", "were written to", localFile.getAbsolutePath());
         }
 
         catch (MBeanException e)
@@ -232,16 +254,26 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         Console console = System.console();
 
         initCwd();
-        String username = getUsername();
         String targetHost = BeanshooterOption.TARGET_HOST.getValue();
 
+        String[] shellVars = shellInit();
+        String username = shellVars[0];
+        String hostname = shellVars[1];
+        String separator = shellVars[2];
+
+        List<String> shell = getShell(separator);
+
+        if (hostname == null)
+            hostname = targetHost;
+
         do {
-            Logger.printPlainMixedYellowFirst(String.format("[%s@%s", username, targetHost), cwd.getPath());
+            Logger.printPlainYellow(String.format("[%s@%s", username, hostname));
+            Logger.printPlainMixedBlue("", cwd);
             Logger.printPlainYellow("]");
             Logger.printPlain("$ ");
             command = console.readLine();
 
-        } while( handleShellCommand(command) );
+        } while (handleShellCommand(command, shell));
     }
 
     /**
@@ -251,12 +283,13 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      * @param command user specified command within the beanshooter shell
      * @return true if the shell should be kept open, false otherwise
      */
-    private boolean handleShellCommand(String command)
+    private boolean handleShellCommand(String command, List<String> shellCmd)
     {
         if( command == null )
             return false;
 
-        String[] commandArray = Utils.splitSpaces(command, 1);
+        String[] commandArray = command.trim().split(" ", 2);
+        List<String> shell = new ArrayList<String>(shellCmd);
 
         switch(commandArray[0])
         {
@@ -270,27 +303,35 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                 break;
 
             case "!background":
-                shellCommandBackground(commandArray, cwd, env);
+            case "!back":
+                if(commandArray.length > 1)
+                    shellCommand(commandArray[1], shell, env, true);
                 break;
 
             case "!download":
-                shellDownload(commandArray);
+            case "!get":
+                if(commandArray.length > 1)
+                    shellDownload(commandArray[1]);
                 break;
 
             case "!upload":
-                shellUpload(commandArray);
+            case "!put":
+                if(commandArray.length > 1)
+                    shellUpload(commandArray[1]);
                 break;
 
+            case "!environ":
             case "!env":
                 env.putAll(Utils.parseEnvironmentString(command));
                 break;
 
             case "!help":
+            case "!h":
                 shellHelp();
                 break;
 
             default:
-                shellCommand(commandArray, cwd, env);
+                shellCommand(command, shell, env, false);
         }
 
         return true;
@@ -305,21 +346,16 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      */
     private void shellChangeDirectory(String change)
     {
-        File newCwd = new File(change);
-
-        if( !newCwd.isAbsolute() )
-            newCwd = Paths.get(cwd.getPath(), change).normalize().toFile();
-
         try
         {
-            cwd = tonkaBean.toServerDir(newCwd);
+            cwd = tonkaBean.toServerDir(cwd, change);
         }
 
-        catch (MBeanException e)
+        catch (MBeanException | RuntimeMBeanException e)
         {
             Throwable t = ExceptionHandler.getCause(e);
 
-            if( t instanceof IOException )
+            if (t instanceof IOException || t instanceof InvalidPathException)
                 System.out.println(e.getMessage());
 
             else {
@@ -330,40 +366,27 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     }
 
     /**
-     * Execute the specified shell command in the background.
-     *
-     * @param commandArray command array to execute
-     * @param cwd current working directory to operate in
-     * @param env environment variables to use for the call
-     */
-    private void shellCommandBackground(String[] commandArray, File cwd, Map<String,String> env)
-    {
-        commandArray = Arrays.copyOfRange(commandArray, 1, commandArray.length);
-
-        try
-        {
-            tonkaBean.executeCommandBackground(commandArray, cwd, env);
-            System.out.println("Executing command in the background...");
-        }
-
-        catch (MBeanException e)
-        {
-            ExceptionHandler.handleShellExecException(e, commandArray);
-        }
-    }
-
-    /**
      * Execute the specified shell command and write the output to stdout.
      *
      * @param commandArray command array to execute
      * @param cwd current working directory to operate in
      * @param env environment variables to use for the call
      */
-    private void shellCommand(String[] commandArray, File cwd, Map<String,String> env)
+    private void shellCommand(String command, List<String> shell, Map<String,String> env, boolean background)
     {
+        shell.add(command);
+        String[] commandArray = shell.toArray(new String[0]);
+
         try
         {
-            byte[] result = tonkaBean.executeCommand(commandArray, cwd, env);
+            byte[] result = tonkaBean.executeCommand(commandArray, cwd, env, background);
+
+            if (background)
+            {
+                Logger.printlnBlue("Command is executed in the background.");
+                return;
+            }
+
             System.out.write(result);
         }
 
@@ -384,31 +407,27 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      *
      * @param arguments argument array obtained from the command line
      */
-    private void shellUpload(String[] arguments)
+    private void shellUpload(String argument)
     {
-        if( arguments.length < 2 )
-        {
-            Logger.printlnPlain("usage: !upload <src> <dest>");
-            return;
-        }
+        String[] arguments = Utils.splitSpaces(argument, 1);
 
-        File source = new File(Utils.expandPath(arguments[1]));
-        File destination = new File(source.getName());
+        File source = new File(Utils.expandPath(arguments[0]));
+        File destination = new File(".");
 
-        if( arguments.length > 2 )
-            destination = new File(arguments[2]);
+        if (arguments.length > 1)
+            destination = new File(arguments[1]);
 
-        if( !destination.isAbsolute() )
-            destination = Paths.get(cwd.getPath(), destination.getPath()).toAbsolutePath().normalize().toFile();
+        if (!destination.isAbsolute())
+            destination = Paths.get(cwd, destination.getPath()).toAbsolutePath().normalize().toFile();
 
-        if( !source.isAbsolute() )
+        if (!source.isAbsolute())
             source = Paths.get(".", source.getPath()).toAbsolutePath().normalize().toFile();
 
         try
         {
             byte[] content = Utils.readFile(source);
-            tonkaBean.uploadFile(destination.getPath(), content);
-            Logger.printlnPlainMixedYellowFirst(content.length + " bytes", "were written to", destination.getPath());
+            String finalPath = tonkaBean.uploadFile(destination.getPath(), source.getName(), content);
+            Logger.printlnPlainMixedBlueFirst(content.length + " bytes", "were written to", finalPath);
         }
 
         catch (MBeanException e)
@@ -429,27 +448,23 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      *
      * @param arguments argument array obtained from the command line
      */
-    private void shellDownload(String[] arguments)
+    private void shellDownload(String argument)
     {
-        if( arguments.length < 2 )
-        {
-            System.out.println("usage: !download <src> <dest>");
-            return;
-        }
+        String[] arguments = Utils.splitSpaces(argument, 1);
 
-        File source = new File(arguments[1]);
+        File source = new File(arguments[0]);
         File destination = new File(source.getName());
 
-        if( arguments.length > 2 )
-            destination = new File(Utils.expandPath(arguments[2]));
+        if (arguments.length > 1)
+            destination = new File(Utils.expandPath(arguments[1]));
 
-        if( !source.isAbsolute() )
-            source = Paths.get(cwd.getPath(), source.getPath()).toAbsolutePath().normalize().toFile();
+        if (!source.isAbsolute())
+            source = Paths.get(cwd, source.getPath()).toAbsolutePath().normalize().toFile();
 
-        if( !destination.isAbsolute() )
+        if (!destination.isAbsolute())
             destination = Paths.get(".", destination.getPath()).toAbsolutePath().normalize().toFile();
 
-        if( destination.isDirectory() )
+        if (destination.isDirectory())
             destination = Paths.get(destination.toPath().toString(), source.getName()).toFile();
 
         try
@@ -460,7 +475,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             stream.write(content);
             stream.close();
 
-            Logger.printlnPlainMixedYellowFirst(content.length + " bytes", "were written to", destination.getPath());
+            Logger.printlnPlainMixedBlueFirst(content.length + " bytes", "were written to", destination.getPath());
         }
 
         catch (MBeanException e)
@@ -480,16 +495,19 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
      *
      * @return username the MBeanServer is running with
      */
-    private String getUsername()
+    private String[] shellInit()
     {
-        String username = "unknown";
+        try
+        {
+            return tonkaBean.shellInit();
+        }
 
-        try {
-            username = tonkaBean.username();
+        catch( MBeanException e )
+        {
+            ExceptionHandler.unexpectedException(e, "initializing", "shell", true);
+        }
 
-        } catch( MBeanException e ){}
-
-        return username;
+        return null;
     }
 
     /**
@@ -498,7 +516,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     private void initCwd()
     {
         try {
-             cwd = tonkaBean.toServerDir(cwd).toPath().normalize().toFile();
+             cwd = tonkaBean.toServerDir(cwd, ".");
 
         } catch( MBeanException e ){}
     }
@@ -513,10 +531,97 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         Logger.printlnPlainMixedBlueFirst(Logger.padRight("  <cmd>", 30), "execute the specified command");
         Logger.printlnPlainMixedBlueFirst(Logger.padRight("  cd <dir>", 30), "change working directory on the server");
         Logger.printlnPlainMixedBlueFirst(Logger.padRight("  exit|quit", 30), "exit the shell");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !help", 30), "print this help menu");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !env <env-str>", 30), "set new environment variables in key=value format");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !upload <src> <dst>", 30), "upload a file to the remote MBeanServer");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !download <src> <dst>", 30), "download a file from the remote MBeanServer");
-        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !background <cmd>", 30), "executes the specified command in the background");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !help|!h", 30), "print this help menu");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !environ|!env <key>=<value>", 30), "set new environment variables in key=value format");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !upload|!put <src> <dst>", 30), "upload a file to the remote MBeanServer");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !download|!get <src> <dst>", 30), "download a file from the remote MBeanServer");
+        Logger.printlnPlainMixedBlueFirst(Logger.padRight("  !background|!back <cmd>", 30), "executes the specified command in the background");
+    }
+
+    /**
+     * Obtain the shell arguments to execute a command with. This function first checks whether a user
+     * specified shell command exists. If this is the case, it is split on spaces and optionally appended
+     * with the required string execution option.
+     *
+     * If no shell command was specified, the function checks the specified separator char to decide whether
+     * a Unix or Windows operating system is targeted. Depending on this information, it selects a shell.
+     *
+     * @param separator  file system path separator on the targeted system
+     * @return shell array to use for command execution
+     */
+    private List<String> getShell(String separator)
+    {
+        List<String> shell = new ArrayList<String>();
+        String shellCmd = TonkaBeanOption.SHELL_CMD.getValue(null);
+
+        if (shellCmd != null)
+        {
+            shell.addAll(Arrays.asList(shellCmd.trim().split(" ")));
+            addShellArgument(shell);
+
+            return shell;
+        }
+
+        if (separator != null)
+        {
+            if (separator.equals("/"))
+            {
+                shell.add("sh");
+                shell.add("-c");
+            }
+
+            else if (separator.equals("\\"))
+            {
+                shell.add("cmd.exe");
+                shell.add("/C");
+            }
+
+            else
+                ExceptionHandler.internalError("Dispatcher.getShell", "Unhandeled path separator: " + separator);
+        }
+
+        else
+            ExceptionHandler.internalError("Dispatcher.getShell", "Called without a separator");
+
+        return shell;
+    }
+
+    /**
+     * Takes the user specified shell command and optionally appends the required argument for string execution.
+     * If the shell command has options already, it is simply returned. Otherwise, the shell command is compared
+     * to some default shells and the corresponding argument is appended.
+     *
+     * @param command  user specified shell command as List (split on spaces)
+     */
+    private void addShellArgument(List<String> command)
+    {
+        if (command.size() > 1)
+            return;
+
+        String shellCommand = command.get(0);
+
+        for (char sep : new char[] { '/', '\\' })
+        {
+            int index = shellCommand.lastIndexOf(sep);
+
+            if (index > 0)
+                shellCommand = shellCommand.substring(index + 1);
+        }
+
+        switch (shellCommand)
+        {
+            case "sh":
+            case "ash":
+            case "bash":
+            case "powershell":
+            case "powershell.exe":
+                command.add("-c");
+                break;
+
+            case "cmd":
+            case "cmd.exe":
+                command.add("/C");
+                break;
+        }
     }
 }

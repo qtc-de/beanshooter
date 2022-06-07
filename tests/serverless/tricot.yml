@@ -1,0 +1,14 @@
+tester:
+  title: Serverless tests
+  description: |-
+    Tests that do not require a target server to be present
+
+  id: '02'
+  groups:
+    - serverless
+
+
+testers:
+  - ./stager/tricot.yml
+  - ./info/tricot.yml
+  - ./export/tricot.yml

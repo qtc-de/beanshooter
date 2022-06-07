@@ -9,6 +9,7 @@ import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.mbean.mlet.MLetOption;
+import de.qtc.beanshooter.mbean.tonkabean.TonkaBeanOption;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.utils.Utils;
 import net.sourceforge.argparse4j.inf.Argument;
@@ -129,6 +130,18 @@ public class OptionHandler {
 
         if( option == BeanshooterOption.CONN_SASL )
             arg.choices(SASLMechanism.getMechanisms());
+
+        if (option == BeanshooterOption.INVOKE_METHOD_ARGS)
+            arg.nargs("*");
+
+        if (option == TonkaBeanOption.EXEC_ARRAY)
+            arg.nargs("+");
+
+        if (option == TonkaBeanOption.DOWNLOAD_DEST)
+            arg.nargs("?");
+
+        if (option == TonkaBeanOption.UPLOAD_DEST)
+            arg.nargs("?");
 
         if( option == MLetOption.LOAD_BEAN )
         {

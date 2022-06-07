@@ -1,0 +1,14 @@
+tester:
+  title: invoke action
+  description: |-
+    Perform tests on beanshooters invoke action
+
+  id: '01-02'
+  groups:
+    - invoke
+    - target
+
+testers:
+  - ./rmi/tricot.yml
+  - ./jmxmp/tricot.yml
+  - ./error/tricot.yml

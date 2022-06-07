@@ -1,0 +1,159 @@
+tester:
+  title: enum action (Error)
+  description: |-
+    Perform tests on beanshooters error handling for the enum action
+
+  id: '01-04-03'
+  groups:
+    - error
+  id_pattern: '01-04-03-{:02}'
+
+
+tests:
+  - title: SASL no creds
+    description: |-
+      Specify a SASL profile but no credentials
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4449
+      - --sasl
+      - ntlm
+      - --no-color
+      - --jmxmp
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - SASL profile was manually specified but no credentials were provided
+            - Use the --username and --password options to provide credentials
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+
+
+  - title: SASL no password
+    description: |-
+      Specify a SASL profile but no password
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4449
+      - --sasl
+      - ntlm
+      - --username
+      - harry
+      - --no-color
+      - --jmxmp
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - SASL profile was manually specified but no credentials were provided
+            - Use the --username and --password options to provide credentials
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+
+
+  - title: Wrong password
+    description: |-
+      Use wrong credentials during SASL authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4449
+      - --sasl
+      - ntlm
+      - --username
+      - harry
+      - --password
+      - hirsch
+      - --no-color
+      - --jmxmp
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Caught AuthenticationException during login attempt
+            - The specified credentials are probably invalid
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+
+
+  - title: Wrong SASL mechanism
+    description: |-
+      Use a wrong SASL mechanism 
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 4449
+      - --sasl
+      - cram
+      - --username
+      - harry
+      - --password
+      - hirsch
+      - --no-color
+      - --jmxmp
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Caught SaslProfileException during login attempt
+            - Mismatching SASL profile
+            - JMXMP serial check is work in progress but endpoints are usually vulnerable
+
+
+  - title: Wrong RMI password
+    description: |-
+      Use a wrong password for RMI authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 1099
+      - --username
+      - harry
+      - --password
+      - hirsch
+      - --no-color
+      - --ssl
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Caught AuthenticationException during login attempt
+            - The specified credentials are probably invalid
+            - Remote MBeanServer rejected the payload class
+
+
+  - title: Missing RMI password
+    description: |-
+      Use username but no password for RMI authentication
+
+    command:
+      - beanshooter
+      - enum
+      - ${DOCKER-IP}
+      - 1099
+      - --username
+      - harry
+      - --no-color
+      - --ssl
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Remote MBean server requires authentication
+            - Remote MBeanServer rejected the payload class

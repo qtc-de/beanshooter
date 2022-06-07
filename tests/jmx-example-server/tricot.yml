@@ -68,4 +68,8 @@ variables:
 
 testers:
   - ./brute/tricot.yml
+  - ./invoke/tricot.yml
+  - ./deploy/tricot.yml
+  - ./enum/tricot.yml
   - ./list/tricot.yml
+  - ./serial/tricot.yml

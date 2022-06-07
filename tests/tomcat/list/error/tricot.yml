@@ -1,0 +1,46 @@
+tester:
+  title: tomcat list action (RMI)
+  description: |-
+    Perform tests on the error handling of beanshooters tomcat list action
+
+  id: '05-02-02'
+  groups:
+    - error
+  id_pattern: '05-02-02-{:02}'
+
+
+tests:
+  - title: Undeploy UserMemoryDatabaseBean
+    description: |-
+      Undeploy the MBean that is used for listing the users
+
+    command:
+      - beanshooter
+      - tomcat
+      - undeploy
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Removing MBean with ObjectName Users:type=UserDatabase,database=UserDatabase from the MBeanServer'
+
+
+  - title: Invoke list action
+    description: |-
+      Use the list action on a server where the bean is not available
+
+    command:
+      - beanshooter
+      - tomcat
+      - list
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - ' The specified MBean Users:type=UserDatabase,database=UserDatabase does probably not exist on the endpoint'

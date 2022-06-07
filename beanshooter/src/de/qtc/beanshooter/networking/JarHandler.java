@@ -12,6 +12,7 @@ import org.apache.commons.io.IOUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -46,9 +47,8 @@ public class JarHandler implements HttpHandler {
 
     /**
      * Loads the specified Jar file into memory. The method first checks whether the specified
-     * Jar file exists on the file system. If this is not the case, the filename is interpreted
-     * as name of a Jar file within the beanshooter Jar file. This is there the tonka bean is
-     * stored.
+     * Jar file exists within the beanshooter jar file. If this is not the case, the jar file
+     * is searched on the file system.
      *
      * @param filename path of the Jar file to serve
      * @return content of the Jar file
@@ -56,16 +56,29 @@ public class JarHandler implements HttpHandler {
      */
     private byte[] getJar(String filename) throws IOException
     {
-        File file = new File(filename);
-
-        if( file.exists() )
-            return Files.readAllBytes(file.toPath());
-
         InputStream stream = this.getClass().getResourceAsStream("/" + filename);
         byte[] content = IOUtils.toByteArray(stream);
 
-        if( content.length == 0 ) {
+        if (content.length != 0)
+            return content;
 
+        File file = new File(filename);
+
+        if (file.exists())
+        {
+            try
+            {
+                return Files.readAllBytes(file.toPath());
+            }
+
+            catch (IOException e)
+            {
+                ExceptionHandler.handleFileRead(e, file.getAbsolutePath(), true);
+            }
+        }
+
+        else
+        {
             Logger.resetIndent();
             Logger.lineBreak();
             Logger.eprintln("Error while creating HTTP JarHandler.");

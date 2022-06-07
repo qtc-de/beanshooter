@@ -1,0 +1,103 @@
+tester:
+  title: tonka status action (RMI)
+  description: |-
+    Perform tests on beanshooters tonka status action for RMI based connections
+
+  id: '03-03-01'
+  groups:
+    - rmi
+  id_pattern: '03-03-01-{:02}'
+
+
+tests:
+  - title: Plain status call
+    description: |-
+      Call the status action on a deployed tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - status
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean Status: deployed'
+            - 'Class Name: de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'Object Name: MLetTonkaBean:name=TonkaBean,id=1'
+
+
+  - title: Undeploy tonka bean
+    description: |-
+      Undeploy the tonka bean using it's dedicated undeploy action
+
+    command:
+      - beanshooter
+      - tonka
+      - undeploy
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Removing MBean with ObjectName MLetTonkaBean:name=TonkaBean,id=1 from the MBeanServer'
+            - 'MBean was successfully removed'
+
+
+  - title: Plain status call
+    description: |-
+      Call the status action on an undeployed tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - status
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean Status: not deployed'
+
+
+  - title: Deploy tonka bean
+    description: |-
+      Deploy the tonka bean using it's dedicated deploy action
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - --stager-url
+      - 'http://${DOCKER-GW}:8000'
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed'

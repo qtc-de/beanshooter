@@ -96,11 +96,11 @@ public class MBeanServerClient {
                     Logger.lineBreak();
                     Logger.increaseIndent();
 
-                    Logger.println("MBean class is not known to the server.");
+                    Logger.println("MBean class is not known by the server.");
 
                     if( BeanshooterOption.DEPLOY_STAGER_URL.isNull() )
                     {
-                        Logger.printlnMixedYellow("You can use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
+                        Logger.eprintlnMixedYellow("Use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
                         Utils.exit();
                     }
 
@@ -113,9 +113,9 @@ public class MBeanServerClient {
 
                 } else {
                     Logger.lineBreak();
-                    Logger.eprintlnMixedBlue("The specified class", className, "is not known to the server.");
+                    Logger.eprintlnMixedBlue("The specified class", className, "is not known by the server.");
                     Logger.eprintMixedYellow("Use the", "--jar-file");
-                    Logger.printlnPlainMixedYellow(" and", "--stager-url", "options to provide an implementation.");
+                    Logger.eprintlnPlainMixedYellow(" and", "--stager-url", "options to provide an implementation.");
                     Utils.exit();
                 }
 
@@ -209,6 +209,7 @@ public class MBeanServerClient {
      * @param conn MBeanServerConnection to invoke the function on
      * @param name ObjectName of the MBean to invoke the function on
      * @param methodName function name to invoke
+     * @param argTypes array of argument type names for the desired method
      * @param args arguments to use for the call
      * @return return value of the MBean call.
      * @throws InstanceNotFoundException
@@ -216,24 +217,36 @@ public class MBeanServerClient {
      * @throws ReflectionException
      * @throws IOException
      */
-    public Object invoke(ObjectName name, String methodName, Object... args) throws  IOException, MBeanException, ReflectionException
+    public Object invoke(ObjectName name, String methodName, String[] argTypes, Object... args) throws  IOException, MBeanException, ReflectionException
     {
         Object result = null;
-        String[] argumentTypes = null;
 
-        if (args != null)
+        if (argTypes == null && args != null)
         {
-            argumentTypes = new String[args.length];
+            argTypes = new String[args.length];
 
-            for(int ctr = 0; ctr < args.length; ctr++)
-                argumentTypes[ctr] = args[ctr].getClass().getName();
+            for (int ctr = 0; ctr < args.length; ctr++)
+                argTypes[ctr] = args[ctr].getClass().getName();
         }
 
-        try {
-            result = conn.invoke(name, methodName, args, argumentTypes);
+        try
+        {
+            result = conn.invoke(name, methodName, args, argTypes);
+        }
 
-        } catch( InstanceNotFoundException e ) {
+        catch (InstanceNotFoundException e)
+        {
             ExceptionHandler.handleInstanceNotFound(e, name.toString());
+        }
+
+        catch (ReflectionException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof java.lang.NoSuchMethodException)
+                ExceptionHandler.noSuchMethod(e, methodName);
+
+            throw e;
         }
 
         return result;
@@ -252,16 +265,21 @@ public class MBeanServerClient {
      * @throws ReflectionException
      * @throws IOException
      */
-    public Object getAttribute(ObjectName name, String attributeName) throws AttributeNotFoundException, MBeanException, ReflectionException, IOException
+    public Object getAttribute(ObjectName name, String attributeName) throws MBeanException, ReflectionException, IOException
     {
         try
         {
             return conn.getAttribute(name, attributeName);
+        }
 
-        } catch( InstanceNotFoundException e ) {
-            Logger.eprintlnMixedYellow("Caught unexpected", "InstanceNotFoundException", "while calling invoke.");
-            Logger.eprintlnMixedBlue("The specified MBean", name.toString(), "does probably not exist on the endpoint.");
-            Utils.exit();
+        catch (InstanceNotFoundException e)
+        {
+            ExceptionHandler.handleInstanceNotFound(e, name.toString());
+        }
+
+        catch (AttributeNotFoundException e)
+        {
+            ExceptionHandler.noSuchAttribute(e, attributeName);
         }
 
         return null;

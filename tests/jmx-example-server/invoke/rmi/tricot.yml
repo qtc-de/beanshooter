@@ -1,0 +1,159 @@
+tester:
+  title: invoke action (RMI)
+  description: |-
+    Perform tests on beanshooters invoke action for RMI based connections
+
+  id: '01-02-01'
+  groups:
+    - rmi
+  id_pattern: '01-02-01-{:02}'
+
+
+tests:
+  - title: Invoke BaseOperatingSystemImpl
+    description: |-
+      Perform an invoke operation on the BaseOperatingSystemImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - 'java.lang:type=OperatingSystem'
+      - --signature
+      - 'getArch()'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - amd64
+
+
+  - title: Invoke ThreadImpl
+    description: |-
+      Perform an invoke operation on the ThreadImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - --signature
+      - "getAllThreadIds()"
+
+    extractors:
+      - regex:
+          pattern: '^\[\+\] (\d)+$'
+          variable: 'thread-ids'
+          on_miss: 'break'
+          multiline: true
+
+    validators:
+      - error: False
+      - regex:
+          multiline: true
+          match:
+            - '^\[\+\] \d+$'
+
+
+  - title: Invoke ThreadImpl
+    description: |-
+      Perform an invoke operation on the ThreadImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - --signature
+      - "getThreadInfo(long id)"
+      - ${thread-ids-0-1}L
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - javax.management.openmbean.CompositeDataSupport
+
+  - title: Invoke BaseOperatingSystemImpl (Auth)
+    description: |-
+      Perform an invoke operation on the BaseOperatingSystemImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - 'java.lang:type=OperatingSystem'
+      - --signature
+      - 'getArch()'
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - amd64
+
+
+  - title: Invoke ThreadImpl (Auth)
+    description: |-
+      Perform an invoke operation on the ThreadImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - --signature
+      - "getAllThreadIds()"
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    extractors:
+      - regex:
+          pattern: '^\[\+\] (\d)+$'
+          variable: 'thread-ids'
+          on_miss: 'break'
+          multiline: true
+
+    validators:
+      - error: False
+      - regex:
+          multiline: true
+          match:
+            - '^\[\+\] \d+$'
+
+
+  - title: Invoke ThreadImpl (Auth)
+    description: |-
+      Perform an invoke operation on the ThreadImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - --signature
+      - "getThreadInfo(long id)"
+      - ${thread-ids-0-1}L
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - javax.management.openmbean.CompositeDataSupport

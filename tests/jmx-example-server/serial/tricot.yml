@@ -1,0 +1,14 @@
+tester:
+  title: serial action
+  description: |-
+    Perform tests on beanshooters serial action
+
+  id: '01-06'
+  groups:
+    - serial
+    - target
+
+testers:
+  - ./rmi/tricot.yml
+  - ./jmxmp/tricot.yml
+  - ./error/tricot.yml

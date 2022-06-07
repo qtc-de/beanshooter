@@ -10,5 +10,6 @@ public enum ArgType
 {
     INT,
     BOOL,
-    STRING;
+    STRING,
+    ARRAY;
 }

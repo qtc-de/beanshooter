@@ -14,14 +14,9 @@ import javax.management.MBeanServerConnection;
 import javax.net.SocketFactory;
 
 import de.qtc.beanshooter.cli.Operation;
-import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.MalformedPluginException;
-import de.qtc.beanshooter.exceptions.MismatchedURIException;
-import de.qtc.beanshooter.exceptions.SaslMissingException;
-import de.qtc.beanshooter.exceptions.SaslProfileException;
-import de.qtc.beanshooter.exceptions.WrongCredentialsException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.providers.ArgumentProvider;
@@ -186,65 +181,8 @@ public class PluginSystem {
         }
         catch( AuthenticationException e)
         {
-            if( e instanceof SaslMissingException)
-            {
-                Logger.eprintlnMixedYellow("Caught", "SaslMissingException", "while connecting to the JMX service.");
-                Logger.eprintlnMixedBlue("The sever requires a", "SASL profile (--sasl)", "to be specified.");
-                e.showDetails();
-
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
-            }
-
-            if( e instanceof SaslProfileException)
-            {
-                Logger.eprintlnMixedYellow("Caught", "SaslProfileException", "while connecting to the JMX service.");
-                Logger.eprintlnMixedBlue("The specified", "SASL profile", "does not match the server SASL profile.");
-                e.showDetails();
-
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
-            }
-
-            else if( e instanceof MismatchedURIException )
-            {
-                Logger.eprintlnMixedYellow("Caught", "MisMatchedURIException", "while connecting to the JMX service.");
-                Logger.eprintlnMixedBlue("The specified", "target host", "does not match the configured SASL host.");
-                e.showDetails();
-
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
-            }
-
-            else if( e instanceof ApacheKarafException )
-            {
-                Logger.eprintlnMixedYellow("Caught", "ApacheKarafException", "while connecting to the JMX service.");
-                Logger.eprintlnMixedBlue("The targeted JMX service is probably spawned by", "Apache Karaf", "and requires authentication.");
-                Logger.eprintlnMixedYellow("You can attempt to login using Apache Karaf default credentials:", "karaf:karaf");
-                e.showDetails();
-
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
-            }
-
-            else if( e instanceof WrongCredentialsException) {
-                Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
-                Logger.eprintlnMixedBlue("The specified credentials are most likely", "incorrect.");
-                e.showDetails();
-
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
-            }
-
-            else
-            {
-                Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
-                Logger.eprintlnMixedBlue("The targeted JMX endpoint probably", "requires authentication.");
-                e.showDetails();
-
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
-            }
+            ExceptionHandler.handleAuthenticationException(e);
+            Utils.exit();
         }
 
         return conn;
@@ -350,15 +288,39 @@ public class PluginSystem {
     }
 
     /**
-     * Pass the user supplied argument String to the ArgumentProvider and return the resulting
-     * Object array.
+     * Pass the user supplied argumentArray to the ArgumentProvider and return the resulting
+     * object array.
      *
-     * @param argumentString user supplied argument string
-     * @return Object arry parsed from the string
+     * @param argumentArray user supplied argument array
+     * @return Object array parsed from the string
      */
-    public static Object[] getArgumentArray(String argumentString)
+    public static Object[] getArgumentArray(String[] argumentArray)
     {
-        return argumentProvider.getArgumentArray(argumentString);
+        return argumentProvider.getArgumentArray(argumentArray);
+    }
+
+    /**
+     * Pass the user supplied method signature to the ArgumentProvider and return the resulting
+     * string array of parameter types.
+     *
+     * @param signature user supplied method signature
+     * @return String array containing the parsed parameter type names
+     */
+    public static String[] getArgumentTypes(String signature)
+    {
+        return argumentProvider.getArgumentTypes(signature);
+    }
+
+    /**
+     * Pass the user supplied method signature to the ArgumentProvider and return the resulting
+     * method name parsed from the signature.
+     *
+     * @param signature user supplied method signature
+     * @return the method name that was contained in the signature
+     */
+    public static String getMethodName(String signature)
+    {
+        return argumentProvider.getMethodName(signature);
     }
 
     /**

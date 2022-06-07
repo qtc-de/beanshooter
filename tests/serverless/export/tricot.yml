@@ -1,0 +1,11 @@
+tester:
+  title: export action
+  description: |-
+    Perform tests on beanshooters export action
+
+  id: '02-03'
+  groups:
+    - export
+
+testers:
+  - ./generic/tricot.yml

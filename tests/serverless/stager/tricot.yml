@@ -1,0 +1,12 @@
+tester:
+  title: stager action
+  description: |-
+    Perform tests on beanshooters stager action
+
+  id: '02-01'
+  groups:
+    - stager
+
+testers:
+  - ./generic/tricot.yml
+  - ./error/tricot.yml

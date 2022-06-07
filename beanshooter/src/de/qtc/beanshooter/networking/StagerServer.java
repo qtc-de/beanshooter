@@ -1,12 +1,15 @@
 package de.qtc.beanshooter.networking;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URL;
 import java.util.UUID;
 
 import com.sun.net.httpserver.HttpServer;
 
+import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.operation.BeanshooterOperation;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -58,9 +61,10 @@ public class StagerServer
      * @param beanClass class that is implemented by the MBean to deploy
      * @param objectName objectName of the MBean to deploy
      */
-    public void start(String url, String jarFile, String beanClass, String objectName)
+    public void start(URL url, String jarFile, String beanClass, String objectName)
     {
-        try {
+        try
+        {
             server = HttpServer.create(new InetSocketAddress(host, port), 0);
             Logger.printlnMixedBlue("Creating HTTP server on:", host + ":" + port);
 
@@ -78,41 +82,55 @@ public class StagerServer
             Logger.println("");
 
             server.start();
+        }
 
-        } catch( IOException e ) {
-
+        catch( IOException e )
+        {
             Throwable t = ExceptionHandler.getCause(e);
 
             Logger.resetIndent();
             Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while creating the stager server.");
 
-            if( t instanceof java.net.BindException ) {
+            if (t instanceof java.net.BindException) {
 
-                Logger.eprintlnMixedBlue("The endpoint", String.format("%s:%s", host, port), "is probably in use.");
-                Logger.eprintlnMixedYellow("Specify", BeanshooterOption.DEPLOY_NO_STAGER.name(), "if you use an extern stager server.");;
+                Logger.eprintlnMixedBlue("The endpoint", String.format("%s:%s", host, port), "is probably in use or has no local interface.");
 
-            } else if( t instanceof java.net.SocketException && t.getMessage().contains("Permission denied") ) {
+                if (ArgumentHandler.getInstance().getAction() != BeanshooterOperation.STAGER)
+                    Logger.eprintlnMixedYellow("Specify", BeanshooterOption.DEPLOY_NO_STAGER.getName(), "if you use an external stager server.");;
 
-                Logger.printlnMixedBlue("You don't have sufficient permissions to bind port", String.valueOf(port), "on this host.");
+            }
 
-            } else {
+            else if (t instanceof java.net.SocketException && t.getMessage().contains("Permission denied"))
+            {
+                Logger.eprintlnMixedBlue("You don't have sufficient permissions to bind port", String.valueOf(port), "on this host.");
+            }
+
+            else
+            {
                 ExceptionHandler.unknownReason(e);
             }
 
             ExceptionHandler.showStackTrace(e);
             Utils.exit();
 
-        } catch( java.lang.IllegalArgumentException e ) {
+        }
 
+        catch( java.lang.IllegalArgumentException e )
+        {
             Logger.resetIndent();
 
-            if( e.getMessage().contains("port out of range") ) {
-
+            if (e.getMessage().contains("port out of range"))
+            {
                 Logger.eprintlnMixedYellow("Caught", "IllegalArgumentException", "while creating the stager server.");
-                Logger.printlnMixedBlue("The specified port", String.valueOf(port), "is out of range.");
-                Logger.printlnMixedYellow("Specify a port within the range", String.format("0-%s", Short.MAX_VALUE * 2 + 1));
+                Logger.eprintlnMixedBlue("The specified port", String.valueOf(port), "is out of range.");
+                Logger.eprintlnMixedYellow("Specify a port within the range", String.format("0-%s", Short.MAX_VALUE * 2 + 1));
                 ExceptionHandler.showStackTrace(e);
                 Utils.exit();
+            }
+
+            else
+            {
+                ExceptionHandler.unknownReason(e);
             }
         }
     }

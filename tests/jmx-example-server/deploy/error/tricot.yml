@@ -1,0 +1,49 @@
+tester:
+  title: deploy action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters deploy action
+
+  id: '01-03-03'
+  groups:
+    - error
+  id_pattern: '01-03-03-{:02}'
+
+
+tests:
+  - title: Malformed ObjectName
+    description: |-
+      Attempt a deployment with an invalid ObjectName
+
+    command:
+      - beanshooter
+      - deploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - javax.management.monitor.StringMonitor
+      - Sample
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified ObjectName Sample is invalid
+
+
+  - title: Unknown Class
+    description: |-
+      Attempt a deployment with an unknown class
+
+    command:
+      - beanshooter
+      - deploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - TEST
+      - de.qtc.beanshooter:version=1
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified class TEST is not known by the server
+            - Use the --jar-file and --stager-url options

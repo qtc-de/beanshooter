@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
-import javax.management.AttributeNotFoundException;
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
@@ -17,7 +16,6 @@ import javax.management.RuntimeMBeanException;
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
-import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.WordlistHandler;
 import de.qtc.beanshooter.mbean.IMBean;
@@ -117,22 +115,52 @@ public class Dispatcher {
     public void enumerate()
     {
         boolean access = false;
+        boolean enumerated = false;
 
         String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
         int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
 
         EnumHelper enumHelper = new EnumHelper(host, port);
 
-        if( BeanshooterOption.CONN_USER.notNull() && BeanshooterOption.CONN_PASS.notNull())
-            access = enumHelper.login();
-
-        else if(BeanshooterOption.CONN_JMXMP.getBool())
+        if (BeanshooterOption.CONN_JMXMP.getBool() && BeanshooterOption.CONN_SASL.isNull())
+        {
             access = enumHelper.enumSASL();
+            Logger.lineBreak();
 
-        else
-            access = enumHelper.enumAccess();
+            if (!BeanshooterOption.CONN_SASL.isNull())
+                enumerated = true;
+        }
 
-        Logger.lineBreak();
+        if (!access)
+        {
+            if (BeanshooterOption.CONN_USER.notNull() && BeanshooterOption.CONN_PASS.notNull())
+            {
+                access = enumHelper.login();
+                Logger.lineBreak();
+            }
+
+            else if (BeanshooterOption.CONN_SASL.isNull())
+            {
+                access = enumHelper.enumAccess();
+                Logger.lineBreak();
+            }
+
+            else if (!enumerated)
+            {
+                Logger.printlnBlue("Checking servers SASL configuration");
+                Logger.lineBreak();
+                Logger.increaseIndent();
+
+                Logger.printlnMixedBlue("- SASL profile was manually specified but", "no credentials", "were provided.");
+                Logger.printMixedYellow("  Use the", "--username", "and ");
+                Logger.printlnPlainMixedYellowFirst("--password", "options to provide credentials.");
+                Logger.statusUndecided("Configuration");
+
+                Logger.decreaseIndent();
+                Logger.lineBreak();
+            }
+        }
+
         enumHelper.enumSerial();
 
         if (!access)
@@ -160,15 +188,19 @@ public class Dispatcher {
             if (BeanshooterOption.CONN_JMXMP.getBool())
                 SerialHelper.serialJMXMP(payloadObject);
 
-            if (BeanshooterOption.SERIAL_PREAUTH.getBool())
+            else if (BeanshooterOption.SERIAL_PREAUTH.getBool())
                 SerialHelper.serialPreauth(payloadObject);
 
             else
             {
-                MBeanServerClient mBeanServerClient = getMBeanServerClient();
+                String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
+                int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
+
+                conn = PluginSystem.getMBeanServerConnectionUmanaged(host, port, ArgumentHandler.getEnv());
+                client = new MBeanServerClient(conn);
                 ObjectName loggingMBean = Utils.getObjectName("java.util.logging:type=Logging");
 
-                mBeanServerClient.invoke(loggingMBean, "getLoggerLevel", payloadObject);
+                client.invoke(loggingMBean, "getLoggerLevel", null, payloadObject);
             }
 
         } catch ( MBeanException | ReflectionException  e) {
@@ -209,16 +241,8 @@ public class Dispatcher {
 
         catch (AuthenticationException e)
         {
-            Throwable t = ExceptionHandler.getCause(e.getOriginalException());
-
-            if( t instanceof ClassNotFoundException)
-                ExceptionHandler.deserialClassNotFound((ClassNotFoundException)t);
-
-            else if( e instanceof InvalidLoginClassException)
-                Logger.printlnMixedRed("Server appears to be", "not vulnerable", "to preauth deserialization attacks.");
-
-            else
-                ExceptionHandler.unexpectedException(e, "deserialization", "attack", false);
+            ExceptionHandler.handleAuthenticationException(e);
+            Logger.printlnMixedYellow("Use the", "--preauth", "option to launch deserialization attacks before authentication.");
         }
 
         catch (IOException e)
@@ -299,24 +323,25 @@ public class Dispatcher {
      */
     public void invoke()
     {
-        ArgumentHandler.requireAllOf(BeanshooterOption.INVOKE_METHOD_ARGS, BeanshooterOption.INVOKE_OBJ_NAME, BeanshooterOption.INVOKE_METHOD_NAME);
-
         ObjectName objectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.INVOKE_OBJ_NAME));
-        String methodName = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD_NAME);
-        String argumentString = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD_ARGS);
+        String signature = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD);
+        List<String> argumentStringArray = BeanshooterOption.INVOKE_METHOD_ARGS.getValue();
 
-        Object[] argumentArray = PluginSystem.getArgumentArray(argumentString);
+        String[] argumentTypes = PluginSystem.getArgumentTypes(signature);
+        Object[] argumentArray = PluginSystem.getArgumentArray(argumentStringArray.toArray(new String[0]));
+        String methodName = PluginSystem.getMethodName(signature);
+
         MBeanServerClient client = getMBeanServerClient();
 
         try
         {
             Object result = null;
 
-            if(methodName.startsWith("get") && !BeanshooterOption.INVOKE_LITERAL.getBool())
+            if(methodName.startsWith("get") && argumentArray.length == 0 && !BeanshooterOption.INVOKE_LITERAL.getBool())
                 result = client.getAttribute(objectName, methodName.substring(3));
 
             else
-                result = client.invoke(objectName, methodName, argumentArray);
+                result = client.invoke(objectName, methodName, argumentTypes, argumentArray);
 
             if( result != null )
                 PluginSystem.handleResponse(result);
@@ -324,7 +349,7 @@ public class Dispatcher {
                 Logger.printlnBlue("Call was successful.");
         }
 
-        catch (MBeanException | ReflectionException | AttributeNotFoundException | IOException e)
+        catch (MBeanException | ReflectionException | IOException e)
         {
             Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while invoking %s on %s.", methodName, objectName.toString()));
             Logger.println("beanshooter does not handle exceptions for custom method invocations.");
@@ -345,12 +370,18 @@ public class Dispatcher {
         String url = BeanshooterOption.DEPLOY_STAGER_URL.getValue(String.format("http://%s:%d", host, port));
         IMBean bean = de.qtc.beanshooter.mbean.mlet.Dispatcher.getMbean();
 
-        server.start(url, bean.getJarName(), bean.getMBeanClass(), bean.getObjectName().toString());
+        server.start(Utils.parseUrl(url), bean.getJarName(), bean.getMBeanClass(), bean.getObjectName().toString());
         Logger.print("Press Enter to stop listening.");
 
-        Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
-        scanner.close();
+        try (Scanner scanner = new Scanner(System.in))
+        {
+            scanner.nextLine();
+        }
+
+        catch (java.util.NoSuchElementException e)
+        {
+            Logger.printlnPlain("");
+        }
 
         server.stop();
     }

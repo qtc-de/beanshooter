@@ -1,0 +1,178 @@
+tester:
+  title: stager action (Generic)
+  description: |-
+    Perform tests on beanshooters stager action
+
+  id: '02-01-01'
+  groups:
+    - generic
+  id_pattern: '02-01-01-{:02}'
+
+
+plugins:
+  - os_command:
+      init: 1
+      background: True
+      cmd:
+        - beanshooter
+        - stager
+        - 0.0.0.0
+        - 8000
+        - tonka
+        - --stager-url
+        - http://127.0.0.4
+        - --no-color
+
+  - os_command:
+      init: 1
+      background: True
+      cmd:
+        - beanshooter
+        - stager
+        - 0.0.0.0
+        - 8001
+        - tonka
+        - --no-color
+
+  - os_command:
+      init: 1
+      background: True
+      cmd:
+        - beanshooter
+        - stager
+        - 0.0.0.0
+        - 8002
+        - custom
+        - --class-name
+        - de.qtc.beanshooter.Testclass
+        - --object-name
+        - 'Testclass:test=true'
+        - --jar-file
+        - /etc/passwd
+        - --no-color
+
+
+tests:
+  - title: Check MLet
+    description: |-
+      Check whether the MLet endpoint works as expected
+
+    command:
+      - curl
+      - 'http://127.0.0.1:8000'
+
+    extractors:
+      - regex:
+          pattern: 'archive="([^ "]+)"'
+          variable: 'archive1'
+          on_miss: 'break'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - <html><mlet code="de.qtc.beanshooter.tonkabean.TonkaBean"
+            - name="MLetTonkaBean:name=TonkaBean,id=1"
+            - codebase="http://127.0.0.4"></mlet></html>
+
+
+  - title: Check MLet
+    description: |-
+      Check whether the MLet endpoint works as expected
+
+    command:
+      - curl
+      - 'http://127.0.0.1:8001'
+
+    extractors:
+      - regex:
+          pattern: 'archive="([^ "]+)"'
+          variable: 'archive2'
+          on_miss: 'break'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - <html><mlet code="de.qtc.beanshooter.tonkabean.TonkaBean"
+            - name="MLetTonkaBean:name=TonkaBean,id=1"
+            - codebase="http://0.0.0.0:8001"></mlet></html>
+
+
+  - title: Check MLet
+    description: |-
+      Check whether the MLet endpoint works as expected
+
+    command:
+      - curl
+      - 'http://127.0.0.1:8002'
+
+    extractors:
+      - regex:
+          pattern: 'archive="([^ "]+)"'
+          variable: 'archive3'
+          on_miss: 'break'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - <html><mlet code="de.qtc.beanshooter.Testclass"
+            - name="Testclass:test=true"
+            - codebase="http://0.0.0.0:8002"></mlet></html>
+
+
+  - title: Check Jar
+    description: |-
+      Check whether the Jar endpoint works as expected
+
+    shell: true
+    command:
+      - curl
+      - 'http://127.0.0.1:8000/${archive1-0-1}'
+      - '|'
+      - xxd
+      - '|'
+      - head
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '504b 0304 0a00 0000 0000'
+
+
+  - title: Check Jar
+    description: |-
+      Check whether the Jar endpoint works as expected
+
+    shell: true
+    command:
+      - curl
+      - 'http://127.0.0.1:8001/${archive2-0-1}'
+      - '|'
+      - xxd
+      - '|'
+      - head
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '504b 0304 0a00 0000 0000'
+
+
+  - title: Check Jar
+    description: |-
+      Check whether the Jar endpoint works as expected
+
+    shell: true
+    command:
+      - curl
+      - 'http://127.0.0.1:8002/${archive3-0-1}'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'root:x:0:0'

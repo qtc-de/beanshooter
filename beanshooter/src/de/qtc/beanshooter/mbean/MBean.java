@@ -30,7 +30,7 @@ public enum MBean implements IMBean
           "general purpose bean for executing commands and uploading or download files",
           Utils.getObjectName("MLetTonkaBean:name=TonkaBean,id=1"),
           "de.qtc.beanshooter.tonkabean.TonkaBean",
-          "tonka-bean-3.0.0-jar-with-dependencies.jar",
+          "tonka-bean-3.0.0-rc.2-jar-with-dependencies.jar",
           TonkaBeanOperation.values(),
           TonkaBeanOption.values()
          ),

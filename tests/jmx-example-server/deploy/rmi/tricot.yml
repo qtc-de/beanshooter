@@ -1,0 +1,259 @@
+tester:
+  title: deploy action (RMI)
+  description: |-
+    Perform tests on beanshooters deploy action for RMI based connections
+
+  id: '01-03-01'
+  groups:
+    - rmi
+  id_pattern: '01-03-01-{:02}'
+
+  conditionals:
+    deployed: False
+    exported: False
+
+
+tests:
+  - title: Deploy StringMonitor Unauth
+    description: |-
+      Deploy the StringMonitor MBean on an unauth JMX service
+
+    command:
+      - beanshooter
+      - deploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - javax.management.monitor.StringMonitor
+      - 'qtc.test:type=Monitor'
+
+    conditions:
+      on_success:
+        deployed: True
+
+      on_error:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean with object name qtc.test:type=Monitor was successfully deployed
+
+
+  - title: Verify StringMonitor
+    description: |-
+      Verifies that StringMonitor was deployed
+
+    command:
+      - beanshooter
+      - list
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+
+    conditions:
+      all:
+        - deployed
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - javax.management.monitor.StringMonitor
+            - 'qtc.test:type=Monitor'
+
+
+  - title: Undeploy StringMonitor
+    description: |-
+      Undeploy StringMonitor
+
+    command:
+      - beanshooter
+      - undeploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - 'qtc.test:type=Monitor'
+
+    conditions:
+      all:
+        - deployed
+
+      on_success:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean was successfully removed
+
+
+  - title: Deploy StringMonitor JMX Auth
+    description: |-
+      Deploy the StringMonitor MBean on a JMX service
+      with default authentication.
+
+    command:
+      - beanshooter
+      - deploy
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - javax.management.monitor.StringMonitor
+      - 'qtc.test:type=Monitor'
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    conditions:
+      on_success:
+        deployed: True
+
+      on_error:
+        deployed: False
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified user has insufficient permission to perform the requested action
+
+
+  - title: Undeploy StringMonitor JMX Auth
+    description: |-
+      Undeploy StringMonitor
+
+    command:
+      - beanshooter
+      - undeploy
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - 'qtc.test:type=Monitor'
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    conditions:
+      all:
+        - deployed
+
+      on_success:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean is not registered. Nothing to do.
+
+
+  - title: Export Tonka Bean
+    description: |-
+      Export the tonka bean for a manual deployment
+
+    command:
+      - beanshooter
+      - tonka
+      - export
+      - --stager-url
+      - 'http://${DOCKER-GW}:8000'
+
+    conditions:
+      on_success:
+        exported: True
+
+      on_error:
+        exported: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Exporting MBean jar file
+            - Exporting MLet HTML file to
+
+
+  - title: Deploy Tonka Bean
+    description: |-
+      Deploy the previously exported tonka bean.
+
+    command:
+      - beanshooter
+      - deploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - de.qtc.beanshooter.tonkabean.TonkaBean
+      - 'de.qtc.beanshooter:type=Test'
+      - --jar-file
+      - ./tonka-bean-3.0.0-jar-with-dependencies.jar
+      - --stager-url
+      - http://${DOCKER-GW}:4444
+
+    conditions:
+      all:
+        - exported
+
+      on_success:
+        deployed: True
+
+      on_error:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Deplyoing MBean: TonkaBean'
+            - 'MBean with object name de.qtc.beanshooter:type=Test was successfully deployed.'
+      - file_exists:
+         cleanup: True
+         files:
+             - tonka-bean-3.0.0-jar-with-dependencies.jar
+             - index.html
+
+
+  - title: Undeploy Tonka Bean
+    description: |-
+      Undeploy Tonka Bean
+
+    command:
+      - beanshooter
+      - undeploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - 'de.qtc.beanshooter:type=Test'
+
+    conditions:
+      all:
+        - deployed
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean was successfully removed
+
+
+  - title: Undeploy MLet
+    description: |-
+      Undeploy MLet Bean
+
+    command:
+      - beanshooter
+      - undeploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - DefaultDomain:type=MLet
+
+    conditions:
+      all:
+        - deployed
+
+      on_success:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean was successfully removed

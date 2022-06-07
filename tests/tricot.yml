@@ -7,11 +7,14 @@ tester:
 
   requires:
       files:
-        - /opt/ysoserial.jar
+        - /opt/yso.jar
       commands:
         - beanshooter
+        - curl
+        - head
+        - xxd
       version:
-        ge: 1.10.0
+        ge: 1.10.2
 
 variables:
   volume: /tmp/beanshooter-tricot-test/
@@ -28,3 +31,7 @@ plugins:
 
 testers:
   - ./jmx-example-server/tricot.yml
+  - ./serverless/tricot.yml
+  - ./tonka/tricot.yml
+  - ./mlet/tricot.yml
+  - ./tomcat/tricot.yml

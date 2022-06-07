@@ -1,0 +1,172 @@
+tester:
+  title: deploy action (JMXMP)
+  description: |-
+    Perform tests on beanshooters deploy action for JMXMP based connections
+
+  id: '01-03-02'
+  groups:
+    - jmxmp
+  id_pattern: '01-03-02-{:02}'
+
+  conditionals:
+    deployed: False
+
+
+tests:
+  - title: Deploy StringMonitor Unauth
+    description: |-
+      Deploy the StringMonitor MBean on an unauth JMX service
+
+    command:
+      - beanshooter
+      - deploy
+      - ${JMXMP_UNAUTH}
+      - ${OPTIONS}
+      - javax.management.monitor.StringMonitor
+      - 'qtc.test:type=Monitor'
+
+    conditions:
+      on_success:
+        deployed: True
+
+      on_error:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean with object name qtc.test:type=Monitor was successfully deployed
+
+
+  - title: Verify StringMonitor
+    description: |-
+      Verifies that StringMonitor was deployed
+
+    command:
+      - beanshooter
+      - list
+      - ${JMXMP_UNAUTH}
+      - ${OPTIONS}
+
+    conditions:
+      all:
+        - deployed
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - javax.management.monitor.StringMonitor
+            - 'qtc.test:type=Monitor'
+
+
+  - title: Undeploy StringMonitor
+    description: |-
+      Undeploy StringMonitor
+
+    command:
+      - beanshooter
+      - undeploy
+      - ${JMXMP_UNAUTH}
+      - ${OPTIONS}
+      - 'qtc.test:type=Monitor'
+
+    conditions:
+      all:
+        - deployed
+
+      on_success:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean was successfully removed
+
+
+  - title: Deploy StringMonitor CRAM Auth
+    description: |-
+      Deploy the StringMonitor MBean on a JMX service
+      with CRAM authentication.
+
+    command:
+      - beanshooter
+      - deploy
+      - ${JMXMP_CRAM}
+      - ${OPTIONS}
+      - javax.management.monitor.StringMonitor
+      - 'qtc.test:type=Monitor'
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    conditions:
+      on_success:
+        deployed: True
+
+      on_error:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean with object name qtc.test:type=Monitor was successfully deployed
+
+
+  - title: Verify StringMonitor
+    description: |-
+      Verifies that StringMonitor was deployed
+
+    command:
+      - beanshooter
+      - list
+      - ${JMXMP_CRAM}
+      - ${OPTIONS}
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    conditions:
+      all:
+        - deployed
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - javax.management.monitor.StringMonitor
+            - 'qtc.test:type=Monitor'
+
+
+  - title: Undeploy StringMonitor CRAM Auth
+    description: |-
+      Undeploy StringMonitor
+
+    command:
+      - beanshooter
+      - undeploy
+      - ${JMXMP_CRAM}
+      - ${OPTIONS}
+      - 'qtc.test:type=Monitor'
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    conditions:
+      all:
+        - deployed
+
+      on_success:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - MBean was successfully removed

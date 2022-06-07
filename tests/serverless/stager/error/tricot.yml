@@ -1,0 +1,111 @@
+tester:
+  title: stager action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters stager action
+
+  id: '02-01-02'
+  groups:
+    - error
+  id_pattern: '02-01-02-{:02}'
+
+
+plugins:
+  - http_listener:
+      port: 8000
+      dir: .
+
+tests:
+  - title: Port already in use
+    description: |-
+      Check the error handling when the specified port is already in use
+
+    command:
+      - beanshooter
+      - stager
+      - 0.0.0.0
+      - 8000
+      - tonka
+      - --no-color
+
+    timeout: 5
+    validators:
+      - error: True
+      - contains:
+          values:
+            - Caught java.net.BindException while creating the stager server
+            - The endpoint 0.0.0.0:8000 is probably in use
+
+
+  - title: Non local IP
+    description: |-
+      Check the error handling when specifying a non local IP address
+
+    command:
+      - beanshooter
+      - stager
+      - 8.8.8.8
+      - 8000
+      - tonka
+      - --no-color
+
+    timeout: 5
+    validators:
+      - error: True
+      - contains:
+          values:
+            - Caught java.net.BindException while creating the stager server
+            - The endpoint 8.8.8.8:8000 is probably in use or has no local interface
+
+
+  - title: Non existing Jar
+    description: |-
+      Check the error handling when specifying a non existing jar file
+
+    command:
+      - beanshooter
+      - stager
+      - 0.0.0.0
+      - 8001
+      - custom
+      - --jar-file
+      - /etc/non-existend
+      - --object-name
+      - 'test:test=1'
+      - --class-name
+      - de.qtc.beanshooter.TestClass
+      - --no-color
+
+    timeout: 5
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Error while creating HTTP JarHandler'
+            - 'Unable to find jar file with path: /etc/non-existend'
+
+
+  - title: Invalid object name
+    description: |-
+      Check the error handling when specifying a non existing jar file
+
+    command:
+      - beanshooter
+      - stager
+      - 0.0.0.0
+      - 8001
+      - custom
+      - --jar-file
+      - /etc/passwd
+      - --object-name
+      - 'testtest=1'
+      - --class-name
+      - de.qtc.beanshooter.TestClass
+      - --no-color
+
+    timeout: 5
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The specified ObjectName testtest=1 is invalid'
+            - 'Valid ObjectNames look like this: de.qtc.beanshooter:version=1'

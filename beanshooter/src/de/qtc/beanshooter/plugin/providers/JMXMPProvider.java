@@ -52,7 +52,7 @@ public class JMXMPProvider implements IMBeanServerProvider {
         SASLMechanism saslMechanism = ArgumentHandler.getSASLMechanism();
         if( saslMechanism != null )
         {
-            if(ArgumentHandler.getInstance().getAction() != BeanshooterOperation.BRUTE)
+            if (!env.containsKey(JMXConnector.CREDENTIALS) && ArgumentHandler.getInstance().getAction() != BeanshooterOperation.BRUTE)
                 ArgumentHandler.requireAllOf(BeanshooterOption.CONN_USER, BeanshooterOption.CONN_PASS);
 
             String[] credentials = (String[]) env.get(JMXConnector.CREDENTIALS);

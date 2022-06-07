@@ -61,7 +61,7 @@ public class YsoIntegration {
             Logger.printlnPlain(" failed.");
             Logger.eprintlnMixedYellow("Caught unexpected", e.getClass().getName(), "during gadget generation.");
             Logger.eprintMixedBlue("You probably specified", "a wrong gadget name", "or an ");
-            Logger.printlnPlainBlue("invalid gadget argument.");
+            Logger.eprintlnPlainBlue("invalid gadget argument.");
             ExceptionHandler.showStackTrace(e);
             Utils.exit();
         }

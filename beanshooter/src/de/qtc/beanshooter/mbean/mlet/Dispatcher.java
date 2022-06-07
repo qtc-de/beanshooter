@@ -118,6 +118,23 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         String host = url.getHost();
         String protocol = url.getProtocol();
 
+        if (port == -1)
+            port = url.getDefaultPort();
+
+        if (BeanshooterOption.DEPLOY_STAGER_PORT.notNull())
+            port = BeanshooterOption.DEPLOY_STAGER_PORT.getValue();
+
+        if (BeanshooterOption.DEPLOY_STAGER_ADDR.notNull())
+        {
+            host = BeanshooterOption.DEPLOY_STAGER_ADDR.getValue();
+
+            if (!Utils.isLocal(host))
+            {
+                Logger.eprintlnMixedYellow("The specified address", host, "is not available on your local device.");
+                Utils.exit();
+            }
+        }
+
         Logger.printlnMixedBlue("Loading MBean from", urlString);
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -125,7 +142,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         if( !BeanshooterOption.DEPLOY_NO_STAGER.getBool() && protocol.equals("http") && Utils.isLocal(host) )
         {
             server = new StagerServer(host, port, false);
-            server.start(urlString, jarFile ,mBeanClassName, mBeanObjectName.toString());
+            server.start(url, jarFile ,mBeanClassName, mBeanObjectName.toString());
         }
 
         try
@@ -145,7 +162,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
             Logger.resetIndent();
             Logger.eprintMixedYellow("Caught", t.getClass().getName(), "while invoking ");
-            Logger.printlnPlainBlue("getMBeansFromURL");
+            Logger.eprintlnPlainBlue("getMBeansFromURL");
 
             if( t instanceof java.net.NoRouteToHostException )
             {
@@ -194,6 +211,14 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
             else
             {
+                Throwable serviceNotFound = ExceptionHandler.getThrowable("ServiceNotFoundException", e);
+
+                if (serviceNotFound != null && serviceNotFound.getMessage().contains("Problems while parsing URL"))
+                {
+                    Logger.eprintlnMixedBlue("The specified URL", urlString, "seems to be invalid.");
+                    Utils.exit();
+                }
+
                 ExceptionHandler.unknownReason(e);
             }
 

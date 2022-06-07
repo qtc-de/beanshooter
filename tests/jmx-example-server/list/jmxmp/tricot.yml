@@ -37,9 +37,9 @@ tests:
       - ${JMXMP_PLAIN}
       - ${OPTIONS}
       - --username
-      - admin
+      - controlRole
       - --password
-      - admin
+      - control
 
     validators:
       - error: False
@@ -56,7 +56,7 @@ tests:
     command:
       - beanshooter
       - list
-      - ${TARGET_NTLM}
+      - ${JMXMP_NTLM}
       - ${OPTIONS}
       - --username
       - controlRole

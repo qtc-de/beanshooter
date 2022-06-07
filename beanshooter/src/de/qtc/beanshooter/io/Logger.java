@@ -186,7 +186,7 @@ public class Logger {
 
     public static void eprintlnYellow(String msg)
     {
-        elog(prefix() + yellow(msg));
+        elog(eprefix() + yellow(msg));
     }
 
     public static void printlnPlainBlue(String msg)
@@ -324,9 +324,19 @@ public class Logger {
         log(first + " " + yellow(second));
     }
 
+    public static void eprintlnPlainMixedYellow(String first, String second)
+    {
+        elog(first + " " + yellow(second));
+    }
+
     public static void printlnPlainMixedYellow(String first, String second, String third)
     {
         log(first + " " + yellow(second) + " " + third);
+    }
+
+    public static void eprintlnPlainMixedYellow(String first, String second, String third)
+    {
+        elog(first + " " + yellow(second) + " " + third);
     }
 
     public static void printPlainMixedYellowFirst(String first, String second) {
@@ -336,6 +346,11 @@ public class Logger {
     public static void printlnPlainMixedYellowFirst(String first, String second)
     {
         log(yellow(first) + " " + second);
+    }
+
+    public static void eprintlnPlainMixedYellowFirst(String first, String second)
+    {
+        elog(yellow(first) + " " + second);
     }
 
     public static void printlnPlainMixedYellowFirst(String first, String second, String third)
@@ -429,9 +444,14 @@ public class Logger {
         elog(eprefix() + blue(first) + " " + second);
     }
 
-    public static void erintlnMixedBlueFirst(String first, String second, String third)
+    public static void eprintlnMixedBlueFirst(String first, String second, String third)
     {
         elog(eprefix() + blue(first) + " " + second + " " + blue(third));
+    }
+
+    public static void eprintMixedBlueFirst(String first, String second, String third)
+    {
+        elog(eprefix() + blue(first) + " " + second + " " + blue(third), false);
     }
 
     public static void eprintlnMixedYellowFirst(String first, String second)

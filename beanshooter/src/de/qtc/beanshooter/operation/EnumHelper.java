@@ -22,6 +22,7 @@ import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.MissingCredentialsException;
 import de.qtc.beanshooter.exceptions.SaslMissingException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
+import de.qtc.beanshooter.exceptions.SaslSuperflousException;
 import de.qtc.beanshooter.exceptions.WrongCredentialsException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.MBean;
@@ -63,7 +64,7 @@ public class EnumHelper
         {
             MBeanServerConnection conn = PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
 
-            Logger.printlnMixedYellowFirst("- Login successful!", "The specified credentials are correct.");
+            Logger.printlnMixedYellow("-", "Login successful!", "The specified credentials are correct.");
             Logger.printMixedBlue("  Username:", BeanshooterOption.CONN_USER.getValue(), " - ");
             Logger.printlnPlainMixedBlue("Password:", BeanshooterOption.CONN_PASS.getValue());
 
@@ -73,8 +74,52 @@ public class EnumHelper
 
         catch (AuthenticationException e)
         {
-            Logger.printlnMixedYellow("- Caught", "AuthenticationException", "during login attempt.");
-            Logger.statusUndecided("Configuration");
+            if (e instanceof SaslSuperflousException)
+            {
+                Logger.eprintlnMixedYellow("- Caught", "SaslSuperflousException", "during login attempt.");
+
+                BeanshooterOption.CONN_SASL.setValue(null);
+                Map<String, Object> env2 = ArgumentHandler.getEnv(null, null);
+
+                try
+                {
+                    MBeanServerConnection conn = PluginSystem.getMBeanServerConnectionUmanaged(host, port, env2);
+                    client = new MBeanServerClient(conn);
+
+                    Logger.eprintlnMixedBlue("  Authentication was used despite the server", "does not", "require authentication.");
+                    Logger.statusVulnerable();
+
+                    return true;
+                }
+
+                catch (Exception e2)
+                {
+                    Logger.eprintln("  Reconnecting without SASL failed. You can retry without specifying credentials.");
+                    Logger.statusUndecided("Configuration");
+                }
+            }
+
+            else if (e instanceof SaslProfileException)
+            {
+                Logger.eprintlnMixedYellow("- Caught", "SaslProfileException", "during login attempt.");
+                Logger.eprintlnMixedBlue("  Mismatching SASL profile. You can try to use", "--ssl", "or a different SASL profile.");
+                Logger.statusUndecided("Configuration");
+            }
+
+            else if (e instanceof MismatchedURIException)
+            {
+                Logger.eprintlnMixedYellow("- Caught", "MismatchedURIException", "during login attempt.");
+                Logger.eprintlnMixedBlue("  Target needs to be accessed by the following hostname:", ((MismatchedURIException)e).getUri());
+                Logger.statusUndecided("Configuration");
+            }
+
+            else
+            {
+                Logger.printlnMixedYellow("- Caught", "AuthenticationException", "during login attempt.");
+                Logger.println("  The specified credentials are probably invalid.");
+                Logger.statusUndecided("Configuration");
+            }
+
             ExceptionHandler.showStackTrace(e);
         }
 
@@ -245,6 +290,8 @@ public class EnumHelper
                 }
 
                 Logger.statusVulnerable();
+                Logger.decreaseIndent();
+
                 client = new MBeanServerClient(conn);
                 return true;
             }
@@ -270,21 +317,29 @@ public class EnumHelper
             finally
             {
                 BeanshooterOption.CONN_SSL.setValue(sslOrig);
-                Logger.decreaseIndent();
             }
         }
 
-        BeanshooterOption.CONN_USER.setValue("non existent dummy user");
-        BeanshooterOption.CONN_PASS.setValue("non existing dummy password");
-        env = ArgumentHandler.getEnv();
-
+        env = ArgumentHandler.getEnv("non existent dummy user", "non existing dummy password");
         SASLMechanism mechanism = SASLMechanism.detectMechanis(host, port, env);
-        Logger.increaseIndent();
 
         if( mechanism != null)
         {
             Logger.printlnMixedYellow("- Remote JMXMP server uses", mechanism.getProfile(), "SASL profile.");
+
+            if (mechanism == SASLMechanism.DIGEST && mechanism.getExtra() != null)
+                Logger.printlnMixedBlue("  Credentials are requried and the following hostname must be used:", mechanism.getExtra());
+
+            Logger.printMixedBlueFirst("  Notice:", "TLS setting cannot be enumerated and", "--ssl");
+
+            if (BeanshooterOption.CONN_SSL.getBool())
+                Logger.printlnPlain(" may not be required.");
+
+            else
+                Logger.printlnPlain(" may be required.");
+
             Logger.statusOk();
+            BeanshooterOption.CONN_SASL.setValue(mechanism.name());
         }
 
         else
@@ -369,7 +424,7 @@ public class EnumHelper
         List<String> classNames = mbeans.stream().map(i -> i.getClassName()).collect(Collectors.toList());
         classNames.removeAll(Arrays.asList(arg.getFromConfig("defaultMBeans").split(" ")));
 
-        Logger.printlnMixedYellowFirst("- " + mbeans.size(), "MBeans are currently registred on the MBean server.");
+        Logger.printlnMixedYellow("-", String.valueOf(mbeans.size()), "MBeans are currently registred on the MBean server.");
 
         if( classNames.size() == 0 )
         {
@@ -453,7 +508,7 @@ public class EnumHelper
             {
                 Logger.printlnMixedYellow("Caught", "MismatchedURIException", "during login attempt.");
                 Logger.printlnMixedBlueFirst("Digest authentication", "requires the correct hostname to be used.");
-                Logger.printlnMixedBlue("Original error message:", e.getMessage());
+                Logger.printlnMixedBlue("The following hostname is expected by the server:", ((MismatchedURIException)e).getUri());
                 ExceptionHandler.showStackTrace(e);
                 Utils.exit();
             }

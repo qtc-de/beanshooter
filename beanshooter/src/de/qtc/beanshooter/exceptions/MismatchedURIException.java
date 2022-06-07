@@ -24,4 +24,11 @@ public class MismatchedURIException extends AuthenticationException {
     {
         return origException;
     }
+
+    public String getUri()
+    {
+        String message = getMessage();
+        message = message.substring(message.lastIndexOf(" ") + 1);
+        return message.replace("jmxmp/", "");
+    }
 }

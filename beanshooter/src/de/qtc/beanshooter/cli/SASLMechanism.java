@@ -13,6 +13,7 @@ import javax.security.sasl.RealmChoiceCallback;
 
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.PluginSystem;
@@ -33,6 +34,7 @@ public enum SASLMechanism {
     NTLM("SASL/NTLM");
 
     private String profile;
+    private String extra;
 
     /**
      * A SASLMechanism is initialized by it's profile name as a String.
@@ -58,6 +60,17 @@ public enum SASLMechanism {
             profile = "TLS ";
 
         return profile + this.profile;
+    }
+
+    /**
+     * The extra field can be used to store additional information related to the mechanism. Currently,
+     * this is only used for DIGEST-MD5 and the expected digest-uri is stored inside.
+     *
+     * @return extra information
+     */
+    public String getExtra()
+    {
+        return extra;
     }
 
     /**
@@ -149,6 +162,9 @@ public enum SASLMechanism {
 
             catch (AuthenticationException e)
             {
+                if (mechanism == SASLMechanism.DIGEST && e instanceof MismatchedURIException)
+                    mechanism.extra = ((MismatchedURIException)e).getUri();
+
                 return mechanism;
             }
         }

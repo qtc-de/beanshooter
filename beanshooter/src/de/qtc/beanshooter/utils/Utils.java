@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -12,6 +13,8 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.rmi.Remote;
 import java.rmi.server.ObjID;
 import java.rmi.server.UID;
@@ -186,6 +189,7 @@ public class Utils {
 
         } catch (MalformedObjectNameException e) {
             Logger.eprintlnMixedYellow("The specified ObjectName", name, "is invalid.");
+            Logger.eprintlnMixedBlue("Valid ObjectNames look like this:", "de.qtc.beanshooter:version=1");
             exit();
         }
 
@@ -310,7 +314,6 @@ public class Utils {
         }
 
         for(int ctr = 0; ctr < splitResult.length; ctr++)
-
             splitResult[ctr] = Utils.stripQuotes(splitResult[ctr]);
 
         return splitResult;
@@ -463,5 +466,72 @@ public class Utils {
             Field logger = cls.getDeclaredField("logger");
             u.putObjectVolatile(cls, u.staticFieldOffset(logger), null);
         } catch (Exception e) {}
+    }
+
+    /**
+     * Removes the return value from a function and replaces it with void.
+     *
+     * @param signature user specified function signature
+     * @return function signature with void as return type
+     */
+    public static String makeVoid(String signature)
+    {
+        signature = signature.trim();
+        signature = signature.replaceAll(" *\\(", "(");
+
+        int functionStart = signature.indexOf(' ');
+        int argumentsStart = signature.indexOf('(');
+
+        if (functionStart > 0 && functionStart < argumentsStart)
+            signature = signature.substring(functionStart);
+
+        return "void " + signature;
+    }
+
+    /**
+     * Joins two paths. If the second specified path is an absolute path, it is returned instead
+     * of being joined.
+     *
+     * @param first  first path to join the second with
+     * @param second  second path to join
+     * @return joined path, or second if absolute
+     */
+    public static Path joinIfRelative(String first, String second)
+    {
+        File secondPath = new File(second);
+
+        if (secondPath.isAbsolute())
+            return secondPath.toPath();
+
+        return Paths.get(first, second);
+    }
+
+    /**
+     * Obtain a simple signature string for the specified Method. This method exists, because the default
+     * signature that can be obtained from a Method object is to verbose.
+     *
+     * @param m  method to obtain the signature from
+     * @return method signature as string
+     */
+    public static String getMethodString(Method m)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(m.getName());
+        sb.append("(");
+
+        if (m.getParameterCount() != 0)
+        {
+            for (Class<?> cc : m.getParameterTypes())
+            {
+                sb.append(cc.getName());
+                sb.append(", ");
+            }
+
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append(")");
+        return sb.toString();
     }
 }

@@ -1,5 +1,5 @@
 tester:
-  title: brute error cases
+  title: brute action (Error)
   description: |-
     Performs some test on error cases that can occur during the brute action
 

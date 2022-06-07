@@ -6,6 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /**
@@ -27,6 +30,40 @@ public class TonkaBean implements TonkaBeanMBean
         String version = "TonkaBean v" + TonkaBean.class.getPackage().getImplementationVersion();
         System.out.println(String.format("%s - Deploy me on a JMX service and let's have some fun :)", version));
     }
+
+    /**
+     * Return the currently deployed MBean version.
+     *
+     * @return MBean version
+     */
+    public String version()
+    {
+        String tonkaVersion = this.getClass().getPackage().getImplementationVersion();
+        String javaVersion = System.getProperty("java.version");
+
+        return String.format("TonkaBean v%s on Java v%s", tonkaVersion, javaVersion);
+    }
+
+    /**
+     * Return the username that runs the MBeanServer.
+     *
+     * @return the username the MBeanServer is running with.
+     */
+    public String[] shellInit()
+    {
+        String[] returnValue = new String[3];
+        returnValue[0] = System.getProperty("user.name");
+
+        if (File.separator == "/")
+            returnValue[1] = System.getenv("HOSTNAME");
+        else
+            returnValue[1] = System.getenv("COMPUTERNAME");
+
+        returnValue[2] = File.separator;
+
+        return returnValue;
+    }
+
     /**
      * Checks whether the specified path is an existing directory on the server and returns
      * the normalized form of it.
@@ -34,12 +71,20 @@ public class TonkaBean implements TonkaBeanMBean
      * @param path file system path to check
      * @return normalized File
      */
-    public File toServerDir(File path) throws IOException
+    public String toServerDir(String path, String change) throws IOException, InvalidPathException
     {
-        if( !path.isDirectory() )
-            throw new IOException("Specified path " + path.toString() + " is not a directory.");
+        File changeFile = new File(change);
 
-        return path.getAbsoluteFile();
+        if (changeFile.isAbsolute())
+            changeFile = Paths.get(change).normalize().toAbsolutePath().toFile();
+
+        else
+            changeFile = Paths.get(path, change).normalize().toAbsolutePath().toFile();
+
+        if( !changeFile.isDirectory() )
+            throw new IOException("Specified path " + changeFile.getAbsolutePath() + " is not a valid directory.");
+
+        return changeFile.getAbsolutePath();
     }
 
     /**
@@ -52,54 +97,20 @@ public class TonkaBean implements TonkaBeanMBean
      * @param env environment variables to use for the call
      * @return byte array containing the command output (stdout + stderr)
      */
-    public byte[] executeCommand(String[] command, File cwd, Map<String,String> env) throws IOException, InterruptedException
+    public byte[] executeCommand(String[] command, String cwd, Map<String,String> env, boolean background) throws IOException, InterruptedException
     {
         ProcessBuilder builder = new ProcessBuilder(command);
-        builder.directory(cwd);
+        builder.directory(new File(cwd));
         builder.environment().putAll(env);
-        builder.redirectErrorStream();
+        builder.redirectErrorStream(true);
 
         Process proc = builder.start();
+
+        if (background)
+            return null;
+
         proc.waitFor();
-
         return readInputStream(proc.getInputStream());
-    }
-
-    /**
-     * Execute the specified operating system command in the background. Commands need to be specified as an array
-     * with the executable in the first position followed by the arguments for the call. Furthermore, the directory
-     * to execute the command in and environment variables can be specified.
-     *
-     * @param command String array that specified the operating system command
-     * @param cwd working directory for the call
-     * @param env environment variables to use for the call
-     */
-    public void executeCommandBackground(String[] command, File cwd, Map<String,String> env) throws IOException
-    {
-        ProcessBuilder builder = new ProcessBuilder(command);
-        builder.directory(cwd);
-        builder.environment().putAll(env);
-        builder.start();
-    }
-
-    /**
-     * Return the username that runs the MBeanServer.
-     *
-     * @return the username the MBeanServer is running with.
-     */
-    public String username()
-    {
-        return System.getProperty("user.name");
-    }
-
-    /**
-     * Verify that the MBean is working as expected by returning the string "pong!";
-     *
-     * @return static string "pong!"
-     */
-    public String ping()
-    {
-        return "pong!";
     }
 
     /**
@@ -118,18 +129,23 @@ public class TonkaBean implements TonkaBeanMBean
      * Write the specified byte array to the specified destination on the file system of the server.
      *
      * @param destination file system path on the MBean Server
+     * @param file original filename (only used when destination is a directory)
      * @param content byte array containing the desired file content
      * @return resulting file system path of the newly generated file
      */
-    public String uploadFile(String destination, byte[] content) throws IOException
+    public String uploadFile(String destination, String filename, byte[] content) throws IOException
     {
-        File file = new File(destination);
-        FileOutputStream stream = new FileOutputStream(destination);
+        Path path = Paths.get(destination);
+
+        if (path.toFile().isDirectory())
+            path = Paths.get(destination, filename);
+
+        FileOutputStream stream = new FileOutputStream(path.toString());
 
         stream.write(content);
         stream.close();
 
-        return file.getAbsolutePath();
+        return path.normalize().toAbsolutePath().toString();
     }
 
     /**

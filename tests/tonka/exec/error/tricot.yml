@@ -1,0 +1,57 @@
+tester:
+  title: tonka exec action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters tonka exec action
+
+  id: '03-04-03'
+  groups:
+    - jmxmp
+  id_pattern: '03-04-03-{:02}'
+
+tests:
+  - title: Non existing command
+    description: |-
+      Attempt to execute a non existing command
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - nonono
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Unknown command: nonono'
+
+
+  - title: Non writable output file
+    description: |-
+      Attempt to write output to a non writable file
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - id
+      - --username
+      - controlRole
+      - --password
+      - control
+      - --output-file
+      - /root/test
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Missing the required permissions to write to: /root/test'

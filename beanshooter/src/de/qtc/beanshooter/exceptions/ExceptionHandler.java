@@ -1,6 +1,8 @@
 package de.qtc.beanshooter.exceptions;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
@@ -29,7 +31,7 @@ public class ExceptionHandler {
         else
         {
             Logger.eprintMixedYellow("You can retry the operation using the", "--ssl", "or ");
-            Logger.printlnPlainMixedYellowFirst("--jmxmp", "option.");
+            Logger.eprintlnPlainMixedYellowFirst("--jmxmp", "option.");
         }
     }
 
@@ -182,7 +184,7 @@ public class ExceptionHandler {
 
     public static void insufficientPermission(Exception e, String during, boolean exit)
     {
-        Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while " + during);
+        Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while " + during + ".");
         Logger.eprintlnMixedBlue("The specified user has", "insufficient permission", "to perform the requested action.");
 
         showStackTrace(e);
@@ -291,7 +293,7 @@ public class ExceptionHandler {
         Throwable t = ExceptionHandler.getCause(e);
         String message = t.getMessage();
 
-        if(t instanceof java.io.FileNotFoundException)
+        if (t instanceof java.io.FileNotFoundException)
         {
             Logger.eprintlnMixedYellow("Caught", "FileNotFoundException", "while opening output file.");
 
@@ -308,6 +310,15 @@ public class ExceptionHandler {
                 unexpectedException(e, "writing", "file", exit);
         }
 
+        else if (t instanceof java.nio.file.AccessDeniedException)
+            Logger.eprintlnMixedBlue("Missing the required permissions to write to:", path);
+
+        else if (t instanceof java.nio.file.NoSuchFileException)
+            Logger.eprintlnMixedBlue("The parent directory of", path, "seems not to exist.");
+
+        else if (t instanceof java.nio.file.FileSystemException && t.getMessage().contains("Is a directory"))
+            Logger.eprintlnMixedBlue("The specified path", path, "is an existing directory.");
+
         else
             unexpectedException(e, "writing", "file", exit);
 
@@ -319,10 +330,11 @@ public class ExceptionHandler {
     {
         Throwable t = ExceptionHandler.getCause(e);
         String message = t.getMessage();
+        File file = new File(path);
 
         if(t instanceof java.nio.file.NoSuchFileException)
         {
-            if(message.contains(path))
+            if(message.contains(file.getName()))
                 Logger.eprintlnMixedBlue("The specified file", path, "seems not to exist.");
 
             else
@@ -370,7 +382,25 @@ public class ExceptionHandler {
         }
     }
 
-    public static void handleExecException(Exception e, String[] commandArray)
+    public static void noSuchMethod(Exception e, String method)
+    {
+        String signature = BeanshooterOption.INVOKE_METHOD.getValue(method);
+
+        Logger.eprintlnMixedYellow("A method with signature", signature, "does not exist on the endpoint.");
+        Logger.eprintln("If you invoked a deployed MBean, make sure that the correct version was deployed.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void noSuchAttribute(Exception e, String attr)
+    {
+        Logger.eprintlnMixedYellow("An attribute with name", attr, "does not exist on the endpoint.");
+        Logger.eprintln("If you invoked a deployed MBean, make sure that the correct version was deployed.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void handleExecException(Exception e, List<String> commandArray)
     {
         Throwable t = ExceptionHandler.getCause(e);
         String message =  t.getMessage();
@@ -378,7 +408,7 @@ public class ExceptionHandler {
         if( t instanceof IOException )
         {
             if(message.contains("error=2,"))
-                Logger.eprintlnMixedYellow("Unknown command:", commandArray[0]);
+                Logger.eprintlnMixedYellow("Unknown command:", commandArray.get(0));
 
             else if(message.contains("error=13,"))
                 Logger.eprintlnYellow("Permission denied.");
@@ -458,6 +488,55 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void handleAuthenticationException(AuthenticationException e)
+    {
+        if( e instanceof SaslMissingException)
+        {
+            Logger.eprintlnMixedYellow("Caught", "SaslMissingException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The sever requires a", "SASL profile (--sasl)", "to be specified.");
+        }
+
+        else if( e instanceof SaslProfileException)
+        {
+            Logger.eprintlnMixedYellow("Caught", "SaslProfileException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The specified", "SASL profile", "does not match the server SASL profile.");
+
+            if (BeanshooterOption.CONN_SSL.getBool())
+                Logger.eprintlnMixedYellow("If you are confident that you are using the correct profile, try without the", "--ssl", "option");
+
+            else
+                Logger.eprintlnMixedYellow("If you are confident that you are using the correct profile, try to use the", "--ssl", "option");
+        }
+
+        else if( e instanceof MismatchedURIException )
+        {
+            Logger.eprintlnMixedYellow("Caught", "MisMatchedURIException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The specified", "target host", "does not match the configured SASL host.");
+        }
+
+        else if( e instanceof ApacheKarafException )
+        {
+            Logger.eprintlnMixedYellow("Caught", "ApacheKarafException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The targeted JMX service is probably spawned by", "Apache Karaf", "and requires authentication.");
+            Logger.eprintlnMixedYellow("You can attempt to login using Apache Karaf default credentials:", "karaf:karaf");
+        }
+
+        else if( e instanceof WrongCredentialsException)
+        {
+            Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The specified credentials are most likely", "incorrect.");
+        }
+
+        else
+        {
+            Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The targeted JMX endpoint probably", "requires authentication.");
+        }
+
+        e.showDetails();
+        ExceptionHandler.showStackTrace(e);
+    }
+
     public static void ysoNotPresent(String location)
     {
         Logger.eprintlnMixedBlue("Unable to find ysoserial library in path", location);
@@ -528,6 +607,59 @@ public class ExceptionHandler {
         Logger.eprintln("Please report the exception to help improving the exception handling :)");
         ExceptionHandler.stackTrace(e);
         Utils.exit();
+    }
+
+    public static void invalidSignature(Throwable e, String signature)
+    {
+        Logger.eprintlnMixedYellow("The specified method signature", signature, "is invalid.");
+        Logger.eprintlnMixedBlue("The method signature has to be a valid method signature like:", "int example(String test, int test2)");
+        Logger.eprintlnMixedYellow("Make sure to use", "full qualified", "class names and that all classes are available on the classpath.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void invalidArgumentException(Throwable e, String argumentString)
+    {
+        Logger.eprintlnMixedYellow("The specified argument string", argumentString, "is invalid.");
+        Logger.eprintlnMixedBlue("Make sure to use", "full qualified", "class names and that all classes are available within the classpath.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void argumentCountMismatch(int actual, int expected)
+    {
+        Logger.eprintln("Mismatching number of arguments for the specified signature.");
+        Logger.eprintMixedBlueFirst("Expected " + expected, "argument(s), but", "got " + actual);
+        Logger.printlnPlain(" arguments.");
+        Utils.exit();
+    }
+
+    /**
+     * Walks down a stacktrace and searches for a specific exception name.
+     * If it finds the corresponding name, the corresponding Throwable is returned.
+     *
+     * @param name Exception name to look for.
+     * @param e stack trace to search in.
+     * @return identified Throwable.
+     */
+    public static Throwable getThrowable(String name, Throwable e)
+    {
+        if( e.getClass().getSimpleName().equals(name) )
+            return e;
+
+        Throwable exception = e;
+        Throwable cause = e.getCause();
+
+        while((exception != cause) && (cause != null)) {
+
+            if( cause.getClass().getSimpleName().equals(name))
+                return cause;
+
+            exception = cause;
+            cause = exception.getCause();
+        }
+
+        return null;
     }
 
     /**

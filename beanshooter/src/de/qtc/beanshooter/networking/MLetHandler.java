@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URL;
 import java.nio.file.Files;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -40,15 +41,21 @@ public class MLetHandler implements HttpHandler {
      * @param objectName the objectName of the MBean to load
      * @param stagerOnly whether or not the parent StagerServer was spawned by the stager action
      */
-    public MLetHandler(String url, String beanClass, String jarName, String objectName, StagerServer parent)
+    public MLetHandler(URL url, String beanClass, String jarName, String objectName, StagerServer parent)
     {
-        this.url = url;
+        this.url = url.toString();
         this.jarName = jarName;
         this.mBeanClass = beanClass;
         this.objectName = objectName;
         this.parent = parent;
 
-        this.mLetResponse = String.format(mLet, this.mBeanClass, this.jarName, this.objectName, this.url);
+        this.mLetResponse = String.format(mLet, mBeanClass, jarName, objectName, url);
+
+        if (url.getHost().equals("0.0.0.0"))
+        {
+            Logger.printlnMixedYellowFirst("Warning:", "Using a non routable address for the stager server is probably not what you want.");
+            Logger.printlnMixedYellowFirst("Warning:", "Incomming connections will not know how to connect after obtaining the MLet definition.");
+        }
     }
 
     /**

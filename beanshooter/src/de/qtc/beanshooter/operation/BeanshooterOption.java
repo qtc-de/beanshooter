@@ -160,12 +160,6 @@ public enum BeanshooterOption implements Option {
                 "url"
                 ),
 
-    DEPLOY_STAGER_ONLY("--stager-only",
-                       "only launch the stager HTTP server",
-                       Arguments.storeTrue(),
-                       OptionGroup.ACTION,
-                       ArgType.BOOL),
-
     DEPLOY_NO_STAGER("--no-stager",
                      "do not launch the stager HTTP server",
                      Arguments.storeTrue(),
@@ -290,22 +284,30 @@ public enum BeanshooterOption implements Option {
                     ArgType.STRING,
                     "objname"),
 
-    INVOKE_METHOD_NAME("method",
-                       "name of the method to invoke",
+    INVOKE_METHOD_ARGS("arg",
+                       "argument to use for the call",
                        Arguments.store(),
                        OptionGroup.ACTION,
-                       ArgType.STRING,
-                       "method"),
-
-    INVOKE_METHOD_ARGS("args",
-                          "argument string to use for the call",
-                          Arguments.store(),
-                          OptionGroup.ACTION,
-                          ArgType.STRING,
-                          "args"),
+                       ArgType.ARRAY,
+                       "arg"),
 
     INVOKE_LITERAL("--literal",
                    "also invoke methods starting with get as normal methods",
+                   Arguments.storeTrue(),
+                   OptionGroup.ACTION,
+                   ArgType.BOOL
+                   ),
+
+    INVOKE_METHOD("--signature",
+                  "the method to call on the targeted object name",
+                  Arguments.store(),
+                  OptionGroup.ACTION,
+                  ArgType.STRING,
+                  "sig"
+                  ),
+
+    INVOKE_NO_WRAP("--no-wrap",
+                   "prevent autowrapping of primitive types",
                    Arguments.storeTrue(),
                    OptionGroup.ACTION,
                    ArgType.BOOL
