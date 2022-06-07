@@ -14,7 +14,7 @@ tester:
         - head
         - xxd
       version:
-        ge: 1.10.3
+        ge: 1.10.2
 
 variables:
   volume: /tmp/beanshooter-tricot-test/
