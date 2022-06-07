@@ -6,12 +6,48 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [x.x.x] - MM DD, YYYY
+## [3.0.0-rc.2] - Jun 07, 2022
+
+### Added
+
+* Added documentation for the docker containers
+* Added `execarray` action for the tonka bean
+* Added [tricot](https://github.com/qtc-de/tricot) based tests for all actions
 
 ### Changed
 
-* Removed dependency for sun http-server from pom.xml
-* Improved formatting when used in stager-only mode
+* Improve the argument handling of the `invoke` action
+* Improve the `shell` action (Windows compatibility)
+* Replace `execbackground` action with the option `--background`
+* Several bug fixes
+
+
+## [3.0.0-rc.1] - March 21, 2022
+
+Global refactoring. Basically all code sections were renewed and several new features
+were implemented.
+
+### Added
+
+* Added the `brute` action for bruteforcing JMX credentials
+* Added the `invoke` action for calling arbitrary MBean methods
+* Added the `enum` action to enumerate common JMX vulnerabilities
+* Added the `list` action to enumerate available MBeans
+* Added the `serial` action to perform deserialization attacks
+* Added support for the *Apache tomcats* `MemoryUserDatabaseMBean`
+* Added support for calling the *MLetMBean* manually
+* Added support for *Apache Karaf*
+
+### Changed
+
+* The [example servers]() were renewed and provide now more useful
+  [usage examples]()
+* The [tonka-bean]() is now included into the *beanshooter* jar file
+  Building and providing the *tonka-bean* separately is no longer required
+* The *tonka-bean* was renewed and contains several new features and improvements
+* The exception handling was improved to provide more detailed information
+  in case of an error. Using the `--stack-trace` option allows always to
+  investigate the full stack trace if required
 
 
 ## [2.0.1] - Oct 2, 2020
