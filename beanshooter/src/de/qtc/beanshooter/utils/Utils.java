@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -503,5 +504,34 @@ public class Utils {
             return secondPath.toPath();
 
         return Paths.get(first, second);
+    }
+
+    /**
+     * Obtain a simple signature string for the specified Method. This method exists, because the default
+     * signature that can be obtained from a Method object is to verbose.
+     *
+     * @param m  method to obtain the signature from
+     * @return method signature as string
+     */
+    public static String getMethodString(Method m)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(m.getName());
+        sb.append("(");
+
+        if (m.getParameterCount() != 0)
+        {
+            for (Class<?> cc : m.getParameterTypes())
+            {
+                sb.append(cc.getName());
+                sb.append(", ");
+            }
+
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append(")");
+        return sb.toString();
     }
 }

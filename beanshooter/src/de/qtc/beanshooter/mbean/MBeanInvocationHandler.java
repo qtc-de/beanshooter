@@ -71,7 +71,7 @@ public class MBeanInvocationHandler implements InvocationHandler {
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof java.lang.NoSuchMethodException)
-                ExceptionHandler.noSuchMethod(e, method.toGenericString());
+                ExceptionHandler.noSuchMethod(e, Utils.getMethodString(method));
 
             else
                 ExceptionHandler.unexpectedException(e, "invoke", "operation", true);
