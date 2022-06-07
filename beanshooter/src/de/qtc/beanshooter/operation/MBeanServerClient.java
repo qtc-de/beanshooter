@@ -3,10 +3,14 @@ package de.qtc.beanshooter.operation;
 import java.io.IOException;
 import java.util.Set;
 
+import javax.management.Attribute;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
+import javax.management.IntrospectionException;
+import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
+import javax.management.MBeanInfo;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
@@ -255,12 +259,9 @@ public class MBeanServerClient {
     /**
      * Wrapper around the getAttribute function from the MBeanServerConnection.
      *
-     * @param conn MBeanServerConnection to invoke the function on
-     * @param name ObjectName of the MBean to invoke the function on
-     * @param methodName function name to invoke
-     * @param args arguments to use for the call
-     * @return return value of the MBean call.
-     * @throws InstanceNotFoundException
+     * @param name ObjectName of the MBean to obtain the attribute from
+     * @param attr the name of the attribute to obtain
+     * @return attribute value
      * @throws MBeanException
      * @throws ReflectionException
      * @throws IOException
@@ -280,6 +281,66 @@ public class MBeanServerClient {
         catch (AttributeNotFoundException e)
         {
             ExceptionHandler.noSuchAttribute(e, attributeName);
+        }
+
+        return null;
+    }
+
+    /**
+     * Wrapper around the setAttribute function from the MBeanServerConnection.
+     *
+     * @param name ObjectName of the MBean to set the attribute on
+     * @param attr the Attribute to set
+     * @return attribute value
+     * @throws MBeanException
+     * @throws ReflectionException
+     * @throws IOException
+     */
+    public void setAttribute(ObjectName name, Attribute attr) throws MBeanException, ReflectionException, IOException
+    {
+        try
+        {
+            conn.setAttribute(name, attr);
+        }
+
+        catch (InstanceNotFoundException e)
+        {
+            ExceptionHandler.handleInstanceNotFound(e, name.toString());
+        }
+
+        catch (AttributeNotFoundException e)
+        {
+            ExceptionHandler.noSuchAttribute(e, attr.getName());
+        }
+
+        catch (InvalidAttributeValueException e)
+        {
+            Logger.eprintlnMixedYellow("Caught", "InvalidAttributeValueException", "while setting the attribute.");
+            Logger.eprintlnMixedBlue("The specified attribute value of class", attr.getValue().getClass().getName(), "is probably not compatible.");
+        }
+    }
+
+    /**
+     * Wrapper around the getMBeanInfo function of the MBeanServerConnection.
+     *
+     * @param name ObjectName of the MBean to obtain the MBeanInfo from
+     * @return obtained MBeanInfo
+     */
+    public MBeanInfo getMBeanInfo(ObjectName name)
+    {
+        try
+        {
+            return conn.getMBeanInfo(name);
+        }
+
+        catch (InstanceNotFoundException e)
+        {
+            ExceptionHandler.handleInstanceNotFound(e, name.toString());
+        }
+
+        catch (ReflectionException | IOException | IntrospectionException e)
+        {
+            ExceptionHandler.unexpectedException(e, "obtaining", "MBeanInfo", true);
         }
 
         return null;

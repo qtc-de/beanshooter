@@ -174,6 +174,11 @@ public class Logger {
         log(prefix() + blue(msg));
     }
 
+    public static void printlnRed(String msg)
+    {
+        log(prefix() + red(msg));
+    }
+
     public static void eprintlnBlue(String msg)
     {
         elog(prefix() + blue(msg));
@@ -199,9 +204,19 @@ public class Logger {
         log(blue(msg), false);
     }
 
+    public static void printBlue(String msg)
+    {
+        log(prefix() + blue(msg), false);
+    }
+
     public static void printPlainGreen(String msg)
     {
         log(green(msg), false);
+    }
+
+    public static void printPlainRed(String msg)
+    {
+        log(red(msg), false);
     }
 
     public static void printlnPlainGreen(String msg)
@@ -319,6 +334,11 @@ public class Logger {
         log(prefix() + first + " " + yellow(second) + " " + third);
     }
 
+    public static void printPlainMixedYellow(String first, String second)
+    {
+        log(first + " " + yellow(second), false);
+    }
+
     public static void printlnPlainMixedYellow(String first, String second)
     {
         log(first + " " + yellow(second));
@@ -341,6 +361,10 @@ public class Logger {
 
     public static void printPlainMixedYellowFirst(String first, String second) {
         log(yellow(first) + " " + second, false);
+    }
+
+    public static void printPlainMixedYellowFirst(String first, String second, String third) {
+        log(yellow(first) + " " + second + " " + yellow(third), false);
     }
 
     public static void printlnPlainMixedYellowFirst(String first, String second)
@@ -452,6 +476,16 @@ public class Logger {
     public static void eprintMixedBlueFirst(String first, String second, String third)
     {
         elog(eprefix() + blue(first) + " " + second + " " + blue(third), false);
+    }
+
+    public static void printMixedRedFirst(String first, String second)
+    {
+        elog(prefix() + red(first) + " " + second, false);
+    }
+
+    public static void printMixedRedFirst(String first, String second, String third)
+    {
+        elog(prefix() + red(first) + " " + second + " " + red(third), false);
     }
 
     public static void eprintlnMixedYellowFirst(String first, String second)

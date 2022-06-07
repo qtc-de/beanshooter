@@ -38,12 +38,34 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_SASL,
     }),
 
-    INFO("info", "print detailed information about the MBean", new Option[] {
+    STATS("stats", "print local information about the MBean", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
             BeanshooterOption.GLOBAL_NO_COLOR,
             BeanshooterOption.GLOBAL_STACK_TRACE,
+    }),
+
+    INFO("info", "print server information about the MBean", new Option[] {
+             BeanshooterOption.GLOBAL_CONFIG,
+             BeanshooterOption.GLOBAL_VERBOSE,
+             BeanshooterOption.GLOBAL_PLUGIN,
+             BeanshooterOption.GLOBAL_NO_COLOR,
+             BeanshooterOption.GLOBAL_STACK_TRACE,
+             BeanshooterOption.TARGET_HOST,
+             BeanshooterOption.TARGET_PORT,
+             BeanshooterOption.TARGET_BOUND_NAME,
+             BeanshooterOption.TARGET_OBJID_SERVER,
+             BeanshooterOption.TARGET_OBJID_CONNECTION,
+             BeanshooterOption.CONN_FOLLOW,
+             BeanshooterOption.CONN_SSL,
+             BeanshooterOption.CONN_JMXMP,
+             BeanshooterOption.CONN_USER,
+             BeanshooterOption.CONN_PASS,
+             BeanshooterOption.CONN_SASL,
+             BeanshooterOption.ATTR_WRITEABLE,
+             BeanshooterOption.ATTR_HARVEST,
+             BeanshooterOption.ATTR_KEYWORDS,
     }),
 
     EXPORT("export", "create an export of the MBean", new Option[] {

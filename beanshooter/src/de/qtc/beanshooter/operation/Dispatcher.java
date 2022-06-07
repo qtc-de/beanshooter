@@ -1,11 +1,13 @@
 package de.qtc.beanshooter.operation;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
+import javax.management.Attribute;
 import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
@@ -18,6 +20,7 @@ import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.WordlistHandler;
+import de.qtc.beanshooter.mbean.DynamicMBean;
 import de.qtc.beanshooter.mbean.IMBean;
 import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.networking.StagerServer;
@@ -335,13 +338,7 @@ public class Dispatcher {
 
         try
         {
-            Object result = null;
-
-            if(methodName.startsWith("get") && argumentArray.length == 0 && !BeanshooterOption.INVOKE_LITERAL.getBool())
-                result = client.getAttribute(objectName, methodName.substring(3));
-
-            else
-                result = client.invoke(objectName, methodName, argumentTypes, argumentArray);
+            Object result = client.invoke(objectName, methodName, argumentTypes, argumentArray);
 
             if( result != null )
                 PluginSystem.handleResponse(result);
@@ -384,5 +381,80 @@ public class Dispatcher {
         }
 
         server.stop();
+    }
+
+    /**
+     * Sets or gets an attribute on the targeted MBean.
+     */
+    public void attr()
+    {
+        Attribute attrObj = null;
+        ObjectName objectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.INVOKE_OBJ_NAME));
+
+        String attrName = ArgumentHandler.require(BeanshooterOption.ATTR_ATTRIBUTE);
+        String attrValue = BeanshooterOption.ATTR_VALUE.getValue(null);
+        String typeName = BeanshooterOption.ATTR_TYPE.getValue("String");
+
+        if (attrValue != null)
+        {
+            String signature = String.format("void dummy(%s p1)", typeName);
+            PluginSystem.getArgumentTypes(signature);
+            Object[] argumentArray = PluginSystem.getArgumentArray(new String[] { attrValue });
+
+            attrObj = new Attribute(attrName, argumentArray[0]);
+        }
+
+        MBeanServerClient client = getMBeanServerClient();
+
+        try
+        {
+            if (attrObj != null)
+                client.setAttribute(objectName, attrObj);
+
+            else
+            {
+                Object result = client.getAttribute(objectName, attrName);
+
+                if( result != null )
+                    PluginSystem.handleResponse(result);
+                else
+                    Logger.println("null");
+            }
+        }
+
+        catch (MBeanException | ReflectionException | IOException e)
+        {
+            Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while obtaining attribute %s from %s", attrName, objectName));
+            Logger.println("beanshooter does not handle exceptions for custom method invocations.");
+            ExceptionHandler.stackTrace(e);
+        }
+    }
+
+    /**
+     * Create a DynamicMBean from the user supplied input and invoke the info action on it.
+     */
+    public void info()
+    {
+        List<ObjectName> objectNames = new ArrayList<ObjectName>();
+
+        if (BeanshooterOption.OBJ_NAME.notNull())
+        {
+            ObjectName mBeanObjectName = Utils.getObjectName(BeanshooterOption.OBJ_NAME.getValue());
+            objectNames.add(mBeanObjectName);
+        }
+
+        else
+        {
+            Set<ObjectInstance> instances = getMBeanServerClient().getMBeans();
+            for (ObjectInstance inst : instances)
+                objectNames.add(inst.getObjectName());
+        }
+
+        for (ObjectName objName : objectNames)
+        {
+            DynamicMBean mbean = new DynamicMBean(objName, null, null);
+            de.qtc.beanshooter.mbean.Dispatcher disp = new de.qtc.beanshooter.mbean.Dispatcher(mbean);
+            disp.info();
+        }
     }
 }

@@ -31,6 +31,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanParameterInfo;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -525,6 +527,36 @@ public class Utils {
             for (Class<?> cc : m.getParameterTypes())
             {
                 sb.append(cc.getName());
+                sb.append(", ");
+            }
+
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append(")");
+        return sb.toString();
+    }
+
+    /**
+     * Obtain a method signature as string from an MBeanOperationInfo object.
+     *
+     * @param info  MBeanOperationInfo object
+     * @return method signature as string
+     */
+    public static String getMethodString(MBeanOperationInfo info)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(info.getReturnType());
+        sb.append(" ");
+        sb.append(info.getName());
+        sb.append("(");
+
+        if (info.getSignature().length != 0)
+        {
+            for (MBeanParameterInfo cc : info.getSignature())
+            {
+                sb.append(cc.getType() + " " + cc.getName());
                 sb.append(", ");
             }
 

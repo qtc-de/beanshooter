@@ -291,13 +291,6 @@ public enum BeanshooterOption implements Option {
                        ArgType.ARRAY,
                        "arg"),
 
-    INVOKE_LITERAL("--literal",
-                   "also invoke methods starting with get as normal methods",
-                   Arguments.storeTrue(),
-                   OptionGroup.ACTION,
-                   ArgType.BOOL
-                   ),
-
     INVOKE_METHOD("--signature",
                   "the method to call on the targeted object name",
                   Arguments.store(),
@@ -312,6 +305,62 @@ public enum BeanshooterOption implements Option {
                    OptionGroup.ACTION,
                    ArgType.BOOL
                    ),
+
+    OBJ_NAME("object-name",
+             "the ObjectName to perform the operation on",
+             Arguments.store(),
+             OptionGroup.ACTION,
+             ArgType.STRING
+            ),
+
+    ATTR_ATTRIBUTE("attribute",
+                   "the attribute to operate on",
+                   Arguments.store(),
+                   OptionGroup.ACTION,
+                   ArgType.STRING
+                  ),
+
+    ATTR_VALUE("value",
+               "the attribute value to set",
+               Arguments.store(),
+               OptionGroup.ACTION,
+               ArgType.STRING
+              ),
+
+    ATTR_TYPE("--type",
+              "the type of the attribute",
+              Arguments.store(),
+              OptionGroup.ACTION,
+              ArgType.STRING
+             ),
+
+    ATTR_WRITEABLE("--writable",
+                   "only list writable attributes",
+                   Arguments.storeTrue(),
+                   OptionGroup.ACTION,
+                   ArgType.BOOL
+                   ),
+
+    ATTR_HARVEST("--harvest",
+                 "only show attributes that match keywords",
+                 Arguments.storeTrue(),
+                 OptionGroup.ACTION,
+                 ArgType.BOOL
+                   ),
+
+    ATTR_KEYWORDS("--keywords",
+                   "space separated list of keywords",
+                   Arguments.store(),
+                   OptionGroup.ACTION,
+                   ArgType.STRING
+                    ),
+
+    ATTR_METHOD_KEYWORDS("--method-keywords",
+                               "space separated list of keywords",
+                               Arguments.store(),
+                               OptionGroup.ACTION,
+                               ArgType.STRING
+                            ),
 
     STAGER_HOST("host",
                 "the IP address to listen on",

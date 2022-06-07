@@ -10,6 +10,12 @@ import javax.management.ObjectName;
 import de.qtc.beanshooter.cli.Operation;
 import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.mbean.diagnostic.DiagnosticCommandOperation;
+import de.qtc.beanshooter.mbean.diagnostic.DiagnosticCommandOption;
+import de.qtc.beanshooter.mbean.flightrecorder.FlightRecorderOperation;
+import de.qtc.beanshooter.mbean.flightrecorder.FlightRecorderOption;
+import de.qtc.beanshooter.mbean.hotspot.HotSpotDiagnosticOperation;
+import de.qtc.beanshooter.mbean.hotspot.HotSpotDiagnosticOption;
 import de.qtc.beanshooter.mbean.mlet.MLetOperation;
 import de.qtc.beanshooter.mbean.mlet.MLetOption;
 import de.qtc.beanshooter.mbean.tomcat.MemoryUserDatabaseMBeanOperation;
@@ -52,7 +58,37 @@ public enum MBean implements IMBean
             null,
             MemoryUserDatabaseMBeanOperation.values(),
             new Option[] {}
-           );
+           ),
+
+    FLIGHT_RECORDER(
+            "recorder",
+            "jfr Flight Recorder MBean",
+             Utils.getObjectName("jdk.management.jfr:type=FlightRecorder"),
+             "jdk.management.jfr.FlightRecorderMXBeanImpl",
+             null,
+             FlightRecorderOperation.values(),
+             FlightRecorderOption.values()
+            ),
+
+    DIAGNOSTIC_COMMAND(
+            "diagnostic",
+            "Diagnostic Command MBean",
+             Utils.getObjectName("com.sun.management:type=DiagnosticCommand"),
+             "com.sun.management.internal.DiagnosticCommandImpl",
+             null,
+             DiagnosticCommandOperation.values(),
+             DiagnosticCommandOption.values()
+            ),
+
+    HOTSPOT_DIAGNOSTIC(
+            "hotspot",
+            "HotSpot Diagnostic MBean",
+             Utils.getObjectName("com.sun.management:type=HotSpotDiagnostic"),
+             "com.sun.management.internal.HotSpotDiagnostic",
+             null,
+             HotSpotDiagnosticOperation.values(),
+             HotSpotDiagnosticOption.values()
+            );
 
     private String name;
     private String description;
