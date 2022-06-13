@@ -9,26 +9,33 @@ import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- * The MLetOption enum contains available options that are dedicated to MLetOperations. The options
- * are assigned to the corresponding operations within the MLetOperation class.
+ * The DiagnosticCommandOption enum contains available options that are dedicated for the DiagnosticCommandMBean.
+ * The options are assigned to the corresponding operations within the DiagnosticCommandOperation class.
  *
  * @author Tobias Neitzel (@qtc_de)
  */
 public enum DiagnosticCommandOption implements Option
 {
     FILENAME("filename",
-                "targeted filename",
-                Arguments.store(),
-                OptionGroup.ACTION,
-                ArgType.STRING
-               ),
+             "target filename",
+             Arguments.store(),
+             OptionGroup.ACTION,
+             ArgType.STRING
+            ),
 
-    LOAD("path",
-            "path to the library file to load",
-            Arguments.store(),
-            OptionGroup.ACTION,
-            ArgType.STRING
-           );
+    RAW("--raw",
+        "display the whole exception containing the file content",
+        Arguments.storeTrue(),
+        OptionGroup.ACTION,
+        ArgType.BOOL
+       ),
+
+    LIBRARY_PATH("library-path",
+                 "path to the library file to load",
+                 Arguments.store(),
+                 OptionGroup.ACTION,
+                 ArgType.STRING
+                );
 
     private final String name;
     private final String description;

@@ -8,7 +8,7 @@ import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 
 /**
- * The MLetOperation enum contains operations that are available on a deployed MLet MBean.
+ * The DiagnosticCommandOperation enum contains operations that are available on a deployed DiagnosticCommand MBean.
  * Furthermore, it defines the options that are available for the corresponding operations.
  *
  * @author Tobias Neitzel (@qtc_de)
@@ -33,6 +33,7 @@ public enum DiagnosticCommandOperation implements Operation
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
             DiagnosticCommandOption.FILENAME,
+            DiagnosticCommandOption.RAW,
     }),
 
     LOAD("loadLibrary", "load a shared library", new Option[] {
@@ -52,10 +53,10 @@ public enum DiagnosticCommandOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
-            DiagnosticCommandOption.LOAD,
+            DiagnosticCommandOption.LIBRARY_PATH,
     }),
 
-    LOG("setLogfile", "set the log location of the Java VM", new Option[] {
+    LOGFILE("setLogfile", "set the log location of the Java VM", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -75,7 +76,45 @@ public enum DiagnosticCommandOperation implements Operation
             DiagnosticCommandOption.FILENAME,
     }),
 
-    DISABLE("disableLogging", "disable logging", new Option[] {
+    NOLOG("disableLogging", "disable logging of the Java VM", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
+    }),
+
+    CMDLINE("getCommandLine", "get the Java virtual machine command line", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
+    }),
+
+    PROPS("getSystemProperties", "get Java virtual machine System properties", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -93,7 +132,6 @@ public enum DiagnosticCommandOperation implements Operation
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
     });
-;
 
     private Method method;
     private String description;
