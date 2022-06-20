@@ -483,20 +483,19 @@ public class ExceptionHandler {
         if( t instanceof javax.security.auth.login.FailedLoginException && message.contains("login failed"))
             throw new WrongCredentialsException(e);
 
-        Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "while connecting to the specified JMX service.");
-        stackTrace(e);
-        Utils.exit();
+
+        throw new UnknownSecurityException(e);
     }
 
     public static void handleAuthenticationException(AuthenticationException e)
     {
-        if( e instanceof SaslMissingException)
+        if (e instanceof SaslMissingException)
         {
             Logger.eprintlnMixedYellow("Caught", "SaslMissingException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The sever requires a", "SASL profile (--sasl)", "to be specified.");
         }
 
-        else if( e instanceof SaslProfileException)
+        else if (e instanceof SaslProfileException)
         {
             Logger.eprintlnMixedYellow("Caught", "SaslProfileException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The specified", "SASL profile", "does not match the server SASL profile.");
@@ -508,23 +507,30 @@ public class ExceptionHandler {
                 Logger.eprintlnMixedYellow("If you are confident that you are using the correct profile, try to use the", "--ssl", "option");
         }
 
-        else if( e instanceof MismatchedURIException )
+        else if (e instanceof MismatchedURIException)
         {
             Logger.eprintlnMixedYellow("Caught", "MisMatchedURIException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The specified", "target host", "does not match the configured SASL host.");
         }
 
-        else if( e instanceof ApacheKarafException )
+        else if (e instanceof ApacheKarafException)
         {
             Logger.eprintlnMixedYellow("Caught", "ApacheKarafException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The targeted JMX service is probably spawned by", "Apache Karaf", "and requires authentication.");
             Logger.eprintlnMixedYellow("You can attempt to login using Apache Karaf default credentials:", "karaf:karaf");
         }
 
-        else if( e instanceof WrongCredentialsException)
+        else if (e instanceof WrongCredentialsException)
         {
             Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The specified credentials are most likely", "incorrect.");
+        }
+
+        else if(e instanceof UnknownSecurityException)
+        {
+            Logger.eprintlnMixedYellow("Caught an", "unknown SecurityException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The specified credentials are most likely", "incorrect.");
+            Logger.eprintlnMixedYellow("However, you may use the", "--stack-trace", "option to further investigate.");
         }
 
         else

@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -565,5 +566,28 @@ public class Utils {
 
         sb.append(")");
         return sb.toString();
+    }
+
+    /**
+     * Asks the user whether execution should continue. If the user does not confirm, the program
+     * is shutdown.
+     */
+    public static void askToContinue()
+    {
+        try(Scanner scanner = new Scanner(System.in))
+        {
+            String input = scanner.nextLine().toLowerCase();
+
+            switch(input)
+            {
+                case "":
+                case "y":
+                case "yes":
+                    Logger.lineBreak();
+                    break;
+                default:
+                    Utils.exit();
+            }
+        }
     }
 }

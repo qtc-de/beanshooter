@@ -58,7 +58,7 @@ public class CredentialGuesser
         Logger.increaseIndent();
 
         EnumHelper enumHelper = new EnumHelper(host, port);
-        if( BeanshooterOption.CONN_SASL.isNull() && !enumHelper.requriesLogin() )
+        if( BeanshooterOption.CONN_SASL.isNull() && !enumHelper.requiresLogin() )
         {
             Logger.printlnMixedYellow("The targeted JMX service accepts", "unauthenticated", "connections.");
             Logger.println("No need to bruteforce credentials.");

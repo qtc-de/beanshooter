@@ -459,7 +459,7 @@ public class EnumHelper
      *
      * @return true if credentials are required
      */
-    public boolean requriesLogin()
+    public boolean requiresLogin()
     {
         Map<String, Object> env = ArgumentHandler.getEnv(null, null);
 
@@ -470,10 +470,10 @@ public class EnumHelper
 
         catch(AuthenticationException e) {
 
-            if(e instanceof MissingCredentialsException)
+            if (e instanceof MissingCredentialsException)
                 return true;
 
-            if(e instanceof SaslProfileException)
+            if (e instanceof SaslProfileException)
             {
                 Logger.printlnMixedBlue("Caught", "SaslProfileException", "during login attempt.");
                 Logger.printlnMixedYellow("Use the", "--sasl", "option to specify a matching SASL profile.");
@@ -481,7 +481,13 @@ public class EnumHelper
                 Utils.exit();
             }
 
-            ExceptionHandler.unexpectedException(e, "login", "attempt", true);
+            Logger.printlnMixedYellow("Caught unknown", e.getOriginalException().getClass().getName(), "during connection attempt.");
+            Logger.printlnMixedBlue("Exception message:", e.getOriginalException().getMessage());
+
+            ExceptionHandler.showStackTrace(e);
+            Logger.print("Treat as credential error and continue? (Y/n) ");
+
+            Utils.askToContinue();
         }
 
         return true;
@@ -521,7 +527,13 @@ public class EnumHelper
                 Utils.exit();
             }
 
-            ExceptionHandler.unexpectedException(e, "login", "attempt", true);
+            Logger.printlnMixedYellow("Caught unknown", e.getOriginalException().getClass().getName(), "during login attempt.");
+            Logger.printlnMixedBlue("Exception message:", e.getOriginalException().getMessage());
+
+            ExceptionHandler.showStackTrace(e);
+            Logger.print("Treat as credential error and continue? (Y/n) ");
+
+            Utils.askToContinue();
         }
     }
 }
