@@ -1,6 +1,7 @@
 package de.qtc.beanshooter.operation;
 
 import java.io.IOException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Set;
 
 import javax.management.Attribute;
@@ -89,7 +90,7 @@ public class MBeanServerClient {
             Logger.printlnMixedYellowFirst(className, "is already deployed.");
             return;
 
-        } catch (javax.management.ReflectionException e) {
+        } catch (javax.management.ReflectionException | UndeclaredThrowableException e) {
 
             Throwable t = ExceptionHandler.getCause(e);
 
