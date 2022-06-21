@@ -484,10 +484,7 @@ public class EnumHelper
             Logger.printlnMixedYellow("Caught unknown", e.getOriginalException().getClass().getName(), "during connection attempt.");
             Logger.printlnMixedBlue("Exception message:", e.getOriginalException().getMessage());
 
-            ExceptionHandler.showStackTrace(e);
-            Logger.print("Treat as credential error and continue? (Y/n) ");
-
-            Utils.askToContinue();
+            Utils.askToContinue("Treat as credential error and continue?", e);
         }
 
         return true;
@@ -530,10 +527,7 @@ public class EnumHelper
             Logger.printlnMixedYellow("Caught unknown", e.getOriginalException().getClass().getName(), "during login attempt.");
             Logger.printlnMixedBlue("Exception message:", e.getOriginalException().getMessage());
 
-            ExceptionHandler.showStackTrace(e);
-            Logger.print("Treat as credential error and continue? (Y/n) ");
-
-            Utils.askToContinue();
+            Utils.askToContinue("Treat as credential error and continue?", e);
         }
     }
 }

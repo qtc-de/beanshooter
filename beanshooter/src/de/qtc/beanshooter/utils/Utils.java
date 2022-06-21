@@ -572,10 +572,14 @@ public class Utils {
      * Asks the user whether execution should continue. If the user does not confirm, the program
      * is shutdown.
      */
-    public static void askToContinue()
+    public static void askToContinue(String message, Exception e)
     {
-        try(Scanner scanner = new Scanner(System.in))
+        @SuppressWarnings("resource")
+        Scanner scanner = new Scanner(System.in);
+
+        while (true)
         {
+            Logger.printMixedYellow(message, "(Y/n/trace)", "");
             String input = scanner.nextLine().toLowerCase();
 
             switch(input)
@@ -584,9 +588,21 @@ public class Utils {
                 case "y":
                 case "yes":
                     Logger.lineBreak();
-                    break;
-                default:
+                    return;
+
+                case "t":
+                case "trace":
+                case "stacktrace":
+                    ExceptionHandler.stackTrace(e);
+                    continue;
+
+                case "n":
+                case "no":
                     Utils.exit();
+
+                default:
+                    Logger.printlnRed("Invalid choice.");
+                    continue;
             }
         }
     }
