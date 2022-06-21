@@ -20,6 +20,7 @@ import de.qtc.beanshooter.exceptions.MalformedPluginException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.providers.ArgumentProvider;
+import de.qtc.beanshooter.plugin.providers.AuthenticationProvider;
 import de.qtc.beanshooter.plugin.providers.JMXMPProvider;
 import de.qtc.beanshooter.plugin.providers.JNDIProvider;
 import de.qtc.beanshooter.plugin.providers.RMIProvider;
@@ -42,6 +43,7 @@ public class PluginSystem {
     private static IPayloadProvider payloadProvider;
     private static IArgumentProvider argumentProvider;
     private static IResponseHandler responseHandler;
+    private static IAuthenticationProvider authenticationProvider;
 
     private static final String manifestAttribute = "BeanshooterPluginClass";
 
@@ -59,6 +61,7 @@ public class PluginSystem {
         payloadProvider = new YsoSerialProvider();
         argumentProvider = new ArgumentProvider();
         responseHandler = new ResponseHandlerProvider();
+        authenticationProvider = new AuthenticationProvider();
 
         if(pluginPath != null)
             loadPlugin(pluginPath);
@@ -135,13 +138,16 @@ public class PluginSystem {
         } if(pluginInstance instanceof IResponseHandler) {
             responseHandler = (IResponseHandler)pluginInstance;
             inUse = true;
-        }
 
+        } if(pluginInstance instanceof IAuthenticationProvider) {
+            authenticationProvider = (IAuthenticationProvider)pluginInstance;
+            inUse = true;
+        }
 
         if(!inUse) {
             Logger.eprintMixedBlue("Plugin", pluginPath, "was successfully loaded, but is ");
             Logger.eprintlnPlainYellow("not in use.");
-            Logger.eprintlnMixedYellow("Plugins should implement at least one of the", "IMBeanServerProvider or ISocketFactoryProvider", "interfaces.");
+            Logger.eprintln("Plugins should implement at least one of the available plugin interfaces.");
         }
     }
 
@@ -331,5 +337,22 @@ public class PluginSystem {
     public static void handleResponse(Object response)
     {
         responseHandler.handleResponse(response);
+    }
+
+    /**
+    * Authentication to JMX endpoints is usually handled using a map that contains the authentication
+    * parameters. This function is used to prepare such a map by using an explicitly defiend username
+    * and password. The default JMX implementation expects the returned Map to contain the key
+    * JMXConnector.CREDENTIALS with an associated String array containing the username and the password.
+    * However, custom implementations may expect a different format. Therefore, providing the Map
+    * through the plugin system allows users to modify the default behavior.
+    *
+    * @param username the desired username for JMX authentication
+    * @param password the desired password for JMX authentication
+    * @return environment that should be used during the newClient call
+    */
+    public static Map<String,Object> getEnv(String username, String password)
+    {
+        return authenticationProvider.getEnv(username, password);
     }
 }

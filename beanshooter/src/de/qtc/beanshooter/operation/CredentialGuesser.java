@@ -149,7 +149,7 @@ public class CredentialGuesser
         {
             for(String password : passwords)
             {
-                Map<String,Object> env = ArgumentHandler.getEnv(username, password);
+                Map<String,Object> env = PluginSystem.getEnv(username, password);
 
                 try
                 {

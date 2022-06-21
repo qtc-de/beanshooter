@@ -79,7 +79,7 @@ public class EnumHelper
                 Logger.eprintlnMixedYellow("- Caught", "SaslSuperflousException", "during login attempt.");
 
                 BeanshooterOption.CONN_SASL.setValue(null);
-                Map<String, Object> env2 = ArgumentHandler.getEnv(null, null);
+                Map<String, Object> env2 = PluginSystem.getEnv(null, null);
 
                 try
                 {
@@ -144,7 +144,7 @@ public class EnumHelper
      */
     public boolean enumAccess()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv(null, null);
+        Map<String, Object> env = PluginSystem.getEnv(null, null);
 
         Logger.printlnBlue("Checking for unauthorized access:");
         Logger.lineBreak();
@@ -205,7 +205,7 @@ public class EnumHelper
      */
     public boolean enumKaraf()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv("karaf", "karaf");
+        Map<String, Object> env = PluginSystem.getEnv("karaf", "karaf");
 
         Logger.printlnBlue("Checking for Apache Karaf default credentials:");
         Logger.lineBreak();
@@ -262,7 +262,7 @@ public class EnumHelper
      */
     public boolean enumSASL()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv(null, null);
+        Map<String, Object> env = PluginSystem.getEnv(null, null);
 
         Logger.printlnBlue("Checking servers SASL configuration:");
         Logger.lineBreak();
@@ -320,7 +320,7 @@ public class EnumHelper
             }
         }
 
-        env = ArgumentHandler.getEnv("non existent dummy user", "non existing dummy password");
+        env = PluginSystem.getEnv("non existent dummy user", "non existing dummy password");
         SASLMechanism mechanism = SASLMechanism.detectMechanis(host, port, env);
 
         if( mechanism != null)
@@ -461,7 +461,7 @@ public class EnumHelper
      */
     public boolean requiresLogin()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv(null, null);
+        Map<String, Object> env = PluginSystem.getEnv(null, null);
 
         try {
             PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
@@ -496,7 +496,7 @@ public class EnumHelper
      */
     public void checkLoginFormat()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv("beanshooter", "beanshooter");
+        Map<String, Object> env = PluginSystem.getEnv("beanshooter", "beanshooter");
 
         try {
             PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
