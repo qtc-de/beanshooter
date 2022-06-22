@@ -4,7 +4,7 @@ import javax.management.MBeanException;
 import javax.management.openmbean.TabularData;
 
 /**
- * Interface of available MLet operations. Since we only implement a subset of the
+ * Interface of available FlightRecorder operations. Since we only implement a subset of the
  * actually available operations exposed by this MBean, we use a custom interface
  * instead of the original one.
  *

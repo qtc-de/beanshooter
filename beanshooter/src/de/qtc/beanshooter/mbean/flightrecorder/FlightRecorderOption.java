@@ -9,8 +9,8 @@ import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- * The MLetOption enum contains available options that are dedicated to MLetOperations. The options
- * are assigned to the corresponding operations within the MLetOperation class.
+ * The FlightRecorderOption enum contains available options that are dedicated to FlightRecorderOperation. The options
+ * are assigned to the corresponding operations within the FlightRecorderOperation class.
  *
  * @author Tobias Neitzel (@qtc_de)
  */
@@ -24,11 +24,11 @@ public enum FlightRecorderOption implements Option
                 ),
 
     DUMP_FILE("outfile",
-                  "filename to save the dump in",
-                  Arguments.store(),
-                  OptionGroup.ACTION,
-                  ArgType.STRING
-             );
+              "filename to save the dump in",
+              Arguments.store(),
+              OptionGroup.ACTION,
+              ArgType.STRING
+              );
 
     private final String name;
     private final String description;

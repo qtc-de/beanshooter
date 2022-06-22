@@ -8,7 +8,7 @@ import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 
 /**
- * The MLetOperation enum contains operations that are available on a deployed MLet MBean.
+ * The FlightRecorderOperation enum contains operations that are available on a deployed FlightRecorder MBean.
  * Furthermore, it defines the options that are available for the corresponding operations.
  *
  * @author Tobias Neitzel (@qtc_de)
@@ -74,7 +74,7 @@ public enum FlightRecorderOperation implements Operation
             FlightRecorderOption.RECORDING_ID,
     }),
 
-    READ("readRecording", "read a recording", new Option[] {
+    READ("readRecording", "read a recording and store it to a local file", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -95,7 +95,7 @@ public enum FlightRecorderOperation implements Operation
             FlightRecorderOption.DUMP_FILE,
     }),
 
-    DUMP("dumpRecording", "dump a recording to disk", new Option[] {
+    DUMP("dumpRecording", "dump a recording to a file on the server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,

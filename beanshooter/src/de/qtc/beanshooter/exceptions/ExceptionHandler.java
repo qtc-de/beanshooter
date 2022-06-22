@@ -76,7 +76,7 @@ public class ExceptionHandler {
      * @param during2 Additional non colored description
      * @param exit whether or not to exit after printing the error messages
      */
-    public static void unexpectedException(Exception e, String during1, String during2, boolean exit)
+    public static void unexpectedException(Throwable e, String during1, String during2, boolean exit)
     {
         Logger.eprintMixedYellow("Caught unexpected", e.getClass().getName(), "during ");
         Logger.printlnPlainMixedBlueFirst(during1, during2 + ".");
@@ -288,7 +288,7 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
-    public static void handleFileWrite(Exception e, String path, boolean exit)
+    public static void handleFileWrite(Throwable e, String path, boolean exit)
     {
         Throwable t = ExceptionHandler.getCause(e);
         String message = t.getMessage();
