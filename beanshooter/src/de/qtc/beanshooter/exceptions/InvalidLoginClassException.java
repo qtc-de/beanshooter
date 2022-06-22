@@ -1,8 +1,8 @@
 package de.qtc.beanshooter.exceptions;
 
 /**
- * MismatchedURIExceptions occur when the DIGEST-MD5 SASL mechanism was used and
- * the specified server name does not match the actual hostname.
+ * InvalidLoginClassException occur when a deserilization payload was used during a login attempt
+ * and the server rejected the invalid login class.
  *
  * @author Tobias Neitzel (@qtc_de)
  */
