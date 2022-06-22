@@ -293,9 +293,9 @@ public class ExceptionHandler {
         Throwable t = ExceptionHandler.getCause(e);
         String message = t.getMessage();
 
-        if (t instanceof java.io.FileNotFoundException)
+        if (t instanceof java.io.FileNotFoundException || t.getClass() == IOException.class)
         {
-            Logger.eprintlnMixedYellow("Caught", "FileNotFoundException", "while opening output file.");
+            Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while opening output file.");
 
             if(message.contains("Permission denied"))
                 Logger.eprintlnMixedBlue("Missing the required permissions to write to:", path);
@@ -305,6 +305,9 @@ public class ExceptionHandler {
 
             else if(message.contains("Is a directory"))
                 Logger.eprintlnMixedBlue("The specified path", path, "is an existing directory.");
+
+            else if(message.contains("file exists"))
+                Logger.eprintlnMixedBlue("The specified file", path, "does already exist.");
 
             else
                 unexpectedException(e, "writing", "file", exit);

@@ -8,8 +8,9 @@ import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 
 /**
- * The MLetOperation enum contains operations that are available on a deployed MLet MBean.
- * Furthermore, it defines the options that are available for the corresponding operations.
+ * The HotSpotDiagnosticOperation enum contains operations that are available on a deployed
+ * HotSpotDiagnosticMXBean. Furthermore, it defines the options that are available for the
+ * corresponding operations.
  *
  * @author Tobias Neitzel (@qtc_de)
  */

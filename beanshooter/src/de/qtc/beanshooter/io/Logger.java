@@ -181,7 +181,7 @@ public class Logger {
 
     public static void eprintlnBlue(String msg)
     {
-        elog(prefix() + blue(msg));
+        elog(eprefix() + blue(msg));
     }
 
     public static void printlnYellow(String msg)

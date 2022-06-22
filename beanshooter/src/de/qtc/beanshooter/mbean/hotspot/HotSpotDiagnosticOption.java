@@ -9,8 +9,8 @@ import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- * The MLetOption enum contains available options that are dedicated to MLetOperations. The options
- * are assigned to the corresponding operations within the MLetOperation class.
+ * The HotSpotDiagnosticOption enum contains available options that are dedicated to HotSpotDiagnosticOperations.
+ * The options are assigned to the corresponding operations within the HotSpotDiagnosticOperation class.
  *
  * @author Tobias Neitzel (@qtc_de)
  */
@@ -38,10 +38,10 @@ public enum HotSpotDiagnosticOption implements Option
         ),
 
     DUMP_FILE("outfile",
-                  "filename to save the dump in",
-                  Arguments.store(),
-                  OptionGroup.ACTION,
-                  ArgType.STRING
+              "filename to save the dump on the server",
+              Arguments.store(),
+              OptionGroup.ACTION,
+              ArgType.STRING
              );
 
     private final String name;
