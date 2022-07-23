@@ -52,8 +52,8 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
             else if (output.startsWith("Could not load file"))
             {
-                Logger.printlnMixedBlue("The server was unable to open the file", filename);
-                Logger.println("This could mean that the file does not exist, is a directory or the sever is missing permissions");
+                Logger.eprintlnMixedBlue("The server was unable to open the file", filename);
+                Logger.eprintln("This could mean that the file does not exist, is a directory or the sever is missing permissions.");
             }
 
             else if (output.startsWith("Syntax error on line") && output.contains(" At '"))
@@ -88,10 +88,10 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             String output = diagnostic.jvmtiAgentLoad(new String[] { filename });
 
             if (output.contains("No such file or directory"))
-                Logger.printlnMixedBlue("The server was unable to find the shared library", filename);
+                Logger.eprintlnMixedBlue("The server was unable to find the shared library", filename);
 
             else if (output.contains("Is a directory"))
-                Logger.printlnMixedBlue("The specified filename", filename, "is a directory.");
+                Logger.eprintlnMixedBlue("The specified filename", filename, "is a directory.");
 
             else if (output.contains("Agent_OnAttach is not available in"))
             {
@@ -116,17 +116,16 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     public void setLogfile()
     {
         String filename = ArgumentHandler.require(DiagnosticCommandOption.FILENAME);
-        filename = "output=" + filename;
 
         try
         {
-            String output = diagnostic.vmLog(new String[] { filename });
+            String output = diagnostic.vmLog(new String[] { "output=" + filename });
 
             if (output.contains("No such file or directory"))
-                Logger.printlnMixedBlue("The server was unable to find the shared library", filename);
+                Logger.eprintlnMixedBlue("The server was unable to write to", filename);
 
             else if (output.contains("Is a directory"))
-                Logger.printlnMixedBlue("The specified filename", filename, "is a directory.");
+                Logger.eprintlnMixedBlue("The specified filename", filename, "is a directory.");
 
             else if (output.isEmpty())
                 Logger.printlnMixedBlue("Logfile path was successfully set to", filename);
@@ -155,7 +154,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                 Logger.printlnBlue("Logging was disabled successfully.");
 
             else
-                Logger.printlnBlue(output.trim());
+                Logger.eprintlnBlue(output.trim());
         }
 
         catch (MBeanException e)
