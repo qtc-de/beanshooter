@@ -149,6 +149,9 @@ public class OptionHandler {
         if (option == BeanshooterOption.OBJ_NAME)
             arg.nargs("?");
 
+        if (option == BeanshooterOption.ATTR_VALUE)
+            arg.nargs("?");
+
         if( option == MLetOption.LOAD_BEAN )
         {
             List<String> mBeanNames = MBean.getLoadableBeanNames();
