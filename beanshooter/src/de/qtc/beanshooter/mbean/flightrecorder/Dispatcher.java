@@ -14,7 +14,6 @@ import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.mbean.MBeanInvocationHandler;
-import de.qtc.beanshooter.utils.Utils;
 
 /**
  * Dispatcher class for FlightRecorder MXBean operations. Implements operations that are supported
@@ -76,9 +75,13 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof IllegalArgumentException && t.getMessage().contains("No recording available with id"))
-            {
                 Logger.eprintlnMixedYellow("A recording with ID", String.valueOf(recordingID), "does not exist.");
-            }
+
+            else if ( t instanceof java.lang.IllegalStateException && t.getMessage().contains("Recording can only be started once"))
+                Logger.eprintlnMixedYellow("The recording with ID", String.valueOf(recordingID), "was already started.");
+
+            else
+                ExceptionHandler.unexpectedException(e, "starting", "recording", true);
         }
 
         catch (MBeanException e)
@@ -105,9 +108,16 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof IllegalArgumentException && t.getMessage().contains("No recording available with id"))
-            {
                 Logger.eprintlnMixedYellow("A recording with ID", String.valueOf(recordingID), "does not exist.");
-            }
+
+            else if ( t instanceof java.lang.IllegalStateException && t.getMessage().contains("Recording must be started before it can be stopped"))
+                Logger.eprintlnMixedYellow("The recording with ID", String.valueOf(recordingID), "was not started yet.");
+
+            else if ( t instanceof java.lang.IllegalStateException && t.getMessage().contains("Can't stop an already stopped recording"))
+                Logger.eprintlnMixedYellow("The recording with ID", String.valueOf(recordingID), "was already stopped.");
+
+            else
+                ExceptionHandler.unexpectedException(e, "stopping", "recording", true);
         }
 
         catch (MBeanException e)
@@ -138,17 +148,26 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Files.write(filename, content);
         }
 
+        catch (RuntimeMBeanException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof IllegalArgumentException && t.getMessage().contains("No recording available with id"))
+                Logger.eprintlnMixedYellow("A recording with ID", String.valueOf(recordingID), "does not exist.");
+
+            else
+                ExceptionHandler.unexpectedException(e, "reading", "recording", true);
+        }
+
         catch (MBeanException e)
         {
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof IOException && t.getMessage().contains("Recording must be stopped"))
-            {
                 Logger.eprintlnMixedYellow("The specified recording", "must be stopped", "before it can be read.");
-                Utils.exit();
-            }
 
-            ExceptionHandler.unexpectedException(e, "dumping", "recording", true);
+            else
+                ExceptionHandler.unexpectedException(e, "reading", "recording", true);
         }
 
         catch (IOException e)
@@ -172,17 +191,37 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Logger.printlnPlainBlue(filename);
         }
 
+        catch (RuntimeMBeanException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof IllegalArgumentException && t.getMessage().contains("No recording available with id"))
+                Logger.eprintlnMixedYellow("A recording with ID", String.valueOf(recordingID), "does not exist.");
+
+            else
+                ExceptionHandler.unexpectedException(e, "dumping", "recording", true);
+        }
+
         catch (MBeanException e)
         {
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof IOException)
             {
-                Logger.eprintlnMixedYellow("Dumping recording to file on the JMX server caused an", "IOException.");
-                ExceptionHandler.handleFileWrite(t, filename, true);
+                if (t.getMessage().contains("has not started"))
+                {
+                    Logger.eprintlnMixedYellow("Recording with ID", String.valueOf(recordingID), "was not started yet.");
+                    Logger.eprintlnMixedBlue("Nothing to dump.", "Start the recording", "first.");
+                }
+
+                else {
+                    Logger.eprintlnMixedYellow("Dumping recording to file on the JMX server caused an", "IOException.");
+                    ExceptionHandler.handleFileWrite(t, filename, true);
+                }
             }
 
-            ExceptionHandler.unexpectedException(e, "dumping", "recording", true);
+            else
+                ExceptionHandler.unexpectedException(e, "dumping", "recording", true);
         }
     }
 }
