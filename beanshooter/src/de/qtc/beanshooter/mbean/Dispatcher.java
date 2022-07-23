@@ -7,10 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.management.Attribute;
 import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.ObjectName;
+import javax.management.ReflectionException;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -19,6 +22,7 @@ import de.qtc.beanshooter.networking.JarHandler;
 import de.qtc.beanshooter.networking.MLetHandler;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.operation.MBeanServerClient;
+import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
 
 /**
@@ -60,6 +64,85 @@ public class Dispatcher extends de.qtc.beanshooter.operation.Dispatcher
             Logger.printlnMixedBlueRed("Jar File:", "\t", "not available");
 
         Logger.decreaseIndent();
+    }
+
+    /**
+     * Sets or gets an attribute on the targeted MBean.
+     */
+    public void attr()
+    {
+        Attribute attrObj = null;
+
+        String attrName = ArgumentHandler.require(BeanshooterOption.ATTR_ATTRIBUTE);
+        String attrValue = BeanshooterOption.ATTR_VALUE.getValue(null);
+        String typeName = BeanshooterOption.ATTR_TYPE.getValue("String");
+
+        if (attrValue != null)
+        {
+            String signature = String.format("void dummy(%s p1)", typeName);
+            PluginSystem.getArgumentTypes(signature);
+            Object[] argumentArray = PluginSystem.getArgumentArray(new String[] { attrValue });
+
+            attrObj = new Attribute(attrName, argumentArray[0]);
+        }
+
+        MBeanServerClient client = getMBeanServerClient();
+
+        try
+        {
+            if (attrObj != null)
+                client.setAttribute(bean.getObjectName(), attrObj);
+
+            else
+            {
+                Object result = client.getAttribute(bean.getObjectName(), attrName);
+
+                if( result != null )
+                    PluginSystem.handleResponse(result);
+                else
+                    Logger.println("null");
+            }
+        }
+
+        catch (MBeanException | ReflectionException | IOException e)
+        {
+            Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while obtaining attribute %s from %s", attrName, bean.getObjectName()));
+            Logger.println("beanshooter does not handle exceptions for custom method invocations.");
+            ExceptionHandler.stackTrace(e);
+        }
+    }
+
+    /**
+     * Invoke a method on the MBean. This allows the user to manually specify a method signature
+     * and the desired arguments and invokes the corresponding call on the MBeanServer.
+     */
+    public void invoke()
+    {
+        String signature = ArgumentHandler.require(BeanshooterOption.INVOKE_METHOD);
+        List<String> argumentStringArray = BeanshooterOption.INVOKE_METHOD_ARGS.getValue();
+
+        String[] argumentTypes = PluginSystem.getArgumentTypes(signature);
+        Object[] argumentArray = PluginSystem.getArgumentArray(argumentStringArray.toArray(new String[0]));
+        String methodName = PluginSystem.getMethodName(signature);
+
+        MBeanServerClient client = getMBeanServerClient();
+
+        try
+        {
+            Object result = client.invoke(bean.getObjectName(), methodName, argumentTypes, argumentArray);
+
+            if( result != null )
+                PluginSystem.handleResponse(result);
+            else
+                Logger.printlnBlue("Call was successful.");
+        }
+
+        catch (MBeanException | ReflectionException | IOException e)
+        {
+            Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while invoking %s on %s.", methodName, bean.getObjectName().toString()));
+            Logger.println("beanshooter does not handle exceptions for custom method invocations.");
+            ExceptionHandler.stackTrace(e);
+        }
     }
 
     /**

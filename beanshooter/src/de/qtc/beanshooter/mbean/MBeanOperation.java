@@ -19,6 +19,27 @@ import net.sourceforge.argparse4j.inf.Subparsers;
  */
 public enum MBeanOperation implements Operation {
 
+    ATTR("attr", "set or get MBean attributes", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.ATTR_ATTRIBUTE,
+            BeanshooterOption.ATTR_VALUE,
+            BeanshooterOption.ATTR_TYPE,
+    }),
+
     STATUS("status", "checks whether the MBean is registered", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -66,6 +87,28 @@ public enum MBeanOperation implements Operation {
              BeanshooterOption.ATTR_WRITEABLE,
              BeanshooterOption.ATTR_HARVEST,
              BeanshooterOption.ATTR_KEYWORDS,
+    }),
+
+    INVOKE("invoke", "invoke the specified method on the MBean", new Option[] {
+             BeanshooterOption.GLOBAL_CONFIG,
+             BeanshooterOption.GLOBAL_VERBOSE,
+             BeanshooterOption.GLOBAL_PLUGIN,
+             BeanshooterOption.GLOBAL_NO_COLOR,
+             BeanshooterOption.GLOBAL_STACK_TRACE,
+             BeanshooterOption.TARGET_HOST,
+             BeanshooterOption.TARGET_PORT,
+             BeanshooterOption.TARGET_BOUND_NAME,
+             BeanshooterOption.TARGET_OBJID_SERVER,
+             BeanshooterOption.TARGET_OBJID_CONNECTION,
+             BeanshooterOption.CONN_FOLLOW,
+             BeanshooterOption.CONN_SSL,
+             BeanshooterOption.CONN_JMXMP,
+             BeanshooterOption.CONN_USER,
+             BeanshooterOption.CONN_PASS,
+             BeanshooterOption.CONN_SASL,
+             BeanshooterOption.INVOKE_METHOD_ARGS,
+             BeanshooterOption.INVOKE_METHOD,
+             BeanshooterOption.INVOKE_NO_WRAP,
     }),
 
     EXPORT("export", "create an export of the MBean", new Option[] {
