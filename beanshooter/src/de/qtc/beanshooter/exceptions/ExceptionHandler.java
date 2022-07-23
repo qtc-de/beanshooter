@@ -449,43 +449,45 @@ public class ExceptionHandler {
         Throwable t = getCause(e);
         String message = t.getMessage();
 
-        if( t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed") )
+        if (t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed"))
             throw new WrongCredentialsException(e);
 
-        if( t instanceof javax.security.auth.login.FailedLoginException && message.contains("Invalid username or password") )
+        if (t instanceof javax.security.auth.login.FailedLoginException && message.contains("Invalid username or password"))
             throw new WrongCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Credentials required") )
+        if (t instanceof java.lang.SecurityException && message.contains("Credentials required"))
             throw new MissingCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Mismatched URI") )
+        if (t instanceof java.lang.SecurityException && message.contains("Mismatched URI"))
             throw new MismatchedURIException(e, true);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Bad credentials") )
+        if (t instanceof java.lang.SecurityException && message.contains("Bad credentials"))
             throw new WrongCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Authentication required") )
+        if (t instanceof java.lang.SecurityException && message.contains("Authentication required"))
             throw new MissingCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("None of LM and NTLM verified") )
+        if (t instanceof java.lang.SecurityException && message.contains("None of LM and NTLM verified"))
             throw new WrongCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Invalid credential type") )
+        if (t instanceof java.lang.SecurityException && message.contains("Invalid credential type"))
             throw new AuthenticationException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Authentication failed") )
+        if (t instanceof java.lang.SecurityException && message.contains("Authentication failed"))
             throw new AuthenticationException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Invalid response") )
+        if (t instanceof java.lang.SecurityException && message.contains("Invalid response"))
 
-            if( message.contains("javax.security.sasl.SaslException") && BeanshooterOption.CONN_SASL.getValue().equals("cram"))
+            if (message.contains("javax.security.sasl.SaslException") && BeanshooterOption.CONN_SASL.getValue().equals("cram"))
                 throw new WrongCredentialsException(e);
             else
                 throw new AuthenticationException(e);
 
-        if( t instanceof javax.security.auth.login.FailedLoginException && message.contains("login failed"))
+        if (t instanceof java.lang.SecurityException && message.contains("digest response format violation. Mismatched response."))
             throw new WrongCredentialsException(e);
 
+        if (t instanceof javax.security.auth.login.FailedLoginException && message.contains("login failed"))
+            throw new WrongCredentialsException(e);
 
         throw new UnknownSecurityException(e);
     }
