@@ -1,0 +1,11 @@
+tester:
+  title: recorder related tests
+  description: |-
+    Tests for beanshooters recorder action
+
+  id: '09'
+  groups:
+    - recorder
+
+testers:
+  - ./all/tricot.yml

@@ -1,0 +1,48 @@
+tester:
+  title: diagnostic load action (RMI)
+  description: |-
+    Perform tests on the error handling of beanshooters diagnostic load action
+
+  id: '06-02-02'
+  groups:
+    - error
+  id_pattern: '06-02-02-{:02}'
+
+
+tests:
+  - title: Load a non existing library
+    description: |-
+      Attempt to load a non existing shared library
+
+    command:
+      - beanshooter
+      - diagnostic
+      - load
+      - ${TARGET}
+      - ${OPTIONS}
+      - /nonono
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The server was unable to find the shared library'
+
+
+  - title: Load a directory
+    description: |-
+      Attempt to load an directory as shared library
+
+    command:
+      - beanshooter
+      - diagnostic
+      - load
+      - ${TARGET}
+      - ${OPTIONS}
+      - /etc
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The specified filename /etc is a directory'

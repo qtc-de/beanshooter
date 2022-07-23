@@ -1,0 +1,48 @@
+tester:
+  title: diagnostic logfile action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters diagnostic logfile action
+
+  id: '06-03-02'
+  groups:
+    - error
+  id_pattern: '06-03-02-{:02}'
+
+
+tests:
+  - title: Set logfile to non existing dir
+    description: |-
+      Set logfile to non existing dir
+
+    command:
+      - beanshooter
+      - diagnostic
+      - logfile
+      - ${TARGET}
+      - ${OPTIONS}
+      - /nonono/nonono
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The server was unable to write to'
+
+
+  - title: Set logfile to existing dir
+    description: |-
+      Set logfile to existing dir
+
+    command:
+      - beanshooter
+      - diagnostic
+      - logfile
+      - ${TARGET}
+      - ${OPTIONS}
+      - /etc
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Unable to log to file /etc with log file rotation: /etc is not a regular file'

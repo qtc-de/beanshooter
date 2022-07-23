@@ -1,0 +1,72 @@
+tester:
+  title: MBean releated tests
+  description: |-
+    This folder contains some MBean related tests. Since some MBeans were
+    already deployed during the jmx-example-server tests, we use a new
+    container from here.
+
+  groups:
+    - mbeans
+
+containers:
+  - name: 'jmx-example-server'
+    image: 'ghcr.io/qtc-de/beanshooter/jmx-example-server:1.0'
+    volumes:
+      - '${volume}:${volume-d}'
+    aliases:
+      DOCKER-jmx-example-server-IP: DOCKER-IP
+      DOCKER-jmx-example-server-GATEWAY: DOCKER-GW
+    init: 10
+
+variables:
+  TARGET_UNAUTH:
+    - ${DOCKER-IP}
+    - 9010
+  TARGET_PLAIN:
+    - ${DOCKER-IP}
+    - 1090
+  TARGET_JMX:
+    - ${DOCKER-IP}
+    - 1099
+    - --ssl
+  JMXMP_UNAUTH:
+    - ${DOCKER-IP}
+    - 4444
+    - --jmxmp
+  JMXMP_TLS:
+    - ${DOCKER-IP}
+    - 4445
+    - --jmxmp
+    - --ssl
+  JMXMP_PLAIN:
+    - ${DOCKER-IP}
+    - 4446
+    - --jmxmp
+    - --ssl
+    - --sasl
+    - plain
+  JMXMP_DIGEST:
+    - ${DOCKER-IP}
+    - 4447
+    - --jmxmp
+    - --ssl
+    - --sasl
+    - digest
+  JMXMP_CRAM:
+    - ${DOCKER-IP}
+    - 4448
+    - --jmxmp
+    - --ssl
+    - --sasl
+    - cram
+  JMXMP_NTLM:
+    - ${DOCKER-IP}
+    - 4449
+    - --jmxmp
+    - --ssl
+    - --sasl
+    - ntlm
+
+testers:
+  - ./tonka/tricot.yml
+  - ./mlet/tricot.yml

@@ -1,0 +1,117 @@
+tester:
+  title: recorder actions (RMI)
+  description: |-
+    Perform tests on beanshooters recorder related actions for RMI based connections
+
+  id: '09-01-01'
+  groups:
+    - rmi
+  id_pattern: '09-01-01-{:02}'
+
+tests:
+  - title: New
+    description: |-
+      Create a new recording
+
+    command:
+      - beanshooter
+      - recorder
+      - new
+      - ${TARGET}
+      - ${OPTIONS}
+
+    extractors:
+      - regex:
+          pattern: 'with ID: (\d+)'
+          variable: 'ID'
+          on_miss: 'break'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Requesting new recording on the MBeanServer'
+            - 'New recording created successfully with ID: '
+
+  - title: Start
+    description: |-
+      Start the new recording
+
+    command:
+      - beanshooter
+      - recorder
+      - start
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Recording with ID 1 started successfully'
+
+  - title: Dump
+    description: |-
+      Dump the recordig to a file on the server
+
+    command:
+      - beanshooter
+      - recorder
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - ${volume-d}/recording.dump
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - ' Recording with ID 1 was successfully dumped to'
+      - file_exists:
+          cleanup: True
+          files:
+            - ${volume}/recording.dump
+
+  - title: Stop
+    description: |-
+      Stop the recording
+
+    command:
+      - beanshooter
+      - recorder
+      - stop
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Recording with ID 1 stopped successfully'
+
+  - title: Read
+    description: |-
+      Read the recording
+
+    command:
+      - beanshooter
+      - recorder
+      - read
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - /tmp/recording.dump
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Reading recording with ID: 1'
+            - 'Writing recording data to: /tmp/recording.dump'
+      - file_exists:
+         cleanup: True
+         files:
+            - /tmp/recording.dump

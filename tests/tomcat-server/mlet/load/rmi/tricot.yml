@@ -1,0 +1,136 @@
+tester:
+  title: mlet load action (RMI)
+  description: |-
+    Perform tests on beanshooters mlet load action for RMI based connections
+
+  id: '07-02-02'
+  groups:
+    - rmi
+  id_pattern: '07-02-02-{:02}'
+
+
+tests:
+  - title: Deploy tonka bean
+    description: |-
+      Deploy the tonka bean by using the mlet load action
+
+    command:
+      - beanshooter
+      - mlet
+      - load
+      - ${TARGET}
+      - ${OPTIONS}
+      - tonka
+      - 'http://${DOCKER-GW}:8080'
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Loading MBean from http://${DOCKER-GW}:8080'
+            - 'Incoming request from:'
+            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'Sending jar file with md5sum:'
+            - 'MBean was loaded successfully'
+
+
+  - title: Deploy tonka bean again
+    description: |-
+      Deploy the tonka bean a second time by using the mlet load action
+
+    command:
+      - beanshooter
+      - mlet
+      - load
+      - ${TARGET}
+      - ${OPTIONS}
+      - tonka
+      - 'http://${DOCKER-GW}:8080'
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Requested MBean MLetTonkaBean:name=TonkaBean,id=1 is already deployed'
+            - 'MBean was loaded successfully'
+
+    
+  - title: Undeploy tonka bean
+    description: |-
+      Undeploy the tonka bean using it's dedicated action
+
+    command:
+      - beanshooter
+      - tonka
+      - undeploy
+      - ${TARGET}
+      - ${OPTIONS}
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Removing MBean with ObjectName MLetTonkaBean:name=TonkaBean,id=1 from the MBeanServer'
+
+
+  - title: Deploy tonka bean again
+    description: |-
+      Deploy the tonka bean again by using the mlet load action
+
+    command:
+      - beanshooter
+      - mlet
+      - load
+      - ${TARGET}
+      - ${OPTIONS}
+      - tonka
+      - 'http://${DOCKER-GW}:8080'
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Loading MBean from http://${DOCKER-GW}:8080'
+            - 'Incoming request from:'
+            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'MBean was loaded successfully'
+          invert:
+            - 'Sending jar file with md5sum:'
+
+
+  - title: Undeploy tonka bean
+    description: |-
+      Undeploy the tonka bean using it's dedicated action
+
+    command:
+      - beanshooter
+      - tonka
+      - undeploy
+      - ${TARGET}
+      - ${OPTIONS}
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Removing MBean with ObjectName MLetTonkaBean:name=TonkaBean,id=1 from the MBeanServer'

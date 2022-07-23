@@ -1,0 +1,31 @@
+tester:
+  title: hotspot dump action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters hotspot dump action
+
+  id: '08-01-02'
+  groups:
+    - error
+  id_pattern: '08-01-02-{:02}'
+
+
+tests:
+  - title: Non extisting dir
+    description: |-
+      Attempt to create the dump in a non existing dir
+
+    command:
+      - beanshooter
+      - hotspot
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - /nonono/nonono.hprof
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Saving heapdump on the server caused an IOException'
+            - 'The parent directory of'
+            - 'seems not to exist'

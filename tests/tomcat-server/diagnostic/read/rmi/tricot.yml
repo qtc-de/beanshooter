@@ -1,0 +1,30 @@
+tester:
+  title: diagnostic read action (RMI)
+  description: |-
+    Perform tests on beanshooters diagnostic read action for RMI based connections
+
+  id: '06-01-01'
+  groups:
+    - rmi
+  id_pattern: '06-01-01-{:02}'
+
+
+tests:
+  - title: Read /etc/passwd
+    description: |-
+      Attempt to read /etc/passwd from the server
+
+    command:
+      - beanshooter
+      - diagnostic
+      - read
+      - ${TARGET}
+      - ${OPTIONS}
+      - /etc/passwd
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'root:x:0:0:root:/root:/bin/bash'
+            - 'nats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin'

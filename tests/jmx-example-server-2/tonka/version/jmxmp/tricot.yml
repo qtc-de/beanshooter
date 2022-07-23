@@ -1,0 +1,32 @@
+tester:
+  title: tonka version action (JMXMP)
+  description: |-
+    Perform tests on beanshooters tonka version action for JMXMP based connections
+
+  id: '03-02-02'
+  groups:
+    - jmxmp
+  id_pattern: '03-02-02-{:02}'
+
+
+tests:
+  - title: Plain version call
+    description: |-
+      Call the version function on the tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - version
+      - ${JMXMP_CRAM}
+      - ${OPTIONS}
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'TonkaBean v.+ on Java v.+'

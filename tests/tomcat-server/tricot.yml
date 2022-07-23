@@ -1,0 +1,30 @@
+tester:
+  title: MBean releated tests (tomcat)
+  description: |-
+    This folder contains some MBean related tests for MBeans that are available
+    per default on Apache tomcat.
+
+  groups:
+    - mbeans
+
+containers:
+  - name: 'tomcat-example-server'
+    image: 'ghcr.io/qtc-de/beanshooter/tomcat-example-server:1.0'
+    volumes:
+      - '${volume}:${volume-d}'
+    aliases:
+      DOCKER-tomcat-example-server-IP: DOCKER-IP
+      DOCKER-tomcat-example-server-GATEWAY: DOCKER-GW
+    init: 5
+
+variables:
+  TARGET:
+    - ${DOCKER-IP}
+    - 1090
+
+testers:
+  - ./tomcat/tricot.yml
+  - ./diagnostic/tricot.yml
+  - ./mlet/tricot.yml
+  - ./hotspot/tricot.yml
+  - ./recorder/tricot.yml

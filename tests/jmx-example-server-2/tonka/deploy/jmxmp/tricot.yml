@@ -1,0 +1,104 @@
+tester:
+  title: tonka deploy action (JMXMP)
+  description: |-
+    Perform tests on beanshooters tonka deploy action for JMXMP based connections
+
+  id: '03-01-03'
+  groups:
+    - jmxmp
+  id_pattern: '03-01-03-{:02}'
+
+  conditionals:
+    deployed: False
+
+tests:
+  - title: Deploy tonka bean
+    description: |-
+      Deploy the tonka bean using it's dedicated deploy action
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - --stager-url
+      - 'http://${DOCKER-GW}:8000'
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    conditions:
+      on_success:
+        deployed: True
+
+      on_error:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed'
+
+
+  - title: Undeploy tonka bean
+    description: |-
+      Deploy the tonka bean using it's dedicated undeploy action
+
+    command:
+      - beanshooter
+      - tonka
+      - undeploy
+      - ${JMXMP_NTLM}
+      - ${OPTIONS}
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    conditions:
+      all:
+        - deployed
+
+      on_success:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Removing MBean with ObjectName MLetTonkaBean:name=TonkaBean,id=1 from the MBeanServer'
+            - 'MBean was successfully removed'
+
+
+  - title: Deploy tonka bean
+    description: |-
+      Deploy the tonka bean using it's dedicated deploy action
+
+    command:
+      - beanshooter
+      - tonka
+      - deploy
+      - ${JMXMP_CRAM}
+      - ${OPTIONS}
+      - --stager-url
+      - 'http://${DOCKER-GW}:8000'
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    conditions:
+      on_success:
+        deployed: True
+
+      on_error:
+        deployed: False
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed'

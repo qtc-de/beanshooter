@@ -1,0 +1,56 @@
+tester:
+  title: tonka execarray action (RMI)
+  description: |-
+    Perform tests on beanshooters tonka execarray action for RMI based connections
+
+  id: '03-05-01'
+  groups:
+    - rmi
+  id_pattern: '03-05-01-{:02}'
+
+
+tests:
+  - title: Exec id
+    description: |-
+      Execute the id command on the MBeanServer
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - id
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The call was successful'
+            - 'uid=0(root) gid=0(root) groups=0(root)'
+
+
+  - title: Exec with shell
+    description: |-
+      Execute some shell commands with shell special characters
+
+    command:
+      - beanshooter
+      - tonka
+      - execarray
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - --env
+      - BEANSHOOTER=rocks
+      - --
+      - sh
+      - -c
+      - 'echo $HOME && echo $BEANSHOOTER'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The call was successful'
+            - '/root'
+            - 'rocks'

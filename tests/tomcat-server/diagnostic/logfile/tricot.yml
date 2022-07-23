@@ -1,0 +1,12 @@
+tester:
+  title: diagnostic logfile action
+  description: |-
+    Perform tests on beanshooters diagnostic logfile action
+
+  id: '06-03'
+  groups:
+    - logfile
+
+testers:
+  - ./rmi/tricot.yml
+  - ./error/tricot.yml

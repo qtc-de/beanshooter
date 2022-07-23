@@ -1,0 +1,216 @@
+tester:
+  title: tonka exec action (RMI)
+  description: |-
+    Perform tests on beanshooters tonka exec action for RMI based connections
+
+  id: '03-04-01'
+  groups:
+    - rmi
+  id_pattern: '03-04-01-{:02}'
+
+
+tests:
+  - title: Exec id
+    description: |-
+      Execute the id command on the MBeanServer
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - id
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The call was successful'
+            - 'uid=0(root) gid=0(root) groups=0(root)'
+
+
+  - title: Exec id (raw)
+    description: |-
+      Execute the id command on the MBeanServer
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - id
+      - --raw
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'uid=0(root) gid=0(root) groups=0(root)'
+          invert:
+            - 'The call was successful'
+
+
+  - title: Exec id (hex)
+    description: |-
+      Execute the id command on the MBeanServer
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - id
+      - --raw
+      - --hex
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '7569643d3028726'
+          invert:
+            - 'The call was successful'
+
+
+  - title: Exec id (output file)
+    description: |-
+      Execute the id command on the MBeanServer
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - id
+      - --output-file
+      - test.txt
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Command output saved in'
+      - file_contains:
+        - file: test.txt
+          contains:
+            - 'uid=0(root) gid=0(root) groups=0(root)'
+      - file_exists:
+          cleanup: True
+          files:
+              - test.txt
+
+
+  - title: Exec pwd (with --cwd option)
+    description: |-
+      Execute the pwd command together with the --cwd option
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - pwd
+      - --cwd
+      - /tmp
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The call was successful'
+            - '/tmp'
+
+
+  - title: Exec env (with --env option)
+    description: |-
+      Execute the env command with the --env option
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - env
+      - --env
+      - BEANSHOOTER=USEFUL
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The call was successful'
+            - 'BEANSHOOTER=USEFUL'
+            - 'HOME=/root'
+
+
+  - title: Exec sleep (with --background option)
+    description: |-
+      Execute sleep 20 with the --background option
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - 'sleep 20'
+      - --background
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Invoking the executeCommand method with arguments: [sleep, 20]'
+      - runtime:
+          lt: 2
+
+
+  - title: Exec echo $HOME (without a shell)
+    description: |-
+      Execute echo $HOME without a shell (should return $HOME)
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - 'echo $HOME'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The call was successful'
+      - regex:
+          match:
+            - '^\$HOME$'
+          multiline: true
+          
+
+  - title: Exec echo $HOME (with --shell)
+    description: |-
+      Execute echo $HOME with a shell
+
+    command:
+      - beanshooter
+      - tonka
+      - exec
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - 'echo $HOME'
+      - --shell
+      - 'sh -c'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The call was successful'
+            - '/root'

@@ -1,0 +1,12 @@
+tester:
+  title: tomcat info action
+  description: |-
+    Perform the info action within the submenu of the tomcat
+    action.
+
+  id: '05-03'
+  groups:
+    - info
+
+testers:
+  - ./rmi/tricot.yml

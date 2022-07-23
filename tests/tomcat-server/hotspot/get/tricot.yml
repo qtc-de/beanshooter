@@ -1,0 +1,12 @@
+tester:
+  title: hotspot get action
+  description: |-
+    Perform tests on beanshooters hotspot get action
+
+  id: '08-03'
+  groups:
+    - get
+
+testers:
+  - ./rmi/tricot.yml
+  - ./error/tricot.yml

@@ -1,0 +1,16 @@
+tester:
+  title: recorder actions
+  description: |-
+    The actions of beanshooters recorder operation all kind of depend
+    on each other. Performing the tests separately would not make much
+    sense, as a test for one action would require to also invoke the
+    other one. Therefore, we use one test module to test all actions
+    at once.
+
+  id: '09-01'
+  groups:
+    - all
+
+testers:
+  - ./rmi/tricot.yml
+  - ./error/tricot.yml

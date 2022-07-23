@@ -1,0 +1,28 @@
+tester:
+  title: hotspot list action (RMI)
+  description: |-
+    Perform tests on beanshooters hotspot list action for RMI based connections
+
+  id: '08-02-01'
+  groups:
+    - rmi
+  id_pattern: '08-02-01-{:02}'
+
+tests:
+  - title: List available options
+    description: |-
+      List available diagnostic options
+
+    command:
+      - beanshooter
+      - hotspot
+      - list
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'HeapDumpBeforeFullGC (value = false, writable = true)'
+            - 'CMSTriggerInterval (value = -1, writable = true)'
