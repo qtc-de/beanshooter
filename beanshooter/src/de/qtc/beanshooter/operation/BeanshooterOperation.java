@@ -33,6 +33,8 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.CONN_SSL,
             BeanshooterOption.CONN_JMXMP,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
             BeanshooterOption.INVOKE_OBJ_NAME,
             BeanshooterOption.ATTR_ATTRIBUTE,
             BeanshooterOption.ATTR_VALUE,
