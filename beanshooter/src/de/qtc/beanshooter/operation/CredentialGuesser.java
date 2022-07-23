@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
+import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.ProgressBar;
 import de.qtc.beanshooter.plugin.PluginSystem;
@@ -154,6 +155,18 @@ public class CredentialGuesser
                 try
                 {
                     PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
+                    bar.printSuccess(username, password);
+
+                    if( BeanshooterOption.BRUTE_FIRST.getBool() )
+                        pool.shutdownNow();
+                }
+
+                catch (SaslProfileException e)
+                {
+                    /* On JMXMP endpoints protected by SASL, authentication works also if the the
+                     * --ssl setting does not match the server setting. However, after verifying
+                     * correct credentials, a SaslProfileException is thrown.
+                     */
                     bar.printSuccess(username, password);
 
                     if( BeanshooterOption.BRUTE_FIRST.getBool() )
