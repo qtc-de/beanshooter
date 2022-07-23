@@ -13,7 +13,7 @@ tester:
         - curl
         - head
         - xxd
-      version:
+      tricot:
         ge: 1.10.2
 
 variables:
@@ -31,7 +31,6 @@ plugins:
 
 testers:
   - ./jmx-example-server/tricot.yml
+  - ./jmx-example-server-2/tricot.yml
+  - ./tomcat-server/tricot.yml
   - ./serverless/tricot.yml
-  - ./tonka/tricot.yml
-  - ./mlet/tricot.yml
-  - ./tomcat/tricot.yml

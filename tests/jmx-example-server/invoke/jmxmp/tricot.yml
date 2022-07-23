@@ -10,25 +10,46 @@ tester:
 
 
 tests:
-  - title: Invoke BaseOperatingSystemImpl
+  - title: Invoke PlatformLoggingImpl
     description: |-
-      Perform an invoke operation on the BaseOperatingSystemImpl MBean
+      Perform an invoke operation on the PlatformLoggingImpl MBean
 
     command:
       - beanshooter
       - invoke
       - ${JMXMP_UNAUTH}
       - ${OPTIONS}
-      - 'java.lang:type=OperatingSystem'
+      - 'java.util.logging:type=Logging'
       - --signature
-      - 'getArch()'
+      - 'void setLoggerLevel(java.lang.String p0, java.lang.String p1)'
+      - global
+      - 1
 
     validators:
       - error: False
       - contains:
           values:
-            - amd64
+            - '[+] Call was successful'
 
+  - title: Invoke PlatformLoggingImpl 2
+    description: |-
+      Perform an invoke operation on the PlatformLoggingImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${JMXMP_UNAUTH}
+      - ${OPTIONS}
+      - 'java.util.logging:type=Logging'
+      - --signature
+      - 'void getLoggerLevel(java.lang.String p0)'
+      - global
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '[+] 1'
 
   - title: Invoke ThreadImpl
     description: |-
@@ -36,12 +57,11 @@ tests:
 
     command:
       - beanshooter
-      - invoke
+      - attr
       - ${JMXMP_TLS}
       - ${OPTIONS}
       - 'java.lang:type=Threading'
-      - --signature
-      - "getAllThreadIds()"
+      - "AllThreadIds"
 
     extractors:
       - regex:
@@ -78,42 +98,17 @@ tests:
           values:
             - javax.management.openmbean.CompositeDataSupport
 
-  - title: Invoke BaseOperatingSystemImpl (Auth)
-    description: |-
-      Perform an invoke operation on the BaseOperatingSystemImpl MBean
-
-    command:
-      - beanshooter
-      - invoke
-      - ${JMXMP_PLAIN}
-      - ${OPTIONS}
-      - 'java.lang:type=OperatingSystem'
-      - --signature
-      - 'getArch()'
-      - --username
-      - controlRole
-      - --password
-      - control
-
-    validators:
-      - error: False
-      - contains:
-          values:
-            - amd64
-
-
   - title: Invoke ThreadImpl (Auth)
     description: |-
       Perform an invoke operation on the ThreadImpl MBean
 
     command:
       - beanshooter
-      - invoke
+      - attr
       - ${JMXMP_NTLM}
       - ${OPTIONS}
       - 'java.lang:type=Threading'
-      - --signature
-      - "getAllThreadIds()"
+      - "AllThreadIds"
       - --username
       - controlRole
       - --password
@@ -132,7 +127,6 @@ tests:
           multiline: true
           match:
             - '^\[\+\] \d+$'
-
 
   - title: Invoke ThreadImpl (Auth)
     description: |-
