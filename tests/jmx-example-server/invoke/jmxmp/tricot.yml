@@ -49,7 +49,7 @@ tests:
       - error: False
       - contains:
           values:
-            - '[+] 1'
+            - '1'
 
   - title: Invoke ThreadImpl
     description: |-
@@ -65,7 +65,7 @@ tests:
 
     extractors:
       - regex:
-          pattern: '^\[\+\] (\d)+$'
+          pattern: '^(\d+)$'
           variable: 'thread-ids'
           on_miss: 'break'
           multiline: true
@@ -75,7 +75,7 @@ tests:
       - regex:
           multiline: true
           match:
-            - '^\[\+\] \d+$'
+            - '^\d+$'
 
 
   - title: Invoke ThreadImpl
@@ -116,7 +116,7 @@ tests:
 
     extractors:
       - regex:
-          pattern: '^\[\+\] (\d)+$'
+          pattern: '^(\d+)$'
           variable: 'thread-ids'
           on_miss: 'break'
           multiline: true
@@ -126,7 +126,7 @@ tests:
       - regex:
           multiline: true
           match:
-            - '^\[\+\] \d+$'
+            - '^\d+$'
 
   - title: Invoke ThreadImpl (Auth)
     description: |-

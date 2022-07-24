@@ -107,7 +107,7 @@ public class ResponseHandlerProvider implements IResponseHandler {
      */
     public void handleFile(File o)
     {
-        Logger.println(o.getAbsolutePath());
+        Logger.printlnPlain(o.getAbsolutePath());
     }
 
     /**
@@ -128,6 +128,6 @@ public class ResponseHandlerProvider implements IResponseHandler {
      */
     public void handleDefault(Object o)
     {
-        Logger.println(o.toString());
+        Logger.printlnPlain(o.toString());
     }
 }

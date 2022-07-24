@@ -26,7 +26,7 @@ tests:
       - error: False
       - contains:
           values:
-            - '[+] false'
+            - 'false'
 
   - title: Write attribute
     description: |-
@@ -62,7 +62,7 @@ tests:
       - error: False
       - contains:
           values:
-            - '[+] true'
+            - 'true'
 
 
   - title: Restore attribute
@@ -101,7 +101,7 @@ tests:
       - error: False
       - contains:
           values:
-            - '[+] 0'
+            - '0'
 
 
   - title: Write attribute 2
@@ -141,7 +141,7 @@ tests:
       - error: False
       - contains:
           values:
-            - '[+] 44'
+            - '44'
 
 
   - title: Restore attribute 2
