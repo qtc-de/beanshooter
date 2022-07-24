@@ -32,44 +32,6 @@ import de.qtc.beanshooter.utils.Utils;
  */
 public enum MBean implements IMBean
 {
-    TONKA("tonka",
-          "general purpose bean for executing commands and uploading or download files",
-          Utils.getObjectName("MLetTonkaBean:name=TonkaBean,id=1"),
-          "de.qtc.beanshooter.tonkabean.TonkaBean",
-          "tonka-bean-3.0.0-jar-with-dependencies.jar",
-          TonkaBeanOperation.values(),
-          TonkaBeanOption.values()
-         ),
-
-    MLET("mlet",
-         "default JMX bean that can be used to load additional beans dynamically",
-         Utils.getObjectName("DefaultDomain:type=MLet"),
-         "javax.management.loading.MLet",
-         null,
-         MLetOperation.values(),
-         MLetOption.values()
-        ),
-
-    MEMORY_USER_DATABASE(
-           "tomcat",
-           "tomcat MemoryUserDatabaseMBean used for user management",
-            Utils.getObjectName("Users:type=UserDatabase,database=UserDatabase"),
-            "org.apache.catalina.mbeans.MemoryUserDatabaseMBean",
-            null,
-            MemoryUserDatabaseMBeanOperation.values(),
-            new Option[] {}
-           ),
-
-    FLIGHT_RECORDER(
-            "recorder",
-            "jfr Flight Recorder MBean",
-             Utils.getObjectName("jdk.management.jfr:type=FlightRecorder"),
-             "jdk.management.jfr.FlightRecorderMXBeanImpl",
-             null,
-             FlightRecorderOperation.values(),
-             FlightRecorderOption.values()
-            ),
-
     DIAGNOSTIC_COMMAND(
             "diagnostic",
             "Diagnostic Command MBean",
@@ -88,7 +50,45 @@ public enum MBean implements IMBean
              null,
              HotSpotDiagnosticOperation.values(),
              HotSpotDiagnosticOption.values()
-            );
+            ),
+
+    MLET("mlet",
+         "default JMX bean that can be used to load additional beans dynamically",
+         Utils.getObjectName("DefaultDomain:type=MLet"),
+         "javax.management.loading.MLet",
+         null,
+         MLetOperation.values(),
+         MLetOption.values()
+        ),
+
+    FLIGHT_RECORDER(
+            "recorder",
+            "jfr Flight Recorder MBean",
+             Utils.getObjectName("jdk.management.jfr:type=FlightRecorder"),
+             "jdk.management.jfr.FlightRecorderMXBeanImpl",
+             null,
+             FlightRecorderOperation.values(),
+             FlightRecorderOption.values()
+            ),
+
+    MEMORY_USER_DATABASE(
+           "tomcat",
+           "tomcat MemoryUserDatabaseMBean used for user management",
+            Utils.getObjectName("Users:type=UserDatabase,database=UserDatabase"),
+            "org.apache.catalina.mbeans.MemoryUserDatabaseMBean",
+            null,
+            MemoryUserDatabaseMBeanOperation.values(),
+            new Option[] {}
+           ),
+
+    TONKA("tonka",
+          "general purpose bean for executing commands and uploading or download files",
+          Utils.getObjectName("MLetTonkaBean:name=TonkaBean,id=1"),
+          "de.qtc.beanshooter.tonkabean.TonkaBean",
+          "tonka-bean-3.0.0-jar-with-dependencies.jar",
+          TonkaBeanOperation.values(),
+          TonkaBeanOption.values()
+         );
 
     private String name;
     private String description;
