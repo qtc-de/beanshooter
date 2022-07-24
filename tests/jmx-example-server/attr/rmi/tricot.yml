@@ -39,7 +39,7 @@ tests:
       - ${OPTIONS}
       - java.lang:type=Memory
       - Verbose
-      - true
+      - 'true'
       - --type
       - boolean
 
@@ -76,7 +76,7 @@ tests:
       - ${OPTIONS}
       - java.lang:type=Memory
       - Verbose
-      - false
+      - 'false'
       - --type
       - boolean
 

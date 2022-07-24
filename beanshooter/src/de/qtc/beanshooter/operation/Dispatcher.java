@@ -427,6 +427,7 @@ public class Dispatcher {
             Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while obtaining attribute %s from %s", attrName, objectName));
             Logger.println("beanshooter does not handle exceptions for custom method invocations.");
             ExceptionHandler.stackTrace(e);
+            Utils.exit();
         }
     }
 

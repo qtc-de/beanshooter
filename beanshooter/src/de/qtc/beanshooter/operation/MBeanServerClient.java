@@ -319,6 +319,7 @@ public class MBeanServerClient {
             Logger.eprintlnMixedYellow("Caught", "InvalidAttributeValueException", "while setting the attribute.");
             Logger.eprintlnMixedBlue("The specified attribute value of class", attr.getValue().getClass().getName(), "is probably not compatible.");
             Logger.eprintlnMixedYellow("You can use the", "--type", "option to specify a different type manually.");
+            Utils.exit();
         }
     }
 

@@ -17,10 +17,14 @@ tests:
     command:
       - beanshooter
       - attr
-      - ${TARGET_PLAIN}
+      - ${TARGET_JMX}
       - ${OPTIONS}
       - test
       - test
+      - --username
+      - controlRole
+      - --password
+      - control
 
     validators:
       - error: True
@@ -36,10 +40,14 @@ tests:
     command:
       - beanshooter
       - attr
-      - ${TARGET_PLAIN}
+      - ${TARGET_JMX}
       - ${OPTIONS}
       - test:v=1
       - test
+      - --username
+      - controlRole
+      - --password
+      - control
 
     validators:
       - error: True
@@ -55,10 +63,14 @@ tests:
     command:
       - beanshooter
       - attr
-      - ${TARGET_PLAIN}
+      - ${TARGET_JMX}
       - ${OPTIONS}
       - java.lang:type=Memory
       - test
+      - --username
+      - controlRole
+      - --password
+      - control
 
     validators:
       - error: True
@@ -74,11 +86,15 @@ tests:
     command:
       - beanshooter
       - attr
-      - ${TARGET_PLAIN}
+      - ${TARGET_JMX}
       - ${OPTIONS}
       - java.lang:type=Memory
       - Verbose
       - test
+      - --username
+      - controlRole
+      - --password
+      - control
 
     validators:
       - error: True

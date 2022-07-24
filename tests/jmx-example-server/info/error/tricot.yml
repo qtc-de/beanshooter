@@ -38,7 +38,10 @@ tests:
       - ${TARGET_PLAIN}
       - ${OPTIONS}
       - test:v=1
-      - test
+      - --username
+      - admin
+      - --password
+      - admin
 
     validators:
       - error: True

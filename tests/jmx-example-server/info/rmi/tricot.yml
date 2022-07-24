@@ -54,4 +54,3 @@ tests:
           invert:
             - 'MBean Class: sun.management.MemoryManagerImpl'
             - 'ObjectName: java.lang:name=Metaspace Manager,type=MemoryManager'
-            - 'ObjectName (type: javax.management.ObjectName , writable: false)'
