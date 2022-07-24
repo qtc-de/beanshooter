@@ -17,42 +17,6 @@ https://user-images.githubusercontent.com/49147108/157600758-12124037-4e22-4c60-
 
 
 
-### Table of Contents
-
-----
-
-- [Installation](#installation)
-- [Supported Operations](#supported-operations)
-  + [Basic Operations](#basic-operations)
-    - [brute](#brute)
-    - [invoke](#invoke)
-    - [deploy](#deploy)
-    - [enum](#enum)
-    - [list](#list)
-    - [serial](#serial)
-    - [stager](#stager)
-    - [undeploy](#undeploy)
-  + [MBean Operations](#mbean-operations)
-    - [generic](#generic-mbean-operations)
-      + [info](#generic-info)
-      + [status](#generic-status)
-      + [export](#generic-export)
-      + [deploy](#generic-deploy)
-      + [undeploy](#generic-undeploy)
-    - [tonka](#tonka)
-      + [exec](#tonka-exec)
-      + [execarray](#tonka-execarray)
-      + [shell](#tonka-shell)
-      + [upload](#tonka-upload)
-      + [download](#tonka-download)
-    - [mlet](#mlet)
-      + [load](#mlet-load)
-    - [tomcat](#tomcat)
-      + [list](#tomcat-list)
-- [JMXMP](#jmxmp)
-- [Example Server](#example-server)
-
-
 ### Installation
 
 -----
@@ -84,6 +48,64 @@ autocompletion.
 ```
 
 
+### Table of Contents
+
+----
+
+- [Supported Operations](#supported-operations)
+  + [Basic Operations](#basic-operations)
+    - [attr](#attr)
+    - [brute](#brute)
+    - [deploy](#deploy)
+    - [enum](#enum)
+    - [info](#info)
+    - [invoke](#invoke)
+    - [list](#list)
+    - [serial](#serial)
+    - [stager](#stager)
+    - [undeploy](#undeploy)
+  + [MBean Operations](#mbean-operations)
+    - [generic](#generic-mbean-operations)
+      + [attr](#generic-attr)
+      + [info](#generic-info)
+      + [invoke](#generic-invoke)
+      + [stats](#generic-stats)
+      + [status](#generic-status)
+      + [export](#generic-export)
+      + [deploy](#generic-deploy)
+      + [undeploy](#generic-undeploy)
+    - [diagnostic](#diagnostic)
+      + [read](#diagnostic-read)
+      + [load](#diagnostic-load)
+      + [logfile](#diagnostic-logfile)
+      + [nolog](#diagnostic-nolog)
+      + [cmdline](#diagnostic-cmdline)
+      + [props](#diagnostic-props)
+    - [hotspot](#hotspot)
+      + [dump](#hotspot-dump)
+      + [list](#hotspot-list)
+      + [get](#hotspot-get)
+      + [set](#hotspot-set)
+    - [mlet](#mlet)
+      + [load](#mlet-load)
+    - [recorder](#recorder)
+      + [new](#recorder-new)
+      + [start](#recorder-start)
+      + [stop](#recorder-stop)
+      + [read](#recorder-read)
+      + [dump](#recorder-dump)
+    - [tomcat](#tomcat)
+      + [list](#tomcat-list)
+    - [tonka](#tonka)
+      + [exec](#tonka-exec)
+      + [execarray](#tonka-execarray)
+      + [shell](#tonka-shell)
+      + [upload](#tonka-upload)
+      + [download](#tonka-download)
+- [JMXMP](#jmxmp)
+- [Example Server](#example-server)
+
+
 ### Supported Operations
 
 -----
@@ -101,19 +123,24 @@ beanshooter v3.0.0 - a JMX enumeration and attacking tool
 positional arguments:
 
  Basic Operations
+    attr                 set or get MBean attributes
     brute                bruteforce JMX credentials
-    invoke               invoke the specified method on the specified MBean
     deploy               deploys the specified MBean on the JMX server
     enum                 enumerate the JMX service for common vulnerabilities
+    info                 display method and attribute information on an MBean
+    invoke               invoke the specified method on the specified MBean
     list                 list available MBEans on the remote MBean server
     serial               perform a deserialization attack
     stager               start a stager server to deliver MBeans
     undeploy             undeploys the specified MBEAN from the JMX server
 
  MBean Operations
-    tonka                general purpose bean for executing commands and uploading or download files
+    diagnostic           Diagnostic Command MBean
+    hotspot              HotSpot Diagnostic MBean
     mlet                 default JMX bean that can be used to load additional beans dynamically
+    recorder             jfr Flight Recorder MBean
     tomcat               tomcat MemoryUserDatabaseMBean used for user management
+    tonka                general purpose bean for executing commands and uploading or download files
 
 named arguments:
   -h, --help             show this help message and exit
@@ -126,6 +153,44 @@ named arguments:
 
 Basic operations are general purpose operations that can be performed on a JMX service. These are usually
 operations that do not target a specific MBean or that target an MBean with no builtin support by beanshooter.
+
+#### Attr
+
+The `attr` action can be used to get or set attributes on a specified *MBean*. To obtain available attributes,
+the `info` action should be used:
+
+```console
+[qtc@devbox ~]$ beanshooter info 172.17.0.2 9010
+...
+[+] MBean Class: sun.management.MemoryImpl
+[+] ObjectName: java.lang:type=Memory
+[+]
+[+]     Attributes:
+[+]         Verbose (type: boolean , writable: true)
+[+]         ObjectPendingFinalizationCount (type: int , writable: false)
+[+]         HeapMemoryUsage (type: javax.management.openmbean.CompositeData , writable: false)
+[+]         NonHeapMemoryUsage (type: javax.management.openmbean.CompositeData , writable: false)
+[+]         ObjectName (type: javax.management.ObjectName , writable: false)
+[+]
+[+]     Operations:
+[+]         void gc()
+```
+
+When just the attribute name is specified, *beanshooter* obtains and displays the current attribute value:
+
+```console
+[qtc@devbox ~]$ beanshooter attr 172.17.0.2 9010 java.lang:type=Memory Verbose
+[+] false
+```
+
+When an additional value is specified, *beanshooter* attempts to set the corresponding attribute. For attributes
+that have a different type than *String*, specifying the attribute type using the `--type` option is required:
+
+```console
+[qtc@devbox ~]$ beanshooter attr 172.17.0.2 9010 java.lang:type=Memory Verbose true --type boolean
+[qtc@devbox ~]$ beanshooter attr 172.17.0.2 9010 java.lang:type=Memory Verbose
+[+] true
+```
 
 #### Brute
 
@@ -145,36 +210,6 @@ dedicated attacks you should use the `--username-file` and `--password-file` opt
 [+]
 [+] done.
 ```
-
-#### Invoke
-
-The `invoke` action can be used to invoke an arbitrary method on an *MBean* that has already been deployed on a *JMX* endpoint.
-Apart from the target, the `invoke` action requires the `ObjectName` of the targeted *MBean* and the method signature you
-want to invoke. If the specified method expects arguments, these also have to be specified. *MBean* attributes can also be
-obtained by this action, by using the corresponding getter function as method. The following listing shows an example, where
-the `getLoggerNames` function is invoked on the `Logging` *MBean*:
-
-```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'getLoggerNames()'
-[+] sun.rmi.transport.tcp
-[+] sun.rmi.server.call
-[+] sun.rmi.loader
-...
-```
-
-When invoking a method that requires parameters, the specified *beanshooter* arguments are evaluated as *Java code*. Simple argument
-types like integers or strings can just be passed by specifying their corresponding value. Complex argument types can be constructed
-as you would do it in *Java* (e.g. `'new java.util.HashMap()'`). The following listing shows an example, where the `setLoggerNames`
-function is invoked on the `Logging` *MBean*:
-
-```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'setLoggerLevel(String arg1, String arg2)' sun.rmi.transport.tcp INFO
-[+] Call was successful
-```
-
-For more complex argument types that require some initialization, you can use *beanshooters PluginSystem* and define a custom
-class that implements the [IArgumentProvider Interface](beanshooter/src/de/qtc/beanshooter/plugin/IArgumentProvider.java).
-
 
 #### Deploy
 
@@ -309,6 +344,57 @@ the `--ssl` option:
 [+] 	  Vulnerability Status: Non Vulnerable
 ...
 ```
+
+#### Info
+
+The `info` action can be used to obtain method and attribute information of *MBeans* that are available on the *MBean server*.
+When invoked without additional arguments, method and attribute information of all available *MBeans* is printed. When specifying
+an additional *ObjectName*, only method and attribute information of the specified *MBean* is printed:
+
+```console
+[qtc@devbox ~]$ beanshooter info 172.17.0.2 9010 java.lang:type=Memory
+[+] MBean Class: sun.management.MemoryImpl
+[+] ObjectName: java.lang:type=Memory
+[+]
+[+] 	Attributes:
+[+] 		Verbose (type: boolean , writable: true)
+[+] 		ObjectPendingFinalizationCount (type: int , writable: false)
+[+] 		HeapMemoryUsage (type: javax.management.openmbean.CompositeData , writable: false)
+[+] 		NonHeapMemoryUsage (type: javax.management.openmbean.CompositeData , writable: false)
+[+] 		ObjectName (type: javax.management.ObjectName , writable: false)
+[+]
+[+] 	Operations:
+[+] 		void gc()
+```
+
+#### Invoke
+
+The `invoke` action can be used to invoke an arbitrary method on an *MBean* that has already been deployed on a *JMX* endpoint.
+Apart from the target, the `invoke` action requires the `ObjectName` of the targeted *MBean* and the method signature you
+want to invoke. If the specified method expects arguments, these also have to be specified. *MBean* attributes can also be
+obtained by this action, by using the corresponding getter function as method. The following listing shows an example, where
+the `getLoggerNames` function is invoked on the `Logging` *MBean*:
+
+```console
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'getLoggerNames()'
+[+] sun.rmi.transport.tcp
+[+] sun.rmi.server.call
+[+] sun.rmi.loader
+...
+```
+
+When invoking a method that requires parameters, the specified *beanshooter* arguments are evaluated as *Java code*. Simple argument
+types like integers or strings can just be passed by specifying their corresponding value. Complex argument types can be constructed
+as you would do it in *Java* (e.g. `'new java.util.HashMap()'`). The following listing shows an example, where the `setLoggerNames`
+function is invoked on the `Logging` *MBean*:
+
+```console
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'setLoggerLevel(String arg1, String arg2)' sun.rmi.transport.tcp INFO
+[+] Call was successful
+```
+
+For more complex argument types that require some initialization, you can use *beanshooters PluginSystem* and define a custom
+class that implements the [IArgumentProvider Interface](beanshooter/src/de/qtc/beanshooter/plugin/IArgumentProvider.java).
 
 #### List
 
