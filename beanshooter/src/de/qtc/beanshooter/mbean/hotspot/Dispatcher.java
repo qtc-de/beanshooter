@@ -68,7 +68,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof IllegalArgumentException && t.getMessage().contains("must have .hprof extention"))
-                Logger.eprintlnMixedYellow("Heapdump file must have", ".hrpof", "extention.");
+                Logger.eprintlnMixedYellow("Heapdump file must have", ".hprof", "extention.");
 
             else
                 ExceptionHandler.unexpectedException(e, "creating", "heapdump", true);

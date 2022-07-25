@@ -127,16 +127,15 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     }
 
     /**
-     * Reads the content of the user specified recording ID. The function name is actually a little bit misleading.
-     * Instead of reading the recording and displaying it to stdout, the recording is saved in a user specified file.
+     * Saves the content of the user specified recording ID to a file on the local system.
      */
-    public void readRecording()
+    public void saveRecording()
     {
         long recordingID = Long.valueOf(ArgumentHandler.<Integer>require(FlightRecorderOption.RECORDING_ID));
         Path filename = Paths.get(ArgumentHandler.<String>require(FlightRecorderOption.DUMP_FILE));
         String filenameStr = filename.normalize().toAbsolutePath().toString();
 
-        Logger.printlnMixedYellow("Reading recording with ID:", String.valueOf(recordingID));
+        Logger.printlnMixedYellow("Saving recording with ID:", String.valueOf(recordingID));
 
         try
         {
@@ -156,7 +155,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                 Logger.eprintlnMixedYellow("A recording with ID", String.valueOf(recordingID), "does not exist.");
 
             else
-                ExceptionHandler.unexpectedException(e, "reading", "recording", true);
+                ExceptionHandler.unexpectedException(e, "saving", "recording", true);
         }
 
         catch (MBeanException e)
@@ -164,10 +163,10 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof IOException && t.getMessage().contains("Recording must be stopped"))
-                Logger.eprintlnMixedYellow("The specified recording", "must be stopped", "before it can be read.");
+                Logger.eprintlnMixedYellow("The specified recording", "must be stopped", "before it can be saved.");
 
             else
-                ExceptionHandler.unexpectedException(e, "reading", "recording", true);
+                ExceptionHandler.unexpectedException(e, "saving", "recording", true);
         }
 
         catch (IOException e)

@@ -74,7 +74,7 @@ public enum FlightRecorderOperation implements Operation
             FlightRecorderOption.RECORDING_ID,
     }),
 
-    READ("readRecording", "read a recording and store it to a local file", new Option[] {
+    SAVE("saveRecording", "save a recording and store it to a local file", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,

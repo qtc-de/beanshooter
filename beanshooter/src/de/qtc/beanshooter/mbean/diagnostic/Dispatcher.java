@@ -171,7 +171,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     {
         try
         {
-            Logger.printlnBlue(diagnostic.vmCommandLine().trim());
+            Logger.printlnPlainBlue(diagnostic.vmCommandLine().trim());
         }
 
         catch (MBeanException e)
@@ -188,7 +188,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     {
         try
         {
-            Logger.printlnBlue(diagnostic.vmSystemProperties().trim());
+            Logger.printlnPlainBlue(diagnostic.vmSystemProperties().trim());
         }
 
         catch (MBeanException e)
