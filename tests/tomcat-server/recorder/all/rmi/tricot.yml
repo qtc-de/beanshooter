@@ -92,14 +92,14 @@ tests:
           values:
             - 'Recording with ID 1 stopped successfully'
 
-  - title: Read
+  - title: Save
     description: |-
-      Read the recording
+      save the recording
 
     command:
       - beanshooter
       - recorder
-      - read
+      - save
       - ${TARGET}
       - ${OPTIONS}
       - ${ID-0-1}
@@ -109,7 +109,7 @@ tests:
       - error: False
       - contains:
           values:
-            - 'Reading recording with ID: 1'
+            - 'Saving recording with ID: 1'
             - 'Writing recording data to: /tmp/recording.dump'
       - file_exists:
          cleanup: True

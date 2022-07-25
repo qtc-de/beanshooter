@@ -33,14 +33,14 @@ tests:
             - 'Requesting new recording on the MBeanServer'
             - 'New recording created successfully with ID: '
 
-  - title: Read non finished recording
+  - title: Save non finished recording
     description: |-
-      Attempt to read a non finished recording
+      Attempt to save a non finished recording
 
     command:
       - beanshooter
       - recorder
-      - read
+      - save
       - ${TARGET}
       - ${OPTIONS}
       - ${ID-0-1}
@@ -50,8 +50,8 @@ tests:
       - error: False
       - contains:
           values:
-            - 'Reading recording with ID:'
-            - 'The specified recording must be stopped before it can be read'
+            - 'Saving recording with ID:'
+            - 'The specified recording must be stopped before it can be saved'
 
   - title: Start non existent
     description: |-
@@ -71,14 +71,14 @@ tests:
           values:
             - 'A recording with ID 999 does not exist'
 
-  - title: Read non existent
+  - title: Save non existent
     description: |-
-      Read a non existing recording
+      Save a non existing recording
 
     command:
       - beanshooter
       - recorder
-      - read
+      - save
       - ${TARGET}
       - ${OPTIONS}
       - 999
@@ -202,14 +202,14 @@ tests:
           match:
             - 'The recording with ID .+ was already started'
 
-  - title: Read non stopped
+  - title: Save non stopped
     description: |-
-      Read a started but not stopped recording
+      Save a started but not stopped recording
 
     command:
       - beanshooter
       - recorder
-      - read
+      - save
       - ${TARGET}
       - ${OPTIONS}
       - ${ID-0-1}
@@ -219,7 +219,7 @@ tests:
       - error: False
       - contains:
           values:
-            - 'The specified recording must be stopped before it can be read'
+            - 'The specified recording must be stopped before it can be saved'
 
   - title: Dump to non existing dir
     description: |-
@@ -296,14 +296,14 @@ tests:
           match:
             - 'The recording with ID .+ was already stopped'
 
-  - title: Read to non existing dir
+  - title: Save to non existing dir
     description: |-
-      Attempt to read a recordong to a non existing directory
+      Attempt to save a recording to a non existing directory
 
     command:
       - beanshooter
       - recorder
-      - read
+      - save
       - ${TARGET}
       - ${OPTIONS}
       - ${ID-0-1}
@@ -315,14 +315,14 @@ tests:
           match:
             - 'The parent directory of .+ seems not to exist'
 
-  - title: Read to existing dir
+  - title: Save to existing dir
     description: |-
-      Attempt to read a recordong to an existing directory
+      Attempt to save a recording to an existing directory
 
     command:
       - beanshooter
       - recorder
-      - read
+      - save
       - ${TARGET}
       - ${OPTIONS}
       - ${ID-0-1}
