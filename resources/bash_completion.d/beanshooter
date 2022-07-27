@@ -8,7 +8,8 @@ type _comp_get_parameter &> /dev/null || return
 function _beanshooter() {
 
     local cur prev words cword opts arg args gadgets value_options operations sasl_mechanisms tonka_actions mlet_actions
-    local tomcat_actios mbeans mbean_actions general_opts conn_opts stager_opts unguessable file_like
+    local tomcat_actios mbeans mbean_actions general_opts conn_opts stager_opts unguessable file_like diagnostic_actions
+    local hotspot_actions recorder_actions
 
     _init_completion || return
 
@@ -27,18 +28,21 @@ function _beanshooter() {
     gadgets="$gadgets JRMPClient JRMPListener JSON1 JavassistWeld1 Jdk7u21 Jython1 MozillaRhino1 MozillaRhino2"
     gadgets="$gadgets Myfaces1 Myfaces2 ROME Spring1 Spring2 URLDNS Vaadin1 Wicket1"
 
-    operations="brute invoke deploy enum list serial stager undeploy tonka mlet tomcat"
+    operations="attr brute deploy enum info invoke list serial stager undeploy diagnostic hotspot mlet recorder tomcat tonka"
     sasl_mechanisms="plain digest cram gssapi ntlm"
     general_opts="--help --config --verbose --plugin --no-color --stack-trace"
     conn_opts="--follow --ssl --jmxmp --sasl"
     target_opts="--bound-name --objid-server --objid-connection"
     stager_opts="--stager-host --stager-port --no-stager --stager-url"
 
-    mbeans="tonka mlet tomcat"
-    mbean_actions="status deploy undeploy info"
+    mbeans="diagnostic hotspot mlet recorder tomcat tonka "
+    mbean_actions="attr deploy info invoke stats status undeploy"
     tonka_actions="version exec execarray shell upload download export ${mbean_actions}"
     mlet_actions="load ${mbean_actions}"
     tomcat_actions="list ${mbean_actions}"
+    diagnostic_actions="read load logfile nolog cmdline props ${mbean_actions}"
+    hotspot_actions="dump list get set ${mbean_actions}"
+    recorder_actions="new start stop dump save ${mbean_actions}"
 
     if [[ $cword -eq 1 ]]; then
 
@@ -66,6 +70,20 @@ function _beanshooter() {
     elif _comp_contains "$unguessable" $prev; then
         return 0
 
+    elif [[ ${words[1]} == "attr" ]]; then
+
+        if [[ $cur == -* ]] || [[ $args -ge 8 ]]; then
+            opts="--username"
+            opts="$opts --password"
+            opts="$opts --type"
+            opts="$opts $conn_opts"
+            opts="$opts $general_opts"
+            opts="$opts $target_opts"
+
+        else
+            return 0
+        fi
+
     elif [[ ${words[1]} == "brute" ]]; then
 
         if [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
@@ -88,8 +106,7 @@ function _beanshooter() {
     elif [[ ${words[1]} == "invoke" ]]; then
 
         if [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
-            opts="--literal"
-            opts="$opts --signature"
+            opts="--signature"
             opts="$opts --no-wrap"
             opts="$opts --username"
             opts="$opts --password"
@@ -211,21 +228,7 @@ function _beanshooter() {
                 return 0
             fi
 
-        elif [[ ${words[2]} == "undeploy" ]]; then
-
-            if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                opts="--username"
-                opts="$opts --password"
-                opts="$opts $conn_opts"
-                opts="$opts $stager_opts"
-                opts="$opts $target_opts"
-                opts="$opts $general_opts"
-
-            else
-                return 0
-            fi
-
-        elif [[ ${words[2]} == "status" ]]; then
+        elif _comp_contains "info status undeploy" "${words[2]}"; then
 
             if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
                 opts="--username"
@@ -238,7 +241,36 @@ function _beanshooter() {
                 return 0
             fi
 
-        elif [[ ${words[2]} == "info" ]]; then
+        elif [[ ${words[2]} == "invoke" ]]; then
+
+            if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
+                opts="--signature"
+                opts="$opts --no-wrap"
+                opts="$opts --username"
+                opts="$opts --password"
+                opts="$opts $conn_opts"
+                opts="$opts $target_opts"
+                opts="$opts $general_opts"
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[2]} == "attr" ]]; then
+
+            if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                opts="--username"
+                opts="$opts --password"
+                opts="$opts --type"
+                opts="$opts $conn_opts"
+                opts="$opts $target_opts"
+                opts="$opts $general_opts"
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[2]} == "stats" ]]; then
 
             if [[ $cur == -* ]] || [[ $args -ge 3 ]]; then
                 opts="$general_opts"
@@ -400,6 +432,34 @@ function _beanshooter() {
 
                 else
                     return 0
+                fi
+            fi
+
+        elif [[ ${words[1]} == "diagnostic" ]]; then
+
+            if [[ $cword -eq 2 ]]; then
+
+                if [[ $cur == -* ]]; then
+                    opts="--help"
+                else
+                    opts="$diagnostic_actions"
+                fi
+
+            elif _comp_contains "read load logfile nolog cmdline props" ${words[2]}; then
+
+                if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
+                    opts="--username"
+                    opts="$opts --password"
+                    opts="$opts $conn_opts"
+                    opts="$opts $target_opts"
+                    opts="$opts $general_opts"
+
+                else
+                    return 0
+                fi
+
+                if [[ ${words[2]} == "read" ]]; then
+                    opts="$opts --raw"
                 fi
             fi
         fi
