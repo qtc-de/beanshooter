@@ -5,8 +5,28 @@ type _comp_contains &> /dev/null || return
 type _comp_filter_shorts &> /dev/null || return
 type _comp_get_parameter &> /dev/null || return
 
-function _beanshooter() {
+function _comp_beanstart()
+{
+    if [[ $cur == -* ]]; then
+        opts="--help"
+    else
+        opts="$1"
+    fi
 
+    _upvars -v opts "$opts"
+}
+
+function _comp_beanoption()
+{
+    if [[ $cur == -* ]] || [[ $args -ge $1 ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
+function _beanshooter()
+{
     local cur prev words cword opts arg args gadgets value_options operations sasl_mechanisms tonka_actions mlet_actions
     local tomcat_actios mbeans mbean_actions general_opts conn_opts stager_opts unguessable file_like diagnostic_actions
     local hotspot_actions recorder_actions
@@ -45,12 +65,7 @@ function _beanshooter() {
     recorder_actions="new start stop dump save ${mbean_actions}"
 
     if [[ $cword -eq 1 ]]; then
-
-        if [[ $cur == -* ]]; then
-            opts="--help"
-        else
-            opts="$operations"
-        fi
+        _comp_beanstart "$operations"
 
     elif [[ $prev == "--sasl" ]]; then
         opts="${sasl_mechanisms}"
@@ -282,12 +297,7 @@ function _beanshooter() {
         elif [[ ${words[1]} == "tonka" ]]; then
 
             if [[ $cword -eq 2 ]]; then
-
-                if [[ $cur == -* ]]; then
-                    opts="--help"
-                else
-                    opts="$tonka_actions"
-                fi
+                _comp_beanstart "$tonka_actions"
 
             elif [[ ${words[2]} == "exec" ]]; then
 
@@ -376,12 +386,7 @@ function _beanshooter() {
         elif [[ ${words[1]} == "mlet" ]]; then
 
             if [[ $cword -eq 2 ]]; then
-
-                if [[ $cur == -* ]]; then
-                    opts="--help"
-                else
-                    opts="$mlet_actions"
-                fi
+                    _comp_beanstart "$mlet_actions"
 
             elif [[ ${words[2]} == "load" ]]; then
 
@@ -414,53 +419,86 @@ function _beanshooter() {
         elif [[ ${words[1]} == "tomcat" ]]; then
 
             if [[ $cword -eq 2 ]]; then
+                    _comp_beanstart "$tomcat_actions"
 
-                if [[ $cur == -* ]]; then
-                    opts="--help"
-                else
-                    opts="$tomcat_actions"
-                fi
+            elif [[ ${words[2]} == "list" ]] && _comp_beanoption 5; then
+                opts="--username"
+                opts="$opts --password"
+                opts="$opts $conn_opts"
+                opts="$opts $target_opts"
+                opts="$opts $general_opts"
 
-            elif [[ ${words[2]} == "list" ]]; then
-
-                if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                    opts="--username"
-                    opts="$opts --password"
-                    opts="$opts $conn_opts"
-                    opts="$opts $target_opts"
-                    opts="$opts $general_opts"
-
-                else
-                    return 0
-                fi
+            else
+                return 0
             fi
 
         elif [[ ${words[1]} == "diagnostic" ]]; then
 
             if [[ $cword -eq 2 ]]; then
+                _comp_beanstart "$diagnostic_actions"
 
-                if [[ $cur == -* ]]; then
-                    opts="--help"
-                else
-                    opts="$diagnostic_actions"
-                fi
+            elif _comp_contains "read load logfile nolog cmdline props" ${words[2]} && _comp_beanoption 6; then
 
-            elif _comp_contains "read load logfile nolog cmdline props" ${words[2]}; then
-
-                if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-                    opts="--username"
-                    opts="$opts --password"
-                    opts="$opts $conn_opts"
-                    opts="$opts $target_opts"
-                    opts="$opts $general_opts"
-
-                else
-                    return 0
-                fi
+                opts="--username"
+                opts="$opts --password"
+                opts="$opts $conn_opts"
+                opts="$opts $target_opts"
+                opts="$opts $general_opts"
 
                 if [[ ${words[2]} == "read" ]]; then
                     opts="$opts --raw"
                 fi
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[1]} == "hotspot" ]]; then
+
+            opts="--username"
+            opts="$opts --password"
+            opts="$opts $conn_opts"
+            opts="$opts $target_opts"
+            opts="$opts $general_opts"
+
+            if [[ $cword -eq 2 ]]; then
+                _comp_beanstart "$hotspot_actions"
+
+            elif [[ ${words[2]} == "list" ]] && _comp_beanoption 5; then
+                :
+
+            elif _comp_contains "dump get" ${words[2]} && _comp_beanoption 6; then
+                    opts="$opts --live"
+
+            elif [[ ${words[2]} == "set" ]] && _comp_beanoption 7; then
+                :
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[1]} == "recorder" ]]; then
+
+            opts="--username"
+            opts="$opts --password"
+            opts="$opts $conn_opts"
+            opts="$opts $target_opts"
+            opts="$opts $general_opts"
+
+            if [[ $cword -eq 2 ]]; then
+                _comp_beanstart "$recorder_actions"
+
+            elif [[ ${words[2]} == "new" ]] && _comp_beanoption 5; then
+                :
+
+            elif _comp_contains "start stop" ${words[2]} && _comp_beanoption 6; then
+                :
+
+            elif _comp_contains "dump save" ${words[2]} && _comp_beanoption 7; then
+                :
+
+            else
+                return 0
             fi
         fi
     fi
