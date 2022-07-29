@@ -29,6 +29,7 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.TARGET_PORT,
             BeanshooterOption.TARGET_BOUND_NAME,
             BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
             BeanshooterOption.CONN_FOLLOW,
             BeanshooterOption.CONN_SSL,
             BeanshooterOption.CONN_JMXMP,
