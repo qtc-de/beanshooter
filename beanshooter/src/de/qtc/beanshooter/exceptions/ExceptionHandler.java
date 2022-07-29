@@ -274,6 +274,16 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void mBeanAccessDenied(Exception e, String objname, String methodName)
+    {
+        Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "during method invocation.");
+        Logger.eprintMixedBlue("Insufficient permissions for calling the", methodName, "method on");
+        Logger.printlnPlainMixedBlue("", objname);
+
+        showStackTrace(e);
+        Utils.exit();
+    }
+
     public static void credentialException(Exception e)
     {
         Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while connecting to the JMX server.");

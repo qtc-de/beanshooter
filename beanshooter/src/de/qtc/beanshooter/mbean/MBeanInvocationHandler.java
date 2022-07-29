@@ -75,6 +75,16 @@ public class MBeanInvocationHandler implements InvocationHandler {
 
             else
                 ExceptionHandler.unexpectedException(e, "invoke", "operation", true);
+
+        } catch (SecurityException e) {
+
+            String message = e.getMessage();
+
+            if (message.contains("Access denied!"))
+                ExceptionHandler.mBeanAccessDenied(e, objName.toString(), method.getName());
+
+            else
+                throw e;
         }
 
         return retValue;
