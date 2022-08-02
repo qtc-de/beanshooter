@@ -252,6 +252,16 @@ public class MBeanServerClient {
                 ExceptionHandler.noSuchMethod(e, methodName);
 
             throw e;
+
+        } catch (SecurityException e) {
+
+            String message = e.getMessage();
+
+            if (message.contains("Access denied!"))
+                ExceptionHandler.mBeanAccessDenied(e, name.toString(), methodName);
+
+            else
+                throw e;
         }
 
         return result;
