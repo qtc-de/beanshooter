@@ -9,6 +9,7 @@ import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.mbean.mlet.MLetOption;
+import de.qtc.beanshooter.mbean.tomcat.MemoryUserDatabaseMBeanOption;
 import de.qtc.beanshooter.mbean.tonkabean.TonkaBeanOption;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.utils.Utils;
@@ -150,6 +151,9 @@ public class OptionHandler {
             arg.nargs("?");
 
         if (option == BeanshooterOption.ATTR_VALUE)
+            arg.nargs("?");
+
+        if (option == MemoryUserDatabaseMBeanOption.PASS_FILE)
             arg.nargs("?");
 
         if( option == MLetOption.LOAD_BEAN )

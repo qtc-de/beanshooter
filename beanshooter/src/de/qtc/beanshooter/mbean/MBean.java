@@ -19,6 +19,7 @@ import de.qtc.beanshooter.mbean.hotspot.HotSpotDiagnosticOption;
 import de.qtc.beanshooter.mbean.mlet.MLetOperation;
 import de.qtc.beanshooter.mbean.mlet.MLetOption;
 import de.qtc.beanshooter.mbean.tomcat.MemoryUserDatabaseMBeanOperation;
+import de.qtc.beanshooter.mbean.tomcat.MemoryUserDatabaseMBeanOption;
 import de.qtc.beanshooter.mbean.tonkabean.TonkaBeanOperation;
 import de.qtc.beanshooter.mbean.tonkabean.TonkaBeanOption;
 import de.qtc.beanshooter.utils.Utils;
@@ -78,7 +79,7 @@ public enum MBean implements IMBean
             "org.apache.catalina.mbeans.MemoryUserDatabaseMBean",
             null,
             MemoryUserDatabaseMBeanOperation.values(),
-            new Option[] {}
+            MemoryUserDatabaseMBeanOption.values()
            ),
 
     TONKA("tonka",

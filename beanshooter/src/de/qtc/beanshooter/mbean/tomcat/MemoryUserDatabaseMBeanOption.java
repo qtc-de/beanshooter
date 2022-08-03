@@ -1,4 +1,4 @@
-package de.qtc.beanshooter.mbean.flightrecorder;
+package de.qtc.beanshooter.mbean.tomcat;
 
 import de.qtc.beanshooter.cli.ArgType;
 import de.qtc.beanshooter.cli.Option;
@@ -9,22 +9,23 @@ import net.sourceforge.argparse4j.inf.ArgumentAction;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- * The FlightRecorderOption enum contains available options that are dedicated to FlightRecorderOperation. The options
- * are assigned to the corresponding operations within the FlightRecorderOperation class.
+ * The MemoryUserDatabaseMBeanOption enum contains available options that are dedicated to
+ * operations available on the tomcat Mbean. The options are assigned to the corresponding
+ * operations within the MemoryUserDatabaseMBeanOperation class.
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public enum FlightRecorderOption implements Option
+public enum MemoryUserDatabaseMBeanOption implements Option
 {
-    RECORDING_ID("recordingID",
-                 "id of the targeted recording",
-                 Arguments.store(),
-                 OptionGroup.ACTION,
-                 ArgType.INT
-                ),
+    USER_FILE("userfile",
+              "file to store usernames in",
+              Arguments.store(),
+              OptionGroup.ACTION,
+              ArgType.STRING
+              ),
 
-    DUMP_FILE("outfile",
-              "filename to save the dump in",
+    PASS_FILE("passfile",
+              "file to store passwords in",
               Arguments.store(),
               OptionGroup.ACTION,
               ArgType.STRING
@@ -41,7 +42,7 @@ public enum FlightRecorderOption implements Option
 
 
     /**
-     * Initialize the FlightRecorderOption with the required parameters.
+     * Initialize the MemoryUserDatabaseMBeanOption with the required parameters.
      *
      * @param name option name on the command line
      * @param description option description within the help menu
@@ -49,13 +50,13 @@ public enum FlightRecorderOption implements Option
      * @param optionGroup OptionGroup that the argument belongs to
      * @param type ArgType to expect from the argument
      */
-    FlightRecorderOption(String name, String description, ArgumentAction argumentAction, OptionGroup optionGroup, ArgType type)
+    MemoryUserDatabaseMBeanOption(String name, String description, ArgumentAction argumentAction, OptionGroup optionGroup, ArgType type)
     {
         this(name, description, argumentAction, optionGroup, type, null);
     }
 
     /**
-     * Initialize the FlightRecorderOption with the required parameters.
+     * Initialize the MemoryUserDatabaseMBeanOption with the required parameters.
      *
      * @param name option name on the command line
      * @param description option description within the help menu
@@ -64,7 +65,7 @@ public enum FlightRecorderOption implements Option
      * @param type ArgType to expect from the argument
      * @param metavar meta variable to display in the help menu
      */
-    FlightRecorderOption(String name, String description, ArgumentAction argumentAction, OptionGroup optionGroup, ArgType type, String metavar)
+    MemoryUserDatabaseMBeanOption(String name, String description, ArgumentAction argumentAction, OptionGroup optionGroup, ArgType type, String metavar)
     {
         this.name = name;
         this.description = description;

