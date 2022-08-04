@@ -480,10 +480,20 @@ public class Logger {
 
     public static void printMixedRedFirst(String first, String second)
     {
-        elog(prefix() + red(first) + " " + second, false);
+        log(prefix() + red(first) + " " + second, false);
     }
 
     public static void printMixedRedFirst(String first, String second, String third)
+    {
+        log(prefix() + red(first) + " " + second + " " + red(third), false);
+    }
+
+    public static void eprintMixedRedFirst(String first, String second)
+    {
+        elog(prefix() + red(first) + " " + second, false);
+    }
+
+    public static void eprintMixedRedFirst(String first, String second, String third)
     {
         elog(prefix() + red(first) + " " + second + " " + red(third), false);
     }
