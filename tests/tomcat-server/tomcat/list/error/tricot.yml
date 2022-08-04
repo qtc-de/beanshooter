@@ -3,10 +3,10 @@ tester:
   description: |-
     Perform tests on the error handling of beanshooters tomcat list action
 
-  id: '05-02-02'
+  id: '05-06-02'
   groups:
     - error
-  id_pattern: '05-02-02-{:02}'
+  id_pattern: '05-06-02-{:02}'
 
 
 tests:

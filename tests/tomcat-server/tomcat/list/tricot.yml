@@ -3,7 +3,7 @@ tester:
   description: |-
     Perform tests on beanshooters tomcat list action
 
-  id: '05-02'
+  id: '05-06'
   groups:
     - list
 

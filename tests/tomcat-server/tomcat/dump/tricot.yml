@@ -1,0 +1,12 @@
+tester:
+  title: tomcat dump action
+  description: |-
+    Perform some tests on the dump action of beanshooters tomcat operation
+
+  id: '05-02'
+  groups:
+    - dump
+
+testers:
+  - ./rmi/tricot.yml
+  - ./error/tricot.yml

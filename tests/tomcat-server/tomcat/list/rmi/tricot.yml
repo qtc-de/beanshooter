@@ -3,10 +3,10 @@ tester:
   description: |-
     Perform tests on beanshooters tomcat list action for RMI based connections
 
-  id: '05-02-01'
+  id: '05-06-01'
   groups:
     - rmi
-  id_pattern: '05-02-01-{:02}'
+  id_pattern: '05-06-01-{:02}'
 
 
 tests:

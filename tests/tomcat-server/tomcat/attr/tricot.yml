@@ -4,7 +4,7 @@ tester:
     Perform the attr action within the submenu of the tomcat
     operation.
 
-  id: '05-05'
+  id: '05-01'
   groups:
     - attr
 

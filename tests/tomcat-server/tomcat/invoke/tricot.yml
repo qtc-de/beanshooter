@@ -4,7 +4,7 @@ tester:
     Perform the invoke action within the submenu of the tomcat
     operation.
 
-  id: '05-04'
+  id: '05-05'
   groups:
     - invoke
 

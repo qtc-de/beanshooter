@@ -3,10 +3,10 @@ tester:
   description: |-
     Perform tests on the invoke action within the submenu of the tomcat operation.
 
-  id: '05-04-01'
+  id: '05-05-01'
   groups:
     - rmi
-  id_pattern: '05-04-01-{:02}'
+  id_pattern: '05-05-01-{:02}'
 
 tests:
   - title: Invoke

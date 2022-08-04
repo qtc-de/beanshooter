@@ -8,5 +8,9 @@ tester:
     - tomcat
 
 testers:
+  - ./attr/tricot.yml
+  - ./dump/tricot.yml
   - ./enum/tricot.yml
+  - ./info/tricot.yml
+  - ./invoke/tricot.yml
   - ./list/tricot.yml

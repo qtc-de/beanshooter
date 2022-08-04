@@ -3,10 +3,10 @@ tester:
   description: |-
     Perform tests on beanshooters enum action for RMI based connections
 
-  id: '05-01-01'
+  id: '05-03-01'
   groups:
     - rmi
-  id_pattern: '05-01-01-{:02}'
+  id_pattern: '05-03-01-{:02}'
 
 
 tests:

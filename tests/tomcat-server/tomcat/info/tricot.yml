@@ -4,7 +4,7 @@ tester:
     Perform the info action within the submenu of the tomcat
     action.
 
-  id: '05-03'
+  id: '05-04'
   groups:
     - info
 

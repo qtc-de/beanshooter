@@ -3,10 +3,10 @@ tester:
   description: |-
     Perform tests on the attr action within the submenu of the tomcat operation.
 
-  id: '05-05-01'
+  id: '05-01-01'
   groups:
     - rmi
-  id_pattern: '05-05-01-{:02}'
+  id_pattern: '05-01-01-{:02}'
 
 tests:
   - title: Get Attr
@@ -61,9 +61,9 @@ tests:
           values:
             - '/tmp/test'
 
-  - title: Set Attr
+  - title: Restore Attr
     description: |-
-      Use the attr operation to set the pathname attribute
+      Restore the original value of the pathname attribute
 
     command:
       - beanshooter
@@ -72,10 +72,7 @@ tests:
       - ${TARGET}
       - ${OPTIONS}
       - pathname
-      - /tmp/test
+      - 'conf/tomcat-users.xml'
 
     validators:
       - error: False
-      - contains:
-          values:
-            - 'conf/tomcat-users.xml'
