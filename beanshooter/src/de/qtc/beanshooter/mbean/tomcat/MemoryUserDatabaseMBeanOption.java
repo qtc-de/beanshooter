@@ -29,7 +29,21 @@ public enum MemoryUserDatabaseMBeanOption implements Option
               Arguments.store(),
               OptionGroup.ACTION,
               ArgType.STRING
-              );
+              ),
+
+    LOCAL_FILE("lfile",
+               "filename on the server",
+               Arguments.store(),
+               OptionGroup.ACTION,
+               ArgType.STRING
+              ),
+
+    REMOTE_FILE("rfile",
+                "filename on the server",
+                Arguments.store(),
+                OptionGroup.ACTION,
+                ArgType.STRING
+               );
 
     private final String name;
     private final String description;

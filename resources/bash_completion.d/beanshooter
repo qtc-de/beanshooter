@@ -270,6 +270,13 @@ function _beanshooter()
                 _filedir
                 return 0
 
+            elif [[ ${words[2]} == "write" ]] && _comp_beanoption 7; then
+                :
+
+            elif [[ ${words[2]} == "write" ]] && [[ $args -eq 5 || $args -eq 6 ]]; then
+                _filedir
+                return 0
+
             else
                 return 0
             fi
