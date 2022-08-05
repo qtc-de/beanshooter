@@ -61,7 +61,7 @@ function _beanshooter()
     mbean_actions="attr deploy info invoke stats status undeploy"
     tonka_actions="version exec execarray shell upload download export ${mbean_actions}"
     mlet_actions="load ${mbean_actions}"
-    tomcat_actions="dump list ${mbean_actions}"
+    tomcat_actions="dump list write ${mbean_actions}"
     diagnostic_actions="read load logfile nolog cmdline props ${mbean_actions}"
     hotspot_actions="dump list get set ${mbean_actions}"
     recorder_actions="new start stop dump save ${mbean_actions}"

