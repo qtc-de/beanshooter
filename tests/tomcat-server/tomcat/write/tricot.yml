@@ -1,0 +1,12 @@
+tester:
+  title: tomcat write action
+  description: |-
+    Perform tests on beanshooters tomcat write action
+
+  id: '05-07'
+  groups:
+    - write
+
+testers:
+  - ./rmi/tricot.yml
+  - ./error/tricot.yml

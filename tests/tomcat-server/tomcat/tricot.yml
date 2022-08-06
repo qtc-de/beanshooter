@@ -14,3 +14,4 @@ testers:
   - ./info/tricot.yml
   - ./invoke/tricot.yml
   - ./list/tricot.yml
+  - ./write/tricot.yml

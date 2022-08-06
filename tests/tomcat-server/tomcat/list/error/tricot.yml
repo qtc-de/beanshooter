@@ -1,5 +1,5 @@
 tester:
-  title: tomcat list action (RMI)
+  title: tomcat list action (Error)
   description: |-
     Perform tests on the error handling of beanshooters tomcat list action
 

@@ -1,0 +1,51 @@
+tester:
+  title: tomcat write action (RMI)
+  description: |-
+    Perform tests on beanshooters tomcat write action for RMI based connections
+
+  id: '05-07-01'
+  groups:
+    - rmi
+  id_pattern: '05-07-01-{:02}'
+
+
+variables:
+  content: 'This is some content for the tempfile' 
+  tempfile: '/tmp/tricot_tempfile'
+
+
+plugins:
+  - tempfile:
+      path: ${tempfile}
+      content: ${content}
+
+
+tests:
+  - title: write action
+    description: |-
+      Use the write action to write user controlled content into the docker volume.
+      Unfortunately, it is currently not possible to check the content of the written
+      file when not running tricot as root. This is because the tomcat service in the
+      currently used container runs as root and writes the file as read protected from
+      other users.
+
+    command:
+      - beanshooter
+      - tomcat
+      - write
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${tempfile}
+      - ${volume-d}/test.jsp
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Writing local file ${tempfile} to server location ${volume-d}/test.jsp'
+            - 'conf/tomcat-users.xml'
+            - 'All done.'
+      - file_exists:
+          files:
+            - ${volume}/test.jsp 
+          cleanup: True
