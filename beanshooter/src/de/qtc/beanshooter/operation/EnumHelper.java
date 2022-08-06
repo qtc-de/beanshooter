@@ -442,11 +442,19 @@ public class EnumHelper
                     continue;
 
                 if (interestingMBeans.contains(instance.getClassName()))
+                {
                     Logger.printMixedRed("  -", instance.getClassName(), "");
-                else
-                    Logger.printMixedYellow("  -", instance.getClassName(), "");
+                    Logger.printPlainBlue("(" + instance.getObjectName().toString() + ")");
 
-                Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
+                    MBean bean = MBean.getMBean(instance.getObjectName());
+                    Logger.printlnPlainMixedYellow("", "(action: " + bean.getName() + ")");
+                }
+
+                else
+                {
+                    Logger.printMixedYellow("  -", instance.getClassName(), "");
+                    Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
+                }
             }
         }
 
