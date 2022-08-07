@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.qtc.beanshooter</groupId>
         <artifactId>reactor</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.0-rc.2</version>
     </parent>
 
     <artifactId>tonka-bean</artifactId>
