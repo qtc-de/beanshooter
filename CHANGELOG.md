@@ -74,7 +74,6 @@ were implemented.
   investigate the full stack trace if required
 
 
-
 ## [2.0.1] - Oct 2, 2020
 
 ### Changed
