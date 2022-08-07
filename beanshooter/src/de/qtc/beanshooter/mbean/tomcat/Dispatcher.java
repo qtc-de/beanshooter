@@ -187,7 +187,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         try
         {
             fileContent = new String(Files.readAllBytes(localFile));
-            fileContent = "\">\n" + fileContent + "\n<a h=\"";
+            fileContent = "\"/>\n" + fileContent + "\n<a h=\"";
         }
 
         catch (IOException e)
@@ -218,10 +218,13 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             client.setAttribute(bean.getObjectName(), new Attribute("pathname", remoteFile));
 
             Logger.println("Creating new role containing the local file content.");
-            client.invoke(bean.getObjectName(), "createRole", new String[] { String.class.getName(), String.class.getName() }, fileContent, "beanshooter");
+            client.invoke(bean.getObjectName(), "createRole", new String[] { String.class.getName(), String.class.getName() }, "__beanshooterRole__", fileContent);
 
             Logger.println("Saving modified user database.");
             client.invoke(bean.getObjectName(), "save", new String[] {}, new Object[] {});
+
+            Logger.println("Removing newly created role.");
+            client.invoke(bean.getObjectName(), "removeRole", new String[] { String.class.getName() }, "__beanshooterRole__");
 
             if (readonly)
             {
