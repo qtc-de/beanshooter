@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [3.0.0] - XXX XX, 2022
+## [3.0.0] - Aug 07, 2022
 
 ### Added
 
@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add operations for the `HotSpotDiagnosticMXBean`
 * Add the `attr` action for obtaining and modifying attributes
 * Add the `info` action for enumerating method and attributes
+* Add the `dump` action for the `MemoryUserDatabaseMBean`
+* Add the `write` action for the `MemoryUserDatabaseMBean`
 
 ### Changed
 
@@ -22,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with `get`. Instead, the `attr` action should now be used for attribute access.
 * The old *MBean* `info` operations was renamed to `stats`. The `info` action now performs
   the general `info` operation for the specified *MBean*.
+* *MBeans* with default support by *beanshooter* are now displayed together with the
+  corresponding action name when listing *MBeans*.
+* Refactored the completion script.
+* Several bugfixes.
 
 
 ## [3.0.0-rc.2] - Jun 07, 2022
