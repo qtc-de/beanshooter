@@ -1,0 +1,67 @@
+tester:
+  title: stats action (Generic)
+  description: |-
+    Perform tests on beanshooters stats action
+
+  id: '02-02-01'
+  groups:
+    - generic
+  id_pattern: '02-02-01-{:02}'
+
+
+tests:
+  - title: Check Tonka
+    description: |-
+      Check the output of the stats action for the tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - stats
+      - --no-color
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MLetTonkaBean:name=TonkaBean,id=1'
+            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'available (tonka-bean-'
+
+
+  - title: Check MLet
+    description: |-
+      Check the output of the stats action for the mlet bean
+
+    command:
+      - beanshooter
+      - mlet
+      - stats
+      - --no-color
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'DefaultDomain:type=MLet'
+            - 'javax.management.loading.MLet'
+            - 'not available'
+
+
+  - title: Check Tomcat
+    description: |-
+      Check the output of the stats action for the tomcat bean
+
+    command:
+      - beanshooter
+      - tomcat
+      - stats
+      - --no-color
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Users:type=UserDatabase,database=UserDatabase'
+            - 'org.apache.catalina.mbeans.MemoryUserDatabaseMBean'
+            - 'not available'

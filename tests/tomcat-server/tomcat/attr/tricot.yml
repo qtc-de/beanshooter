@@ -1,0 +1,12 @@
+tester:
+  title: tomcat attr action
+  description: |-
+    Perform the attr action within the submenu of the tomcat
+    operation.
+
+  id: '05-01'
+  groups:
+    - attr
+
+testers:
+  - ./rmi/tricot.yml

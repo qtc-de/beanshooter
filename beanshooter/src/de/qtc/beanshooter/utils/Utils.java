@@ -26,11 +26,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanParameterInfo;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
@@ -533,5 +536,74 @@ public class Utils {
 
         sb.append(")");
         return sb.toString();
+    }
+
+    /**
+     * Obtain a method signature as string from an MBeanOperationInfo object.
+     *
+     * @param info  MBeanOperationInfo object
+     * @return method signature as string
+     */
+    public static String getMethodString(MBeanOperationInfo info)
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(info.getReturnType());
+        sb.append(" ");
+        sb.append(info.getName());
+        sb.append("(");
+
+        if (info.getSignature().length != 0)
+        {
+            for (MBeanParameterInfo cc : info.getSignature())
+            {
+                sb.append(cc.getType() + " " + cc.getName());
+                sb.append(", ");
+            }
+
+            sb.setLength(sb.length() - 2);
+        }
+
+        sb.append(")");
+        return sb.toString();
+    }
+
+    /**
+     * Asks the user whether execution should continue. If the user does not confirm, the program
+     * is shutdown.
+     */
+    public static void askToContinue(String message, Exception e)
+    {
+        @SuppressWarnings("resource")
+        Scanner scanner = new Scanner(System.in);
+
+        while (true)
+        {
+            Logger.printMixedYellow(message, "(Y/n/trace)", "");
+            String input = scanner.nextLine().toLowerCase();
+
+            switch(input)
+            {
+                case "":
+                case "y":
+                case "yes":
+                    Logger.lineBreak();
+                    return;
+
+                case "t":
+                case "trace":
+                case "stacktrace":
+                    ExceptionHandler.stackTrace(e);
+                    continue;
+
+                case "n":
+                case "no":
+                    Utils.exit();
+
+                default:
+                    Logger.printlnRed("Invalid choice.");
+                    continue;
+            }
+        }
     }
 }

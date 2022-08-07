@@ -32,6 +32,26 @@ public class TomcatUser
     }
 
     /**
+     * Return the username of the TomcatUser object.
+     *
+     * @return the associated username
+     */
+    public String getUsername()
+    {
+        return username;
+    }
+
+    /**
+     * Return the password of the TomcatUser object.
+     *
+     * @return the associated password
+     */
+    public String getPassword()
+    {
+        return password;
+    }
+
+    /**
      * Print an formatted overview on the user to stdout.
      */
     public void listUser()

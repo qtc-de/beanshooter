@@ -1,0 +1,32 @@
+tester:
+  title: hotspot dump action (RMI)
+  description: |-
+    Perform tests on beanshooters hotspot dump action for RMI based connections
+
+  id: '08-01-01'
+  groups:
+    - rmi
+  id_pattern: '08-01-01-{:02}'
+
+tests:
+  - title: Create a heapdump
+    description: |-
+      Create a heapdump
+
+    command:
+      - beanshooter
+      - hotspot
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${volume-d}/dump.hprof
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'Heapdump file .+ was created successfully'
+      - file_exists:
+          cleanup: True
+          files:
+            - ${volume}/dump.hprof

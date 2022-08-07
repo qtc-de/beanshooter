@@ -1,0 +1,81 @@
+tester:
+  title: tomcat dump action (Error)
+  description: |-
+    Perform tests on the error handling of the dump action
+
+  id: '05-02-02'
+  groups:
+    - error
+  id_pattern: '05-02-02-{:02}'
+
+
+tests:
+  - title: Dump to non writable file
+    description: |-
+      Dump user names to a non writable file
+
+    command:
+      - beanshooter
+      - tomcat
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - /etc/users.txt
+
+    validators:
+      - error: True
+      - contains:
+          values:
+          - 'Caught java.io.FileNotFoundException while opening output file'
+          - 'Missing the required permissions to write to'
+
+  - title: Dump to non existing dir
+    description: |-
+      Dump usernames to a non existind directory
+
+    command:
+      - beanshooter
+      - tomcat
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - /tmp/not-here/users.txt
+
+    validators:
+      - error: True
+      - contains:
+          values:
+          - 'Caught java.io.FileNotFoundException while opening output file'
+          - 'The parent directory of'
+          - 'seems not to exist'
+
+  - title: Dump passwords to a directory
+    description: |-
+      Choose an existing directory for the passwords file
+
+    command:
+      - beanshooter
+      - tomcat
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - users.txt
+      - /etc
+
+    validators:
+      - error: True
+      - regex:
+          match:
+            - 'Users dumped to .+users.txt'
+            - 'Caught java.io.FileNotFoundException while opening output file'
+            - 'The specified path .+ is an existing directory'
+      - file_contains:
+        - file: users.txt
+          contains:
+            - 'manager'
+            - 'admin'
+            - 'status'
+      - file_exists:
+          cleanup: True
+          files:
+            - users.txt

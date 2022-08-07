@@ -16,6 +16,27 @@ public enum MemoryUserDatabaseMBeanOperation implements Operation {
 
     ENUM("enumerate", "supplemental enum operation", new Option[] {}),
 
+    DUMP("dump", "dump credentials from existing user accounts", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
+            MemoryUserDatabaseMBeanOption.USER_FILE,
+            MemoryUserDatabaseMBeanOption.PASS_FILE,
+    }),
+
     LIST("list", "list available users on the tomcat server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
@@ -33,6 +54,27 @@ public enum MemoryUserDatabaseMBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+    }),
+
+    WRITE("write", "write a parially controlled file to the server", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
+            MemoryUserDatabaseMBeanOption.LOCAL_FILE,
+            MemoryUserDatabaseMBeanOption.REMOTE_FILE,
     });
 
     private Method method;

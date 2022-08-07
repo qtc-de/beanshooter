@@ -1,0 +1,335 @@
+tester:
+  title: recorder actions (Error)
+  description: |-
+    Perform tests on beanshooters error handling for recorder based actions
+
+  id: '09-01-02'
+  groups:
+    - rmi
+  id_pattern: '09-01-02-{:02}'
+
+tests:
+  - title: New
+    description: |-
+      Create a new recording
+
+    command:
+      - beanshooter
+      - recorder
+      - new
+      - ${TARGET}
+      - ${OPTIONS}
+
+    extractors:
+      - regex:
+          pattern: 'with ID: (\d+)'
+          variable: 'ID'
+          on_miss: 'break'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Requesting new recording on the MBeanServer'
+            - 'New recording created successfully with ID: '
+
+  - title: Save non finished recording
+    description: |-
+      Attempt to save a non finished recording
+
+    command:
+      - beanshooter
+      - recorder
+      - save
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - ${volume-d}/recording.dump
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Saving recording with ID:'
+            - 'The specified recording must be stopped before it can be saved'
+
+  - title: Start non existent
+    description: |-
+      Start a non existing recording
+
+    command:
+      - beanshooter
+      - recorder
+      - start
+      - ${TARGET}
+      - ${OPTIONS}
+      - 999
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'A recording with ID 999 does not exist'
+
+  - title: Save non existent
+    description: |-
+      Save a non existing recording
+
+    command:
+      - beanshooter
+      - recorder
+      - save
+      - ${TARGET}
+      - ${OPTIONS}
+      - 999
+      - not-relevant
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'A recording with ID 999 does not exist'
+
+  - title: Stop non existent
+    description: |-
+      Stop a non existing recording
+
+    command:
+      - beanshooter
+      - recorder
+      - stop
+      - ${TARGET}
+      - ${OPTIONS}
+      - 999
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'A recording with ID 999 does not exist'
+
+  - title: Dump non existent
+    description: |-
+      Dump a non existing recording
+
+    command:
+      - beanshooter
+      - recorder
+      - stop
+      - ${TARGET}
+      - ${OPTIONS}
+      - 999
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'A recording with ID 999 does not exist'
+
+  - title: Dump non started
+    description: |-
+      Dump a non started recording
+
+    command:
+      - beanshooter
+      - recorder
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - not-relevant
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Recording with ID'
+            - 'was not started yet'
+            - 'Nothing to dump. Start the recording first'
+
+  - title: Stop non started
+    description: |-
+      Stop a non started recording
+
+    command:
+      - beanshooter
+      - recorder
+      - stop
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'The recording with ID .+ was not started yet'
+
+  - title: Start recording
+    description: |-
+      Start a recording
+
+    command:
+      - beanshooter
+      - recorder
+      - start
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Recording with ID'
+            - 'started successfully'
+
+  - title: Start twice
+    description: |-
+      Start a recording twice
+
+    command:
+      - beanshooter
+      - recorder
+      - start
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'The recording with ID .+ was already started'
+
+  - title: Save non stopped
+    description: |-
+      Save a started but not stopped recording
+
+    command:
+      - beanshooter
+      - recorder
+      - save
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - not-relevant
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The specified recording must be stopped before it can be saved'
+
+  - title: Dump to non existing dir
+    description: |-
+      Create a dump in a non existing directory
+
+    command:
+      - beanshooter
+      - recorder
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - /nonono/nonono
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The parent directory of'
+            - 'seems not to exist'
+
+  - title: Dump to existing dir
+    description: |-
+      Create a dump on an existing directory
+
+    command:
+      - beanshooter
+      - recorder
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - /etc
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The specified path /etc is an existing directory'
+
+  - title: Stop recording
+    description: |-
+      Stop a running recording
+
+    command:
+      - beanshooter
+      - recorder
+      - stop
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'Recording with ID .+ stopped successfully'
+
+  - title: Stop twice
+    description: |-
+      Stop a running recording twice
+
+    command:
+      - beanshooter
+      - recorder
+      - stop
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'The recording with ID .+ was already stopped'
+
+  - title: Save to non existing dir
+    description: |-
+      Attempt to save a recording to a non existing directory
+
+    command:
+      - beanshooter
+      - recorder
+      - save
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - /nonono/nonono
+
+    validators:
+      - error: True
+      - regex:
+          match:
+            - 'The parent directory of .+ seems not to exist'
+
+  - title: Save to existing dir
+    description: |-
+      Attempt to save a recording to an existing directory
+
+    command:
+      - beanshooter
+      - recorder
+      - save
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - /etc
+
+    validators:
+      - error: True
+      - regex:
+          match:
+            - 'The specified path .+ is an existing directory'

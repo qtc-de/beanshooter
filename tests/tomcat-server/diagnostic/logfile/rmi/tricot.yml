@@ -1,0 +1,51 @@
+tester:
+  title: diagnostic logfile action (RMI)
+  description: |-
+    Perform tests on beanshooters diagnostic logfile action for RMI based connections
+
+  id: '06-03-01'
+  groups:
+    - rmi
+  id_pattern: '06-03-01-{:02}'
+
+
+tests:
+  - title: Set logfile location
+    description: |-
+      Attempt to set a new log location
+
+    command:
+      - beanshooter
+      - diagnostic
+      - logfile
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${volume-d}/logfile.log
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Logfile path was successfully set to '
+      - file_exists:
+          cleanup: True
+          files:
+            - ${volume}/logfile.log
+
+  - title: Set logfile location 2
+    description: |-
+      Attempt to set a new log location
+
+    command:
+      - beanshooter
+      - diagnostic
+      - logfile
+      - ${TARGET}
+      - ${OPTIONS}
+      - /tmp/test
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Logfile path was successfully set to '

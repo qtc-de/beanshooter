@@ -1,0 +1,29 @@
+tester:
+  title: diagnostic props action (RMI)
+  description: |-
+    Perform tests on beanshooters diagnostic props action for RMI based connections
+
+  id: '06-06-01'
+  groups:
+    - rmi
+  id_pattern: '06-06-01-{:02}'
+
+
+tests:
+  - title: Get props
+    description: |-
+      Obtain currently set system properties
+
+    command:
+      - beanshooter
+      - diagnostic
+      - props
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'os.name=Linux'
+            - 'user.dir=/usr/local/tomcat'

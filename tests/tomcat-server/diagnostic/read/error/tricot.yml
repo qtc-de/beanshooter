@@ -1,0 +1,49 @@
+tester:
+  title: diagnostic read action (RMI)
+  description: |-
+    Perform tests on the error handling of beanshooters diagnostic read action
+
+  id: '06-01-02'
+  groups:
+    - error
+  id_pattern: '06-01-02-{:02}'
+
+
+tests:
+  - title: Read non existing file
+    description: |-
+      Attempt to read a non existing file
+
+    command:
+      - beanshooter
+      - diagnostic
+      - read
+      - ${TARGET}
+      - ${OPTIONS}
+      - /nonono
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The server was unable to open the file'
+            - 'This could mean that the file does not exist, is a directory or the sever is missing permissions'
+
+
+  - title: Read binary
+    description: |-
+      Attempt to read /bin/bash
+
+    command:
+      - beanshooter
+      - diagnostic
+      - read
+      - ${TARGET}
+      - ${OPTIONS}
+      - /bin/bash
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'ELF'

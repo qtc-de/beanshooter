@@ -1,0 +1,12 @@
+tester:
+  title: diagnostic read action
+  description: |-
+    Perform tests on beanshooters diagnostic read action
+
+  id: '06-01'
+  groups:
+    - read
+
+testers:
+  - ./rmi/tricot.yml
+  - ./error/tricot.yml

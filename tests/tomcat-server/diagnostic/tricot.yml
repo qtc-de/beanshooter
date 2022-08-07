@@ -1,0 +1,16 @@
+tester:
+  title: diagnostic related tests
+  description: |-
+    Tests for the diagnostic action
+
+  id: '06'
+  groups:
+    - diagnostic
+
+testers:
+  - ./read/tricot.yml
+  - ./load/tricot.yml
+  - ./logfile/tricot.yml
+  - ./nolog/tricot.yml
+  - ./cmdline/tricot.yml
+  - ./props/tricot.yml

@@ -1,0 +1,28 @@
+tester:
+  title: diagnostic nolog action (RMI)
+  description: |-
+    Perform tests on beanshooters diagnostic nolog action for RMI based connections
+
+  id: '06-04-01'
+  groups:
+    - rmi
+  id_pattern: '06-04-01-{:02}'
+
+
+tests:
+  - title: Disable logging
+    description: |-
+      Disable logging by using the nolog action
+
+    command:
+      - beanshooter
+      - diagnostic
+      - nolog
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Logging was disabled successfully'

@@ -76,7 +76,7 @@ public class ExceptionHandler {
      * @param during2 Additional non colored description
      * @param exit whether or not to exit after printing the error messages
      */
-    public static void unexpectedException(Exception e, String during1, String during2, boolean exit)
+    public static void unexpectedException(Throwable e, String during1, String during2, boolean exit)
     {
         Logger.eprintMixedYellow("Caught unexpected", e.getClass().getName(), "during ");
         Logger.printlnPlainMixedBlueFirst(during1, during2 + ".");
@@ -274,6 +274,16 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void mBeanAccessDenied(Exception e, String objname, String methodName)
+    {
+        Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "during method invocation.");
+        Logger.eprintMixedBlue("Insufficient permissions for calling the", methodName, "method on");
+        Logger.printlnPlainMixedBlue("", objname);
+
+        showStackTrace(e);
+        Utils.exit();
+    }
+
     public static void credentialException(Exception e)
     {
         Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while connecting to the JMX server.");
@@ -288,14 +298,14 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
-    public static void handleFileWrite(Exception e, String path, boolean exit)
+    public static void handleFileWrite(Throwable e, String path, boolean exit)
     {
         Throwable t = ExceptionHandler.getCause(e);
         String message = t.getMessage();
 
-        if (t instanceof java.io.FileNotFoundException)
+        if (t instanceof java.io.FileNotFoundException || t.getClass() == IOException.class)
         {
-            Logger.eprintlnMixedYellow("Caught", "FileNotFoundException", "while opening output file.");
+            Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while opening output file.");
 
             if(message.contains("Permission denied"))
                 Logger.eprintlnMixedBlue("Missing the required permissions to write to:", path);
@@ -305,6 +315,9 @@ public class ExceptionHandler {
 
             else if(message.contains("Is a directory"))
                 Logger.eprintlnMixedBlue("The specified path", path, "is an existing directory.");
+
+            else if(message.contains("file exists"))
+                Logger.eprintlnMixedBlue("The specified file", path, "does already exist.");
 
             else
                 unexpectedException(e, "writing", "file", exit);
@@ -446,57 +459,58 @@ public class ExceptionHandler {
         Throwable t = getCause(e);
         String message = t.getMessage();
 
-        if( t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed") )
+        if (t instanceof java.lang.SecurityException && message.contains("Authentication credentials verification failed"))
             throw new WrongCredentialsException(e);
 
-        if( t instanceof javax.security.auth.login.FailedLoginException && message.contains("Invalid username or password") )
+        if (t instanceof javax.security.auth.login.FailedLoginException && message.contains("Invalid username or password"))
             throw new WrongCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Credentials required") )
+        if (t instanceof java.lang.SecurityException && message.contains("Credentials required"))
             throw new MissingCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Mismatched URI") )
+        if (t instanceof java.lang.SecurityException && message.contains("Mismatched URI"))
             throw new MismatchedURIException(e, true);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Bad credentials") )
+        if (t instanceof java.lang.SecurityException && message.contains("Bad credentials"))
             throw new WrongCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Authentication required") )
+        if (t instanceof java.lang.SecurityException && message.contains("Authentication required"))
             throw new MissingCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("None of LM and NTLM verified") )
+        if (t instanceof java.lang.SecurityException && message.contains("None of LM and NTLM verified"))
             throw new WrongCredentialsException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Invalid credential type") )
+        if (t instanceof java.lang.SecurityException && message.contains("Invalid credential type"))
             throw new AuthenticationException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Authentication failed") )
+        if (t instanceof java.lang.SecurityException && message.contains("Authentication failed"))
             throw new AuthenticationException(e);
 
-        if( t instanceof java.lang.SecurityException && message.contains("Invalid response") )
+        if (t instanceof java.lang.SecurityException && message.contains("Invalid response"))
 
-            if( message.contains("javax.security.sasl.SaslException") && BeanshooterOption.CONN_SASL.getValue().equals("cram"))
+            if (message.contains("javax.security.sasl.SaslException") && BeanshooterOption.CONN_SASL.getValue().equals("cram"))
                 throw new WrongCredentialsException(e);
             else
                 throw new AuthenticationException(e);
 
-        if( t instanceof javax.security.auth.login.FailedLoginException && message.contains("login failed"))
+        if (t instanceof java.lang.SecurityException && message.contains("digest response format violation. Mismatched response."))
             throw new WrongCredentialsException(e);
 
-        Logger.eprintlnMixedYellow("Caught unexpected", "SecurityException", "while connecting to the specified JMX service.");
-        stackTrace(e);
-        Utils.exit();
+        if (t instanceof javax.security.auth.login.FailedLoginException && message.contains("login failed"))
+            throw new WrongCredentialsException(e);
+
+        throw new UnknownSecurityException(e);
     }
 
     public static void handleAuthenticationException(AuthenticationException e)
     {
-        if( e instanceof SaslMissingException)
+        if (e instanceof SaslMissingException)
         {
             Logger.eprintlnMixedYellow("Caught", "SaslMissingException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The sever requires a", "SASL profile (--sasl)", "to be specified.");
         }
 
-        else if( e instanceof SaslProfileException)
+        else if (e instanceof SaslProfileException)
         {
             Logger.eprintlnMixedYellow("Caught", "SaslProfileException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The specified", "SASL profile", "does not match the server SASL profile.");
@@ -508,23 +522,30 @@ public class ExceptionHandler {
                 Logger.eprintlnMixedYellow("If you are confident that you are using the correct profile, try to use the", "--ssl", "option");
         }
 
-        else if( e instanceof MismatchedURIException )
+        else if (e instanceof MismatchedURIException)
         {
             Logger.eprintlnMixedYellow("Caught", "MisMatchedURIException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The specified", "target host", "does not match the configured SASL host.");
         }
 
-        else if( e instanceof ApacheKarafException )
+        else if (e instanceof ApacheKarafException)
         {
             Logger.eprintlnMixedYellow("Caught", "ApacheKarafException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The targeted JMX service is probably spawned by", "Apache Karaf", "and requires authentication.");
             Logger.eprintlnMixedYellow("You can attempt to login using Apache Karaf default credentials:", "karaf:karaf");
         }
 
-        else if( e instanceof WrongCredentialsException)
+        else if (e instanceof WrongCredentialsException)
         {
             Logger.eprintlnMixedYellow("Caught", "AuthenticationException", "while connecting to the JMX service.");
             Logger.eprintlnMixedBlue("The specified credentials are most likely", "incorrect.");
+        }
+
+        else if(e instanceof UnknownSecurityException)
+        {
+            Logger.eprintlnMixedYellow("Caught an", "unknown SecurityException", "while connecting to the JMX service.");
+            Logger.eprintlnMixedBlue("The specified credentials are most likely", "incorrect.");
+            Logger.eprintlnMixedYellow("However, you may use the", "--stack-trace", "option to further investigate.");
         }
 
         else

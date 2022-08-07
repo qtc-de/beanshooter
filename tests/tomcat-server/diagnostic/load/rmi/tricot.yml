@@ -1,0 +1,29 @@
+tester:
+  title: diagnostic load action (RMI)
+  description: |-
+    Perform tests on beanshooters diagnostic load action
+
+  id: '06-02-01'
+  groups:
+    - rmi
+  id_pattern: '06-02-01-{:02}'
+
+
+tests:
+  - title: Load a shared library
+    description: |-
+      Attempt to load an existing shared library
+
+    command:
+      - beanshooter
+      - diagnostic
+      - load
+      - ${TARGET}
+      - ${OPTIONS}
+      - /lib/x86_64-linux-gnu/libc.so.6
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The specified library was loaded succesfully'

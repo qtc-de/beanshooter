@@ -1,0 +1,103 @@
+tester:
+  title: attr action (Error)
+  description: |-
+    Performs some test on error cases that can occur during the attr action
+
+  id: '01-07-02'
+  groups:
+    - error
+  id_pattern: '01-07-02-{:02}'
+
+
+tests:
+  - title: Invalid Object Name
+    description: |-
+      Invoke attr action with an invalid object name as target
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - test
+      - test
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified ObjectName test is invalid
+
+
+  - title: Not available ObjectName
+    description: |-
+      Invoke attr action with an object name that does not exist
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - test:v=1
+      - test
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified MBean test:v=1 does probably not exist on the endpoint
+
+
+  - title: Non existing attribute
+    description: |-
+      Invoke attr action with a non existing attribute name
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - java.lang:type=Memory
+      - test
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - An attribute with name test does not exist on the endpoint
+
+
+  - title: Wrong attribute type
+    description: |-
+      Set an attribute to a value with wrong type
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET_JMX}
+      - ${OPTIONS}
+      - java.lang:type=Memory
+      - Verbose
+      - test
+      - --username
+      - controlRole
+      - --password
+      - control
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified attribute value of class java.lang.String is probably not compatible

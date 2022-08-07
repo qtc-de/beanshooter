@@ -19,7 +19,7 @@ import net.sourceforge.argparse4j.inf.Subparsers;
  */
 public enum MBeanOperation implements Operation {
 
-    STATUS("status", "checks whether the MBean is registered", new Option[] {
+    ATTR("attr", "set or get MBean attributes", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
             BeanshooterOption.GLOBAL_PLUGIN,
@@ -29,33 +29,15 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.TARGET_PORT,
             BeanshooterOption.TARGET_BOUND_NAME,
             BeanshooterOption.TARGET_OBJID_SERVER,
-            BeanshooterOption.TARGET_OBJID_CONNECTION,
             BeanshooterOption.CONN_FOLLOW,
             BeanshooterOption.CONN_SSL,
             BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_SASL,
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
-            BeanshooterOption.CONN_SASL,
-    }),
-
-    INFO("info", "print detailed information about the MBean", new Option[] {
-            BeanshooterOption.GLOBAL_CONFIG,
-            BeanshooterOption.GLOBAL_VERBOSE,
-            BeanshooterOption.GLOBAL_PLUGIN,
-            BeanshooterOption.GLOBAL_NO_COLOR,
-            BeanshooterOption.GLOBAL_STACK_TRACE,
-    }),
-
-    EXPORT("export", "create an export of the MBean", new Option[] {
-            BeanshooterOption.GLOBAL_CONFIG,
-            BeanshooterOption.GLOBAL_VERBOSE,
-            BeanshooterOption.GLOBAL_PLUGIN,
-            BeanshooterOption.GLOBAL_NO_COLOR,
-            BeanshooterOption.GLOBAL_STACK_TRACE,
-            BeanshooterOption.EXPORT_DIR,
-            BeanshooterOption.EXPORT_JAR,
-            BeanshooterOption.EXPORT_MLET,
-            BeanshooterOption.EXPORT_URL
+            BeanshooterOption.ATTR_ATTRIBUTE,
+            BeanshooterOption.ATTR_VALUE,
+            BeanshooterOption.ATTR_TYPE,
     }),
 
     DEPLOY("deploy", "deploys the specified MBean on the JMX server", new Option[] {
@@ -79,6 +61,89 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.DEPLOY_STAGER_URL,
             BeanshooterOption.DEPLOY_STAGER_PORT,
             BeanshooterOption.DEPLOY_STAGER_ADDR,
+    }),
+
+    EXPORT("export", "create an export of the MBean", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.EXPORT_DIR,
+            BeanshooterOption.EXPORT_JAR,
+            BeanshooterOption.EXPORT_MLET,
+            BeanshooterOption.EXPORT_URL
+    }),
+
+    INFO("info", "print server information about the MBean", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
+            BeanshooterOption.ATTR_WRITEABLE,
+            BeanshooterOption.ATTR_HARVEST,
+            BeanshooterOption.ATTR_KEYWORDS,
+   }),
+
+   INVOKE("invoke", "invoke the specified method on the MBean", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
+            BeanshooterOption.INVOKE_METHOD_ARGS,
+            BeanshooterOption.INVOKE_METHOD,
+            BeanshooterOption.INVOKE_NO_WRAP,
+   }),
+
+   STATS("stats", "print local information about the MBean", new Option[] {
+           BeanshooterOption.GLOBAL_CONFIG,
+           BeanshooterOption.GLOBAL_VERBOSE,
+           BeanshooterOption.GLOBAL_PLUGIN,
+           BeanshooterOption.GLOBAL_NO_COLOR,
+           BeanshooterOption.GLOBAL_STACK_TRACE,
+   }),
+
+    STATUS("status", "checks whether the MBean is registered", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
     }),
 
     UNDEPLOY("undeploy", "undeploys the specified MBEAN from the JMX server", new Option[] {

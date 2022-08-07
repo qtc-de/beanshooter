@@ -8,10 +8,8 @@ tester:
     - rmi
   id_pattern: '01-06-01-{:02}'
 
-
-  variables:
-    file: serial-rce.txt
-
+variables:
+  file: serial-rce.txt
 
 tests:
   - title: Unauth deserialization

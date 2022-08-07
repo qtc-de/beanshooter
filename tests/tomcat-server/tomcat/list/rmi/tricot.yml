@@ -1,0 +1,35 @@
+tester:
+  title: tomcat list action (RMI)
+  description: |-
+    Perform tests on beanshooters tomcat list action for RMI based connections
+
+  id: '05-06-01'
+  groups:
+    - rmi
+  id_pattern: '05-06-01-{:02}'
+
+
+tests:
+  - title: Invoke list action
+    description: |-
+      Use the list action on the tomcat JMX endpoint
+
+    command:
+      - beanshooter
+      - tomcat
+      - list
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Listing tomcat users:'
+            - 'manager'
+            - 'P@55w0rD#'
+            - 'admin'
+            - 's3cr3T!$'
+            - 'status'
+            - 'cr@cKM3o.O'
+            - 'Users:type=Role,rolename="manager-gui",database=UserDatabase'

@@ -10,5 +10,5 @@ tester:
 
 testers:
   - ./stager/tricot.yml
-  - ./info/tricot.yml
+  - ./stats/tricot.yml
   - ./export/tricot.yml

@@ -18,6 +18,7 @@ import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
+import de.qtc.beanshooter.exceptions.LoginClassCastException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.networking.RMIEndpoint;
 import de.qtc.beanshooter.networking.RMIRegistryEndpoint;
@@ -62,12 +63,15 @@ public class RMIProvider implements IMBeanServerProvider
 
         rmiConnector = new RMIConnector(rmiServer, env);
 
-        try {
+        try
+        {
             rmiConnector.connect();
             connection = rmiConnector.getMBeanServerConnection();
 
-        } catch (IOException e) {
+        }
 
+        catch (IOException e)
+        {
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof java.io.InvalidClassException)
@@ -85,38 +89,61 @@ public class RMIProvider implements IMBeanServerProvider
             if (t instanceof java.rmi.NoSuchObjectException)
                 Logger.eprintlnMixedBlue("You probably specified an", "ObjID value", "that does not exist on the server.");
 
-            else if (t instanceof java.net.ConnectException ) {
-
-                if (t.getMessage().contains("Connection refused") ) {
+            else if (t instanceof java.net.ConnectException)
+            {
+                if (t.getMessage().contains("Connection refused"))
+                {
                     Logger.eprintlnMixedBlue("The JMX remote object", "refused", "the connection.");
+                }
 
-                } else if (t.getMessage().contains("Network is unreachable") ) {
+                else if (t.getMessage().contains("Network is unreachable"))
+                {
                     Logger.eprintlnMixedBlue("The JMX remote object is", "unreachable.");
 
-                } else {
+                }
+
+                else
+                {
                     ExceptionHandler.unknownReason(e);
                 }
 
-                if( BeanshooterOption.TARGET_OBJID_CONNECTION.isNull() )
+                if (BeanshooterOption.TARGET_OBJID_CONNECTION.isNull())
                     Logger.eprintlnMixedYellow("The JMX", "bound name", "within the RMI registry is probably pointing to an invalid server.");
+            }
 
-            } else if (t instanceof java.io.EOFException || t instanceof java.net.SocketException ) {
+            else if (t instanceof java.io.EOFException || t instanceof java.net.SocketException)
+            {
                 Logger.eprintln("The JMX server closed the connection. This usually indicates a networking problem.");
+            }
 
-            } else {
+            else
+            {
                 ExceptionHandler.unknownReason(e);
             }
 
             ExceptionHandler.showStackTrace(e);
             Utils.exit();
+        }
 
-        } catch( SecurityException e ) {
+        catch (SecurityException e)
+        {
             ExceptionHandler.handleSecurityException(e);
+        }
 
-        } catch( java.lang.IllegalArgumentException e ) {
-
-            if( e.getMessage().contains("Expected String[2]") )
+        catch (java.lang.IllegalArgumentException e)
+        {
+            if (e.getMessage().contains("Expected String[2]"))
                 throw new ApacheKarafException(e);
+
+            throw e;
+        }
+
+        catch (Exception e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof ClassCastException)
+                throw new LoginClassCastException(e);
 
             throw e;
         }

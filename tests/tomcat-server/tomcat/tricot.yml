@@ -1,0 +1,17 @@
+tester:
+  title: tomcat related tests
+  description: |-
+    Tests for the tomcat action
+
+  id: '05'
+  groups:
+    - tomcat
+
+testers:
+  - ./attr/tricot.yml
+  - ./dump/tricot.yml
+  - ./enum/tricot.yml
+  - ./info/tricot.yml
+  - ./invoke/tricot.yml
+  - ./list/tricot.yml
+  - ./write/tricot.yml

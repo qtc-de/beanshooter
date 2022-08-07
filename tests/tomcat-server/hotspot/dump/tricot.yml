@@ -1,0 +1,12 @@
+tester:
+  title: hotspot dump action
+  description: |-
+    Perform tests on beanshooters hotspot dump action
+
+  id: '08-01'
+  groups:
+    - dump
+
+testers:
+  - ./error/tricot.yml
+  - ./rmi/tricot.yml

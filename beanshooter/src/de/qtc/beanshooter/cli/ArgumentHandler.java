@@ -3,12 +3,8 @@ package de.qtc.beanshooter.cli;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import javax.management.remote.JMXConnector;
-import javax.rmi.ssl.SslRMIClientSocketFactory;
 
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
@@ -296,28 +292,6 @@ public class ArgumentHandler
      */
     public static Map<String,Object> getEnv()
     {
-        return getEnv(BeanshooterOption.CONN_USER.getValue(), BeanshooterOption.CONN_PASS.getValue());
-    }
-
-    /**
-     * Authentication to JMX endpoints is usually handled using a map that contains the authentication
-     * parameters. This function is used to prepare such a map by using an explicitly defiend username
-     * and password.
-     *
-     * @param username the desired username for JMX authentication
-     * @param password the desired password for JMX authentication
-     * @return environment that should be used during the newClient call
-     */
-    public static Map<String,Object> getEnv(String username, String password)
-    {
-        HashMap<String,Object> env = new HashMap<String,Object>();
-
-        if(BeanshooterOption.CONN_SSL.getBool())
-            env.put("com.sun.jndi.rmi.factory.socket", new SslRMIClientSocketFactory());
-
-        if(username != null && password != null)
-            env.put(JMXConnector.CREDENTIALS, new String[] {username, password});
-
-        return env;
+        return PluginSystem.getEnv(BeanshooterOption.CONN_USER.getValue(), BeanshooterOption.CONN_PASS.getValue());
     }
 }

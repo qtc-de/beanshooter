@@ -5,10 +5,31 @@ type _comp_contains &> /dev/null || return
 type _comp_filter_shorts &> /dev/null || return
 type _comp_get_parameter &> /dev/null || return
 
-function _beanshooter() {
+function _comp_beanstart()
+{
+    if [[ $cur == -* ]]; then
+        opts="--help"
+    else
+        opts="$1"
+    fi
 
+    _upvars -v opts "$opts"
+}
+
+function _comp_beanoption()
+{
+    if [[ $cur == -* ]] || [[ $args -ge $1 ]]; then
+        return 0
+    fi
+
+    return 1
+}
+
+function _beanshooter()
+{
     local cur prev words cword opts arg args gadgets value_options operations sasl_mechanisms tonka_actions mlet_actions
-    local tomcat_actios mbeans mbean_actions general_opts conn_opts stager_opts unguessable file_like
+    local tomcat_actios mbeans mbean_actions general_opts conn_opts stager_opts unguessable file_like diagnostic_actions
+    local hotspot_actions recorder_actions common_three auth_opts
 
     _init_completion || return
 
@@ -27,26 +48,26 @@ function _beanshooter() {
     gadgets="$gadgets JRMPClient JRMPListener JSON1 JavassistWeld1 Jdk7u21 Jython1 MozillaRhino1 MozillaRhino2"
     gadgets="$gadgets Myfaces1 Myfaces2 ROME Spring1 Spring2 URLDNS Vaadin1 Wicket1"
 
-    operations="brute invoke deploy enum list serial stager undeploy tonka mlet tomcat"
+    operations="attr brute deploy enum info invoke list serial stager undeploy diagnostic hotspot mlet recorder tomcat tonka"
     sasl_mechanisms="plain digest cram gssapi ntlm"
     general_opts="--help --config --verbose --plugin --no-color --stack-trace"
     conn_opts="--follow --ssl --jmxmp --sasl"
     target_opts="--bound-name --objid-server --objid-connection"
     stager_opts="--stager-host --stager-port --no-stager --stager-url"
+    common_three="${general_opts} ${conn_opts} ${target_opts}"
+    auth_opts="--username --password"
 
-    mbeans="tonka mlet tomcat"
-    mbean_actions="status deploy undeploy info"
+    mbeans="diagnostic hotspot mlet recorder tomcat tonka "
+    mbean_actions="attr deploy info invoke stats status undeploy"
     tonka_actions="version exec execarray shell upload download export ${mbean_actions}"
     mlet_actions="load ${mbean_actions}"
-    tomcat_actions="list ${mbean_actions}"
+    tomcat_actions="dump list write ${mbean_actions}"
+    diagnostic_actions="read load logfile nolog cmdline props ${mbean_actions}"
+    hotspot_actions="dump list get set ${mbean_actions}"
+    recorder_actions="new start stop dump save ${mbean_actions}"
 
     if [[ $cword -eq 1 ]]; then
-
-        if [[ $cur == -* ]]; then
-            opts="--help"
-        else
-            opts="$operations"
-        fi
+        _comp_beanstart "$operations"
 
     elif [[ $prev == "--sasl" ]]; then
         opts="${sasl_mechanisms}"
@@ -66,101 +87,55 @@ function _beanshooter() {
     elif _comp_contains "$unguessable" $prev; then
         return 0
 
-    elif [[ ${words[1]} == "brute" ]]; then
+    elif [[ ${words[1]} == "attr" ]] && _comp_beanoption 9; then
+        opts="$auth_opts"
+        opts="$opts --type"
+        opts="$opts $common_three"
 
-        if [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
-            opts="--threads"
-            opts="$opts --username"
-            opts="$opts --password"
-            opts="$opts --first"
-            opts="$opts --username-file"
-            opts="$opts --password-file"
-            opts="$opts --no-progress"
-            opts="$opts --bound-name"
-            opts="$opts --objid-server"
-            opts="$opts $conn_opts"
-            opts="$opts $general_opts"
+    elif [[ ${words[1]} == "brute" ]] && _comp_beanoption 4; then
+        opts="--threads"
+        opts="$opts $auth_opts"
+        opts="$opts --first"
+        opts="$opts --username-file"
+        opts="$opts --password-file"
+        opts="$opts --no-progress"
+        opts="$opts --bound-name"
+        opts="$opts --objid-server"
+        opts="$opts $conn_opts"
+        opts="$opts $general_opts"
 
-        else
-            return 0
-        fi
+    elif [[ ${words[1]} == "invoke" ]] && _comp_beanoption 7; then
+        opts="--signature"
+        opts="$opts --no-wrap"
+        opts="$opts $auth_opts"
+        opts="$opts $common_three"
 
-    elif [[ ${words[1]} == "invoke" ]]; then
+    elif [[ ${words[1]} == "deploy" ]] && _comp_beanoption 6; then
+        opts="$auth_opts"
+        opts="$opts --jar-file"
+        opts="$opts $stager_opts"
+        opts="$opts $common_three"
 
-        if [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
-            opts="--literal"
-            opts="$opts --signature"
-            opts="$opts --no-wrap"
-            opts="$opts --username"
-            opts="$opts --password"
-            opts="$opts $conn_opts"
-            opts="$opts $target_opts"
-            opts="$opts $general_opts"
+    elif [[ ${words[1]} == "enum" ]] && _comp_beanoption 4; then
+        opts="$auth_opts"
+        opts="$opts $common_three"
 
-        else
-            return 0
-        fi
+    elif [[ ${words[1]} == "list" ]] && _comp_beanoption 4; then
+        opts="$auth_opts"
+        opts="$opts --class-filter"
+        opts="$opts --obj-filter"
+        opts="$opts $common_three"
 
-    elif [[ ${words[1]} == "deploy" ]]; then
+    elif [[ ${words[1]} == "serial" ]] && _comp_beanoption 6; then
+        opts="--preauth"
+        opts="$opts --yso"
+        opts="$opts $auth_opts"
+        opts="$opts $conn_opts"
+        opts="$opts $target_opts"
+        opts="$opts $general_opts"
 
-        if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-            opts="--username"
-            opts="$opts --password"
-            opts="$opts --jar-file"
-            opts="$opts $conn_opts"
-            opts="$opts $stager_opts"
-            opts="$opts $target_opts"
-            opts="$opts $general_opts"
-
-        else
-            return 0
-        fi
-
-    elif [[ ${words[1]} == "enum" ]]; then
-
-        if [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
-            opts="--username"
-            opts="$opts --password"
-            opts="$opts $conn_opts"
-            opts="$opts $target_opts"
-            opts="$opts $general_opts"
-
-        else
-            return 0
-        fi
-
-    elif [[ ${words[1]} == "list" ]]; then
-
-        if [[ $cur == -* ]] || [[ $args -ge 4 ]]; then
-            opts="--username"
-            opts="$opts --password"
-            opts="$opts --class-filter"
-            opts="$opts --obj-filter"
-            opts="$opts $conn_opts"
-            opts="$opts $target_opts"
-            opts="$opts $general_opts"
-
-        else
-            return 0
-        fi
-
-    elif [[ ${words[1]} == "serial" ]]; then
-
-        if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-            opts="--preauth"
-            opts="$opts --yso"
-            opts="$opts --username"
-            opts="$opts --password"
-            opts="$opts $conn_opts"
-            opts="$opts $target_opts"
-            opts="$opts $general_opts"
-
-        elif [[ $args -eq 4 ]]; then
-            opts="$gadgets"
-
-        else
-            return 0
-        fi
+    elif [[ ${words[1]} == "serial" ]] && [[ $args -eq 4 ]]; then
+        opts="$gadgets"
 
     elif [[ ${words[1]} == "stager" ]]; then
 
@@ -182,189 +157,88 @@ function _beanshooter() {
             return 0
         fi
 
-    elif [[ ${words[1]} == "undeploy" ]]; then
-
-        if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-            opts="--username"
-            opts="$opts --password"
-            opts="$opts $conn_opts"
-            opts="$opts $target_opts"
-            opts="$opts $general_opts"
-
-        else
-            return 0
-        fi
+    elif [[ ${words[1]} == "undeploy" ]] && _comp_beanoption 5; then
+        opts="$auth_opts"
+        opts="$opts $common_three"
 
     elif _comp_contains "${mbeans}" "${words[1]}"; then
 
-        if [[ ${words[2]} == "deploy" ]]; then
+        opts="$opts $auth_opts"
+        opts="$opts $common_three"
 
-            if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                opts="--username"
-                opts="$opts --password"
-                opts="$opts $conn_opts"
-                opts="$opts $stager_opts"
-                opts="$opts $target_opts"
-                opts="$opts $general_opts"
+        if [[ ${words[2]} == "deploy" ]] && _comp_beanoption 5; then
+            opts="$opts $stager_opts"
 
-            else
-                return 0
-            fi
+        elif _comp_contains "info status undeploy" "${words[2]}" && _comp_beanoption 5; then
+            :
 
-        elif [[ ${words[2]} == "undeploy" ]]; then
+        elif [[ ${words[2]} == "invoke" ]] && _comp_beanoption 5; then
+            opts="$opts --signature"
+            opts="$opts --no-wrap"
 
-            if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                opts="--username"
-                opts="$opts --password"
-                opts="$opts $conn_opts"
-                opts="$opts $stager_opts"
-                opts="$opts $target_opts"
-                opts="$opts $general_opts"
+        elif [[ ${words[2]} == "attr" ]] && _comp_beanoption 7; then
+            opts="$opts --type"
 
-            else
-                return 0
-            fi
-
-        elif [[ ${words[2]} == "status" ]]; then
-
-            if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                opts="--username"
-                opts="$opts --password"
-                opts="$opts $conn_opts"
-                opts="$opts $target_opts"
-                opts="$opts $general_opts"
-
-            else
-                return 0
-            fi
-
-        elif [[ ${words[2]} == "info" ]]; then
-
-            if [[ $cur == -* ]] || [[ $args -ge 3 ]]; then
-                opts="$general_opts"
-
-            else
-                return 0
-            fi
+        elif [[ ${words[2]} == "stats" ]] && _comp_beanoption 3; then
+            opts="$general_opts"
 
         elif [[ ${words[1]} == "tonka" ]]; then
 
             if [[ $cword -eq 2 ]]; then
+                _comp_beanstart "$tonka_actions"
 
-                if [[ $cur == -* ]]; then
-                    opts="--help"
-                else
-                    opts="$tonka_actions"
-                fi
+            elif [[ ${words[2]} == "exec" ]] && _comp_beanoption 6; then
+                opts="$opts --background"
+                opts="$opts --cwd"
+                opts="$opts --env"
+                opts="$opts --hex"
+                opts="$opts --output-file"
+                opts="$opts --raw"
+                opts="$opts --shell"
 
-            elif [[ ${words[2]} == "exec" ]]; then
+            elif [[ ${words[2]} == "execarray" ]] && _comp_beanoption 6; then
+                opts="$opts --background"
+                opts="$opts --cwd"
+                opts="$opts --env"
+                opts="$opts --hex"
+                opts="$opts --output-file"
+                opts="$opts --raw"
 
-                if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-                    opts="--background"
-                    opts="$opts --cwd"
-                    opts="$opts --env"
-                    opts="$opts --hex"
-                    opts="$opts --output-file"
-                    opts="$opts --raw"
-                    opts="$opts --shell"
-                    opts="$opts --username"
-                    opts="$opts --password"
-                    opts="$opts $conn_opts"
-                    opts="$opts $target_opts"
-                    opts="$opts $general_opts"
+            elif [[ ${words[2]} == "shell" ]] && _comp_beanoption 6; then
+                opts="$opts --shell"
 
-                else
-                    return 0
-                fi
+            elif _comp_contains "upload download" ${words[2]} && _comp_beanoption 7; then
+                :
 
-            elif [[ ${words[2]} == "execarray" ]]; then
+            elif _comp_contains "upload download" ${words[2]} && [[ $args -eq 5 || $args -eq 6 ]]; then
+                _filedir
+                return
 
-                if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-                    opts="--background"
-                    opts="$opts --cwd"
-                    opts="$opts --env"
-                    opts="$opts --hex"
-                    opts="$opts --output-file"
-                    opts="$opts --raw"
-                    opts="$opts --username"
-                    opts="$opts --password"
-                    opts="$opts $conn_opts"
-                    opts="$opts $target_opts"
-                    opts="$opts $general_opts"
+            elif [[ ${words[2]} == "export" ]] && _comp_beanoption 3; then
+                opts="--export-dir"
+                opts="$opts --export-jar"
+                opts="$opts --export-mlet"
+                opts="$opts --stager-url"
+                opts="$opts $general_opts"
 
-                else
-                    return 0
-                fi
-
-            elif [[ ${words[2]} == "shell" ]]; then
-
-                if [[ $cur == -* ]] || [[ $args -ge 6 ]]; then
-                    opts="--username"
-                    opts="$opts --password"
-                    opts="$opts --shell"
-                    opts="$opts $conn_opts"
-                    opts="$opts $target_opts"
-                    opts="$opts $general_opts"
-
-                else
-                    return 0
-                fi
-
-            elif _comp_contains "upload download" ${words[2]}; then
-
-                if [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
-                    opts="--username"
-                    opts="$opts --password"
-                    opts="$opts $conn_opts"
-                    opts="$opts $target_opts"
-                    opts="$opts $general_opts"
-
-                elif [[ $args -eq 5  || $args -eq 6 ]]; then
-                    _filedir
-                    return
-
-                else
-                    return 0
-                fi
-
-            elif [[ ${words[2]} == "export" ]]; then
-
-                if [[ $cur == -* ]] || [[ $args -ge 3 ]]; then
-                    opts="--export-dir"
-                    opts="$opts --export-jar"
-                    opts="$opts --export-mlet"
-                    opts="$opts --stager-url"
-                    opts="$opts $general_opts"
-
-                else
-                    return 0
-                fi
+            else
+                return 0
             fi
 
         elif [[ ${words[1]} == "mlet" ]]; then
 
             if [[ $cword -eq 2 ]]; then
-
-                if [[ $cur == -* ]]; then
-                    opts="--help"
-                else
-                    opts="$mlet_actions"
-                fi
+                    _comp_beanstart "$mlet_actions"
 
             elif [[ ${words[2]} == "load" ]]; then
 
-                if [[ $cur == -* ]] || [[ $args -ge 7 ]]; then
-                    opts="--class-name"
+                if _comp_beanoption 7; then
+                    opts="$opts --class-name"
                     opts="$opts --jar-file"
                     opts="$opts --object-name"
-                    opts="$opts --username"
-                    opts="$opts --password"
                     opts="$opts --stager-port"
                     opts="$opts --stager-host"
                     opts="$opts --no-stager"
-                    opts="$opts $conn_opts"
-                    opts="$opts $target_opts"
-                    opts="$opts $general_opts"
 
                 elif [[ $args -eq 5 ]]; then
                     opts="tonka custom"
@@ -377,39 +251,98 @@ function _beanshooter() {
                     return 0
                 fi
 
+            else
+                return 0
             fi
 
         elif [[ ${words[1]} == "tomcat" ]]; then
 
             if [[ $cword -eq 2 ]]; then
+                    _comp_beanstart "$tomcat_actions"
 
-                if [[ $cur == -* ]]; then
-                    opts="--help"
-                else
-                    opts="$tomcat_actions"
+            elif [[ ${words[2]} == "list" ]] && _comp_beanoption 5; then
+                :
+
+            elif [[ ${words[2]} == "dump" ]] && _comp_beanoption 7; then
+                :
+
+            elif [[ ${words[2]} == "dump" ]] && [[ $args -eq 5 || $args -eq 6 ]]; then
+                _filedir
+                return 0
+
+            elif [[ ${words[2]} == "write" ]] && _comp_beanoption 7; then
+                :
+
+            elif [[ ${words[2]} == "write" ]] && [[ $args -eq 5 || $args -eq 6 ]]; then
+                _filedir
+                return 0
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[1]} == "diagnostic" ]]; then
+
+            if [[ $cword -eq 2 ]]; then
+                _comp_beanstart "$diagnostic_actions"
+
+            elif _comp_contains "read load logfile nolog cmdline props" ${words[2]} && _comp_beanoption 6; then
+                :
+
+                if [[ ${words[2]} == "read" ]]; then
+                    opts="$opts --raw"
                 fi
 
-            elif [[ ${words[2]} == "list" ]]; then
+            else
+                return 0
+            fi
 
-                if [[ $cur == -* ]] || [[ $args -ge 5 ]]; then
-                    opts="--username"
-                    opts="$opts --password"
-                    opts="$opts $conn_opts"
-                    opts="$opts $target_opts"
-                    opts="$opts $general_opts"
+        elif [[ ${words[1]} == "hotspot" ]]; then
 
-                else
-                    return 0
-                fi
+            if [[ $cword -eq 2 ]]; then
+                _comp_beanstart "$hotspot_actions"
+
+            elif [[ ${words[2]} == "list" ]] && _comp_beanoption 5; then
+                :
+
+            elif _comp_contains "dump get" ${words[2]} && _comp_beanoption 6; then
+                    opts="$opts --live"
+
+            elif [[ ${words[2]} == "set" ]] && _comp_beanoption 7; then
+                :
+
+            else
+                return 0
+            fi
+
+        elif [[ ${words[1]} == "recorder" ]]; then
+
+            if [[ $cword -eq 2 ]]; then
+                _comp_beanstart "$recorder_actions"
+
+            elif [[ ${words[2]} == "new" ]] && _comp_beanoption 5; then
+                :
+
+            elif _comp_contains "start stop" ${words[2]} && _comp_beanoption 6; then
+                :
+
+            elif _comp_contains "dump save" ${words[2]} && _comp_beanoption 7; then
+                :
+
+            else
+                return 0
             fi
         fi
+
+    else
+        return 0
     fi
 
     _comp_filter "opts"
     _comp_filter_shorts "opts"
 
-	mapfile -t COMPREPLY < <(compgen -W "${opts}" -- "${cur}") 
-	return 0
+    mapfile -t COMPREPLY < <(compgen -W "${opts}" -- "${cur}") 
+    return 0
 }
 
 complete -F _beanshooter beanshooter

@@ -1,0 +1,30 @@
+tester:
+  title: mlet status action
+  description: |-
+    Perform tests on beanshooters mlet status action
+
+  id: '04-01'
+  groups:
+    - status
+
+tests:
+  - title: Undeploy if deployed
+    description: |-
+      Undeploy the mlet MBean if it was already deployed
+
+    command:
+      - beanshooter
+      - mlet
+      - undeploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'MBean (was successfully removed|is not registered. Nothing to do)'
+
+testers:
+  - ./rmi/tricot.yml
+  - ./jmxmp/tricot.yml

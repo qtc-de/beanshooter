@@ -11,5 +11,5 @@ import javax.management.MBeanException;
  */
 public interface INative
 {
-	public Object getAttribute(String name) throws MBeanException;
+    public Object getAttribute(String name) throws MBeanException;
 }

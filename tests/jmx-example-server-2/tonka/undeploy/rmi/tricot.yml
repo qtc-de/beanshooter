@@ -1,0 +1,29 @@
+tester:
+  title: tonka undeploy action (RMI)
+  description: |-
+    Perform tests on beanshooters tonka undeploy action for RMI based connections
+
+  id: '03-08-01'
+  groups:
+    - rmi
+  id_pattern: '03-08-01-{:02}'
+
+
+tests:
+  - title: Undeploy Tonka
+    description: |-
+      Undeploy the tonka bean
+
+    command:
+      - beanshooter
+      - tonka
+      - undeploy
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Removing MBean with ObjectName MLetTonkaBean:name=TonkaBean,id=1 from the MBeanServer'
+            - 'MBean was successfully removed'

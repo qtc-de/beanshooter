@@ -10,9 +10,16 @@ import javax.management.ObjectName;
 import de.qtc.beanshooter.cli.Operation;
 import de.qtc.beanshooter.cli.Option;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.mbean.diagnostic.DiagnosticCommandOperation;
+import de.qtc.beanshooter.mbean.diagnostic.DiagnosticCommandOption;
+import de.qtc.beanshooter.mbean.flightrecorder.FlightRecorderOperation;
+import de.qtc.beanshooter.mbean.flightrecorder.FlightRecorderOption;
+import de.qtc.beanshooter.mbean.hotspot.HotSpotDiagnosticOperation;
+import de.qtc.beanshooter.mbean.hotspot.HotSpotDiagnosticOption;
 import de.qtc.beanshooter.mbean.mlet.MLetOperation;
 import de.qtc.beanshooter.mbean.mlet.MLetOption;
 import de.qtc.beanshooter.mbean.tomcat.MemoryUserDatabaseMBeanOperation;
+import de.qtc.beanshooter.mbean.tomcat.MemoryUserDatabaseMBeanOption;
 import de.qtc.beanshooter.mbean.tonkabean.TonkaBeanOperation;
 import de.qtc.beanshooter.mbean.tonkabean.TonkaBeanOption;
 import de.qtc.beanshooter.utils.Utils;
@@ -26,14 +33,25 @@ import de.qtc.beanshooter.utils.Utils;
  */
 public enum MBean implements IMBean
 {
-    TONKA("tonka",
-          "general purpose bean for executing commands and uploading or download files",
-          Utils.getObjectName("MLetTonkaBean:name=TonkaBean,id=1"),
-          "de.qtc.beanshooter.tonkabean.TonkaBean",
-          "tonka-bean-3.0.0-rc.2-jar-with-dependencies.jar",
-          TonkaBeanOperation.values(),
-          TonkaBeanOption.values()
-         ),
+    DIAGNOSTIC_COMMAND(
+            "diagnostic",
+            "Diagnostic Command MBean",
+             Utils.getObjectName("com.sun.management:type=DiagnosticCommand"),
+             "com.sun.management.internal.DiagnosticCommandImpl",
+             null,
+             DiagnosticCommandOperation.values(),
+             DiagnosticCommandOption.values()
+            ),
+
+    HOTSPOT_DIAGNOSTIC(
+            "hotspot",
+            "HotSpot Diagnostic MBean",
+             Utils.getObjectName("com.sun.management:type=HotSpotDiagnostic"),
+             "com.sun.management.internal.HotSpotDiagnostic",
+             null,
+             HotSpotDiagnosticOperation.values(),
+             HotSpotDiagnosticOption.values()
+            ),
 
     MLET("mlet",
          "default JMX bean that can be used to load additional beans dynamically",
@@ -44,6 +62,16 @@ public enum MBean implements IMBean
          MLetOption.values()
         ),
 
+    FLIGHT_RECORDER(
+            "recorder",
+            "jfr Flight Recorder MBean",
+             Utils.getObjectName("jdk.management.jfr:type=FlightRecorder"),
+             "jdk.management.jfr.FlightRecorderMXBeanImpl",
+             null,
+             FlightRecorderOperation.values(),
+             FlightRecorderOption.values()
+            ),
+
     MEMORY_USER_DATABASE(
            "tomcat",
            "tomcat MemoryUserDatabaseMBean used for user management",
@@ -51,8 +79,17 @@ public enum MBean implements IMBean
             "org.apache.catalina.mbeans.MemoryUserDatabaseMBean",
             null,
             MemoryUserDatabaseMBeanOperation.values(),
-            new Option[] {}
-           );
+            MemoryUserDatabaseMBeanOption.values()
+           ),
+
+    TONKA("tonka",
+          "general purpose bean for executing commands and uploading or download files",
+          Utils.getObjectName("MLetTonkaBean:name=TonkaBean,id=1"),
+          "de.qtc.beanshooter.tonkabean.TonkaBean",
+          "tonka-bean-3.0.0-jar-with-dependencies.jar",
+          TonkaBeanOperation.values(),
+          TonkaBeanOption.values()
+         );
 
     private String name;
     private String description;

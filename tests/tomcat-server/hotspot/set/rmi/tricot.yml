@@ -1,0 +1,48 @@
+tester:
+  title: hotspot set action (RMI)
+  description: |-
+    Perform tests on beanshooters hotspot set action for RMI based connections
+
+  id: '08-04-01'
+  groups:
+    - rmi
+  id_pattern: '08-04-01-{:02}'
+
+tests:
+  - title: Set option
+    description: |-
+      Attempt to set a diagnostic option value
+
+    command:
+      - beanshooter
+      - hotspot
+      - set
+      - ${TARGET}
+      - ${OPTIONS}
+      - HeapDumpPath
+      - /tmp/test
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Option was set successfully'
+
+  - title: Verify
+    description: |-
+      Verify the newly set option value
+
+    command:
+      - beanshooter
+      - hotspot
+      - get
+      - ${TARGET}
+      - ${OPTIONS}
+      - HeapDumpPath
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Name: HeapDumpPath'
+            - 'Value: /tmp/test'

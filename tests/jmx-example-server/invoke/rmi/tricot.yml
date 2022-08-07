@@ -10,24 +10,47 @@ tester:
 
 
 tests:
-  - title: Invoke BaseOperatingSystemImpl
+  - title: Invoke PlatformLoggingImpl
     description: |-
-      Perform an invoke operation on the BaseOperatingSystemImpl MBean
+      Perform an invoke operation on the PlatformLoggingImpl MBean
 
     command:
       - beanshooter
       - invoke
       - ${TARGET_UNAUTH}
       - ${OPTIONS}
-      - 'java.lang:type=OperatingSystem'
+      - 'java.util.logging:type=Logging'
       - --signature
-      - 'getArch()'
+      - 'void setLoggerLevel(java.lang.String p0, java.lang.String p1)'
+      - global
+      - 1
 
     validators:
       - error: False
       - contains:
           values:
-            - amd64
+            - '[+] Call was successful'
+
+
+  - title: Invoke PlatformLoggingImpl 2
+    description: |-
+      Perform an invoke operation on the PlatformLoggingImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET_UNAUTH}
+      - ${OPTIONS}
+      - 'java.util.logging:type=Logging'
+      - --signature
+      - 'void getLoggerLevel(java.lang.String p0)'
+      - global
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '1'
 
 
   - title: Invoke ThreadImpl
@@ -36,16 +59,15 @@ tests:
 
     command:
       - beanshooter
-      - invoke
+      - attr
       - ${TARGET_UNAUTH}
       - ${OPTIONS}
       - 'java.lang:type=Threading'
-      - --signature
-      - "getAllThreadIds()"
+      - "AllThreadIds"
 
     extractors:
       - regex:
-          pattern: '^\[\+\] (\d)+$'
+          pattern: '^(\d+)$'
           variable: 'thread-ids'
           on_miss: 'break'
           multiline: true
@@ -55,10 +77,10 @@ tests:
       - regex:
           multiline: true
           match:
-            - '^\[\+\] \d+$'
+            - '^\d+$'
 
 
-  - title: Invoke ThreadImpl
+  - title: Invoke ThreadImpl 2
     description: |-
       Perform an invoke operation on the ThreadImpl MBean
 
@@ -78,29 +100,6 @@ tests:
           values:
             - javax.management.openmbean.CompositeDataSupport
 
-  - title: Invoke BaseOperatingSystemImpl (Auth)
-    description: |-
-      Perform an invoke operation on the BaseOperatingSystemImpl MBean
-
-    command:
-      - beanshooter
-      - invoke
-      - ${TARGET_PLAIN}
-      - ${OPTIONS}
-      - 'java.lang:type=OperatingSystem'
-      - --signature
-      - 'getArch()'
-      - --username
-      - admin
-      - --password
-      - admin
-
-    validators:
-      - error: False
-      - contains:
-          values:
-            - amd64
-
 
   - title: Invoke ThreadImpl (Auth)
     description: |-
@@ -108,12 +107,11 @@ tests:
 
     command:
       - beanshooter
-      - invoke
+      - attr
       - ${TARGET_JMX}
       - ${OPTIONS}
       - 'java.lang:type=Threading'
-      - --signature
-      - "getAllThreadIds()"
+      - "AllThreadIds"
       - --username
       - controlRole
       - --password
@@ -121,7 +119,7 @@ tests:
 
     extractors:
       - regex:
-          pattern: '^\[\+\] (\d)+$'
+          pattern: '^(\d+)$'
           variable: 'thread-ids'
           on_miss: 'break'
           multiline: true
@@ -131,7 +129,7 @@ tests:
       - regex:
           multiline: true
           match:
-            - '^\[\+\] \d+$'
+            - '^\d+$'
 
 
   - title: Invoke ThreadImpl (Auth)

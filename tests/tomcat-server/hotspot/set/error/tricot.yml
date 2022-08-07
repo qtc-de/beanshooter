@@ -1,0 +1,49 @@
+tester:
+  title: hotspot set action (Error)
+  description: |-
+    Perform tests for the error handling of beanshooters hotspot set action.
+
+  id: '08-04-02'
+  groups:
+    - rmi
+  id_pattern: '08-04-02-{:02}'
+
+tests:
+  - title: Non existent
+    description: |-
+      Attempt to set information on non existent option
+
+    command:
+      - beanshooter
+      - hotspot
+      - set
+      - ${TARGET}
+      - ${OPTIONS}
+      - test
+      - test
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'A VMOption with name test does not exist on the remote server.'
+
+  - title: Invalid value
+    description: |-
+      Attempt to set an option to an invalid value
+
+    command:
+      - beanshooter
+      - hotspot
+      - set
+      - ${TARGET}
+      - ${OPTIONS}
+      - HeapDumpBeforeFullGC
+      - test
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'The specified value test is invalid'
+            - 'Invalid value: VM Option "HeapDumpBeforeFullGC" expects "true" or "false"'

@@ -1,0 +1,30 @@
+tester:
+  title: hotspot get action (RMI)
+  description: |-
+    Perform tests on beanshooters hotspot get action for RMI based connections
+
+  id: '08-03-01'
+  groups:
+    - rmi
+  id_pattern: '08-03-01-{:02}'
+
+tests:
+  - title: Get option
+    description: |-
+      Attempt to get a diagnostic option value
+
+    command:
+      - beanshooter
+      - hotspot
+      - get
+      - ${TARGET}
+      - ${OPTIONS}
+      - HeapDumpBeforeFullGC
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '[+] Name: HeapDumpBeforeFullGC'
+            - '[+] Value: false'
+            - '[+] Writable: true'

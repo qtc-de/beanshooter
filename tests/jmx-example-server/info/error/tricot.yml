@@ -1,0 +1,50 @@
+tester:
+  title: info action (Error)
+  description: |-
+    Performs some test on error cases that can occur during the info action
+
+  id: '01-08-02'
+  groups:
+    - error
+  id_pattern: '01-08-02-{:02}'
+
+
+tests:
+  - title: Invalid Object Name
+    description: |-
+      Invoke the info action with an invalid object name as target
+
+    command:
+      - beanshooter
+      - info
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - test
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified ObjectName test is invalid
+
+
+  - title: Not available ObjectName
+    description: |-
+      Invoke the info action with an object name that does not exist
+
+    command:
+      - beanshooter
+      - info
+      - ${TARGET_PLAIN}
+      - ${OPTIONS}
+      - test:v=1
+      - --username
+      - admin
+      - --password
+      - admin
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The specified MBean test:v=1 does probably not exist on the endpoint

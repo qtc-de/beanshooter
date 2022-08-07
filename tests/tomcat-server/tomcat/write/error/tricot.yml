@@ -1,0 +1,51 @@
+tester:
+  title: tomcat write action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters tomcat write action
+
+  id: '05-07-02'
+  groups:
+    - error
+  id_pattern: '05-07-02-{:02}'
+
+
+tests:
+  - title: Write a non existing file
+    description: |-
+      Attempt to write a non existing file.
+
+    command:
+      - beanshooter
+      - tomcat
+      - write
+      - ${TARGET}
+      - ${OPTIONS}
+      - /tmp/nonono.dat
+      - /tmp/dada
+
+    validators:
+      - error: True
+      - regex:
+          match:
+            - 'The specified file .+ seems not to exist'
+
+
+  - title: Write from a read protected area
+    description: |-
+      Attempt to write a file we do not have permissions to.
+
+    command:
+      - beanshooter
+      - tomcat
+      - write
+      - ${TARGET}
+      - ${OPTIONS}
+      - /root/nonono.dat
+      - /tmp/dada
+
+    validators:
+      - error: True
+      - regex:
+          match:
+            - 'Caught AccessDeniedException while opening input file'
+            - 'Missing the required permissions to read file: .+'

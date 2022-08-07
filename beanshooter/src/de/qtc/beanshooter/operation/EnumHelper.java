@@ -79,7 +79,7 @@ public class EnumHelper
                 Logger.eprintlnMixedYellow("- Caught", "SaslSuperflousException", "during login attempt.");
 
                 BeanshooterOption.CONN_SASL.setValue(null);
-                Map<String, Object> env2 = ArgumentHandler.getEnv(null, null);
+                Map<String, Object> env2 = PluginSystem.getEnv(null, null);
 
                 try
                 {
@@ -144,7 +144,7 @@ public class EnumHelper
      */
     public boolean enumAccess()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv(null, null);
+        Map<String, Object> env = PluginSystem.getEnv(null, null);
 
         Logger.printlnBlue("Checking for unauthorized access:");
         Logger.lineBreak();
@@ -205,7 +205,7 @@ public class EnumHelper
      */
     public boolean enumKaraf()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv("karaf", "karaf");
+        Map<String, Object> env = PluginSystem.getEnv("karaf", "karaf");
 
         Logger.printlnBlue("Checking for Apache Karaf default credentials:");
         Logger.lineBreak();
@@ -262,7 +262,7 @@ public class EnumHelper
      */
     public boolean enumSASL()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv(null, null);
+        Map<String, Object> env = PluginSystem.getEnv(null, null);
 
         Logger.printlnBlue("Checking servers SASL configuration:");
         Logger.lineBreak();
@@ -320,7 +320,7 @@ public class EnumHelper
             }
         }
 
-        env = ArgumentHandler.getEnv("non existent dummy user", "non existing dummy password");
+        env = PluginSystem.getEnv("non existent dummy user", "non existing dummy password");
         SASLMechanism mechanism = SASLMechanism.detectMechanis(host, port, env);
 
         if( mechanism != null)
@@ -442,11 +442,19 @@ public class EnumHelper
                     continue;
 
                 if (interestingMBeans.contains(instance.getClassName()))
+                {
                     Logger.printMixedRed("  -", instance.getClassName(), "");
-                else
-                    Logger.printMixedYellow("  -", instance.getClassName(), "");
+                    Logger.printPlainBlue("(" + instance.getObjectName().toString() + ")");
 
-                Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
+                    MBean bean = MBean.getMBean(instance.getObjectName());
+                    Logger.printlnPlainMixedYellow("", "(action: " + bean.getName() + ")");
+                }
+
+                else
+                {
+                    Logger.printMixedYellow("  -", instance.getClassName(), "");
+                    Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
+                }
             }
         }
 
@@ -459,9 +467,9 @@ public class EnumHelper
      *
      * @return true if credentials are required
      */
-    public boolean requriesLogin()
+    public boolean requiresLogin()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv(null, null);
+        Map<String, Object> env = PluginSystem.getEnv(null, null);
 
         try {
             PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
@@ -470,10 +478,10 @@ public class EnumHelper
 
         catch(AuthenticationException e) {
 
-            if(e instanceof MissingCredentialsException)
+            if (e instanceof MissingCredentialsException)
                 return true;
 
-            if(e instanceof SaslProfileException)
+            if (e instanceof SaslProfileException)
             {
                 Logger.printlnMixedBlue("Caught", "SaslProfileException", "during login attempt.");
                 Logger.printlnMixedYellow("Use the", "--sasl", "option to specify a matching SASL profile.");
@@ -481,7 +489,10 @@ public class EnumHelper
                 Utils.exit();
             }
 
-            ExceptionHandler.unexpectedException(e, "login", "attempt", true);
+            Logger.printlnMixedYellow("Caught unknown", e.getOriginalException().getClass().getName(), "during connection attempt.");
+            Logger.printlnMixedBlue("Exception message:", e.getOriginalException().getMessage());
+
+            Utils.askToContinue("Treat as credential error and continue?", e);
         }
 
         return true;
@@ -493,7 +504,7 @@ public class EnumHelper
      */
     public void checkLoginFormat()
     {
-        Map<String, Object> env = ArgumentHandler.getEnv("beanshooter", "beanshooter");
+        Map<String, Object> env = PluginSystem.getEnv("beanshooter", "beanshooter");
 
         try {
             PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
@@ -521,7 +532,10 @@ public class EnumHelper
                 Utils.exit();
             }
 
-            ExceptionHandler.unexpectedException(e, "login", "attempt", true);
+            Logger.printlnMixedYellow("Caught unknown", e.getOriginalException().getClass().getName(), "during login attempt.");
+            Logger.printlnMixedBlue("Exception message:", e.getOriginalException().getMessage());
+
+            Utils.askToContinue("Treat as credential error and continue?", e);
         }
     }
 }

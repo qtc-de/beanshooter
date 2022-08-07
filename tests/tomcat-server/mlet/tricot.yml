@@ -1,0 +1,12 @@
+tester:
+  title: mlet related tests
+  description: |-
+    Tests for the mlet action
+
+  id: '07'
+  groups:
+    - mlet
+
+testers:
+  - ./status/tricot.yml
+  - ./load/tricot.yml
