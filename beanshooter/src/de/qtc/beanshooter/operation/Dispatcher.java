@@ -124,6 +124,7 @@ public class Dispatcher {
         int port = ArgumentHandler.require(BeanshooterOption.TARGET_PORT);
 
         EnumHelper enumHelper = new EnumHelper(host, port);
+        enumHelper.boundNames();
 
         if (BeanshooterOption.CONN_JMXMP.getBool() && BeanshooterOption.CONN_SASL.isNull())
         {

@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.ObjID;
 import java.rmi.server.RemoteObjectInvocationHandler;
 import java.rmi.server.RemoteRef;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.MBeanServerConnection;
@@ -272,15 +273,41 @@ public class RMIProvider implements IMBeanServerProvider
         if( BeanshooterOption.TARGET_BOUND_NAME.notNull() )
             return getRMIServerByLookup(regEndpoint, BeanshooterOption.TARGET_BOUND_NAME.getValue());
 
+        Map<String, Remote> mappings = new HashMap<String, Remote>();
         String[] boundNames = regEndpoint.getBoundNames();
-        Remote[] remoteObjects = Utils.filterJmxEndpoints(regEndpoint.lookup(boundNames));
 
-        if( remoteObjects.length == 0 ) {
+        for (String boundName : boundNames)
+        {
+            try
+            {
+                Remote remote = regEndpoint.lookup(boundName);
+                mappings.put(boundName, remote);
+            }
+
+            catch (ClassNotFoundException e) {}
+        }
+
+        Map<String,Remote> jmxMap = Utils.filterJmxEndpoints(mappings);
+        int jmxEndpoints = jmxMap.size();
+
+        if( jmxEndpoints == 0 )
+        {
             Logger.printlnMixedYellow("The specified RMI registry", "does not", "contain any JMX objects.");
             Utils.exit();
         }
 
-        return (RMIServer) remoteObjects[0];
+        String selected = (String) jmxMap.keySet().toArray()[0];
+        Remote selectedRemote = jmxMap.get(selected);
+
+        if (jmxEndpoints > 1)
+        {
+            Logger.printlnMixedYellow("RMI registry contains", "more than one", "JMX instance.");
+            Logger.printlnMixedBlue("The bound name", selected, "is used for the operation.");
+            Logger.printlnMixedYellow("Use the", "--bound-name", "option to select a different one.");
+            Logger.lineBreak();
+        }
+
+        return (RMIServer)selectedRemote;
     }
 
     /**

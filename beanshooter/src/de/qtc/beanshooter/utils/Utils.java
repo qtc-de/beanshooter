@@ -151,24 +151,24 @@ public class Utils {
     }
 
     /**
-     * Takes an array of Remote objects and filters out the objects that implement the RMIServer interface.
+     * Takes a Map of boundName - Remote mappings and filters the map for JMX endpoints.
      *
-     * @param remotes array of objects implementing Remote
-     * @return Remote objects contained in the array that implement RMIServer
+     * @param mappings  boundName - Remote mappings
+     * @return Filtered map that only contains elements belonging to JMX endpoints
      */
-    public static Remote[] filterJmxEndpoints(Remote[] remotes)
+    public static Map<String, Remote> filterJmxEndpoints(Map<String, Remote> mappings)
     {
-        List<Remote> remoteList = new ArrayList<Remote>();
+        Map<String, Remote> filteredMap = new HashMap<String, Remote>();
 
-        for(Remote remote : remotes) {
-
-            String className = getClassName(remote);
+        for (Map.Entry<String, Remote> entry : mappings.entrySet())
+        {
+            String className = getClassName(entry.getValue());
 
             if( className.startsWith("javax.management.remote.rmi.RMIServer") )
-                remoteList.add(remote);
+                filteredMap.put(entry.getKey(), entry.getValue());
         }
 
-        return remoteList.toArray(new Remote[0]);
+        return filteredMap;
     }
 
     /**
