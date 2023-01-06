@@ -17,7 +17,7 @@ import com.sun.jdmk.security.sasl.AuthenticateCallback;
  * SASL protected JMXMP endpoints require a CallbackHandlers to obtain the credentials from.
  * This class implements a CallnbackHandler that stores usernames and passwords and returns
  * them accordingly.
- * 
+ *
  * @author Tobias Neitzel (@qtc_de)
  */
 public class AuthenticationCallbackHandler implements CallbackHandler {
@@ -27,7 +27,7 @@ public class AuthenticationCallbackHandler implements CallbackHandler {
     /**
      * Create an AuthenticationCallbackHandler and store some credentials within of it.
      * Credentials should be contained within a Map with <username,password> format.
-     * 
+     *
      * @param credentials map that contains the available credentials.
      */
     public AuthenticationCallbackHandler(Map<String,String> credentials)
@@ -80,8 +80,8 @@ public class AuthenticationCallbackHandler implements CallbackHandler {
                 {
                     Logger.printlnMixedYellow("Username", username, "is not known.");
                     authenticate.setAuthenticated(false);
-                } 
-                else if (pw.equals(password)) 
+                }
+                else if (pw.equals(password))
                 {
                     authenticate.setAuthenticated(true);
                 }
@@ -98,14 +98,14 @@ public class AuthenticationCallbackHandler implements CallbackHandler {
 
                 pass = (PasswordCallback)callbacks[i];
                 password = credentials.get(username);
-                
+
                 Logger.println("Got Password callback.");
 
                 if(password == null) {
-                	
+
                     Logger.printlnMixedYellow("Username", username, "is not known.");
                     pass.setPassword("backdoor :O".toCharArray());
-                    
+
                 } else {
                     Logger.printlnMixedYellow("Setting password", password);
                     pass.setPassword(password.toCharArray());

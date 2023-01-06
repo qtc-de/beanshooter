@@ -36,14 +36,14 @@ public class SslJmxConnector {
     public SslJmxConnector(int port) throws IOException
     {
          Map<String, Object> env = new HashMap<String, Object>();
-         
+
          SimplePasswordAuthenticator authenticator = new SimplePasswordAuthenticator();
          authenticator.addCredential("admin", "admin");
 
          env.put(RMIConnectorServer.RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, new SslRMIServerSocketFactory());
          env.put(RMIConnectorServer.RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE, new SslRMIClientSocketFactory());
          env.put(JMXConnectorServer.AUTHENTICATOR, authenticator);
-         
+
          MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
          JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://127.0.0.1:" + port + "/secure-jmxrmi");
 

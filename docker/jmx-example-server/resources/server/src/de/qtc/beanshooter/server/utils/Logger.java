@@ -38,10 +38,10 @@ public class Logger {
     {
         return "[" + date.format(cal.getTime()) + "]" + Logger.getIndent();
     }
-    
+
     public static void lineBreak()
     {
-    	log("", true);
+        log("", true);
     }
 
     private static void log(String msg)
