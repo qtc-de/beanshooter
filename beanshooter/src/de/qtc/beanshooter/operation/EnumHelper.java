@@ -18,6 +18,7 @@ import de.qtc.beanshooter.cli.SASLMechanism;
 import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.GlassFishException;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.MissingCredentialsException;
@@ -240,6 +241,13 @@ public class EnumHelper
             Logger.lineBreak();
 
             return enumKaraf();
+        }
+
+        catch (GlassFishException e) {
+            Logger.printlnMixedYellow("- Remote MBean server", "requires authentication", "(GlassFish)");
+            Logger.statusOk();
+
+            Logger.decreaseIndent();
         }
 
         catch (AuthenticationException e) {
@@ -548,6 +556,10 @@ public class EnumHelper
             return false;
         }
 
+        catch(GlassFishException | ApacheKarafException e) {
+            return true;
+        }
+
         catch(AuthenticationException e) {
 
             if (e instanceof MissingCredentialsException)
@@ -583,6 +595,12 @@ public class EnumHelper
         }
 
         catch(AuthenticationException e) {
+
+            if(e instanceof GlassFishException)
+                return;
+
+            if(e instanceof ApacheKarafException)
+                return;
 
             if(e instanceof WrongCredentialsException)
                 return;

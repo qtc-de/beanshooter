@@ -14,10 +14,12 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.rmi.RMIConnection;
 import javax.management.remote.rmi.RMIConnector;
 import javax.management.remote.rmi.RMIServer;
+import javax.security.auth.callback.UnsupportedCallbackException;
 
 import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.GlassFishException;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.exceptions.LoginClassCastException;
 import de.qtc.beanshooter.io.Logger;
@@ -83,6 +85,12 @@ public class RMIProvider implements IMBeanServerProvider
 
             else if (t instanceof java.rmi.ConnectIOException)
                 ExceptionHandler.connectIOException(e, "newclient");
+
+            else if (t instanceof java.io.NotSerializableException && t.getMessage().contains("PrincipalCallback"))
+                throw new GlassFishException(e);
+
+            else if (t instanceof UnsupportedCallbackException)
+                ExceptionHandler.unsupportedCallback((Exception)t);
 
             Logger.resetIndent();
             Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while invoking the newClient method.");
