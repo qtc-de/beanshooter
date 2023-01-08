@@ -1,5 +1,7 @@
 package de.qtc.beanshooter.plugin;
 
+import de.qtc.beanshooter.exceptions.PluginException;
+
 /**
  * The IArgumentProvider interface is used during beanshooters 'invoke' action to obtain the argument array that should
  * be used for the call. Plugins can implement this class to obtain custom argument arrays that they want to use during
@@ -18,7 +20,7 @@ package de.qtc.beanshooter.plugin;
  */
 public interface IArgumentProvider
 {
-    Object[] getArgumentArray(String[] argumentArray);
-    String[] getArgumentTypes(String signature);
-    String getMethodName(String signature);
+    Object[] getArgumentArray(String[] argumentArray) throws PluginException;
+    String[] getArgumentTypes(String signature) throws PluginException;
+    String getMethodName(String signature) throws PluginException;
 }

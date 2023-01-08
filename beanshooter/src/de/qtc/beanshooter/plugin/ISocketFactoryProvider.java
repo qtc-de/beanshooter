@@ -5,6 +5,8 @@ import java.rmi.server.RMISocketFactory;
 
 import javax.net.SocketFactory;
 
+import de.qtc.beanshooter.exceptions.PluginException;
+
 /**
  * The ISocketFactoryProvider interface can be used to overwrite SocketFactory implementations that are used during
  * RMI communication. This is usually not required, but when the RMI server uses a customized SocketFactory for RMI
@@ -36,8 +38,8 @@ import javax.net.SocketFactory;
  */
 public interface ISocketFactoryProvider
 {
-    public RMIClientSocketFactory getRMIClientSocketFactory(String host, int port);
-    public RMISocketFactory getDefaultRMISocketFactory(String host, int port);
-    public SocketFactory getSSLSocketFactory(String host, int port);
-    public String getDefaultSSLSocketFactoryClass(String host, int port);
+    public RMIClientSocketFactory getRMIClientSocketFactory(String host, int port) throws PluginException;
+    public RMISocketFactory getDefaultRMISocketFactory(String host, int port) throws PluginException;
+    public SocketFactory getSSLSocketFactory(String host, int port) throws PluginException;
+    public String getDefaultSSLSocketFactoryClass(String host, int port) throws PluginException;
 }

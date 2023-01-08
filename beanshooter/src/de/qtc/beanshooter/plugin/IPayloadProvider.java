@@ -1,6 +1,7 @@
 package de.qtc.beanshooter.plugin;
 
 import de.qtc.beanshooter.cli.Operation;
+import de.qtc.beanshooter.exceptions.PluginException;
 
 /**
  * The IPayloadProvider interface is used during beanshooter operations that perform deserialization attacks.
@@ -10,5 +11,5 @@ import de.qtc.beanshooter.cli.Operation;
  */
 public interface IPayloadProvider
 {
-    Object getPayloadObject(Operation action, String name, String args);
+    Object getPayloadObject(Operation action, String name, String args) throws PluginException;
 }

@@ -603,6 +603,18 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void pluginException(PluginException e)
+    {
+        Logger.eprintlnMixedYellow("Caught unexpected", "PluginException", "during operation.");
+        Logger.eprintln("The specified plugin raised this exception to indicate an error condition.");
+        Logger.eprintlnMixedBlue("Plugin error message:", e.getMessage());
+
+        if (e.origException != null)
+            showStackTrace(e.origException);
+
+        Utils.exit();
+    }
+
     public static void lookupClassNotFoundException(Exception e, String name)
     {
         name = name.replace(" (no security manager: RMI class loader disabled)", "");

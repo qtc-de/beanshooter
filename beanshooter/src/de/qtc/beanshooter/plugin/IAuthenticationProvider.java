@@ -2,6 +2,8 @@ package de.qtc.beanshooter.plugin;
 
 import java.util.Map;
 
+import de.qtc.beanshooter.exceptions.PluginException;
+
 /**
  * Create the JMX environment that is used during the newClient call. The default JMX implementation
  * expects the returned Map to contain the key JMXConnector.CREDENTIALS with an associated String array
@@ -13,5 +15,5 @@ import java.util.Map;
  */
 public interface IAuthenticationProvider
 {
-    public Map<String,Object> getEnv(String username, String password);
+    public Map<String,Object> getEnv(String username, String password) throws PluginException;
 }

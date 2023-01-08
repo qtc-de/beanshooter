@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.management.MBeanServerConnection;
 
 import de.qtc.beanshooter.exceptions.AuthenticationException;
+import de.qtc.beanshooter.exceptions.PluginException;
 
 /**
  * beanshooter supports different ways for obtaining a connection to an remote MBeanServer (e.g. rmi vs jmxmp).
@@ -15,5 +16,5 @@ import de.qtc.beanshooter.exceptions.AuthenticationException;
  */
 public interface IMBeanServerProvider
 {
-    public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env) throws AuthenticationException;
+    public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env) throws AuthenticationException, PluginException;
 }

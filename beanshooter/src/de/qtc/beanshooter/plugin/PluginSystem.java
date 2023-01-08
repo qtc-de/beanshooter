@@ -17,6 +17,7 @@ import de.qtc.beanshooter.cli.Operation;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.MalformedPluginException;
+import de.qtc.beanshooter.exceptions.PluginException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.providers.ArgumentProvider;
@@ -185,7 +186,13 @@ public class PluginSystem {
         {
             conn = mBeanServerProvider.getMBeanServerConnection(host, port, env);
         }
-        catch( AuthenticationException e)
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        catch (AuthenticationException e)
         {
             ExceptionHandler.handleAuthenticationException(e);
             Utils.exit();
@@ -208,7 +215,19 @@ public class PluginSystem {
      */
     public static MBeanServerConnection getMBeanServerConnectionUmanaged(String host, int port, Map<String,Object> env) throws AuthenticationException
     {
-        return mBeanServerProvider.getMBeanServerConnection(host, port, env);
+        MBeanServerConnection connection = null;
+
+        try
+        {
+            connection = mBeanServerProvider.getMBeanServerConnection(host, port, env);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return connection;
     }
 
     /**
@@ -223,7 +242,19 @@ public class PluginSystem {
      */
     public static RMIClientSocketFactory getRMIClientSocketFactory(String host, int port)
     {
-        return socketFactoryProvider.getRMIClientSocketFactory(host, port);
+        RMIClientSocketFactory facs = null;
+
+        try
+        {
+            facs = socketFactoryProvider.getRMIClientSocketFactory(host, port);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return facs;
     }
 
     /**
@@ -237,7 +268,19 @@ public class PluginSystem {
      */
     public static RMISocketFactory getDefaultRMISocketFactory(String host, int port)
     {
-        return socketFactoryProvider.getDefaultRMISocketFactory(host, port);
+        RMISocketFactory facs = null;
+
+        try
+        {
+            facs = socketFactoryProvider.getDefaultRMISocketFactory(host, port);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return facs;
     }
 
     /**
@@ -253,7 +296,19 @@ public class PluginSystem {
      */
     public static String getDefaultSSLSocketFactoryClass(String host, int port)
     {
-        return socketFactoryProvider.getDefaultSSLSocketFactoryClass(host, port);
+        String cls = null;
+
+        try
+        {
+            cls = socketFactoryProvider.getDefaultSSLSocketFactoryClass(host, port);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return cls;
     }
 
     /**
@@ -266,7 +321,19 @@ public class PluginSystem {
      */
     public static SocketFactory getSSLSocketFactory(String host, int port)
     {
-        return socketFactoryProvider.getSSLSocketFactory(host, port);
+        SocketFactory facs = null;
+
+        try
+        {
+            facs = socketFactoryProvider.getSSLSocketFactory(host, port);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return facs;
     }
 
     /**
@@ -279,7 +346,19 @@ public class PluginSystem {
      */
     public static Object getPayloadObject(Operation op, String gadgetName, String gadgetCmd)
     {
-        return payloadProvider.getPayloadObject(op, gadgetName, gadgetCmd);
+        Object payload = null;
+
+        try
+        {
+            payload = payloadProvider.getPayloadObject(op, gadgetName, gadgetCmd);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return payload;
     }
 
     /**
@@ -302,7 +381,19 @@ public class PluginSystem {
      */
     public static Object[] getArgumentArray(String[] argumentArray)
     {
-        return argumentProvider.getArgumentArray(argumentArray);
+        Object[] args = null;
+
+        try
+        {
+            args = argumentProvider.getArgumentArray(argumentArray);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return args;
     }
 
     /**
@@ -314,7 +405,19 @@ public class PluginSystem {
      */
     public static String[] getArgumentTypes(String signature)
     {
-        return argumentProvider.getArgumentTypes(signature);
+        String[] types = null;
+
+        try
+        {
+            types = argumentProvider.getArgumentTypes(signature);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return types;
     }
 
     /**
@@ -326,7 +429,19 @@ public class PluginSystem {
      */
     public static String getMethodName(String signature)
     {
-        return argumentProvider.getMethodName(signature);
+        String method = null;
+
+        try
+        {
+            method = argumentProvider.getMethodName(signature);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return method;
     }
 
     /**
@@ -336,7 +451,15 @@ public class PluginSystem {
      */
     public static void handleResponse(Object response)
     {
-        responseHandler.handleResponse(response);
+        try
+        {
+            responseHandler.handleResponse(response);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
     }
 
     /**
@@ -353,6 +476,18 @@ public class PluginSystem {
     */
     public static Map<String,Object> getEnv(String username, String password)
     {
-        return authenticationProvider.getEnv(username, password);
+        Map<String,Object> map = null;
+
+        try
+        {
+            map = authenticationProvider.getEnv(username, password);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return map;
     }
 }
