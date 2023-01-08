@@ -16,6 +16,7 @@ import javax.management.remote.rmi.RMIConnector;
 import javax.management.remote.rmi.RMIServer;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -25,6 +26,7 @@ import de.qtc.beanshooter.exceptions.LoginClassCastException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.networking.RMIEndpoint;
 import de.qtc.beanshooter.networking.RMIRegistryEndpoint;
+import de.qtc.beanshooter.operation.BeanshooterOperation;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.IMBeanServerProvider;
 import de.qtc.beanshooter.utils.Utils;
@@ -123,6 +125,14 @@ public class RMIProvider implements IMBeanServerProvider
             else if (t instanceof java.io.EOFException || t instanceof java.net.SocketException)
             {
                 Logger.eprintln("The JMX server closed the connection. This usually indicates a networking problem.");
+            }
+
+            else if (ArgumentHandler.getInstance().getAction() == BeanshooterOperation.SERIAL && BeanshooterOption.SERIAL_PREAUTH.getBool())
+            {
+                Logger.eprintlnMixedBlue("This exception could be caused by the selected gadget and the deserialization attack may", "worked anyway.");
+
+                if (!BeanshooterOption.GLOBAL_STACK_TRACE.getBool())
+                    Logger.eprintlnMixedYellow("If it did not work you may want to rerun with the", "--stack-trace", "option to further investigate.");
             }
 
             else
