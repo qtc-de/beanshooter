@@ -17,6 +17,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.rmi.Remote;
 import java.rmi.server.ObjID;
+import java.rmi.server.RemoteObject;
+import java.rmi.server.RemoteObjectInvocationHandler;
+import java.rmi.server.RemoteRef;
 import java.rmi.server.UID;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -40,11 +43,16 @@ import javax.management.ObjectName;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 
+import sun.rmi.server.UnicastRef;
+import sun.rmi.transport.LiveRef;
+import sun.rmi.transport.tcp.TCPEndpoint;
+
 /**
  * The Utils class contains different util functions that are used within beanshooter.
  *
  * @author Tobias Neitzel (@qtc_de)
  */
+@SuppressWarnings("restriction")
 public class Utils {
 
     private static Pattern splitSpaces = Pattern.compile(" (?=(?:(?:[^'\"]*\"[^\"]*\")|(?:[^\"']*'[^']*'))*[^\"']*$)");
@@ -457,7 +465,6 @@ public class Utils {
      *
      * https://stackoverflow.com/questions/46454995/how-to-hide-warning-illegal-reflective-access-in-java-9-without-jvm-argument
      */
-    @SuppressWarnings("restriction")
     public static void disableWarning()
     {
         try {
@@ -605,5 +612,51 @@ public class Utils {
                     continue;
             }
         }
+    }
+
+    /**
+     * Obtain the target endpoint from a JMX Remote object and return it as String (host:port format).
+     *
+     * @param remote  Remote object belonging to a JMX server
+     * @return the target JMX server address in host:port format
+     * @throws several reflection related exceptions
+     */
+    public static String getJmxTarget(Remote remote) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
+    {
+        Field proxyField = null;
+        Field remoteField = null;
+        RemoteRef remoteRef = null;
+
+        try {
+            proxyField = Proxy.class.getDeclaredField("h");
+            remoteField = RemoteObject.class.getDeclaredField("ref");
+            proxyField.setAccessible(true);
+            remoteField.setAccessible(true);
+
+        } catch(NoSuchFieldException | SecurityException e) {
+            ExceptionHandler.unexpectedException(e, "reflective access in", "extractRef", true);
+        }
+
+        if( Proxy.isProxyClass(remote.getClass()) )
+            remoteRef = ((RemoteObjectInvocationHandler)proxyField.get(remote)).getRef();
+
+        else
+            remoteRef = (RemoteRef)remoteField.get(remote);
+
+        if (!(remoteRef instanceof UnicastRef))
+            return "";
+
+        UnicastRef uref = (UnicastRef)remoteRef;
+        LiveRef lref = uref.getLiveRef();
+
+        Field endpointField = LiveRef.class.getDeclaredField("ep");
+        endpointField.setAccessible(true);
+
+        TCPEndpoint endpoint = (TCPEndpoint)endpointField.get(lref);
+
+        String host = endpoint.getHost();
+        int port = endpoint.getPort();
+
+        return String.format("%s:%d", host, port);
     }
 }

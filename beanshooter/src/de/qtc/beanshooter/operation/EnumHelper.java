@@ -96,9 +96,14 @@ public class EnumHelper
         for (Map.Entry<String, Remote> entry : mappings.entrySet())
         {
             Logger.printMixedBlue("*", entry.getKey());
+            String target = "";
+
+            try {
+                target = ": " + Utils.getJmxTarget(entry.getValue());
+            } catch(Exception e){}
 
             if (jmxMap.containsKey(entry.getKey()))
-                Logger.printlnPlainYellow(" (JMX endpoint)");
+                Logger.printlnPlainYellow(" (JMX endpoint" + target + ")");
 
             else
                 Logger.printlnPlain("");
