@@ -25,6 +25,7 @@ import de.qtc.beanshooter.mbean.IMBean;
 import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.networking.StagerServer;
 import de.qtc.beanshooter.plugin.PluginSystem;
+import de.qtc.beanshooter.utils.DeserializationCanary;
 import de.qtc.beanshooter.utils.Utils;
 
 /**
@@ -186,6 +187,9 @@ public class Dispatcher {
         Logger.increaseIndent();
 
         Object payloadObject = ArgumentHandler.getInstance().getGadget();
+
+        if (!BeanshooterOption.SERIAL_NO_CANARY.getBool())
+            payloadObject = new Object[] { payloadObject, new DeserializationCanary() };
 
         try
         {

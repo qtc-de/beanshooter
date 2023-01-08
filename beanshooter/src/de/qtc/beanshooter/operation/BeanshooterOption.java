@@ -242,6 +242,13 @@ public enum BeanshooterOption implements Option {
                         ArgType.STRING,
                         "cmd"),
 
+    SERIAL_NO_CANARY("--no-canary",
+            "do not use a canary during deserialization attacks",
+            Arguments.storeTrue(),
+            OptionGroup.ACTION,
+            ArgType.STRING
+            ),
+
     SERIAL_PREAUTH("--preauth",
                    "attempt pre authentication deserialization",
                    Arguments.storeTrue(),
