@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This build script only works for simple plugins that consist our of a single file.
+# This build script only works for simple plugins that consist out of a single file.
 # It is just an example to demonstrate the general plugin structure.
 
 if [[ $# -lt 3 ]]; then
