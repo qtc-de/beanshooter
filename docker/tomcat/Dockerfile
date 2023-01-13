@@ -1,4 +1,4 @@
-FROM tomcat:9.0.58-jre11-openjdk-slim
+FROM tomcat:jre17-temurin
 
 COPY ./resources/trust/store.p12            \
      ./resources/scripts/start.sh           \
@@ -10,7 +10,7 @@ COPY ./resources/conf/tomcat-users.xml      \
 RUN set -ex \
     && chmod +x /opt/start.sh
 
-ENV _JAVA_OPTIONS -Djava.rmi.server.hostname=iinsecure.dev \
+ENV _JAVA_OPTIONS -Djava.rmi.server.hostname=iinsecure.example \
     -Djavax.net.ssl.keyStorePassword=password \
     -Djavax.net.ssl.keyStore=/opt/store.p12 \
     -Djavax.net.ssl.keyStoreType=pkcs12 \

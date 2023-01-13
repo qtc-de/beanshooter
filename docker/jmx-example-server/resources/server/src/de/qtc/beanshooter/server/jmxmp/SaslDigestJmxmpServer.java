@@ -50,7 +50,7 @@ public class SaslDigestJmxmpServer {
         env.put("jmx.remote.sasl.callback.handler", new AuthenticationCallbackHandler(creds));
         env.put("jmx.remote.x.access.file", "/opt/jmxmp.access");
         env.put("jmx.remote.tls.socket.factory", ssf);
-        env.put("com.sun.security.sasl.digest.realm", "iinsecure.dev");
+        env.put("com.sun.security.sasl.digest.realm", "iinsecure.example");
 
         MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
         JMXServiceURL url = new JMXServiceURL("jmxmp", "0.0.0.0", port);

@@ -37,7 +37,7 @@ public class AuthenticationCallbackHandler implements CallbackHandler {
 
     /**
      * Sets the username or password according to the incoming callback. If the incoming callback
-     * is a RealmCallback, set iinsecure.dev as realm.
+     * is a RealmCallback, set iinsecure.example as realm.
      */
     @Override
     public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
@@ -114,7 +114,7 @@ public class AuthenticationCallbackHandler implements CallbackHandler {
             } else if (callbacks[i] instanceof RealmCallback) {
 
                 realm = (RealmCallback)callbacks[i];
-                realm.setText("iinsecure.dev");
+                realm.setText("iinsecure.example");
 
             } else {
                 throw new UnsupportedCallbackException(callbacks[i]);

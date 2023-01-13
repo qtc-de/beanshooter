@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
     tomcat:
-      image: ghcr.io/qtc-de/beanshooter/tomcat-example-server:1.0
+      image: ghcr.io/qtc-de/beanshooter/tomcat-example-server:2.0
       build: .
       entrypoint: /opt/start.sh
       environment:
@@ -11,7 +11,7 @@ services:
           -Djavax.net.ssl.keyStorePassword=password
           -Djavax.net.ssl.keyStore=/opt/store.p12
           -Djavax.net.ssl.keyStoreType=pkcs12
-          -Djava.rmi.server.hostname=iinsecure.dev
+          -Djava.rmi.server.hostname=iinsecure.example
           -Dcom.sun.management.jmxremote
           -Dcom.sun.management.jmxremote.ssl=false
           -Dcom.sun.management.jmxremote.local.only=false
