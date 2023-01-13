@@ -25,4 +25,4 @@ tests:
       - contains:
           values:
             - 'HeapDumpBeforeFullGC (value = false, writable = true)'
-            - 'CMSTriggerInterval (value = -1, writable = true)'
+            - 'G1PeriodicGCSystemLoadThreshold (value = 0.0, writable = true)'

@@ -9,7 +9,7 @@ tester:
 
 containers:
   - name: 'tomcat-example-server'
-    image: 'ghcr.io/qtc-de/beanshooter/tomcat-example-server:1.0'
+    image: 'ghcr.io/qtc-de/beanshooter/tomcat-example-server:2.0'
     volumes:
       - '${volume}:${volume-d}'
     aliases:

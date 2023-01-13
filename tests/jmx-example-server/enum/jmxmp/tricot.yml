@@ -113,7 +113,7 @@ tests:
       - contains:
           values:
             - 'Remote JMXMP server uses SASL/DIGEST-MD5 SASL profile'
-            - 'Credentials are requried and the following hostname must be used: iinsecure.dev'
+            - 'Credentials are requried and the following hostname must be used: iinsecure.example'
             - 'JMXMP serial check is work in progress but endpoints are usually vulnerable'
 
 
@@ -140,7 +140,7 @@ tests:
       - contains:
           values:
             - 'Caught MismatchedURIException during login attempt'
-            - 'Target needs to be accessed by the following hostname: iinsecure.dev'
+            - 'Target needs to be accessed by the following hostname: iinsecure.example'
 
 
   - title: CRAM enum
