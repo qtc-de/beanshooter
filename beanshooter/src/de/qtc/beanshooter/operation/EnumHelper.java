@@ -480,8 +480,17 @@ public class EnumHelper
 
         catch (AuthenticationException e)
         {
-            Logger.printlnMixedYellow("- Remote MBeanServer",  "accepted", "the payload class.");
-            Logger.statusNonDefault();
+            if (e.getOriginalException() instanceof ClassCastException && e.getMessage().contains("Unsupported type:"))
+            {
+                Logger.printlnMixedYellow("- Remote MBeanServer", "rejected", "the payload class (correto).");
+                Logger.statusOk();
+            }
+
+            else
+            {
+                Logger.printlnMixedYellow("- Remote MBeanServer",  "accepted", "the payload class.");
+                Logger.statusNonDefault();
+            }
         }
 
         finally
