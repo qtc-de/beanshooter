@@ -7,6 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.ObjID;
 import java.rmi.server.RemoteObjectInvocationHandler;
 import java.rmi.server.RemoteRef;
+import java.security.cert.CertPathValidatorException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,7 +73,6 @@ public class RMIProvider implements IMBeanServerProvider
         {
             rmiConnector.connect();
             connection = rmiConnector.getMBeanServerConnection();
-
         }
 
         catch (IOException e)
@@ -133,6 +133,15 @@ public class RMIProvider implements IMBeanServerProvider
 
                 if (!BeanshooterOption.GLOBAL_STACK_TRACE.getBool())
                     Logger.eprintlnMixedYellow("If it did not work you may want to rerun with the", "--stack-trace", "option to further investigate.");
+            }
+
+            else if (t instanceof CertPathValidatorException)
+            {
+                Logger.eprintlnMixedBlue("The server probably uses TLS settings that are", "incompatible", "with your current security settings.");
+                Logger.eprintlnMixedYellow("You may try to edit your", "java.security", "policy file to overcome the issue.");
+
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
             }
 
             else
