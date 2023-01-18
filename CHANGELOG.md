@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [3.1.0] - Jan 19, 2022
+
+### Added
+
+* Display bound names during enum action
+* Display JMX endpoint address during enum action
+* Add support for Glassfish and Correto
+* Add `--no-canary` option to prevent usage of deserialization canaries
+* Add [example plugin](/plugins)
+
+### Changed
+
+* Switch from `iinsecure.dev` to `iinsecure.example` for docker containers
+* Switch from *jre11* to *jre17* for tomcat container
+* Catch exceptions caused by outdated TLS servers 
+
+
 ## [3.0.0] - Aug 07, 2022
 
 ### Added
