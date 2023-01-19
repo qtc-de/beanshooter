@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Switch from `iinsecure.dev` to `iinsecure.example` for docker containers
 * Switch from *jre11* to *jre17* for tomcat container
+* Modify Jar Manifest to include *Add-Opens* (Java16+ support)
 * Catch exceptions caused by outdated TLS servers 
 
 
