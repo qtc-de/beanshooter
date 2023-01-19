@@ -67,6 +67,6 @@ public class YsoIntegration {
         }
 
         Logger.printlnPlain(" done.");
-        return new Object[] { ysoPayload, new DeserializationCanary() };
+        return ysoPayload;
     }
 }

@@ -1,5 +1,6 @@
 package de.qtc.beanshooter.operation;
 
+import java.rmi.Remote;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import de.qtc.beanshooter.cli.SASLMechanism;
 import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.GlassFishException;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.MissingCredentialsException;
@@ -26,6 +28,7 @@ import de.qtc.beanshooter.exceptions.SaslSuperflousException;
 import de.qtc.beanshooter.exceptions.WrongCredentialsException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.MBean;
+import de.qtc.beanshooter.networking.RMIRegistryEndpoint;
 import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -45,6 +48,81 @@ public class EnumHelper
     {
         this.host = host;
         this.port = port;
+    }
+
+    /**
+     * When the connection is performed via RMI, enumerate available bound names and check them for
+     * JMX endpoints.
+     */
+    public void boundNames()
+    {
+        if (BeanshooterOption.CONN_JMXMP.getBool() || BeanshooterOption.CONN_JNDI.notNull() )
+            return;
+
+        if (BeanshooterOption.TARGET_OBJID_CONNECTION.notNull() || BeanshooterOption.TARGET_OBJID_SERVER.notNull())
+            return;
+
+        if (BeanshooterOption.TARGET_BOUND_NAME.notNull())
+            return;
+
+        RMIRegistryEndpoint regEndpoint = new RMIRegistryEndpoint(host, port);
+        String[] boundNames = regEndpoint.getBoundNames();
+
+        Map<String, Remote> mappings = new HashMap<String, Remote>();
+
+        for (String boundName : boundNames)
+        {
+            try
+            {
+                Remote remote = regEndpoint.lookup(boundName);
+                mappings.put(boundName, remote);
+            }
+
+            catch (ClassNotFoundException e) {}
+        }
+
+        Map<String,Remote> jmxMap = Utils.filterJmxEndpoints(mappings);
+        int jmxEndpoints = jmxMap.size();
+
+        if( jmxEndpoints == 0 ) {
+            Logger.printlnMixedYellow("The specified RMI registry", "does not", "contain any JMX objects.");
+            Utils.exit();
+        }
+
+        Logger.printlnBlue("Checking available bound names:");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        for (Map.Entry<String, Remote> entry : mappings.entrySet())
+        {
+            Logger.printMixedBlue("*", entry.getKey());
+            String target = "";
+
+            try {
+                target = ": " + Utils.getJmxTarget(entry.getValue());
+            } catch(Exception e){}
+
+            if (jmxMap.containsKey(entry.getKey()))
+                Logger.printlnPlainYellow(" (JMX endpoint" + target + ")");
+
+            else
+                Logger.printlnPlain("");
+        }
+
+        Logger.lineBreak();
+
+        String selected = (String) jmxMap.keySet().toArray()[0];
+        BeanshooterOption.TARGET_BOUND_NAME.setValue(selected);
+
+        if (jmxEndpoints > 1)
+        {
+            Logger.printlnMixedYellow("- Found", String.valueOf(jmxEndpoints), "bound names that map to JMX services.");
+            Logger.printlnMixedBlue("  The bound name", selected, "is used for enumeration.");
+            Logger.printlnMixedYellow("  Use the", "--bound-name", "option to select a different one.");
+            Logger.lineBreak();
+        }
+
+        Logger.decreaseIndent();
     }
 
     /**
@@ -168,6 +246,13 @@ public class EnumHelper
             Logger.lineBreak();
 
             return enumKaraf();
+        }
+
+        catch (GlassFishException e) {
+            Logger.printlnMixedYellow("- Remote MBean server", "requires authentication", "(GlassFish)");
+            Logger.statusOk();
+
+            Logger.decreaseIndent();
         }
 
         catch (AuthenticationException e) {
@@ -395,8 +480,17 @@ public class EnumHelper
 
         catch (AuthenticationException e)
         {
-            Logger.printlnMixedYellow("- Remote MBeanServer",  "accepted", "the payload class.");
-            Logger.statusNonDefault();
+            if (e.getOriginalException() instanceof ClassCastException && e.getMessage().contains("Unsupported type:"))
+            {
+                Logger.printlnMixedYellow("- Remote MBeanServer", "rejected", "the payload class (correto).");
+                Logger.statusOk();
+            }
+
+            else
+            {
+                Logger.printlnMixedYellow("- Remote MBeanServer",  "accepted", "the payload class.");
+                Logger.statusNonDefault();
+            }
         }
 
         finally
@@ -476,6 +570,10 @@ public class EnumHelper
             return false;
         }
 
+        catch(GlassFishException | ApacheKarafException e) {
+            return true;
+        }
+
         catch(AuthenticationException e) {
 
             if (e instanceof MissingCredentialsException)
@@ -511,6 +609,12 @@ public class EnumHelper
         }
 
         catch(AuthenticationException e) {
+
+            if(e instanceof GlassFishException)
+                return;
+
+            if(e instanceof ApacheKarafException)
+                return;
 
             if(e instanceof WrongCredentialsException)
                 return;

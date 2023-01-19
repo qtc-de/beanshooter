@@ -10,7 +10,7 @@ tester:
 
 containers:
   - name: 'jmx-example-server'
-    image: 'ghcr.io/qtc-de/beanshooter/jmx-example-server:1.0'
+    image: 'ghcr.io/qtc-de/beanshooter/jmx-example-server:2.0'
     volumes:
       - '${volume}:${volume-d}'
     aliases:

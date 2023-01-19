@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.utils.Utils;
@@ -395,6 +398,19 @@ public class ExceptionHandler {
         }
     }
 
+    public static void unsupportedCallback(Exception e)
+    {
+        UnsupportedCallbackException callbackException = (UnsupportedCallbackException)e;
+        Callback callback = callbackException.getCallback();
+
+        Logger.eprintlnMixedYellow("Caught", "UnsupportedCallbackException", "while authenticating to JMX.");
+        Logger.eprintlnMixedBlue("The server does not support the", callback.getClass().getName(), "callback.");
+        Logger.println("This is probably an implementation error on the server side. You may try a different auth method.");
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
     public static void noSuchMethod(Exception e, String method)
     {
         String signature = BeanshooterOption.INVOKE_METHOD.getValue(method);
@@ -575,6 +591,8 @@ public class ExceptionHandler {
             Logger.eprintlnMixedYellow("Caught", "ClassNotFoundException", "after the payload object was sent.");
             Logger.eprintlnMixedBlue("The specified gadget does probably", "not exist", "inside the classpath.");
         }
+
+        ExceptionHandler.showStackTrace(e);
     }
 
     public static void invalidObjectId(String objID)
@@ -582,6 +600,18 @@ public class ExceptionHandler {
         Logger.eprintlnMixedYellow("The specified ObjID", objID, "is invalid.");
         Logger.eprintlnMixedBlue("Use plain numbers to target default components:", "Registry: 0, Activator: 1, DGC: 2");
         Logger.eprintlnMixedBlue("Or the full ObjID string for other remote objects:", "[unique:time:count, objNum]");
+        Utils.exit();
+    }
+
+    public static void pluginException(PluginException e)
+    {
+        Logger.eprintlnMixedYellow("Caught unexpected", "PluginException", "during operation.");
+        Logger.eprintln("The specified plugin raised this exception to indicate an error condition.");
+        Logger.eprintlnMixedBlue("Plugin error message:", e.getMessage());
+
+        if (e.origException != null)
+            showStackTrace(e.origException);
+
         Utils.exit();
     }
 

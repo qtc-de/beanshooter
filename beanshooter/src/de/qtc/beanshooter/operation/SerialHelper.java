@@ -11,6 +11,7 @@ import javax.management.remote.JMXConnector;
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.GlassFishException;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.plugin.PluginSystem;
@@ -68,6 +69,33 @@ public class SerialHelper
         {
             PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
             Logger.printlnMixedYellow("Remote MBeanServer",  "accepted", "the payload class.");
+
+            if (BeanshooterOption.SERIAL_NO_CANARY.getBool())
+            {
+                Logger.printlnMixedBlue("The attack was", "probably successful", "but could also have failed.");
+                Logger.printlnMixedYellow("Rerun without the", "--no-canary", "option to get a more reliable result.");
+            }
+
+            else
+            {
+                Logger.printlnMixedBlue("The attack", "probably failed", "as the canary class was not deserialized.");
+            }
+        }
+
+        catch (GlassFishException e)
+        {
+            Logger.printlnMixedYellow("Remote MBeanServer",  "accepted", "the payload class.");
+
+            if (BeanshooterOption.SERIAL_NO_CANARY.getBool())
+            {
+                Logger.printlnMixedBlue("The attack was", "probably successful", "but could also have failed.");
+                Logger.printlnMixedYellow("Rerun without the", "--no-canary", "option to get a more reliable result.");
+            }
+
+            else
+            {
+                Logger.printlnMixedBlue("The attack", "probably failed", "as the canary class was not deserialized.");
+            }
         }
 
         catch (AuthenticationException e)

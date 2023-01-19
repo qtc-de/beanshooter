@@ -201,6 +201,7 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.SERIAL_GADGET_CMD,
             BeanshooterOption.YSO,
             BeanshooterOption.SERIAL_PREAUTH,
+            BeanshooterOption.SERIAL_NO_CANARY,
     }),
 
     STAGER("stager", "start a stager server to deliver MBeans", new Option[] {

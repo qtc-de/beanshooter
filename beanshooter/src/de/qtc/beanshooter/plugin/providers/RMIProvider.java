@@ -7,21 +7,27 @@ import java.rmi.RemoteException;
 import java.rmi.server.ObjID;
 import java.rmi.server.RemoteObjectInvocationHandler;
 import java.rmi.server.RemoteRef;
+import java.security.cert.CertPathValidatorException;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.MBeanServerConnection;
 import javax.management.remote.rmi.RMIConnection;
 import javax.management.remote.rmi.RMIConnector;
 import javax.management.remote.rmi.RMIServer;
+import javax.security.auth.callback.UnsupportedCallbackException;
 
+import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.ApacheKarafException;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.GlassFishException;
 import de.qtc.beanshooter.exceptions.InvalidLoginClassException;
 import de.qtc.beanshooter.exceptions.LoginClassCastException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.networking.RMIEndpoint;
 import de.qtc.beanshooter.networking.RMIRegistryEndpoint;
+import de.qtc.beanshooter.operation.BeanshooterOperation;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.IMBeanServerProvider;
 import de.qtc.beanshooter.utils.Utils;
@@ -67,7 +73,6 @@ public class RMIProvider implements IMBeanServerProvider
         {
             rmiConnector.connect();
             connection = rmiConnector.getMBeanServerConnection();
-
         }
 
         catch (IOException e)
@@ -82,6 +87,12 @@ public class RMIProvider implements IMBeanServerProvider
 
             else if (t instanceof java.rmi.ConnectIOException)
                 ExceptionHandler.connectIOException(e, "newclient");
+
+            else if (t instanceof java.io.NotSerializableException && t.getMessage().contains("PrincipalCallback"))
+                throw new GlassFishException(e);
+
+            else if (t instanceof UnsupportedCallbackException)
+                ExceptionHandler.unsupportedCallback((Exception)t);
 
             Logger.resetIndent();
             Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while invoking the newClient method.");
@@ -114,6 +125,23 @@ public class RMIProvider implements IMBeanServerProvider
             else if (t instanceof java.io.EOFException || t instanceof java.net.SocketException)
             {
                 Logger.eprintln("The JMX server closed the connection. This usually indicates a networking problem.");
+            }
+
+            else if (ArgumentHandler.getInstance().getAction() == BeanshooterOperation.SERIAL && BeanshooterOption.SERIAL_PREAUTH.getBool())
+            {
+                Logger.eprintlnMixedBlue("This exception could be caused by the selected gadget and the deserialization attack may", "worked anyway.");
+
+                if (!BeanshooterOption.GLOBAL_STACK_TRACE.getBool())
+                    Logger.eprintlnMixedYellow("If it did not work you may want to rerun with the", "--stack-trace", "option to further investigate.");
+            }
+
+            else if (t instanceof CertPathValidatorException)
+            {
+                Logger.eprintlnMixedBlue("The server probably uses TLS settings that are", "incompatible", "with your current security settings.");
+                Logger.eprintlnMixedYellow("You may try to edit your", "java.security", "policy file to overcome the issue.");
+
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
             }
 
             else
@@ -272,15 +300,41 @@ public class RMIProvider implements IMBeanServerProvider
         if( BeanshooterOption.TARGET_BOUND_NAME.notNull() )
             return getRMIServerByLookup(regEndpoint, BeanshooterOption.TARGET_BOUND_NAME.getValue());
 
+        Map<String, Remote> mappings = new HashMap<String, Remote>();
         String[] boundNames = regEndpoint.getBoundNames();
-        Remote[] remoteObjects = Utils.filterJmxEndpoints(regEndpoint.lookup(boundNames));
 
-        if( remoteObjects.length == 0 ) {
+        for (String boundName : boundNames)
+        {
+            try
+            {
+                Remote remote = regEndpoint.lookup(boundName);
+                mappings.put(boundName, remote);
+            }
+
+            catch (ClassNotFoundException e) {}
+        }
+
+        Map<String,Remote> jmxMap = Utils.filterJmxEndpoints(mappings);
+        int jmxEndpoints = jmxMap.size();
+
+        if( jmxEndpoints == 0 )
+        {
             Logger.printlnMixedYellow("The specified RMI registry", "does not", "contain any JMX objects.");
             Utils.exit();
         }
 
-        return (RMIServer) remoteObjects[0];
+        String selected = (String) jmxMap.keySet().toArray()[0];
+        Remote selectedRemote = jmxMap.get(selected);
+
+        if (jmxEndpoints > 1)
+        {
+            Logger.printlnMixedYellow("RMI registry contains", "more than one", "JMX instance.");
+            Logger.printlnMixedBlue("The bound name", selected, "is used for the operation.");
+            Logger.printlnMixedYellow("Use the", "--bound-name", "option to select a different one.");
+            Logger.lineBreak();
+        }
+
+        return (RMIServer)selectedRemote;
     }
 
     /**

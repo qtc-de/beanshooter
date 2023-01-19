@@ -1,7 +1,7 @@
 ###########################################
 ###            Build Stage 1            ###
 ###########################################
-FROM maven:3.8.2-openjdk-8 AS maven-builder
+FROM maven:3.8.6-openjdk-8-slim AS maven-builder
 COPY ./resources/server /usr/src/app
 WORKDIR /usr/src/app
 RUN mvn clean package
@@ -37,7 +37,7 @@ RUN set -ex \
     && chmod 400 /opt/jmxremote.password \
     && chmod +x /opt/start.sh
 
-ENV _JAVA_OPTIONS -Djava.rmi.server.hostname=iinsecure.dev \
+ENV _JAVA_OPTIONS -Djava.rmi.server.hostname=iinsecure.example \
     -Djavax.net.ssl.keyStorePassword=password \
     -Djavax.net.ssl.keyStore=/opt/store.p12 \
     -Djavax.net.ssl.keyStoreType=pkcs12 \

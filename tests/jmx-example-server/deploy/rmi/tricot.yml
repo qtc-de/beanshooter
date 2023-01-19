@@ -141,10 +141,10 @@ tests:
         deployed: False
 
     validators:
-      - error: False
+      - error: True
       - contains:
           values:
-            - MBean is not registered. Nothing to do.
+            - The specified user has insufficient permission to perform the requested action
 
 
   - title: Export Tonka Bean

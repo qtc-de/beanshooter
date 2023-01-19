@@ -128,6 +128,7 @@ function _beanshooter()
 
     elif [[ ${words[1]} == "serial" ]] && _comp_beanoption 6; then
         opts="--preauth"
+        opts="$opts --no-canary"
         opts="$opts --yso"
         opts="$opts $auth_opts"
         opts="$opts $conn_opts"

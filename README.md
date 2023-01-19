@@ -8,7 +8,7 @@
 ![](https://github.com/qtc-de/beanshooter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
 ![](https://img.shields.io/badge/java-8%2b-blue)
 [![](https://img.shields.io/badge/build%20system-maven-blue)](https://maven.apache.org/)
-[![](https://img.shields.io/badge/version-3.0.0-blue)](https://github.com/qtc-de/beanshooter/releases)
+[![](https://img.shields.io/badge/version-3.1.0-blue)](https://github.com/qtc-de/beanshooter/releases)
 [![](https://img.shields.io/badge/license-GPL%20v3.0-blue)](https://github.com/qtc-de/beanshooter/blob/master/LICENSE)
 
 
@@ -249,7 +249,7 @@ When the *MBean* class is not known to the *JMX* service, you can use the `--jar
 [+] 				Creating JarHandler for endpoint: /c65c3cdc908348d8bd9a22b8a2bf8be3
 [+] 				Starting HTTP server... 
 [+] 				
-[+] 			Incoming request from: iinsecure.dev
+[+] 			Incoming request from: iinsecure.example
 [+] 			Requested resource: /
 [+] 			Sending mlet:
 [+]
@@ -258,7 +258,7 @@ When the *MBean* class is not known to the *JMX* service, you can use the `--jar
 [+] 				Object:    qtc.test:type=Example
 [+] 				Codebase:  http://172.17.0.1:8000
 [+]
-[+] 			Incoming request from: iinsecure.dev
+[+] 			Incoming request from: iinsecure.example
 [+] 			Requested resource: /c65c3cdc908348d8bd9a22b8a2bf8be3
 [+] 			Sending jar file with md5sum: c4d8f40d1c1ac7f3cf7582092802a484
 [+]
@@ -339,7 +339,7 @@ the `--ssl` option:
 [+] Checking servers SASL configuration:
 [+]
 [+] 	- Remote JMXMP server uses SASL/DIGEST-MD5 SASL profile.
-[+] 	  Credentials are requried and the following hostname must be used: iinsecure.dev
+[+] 	  Credentials are requried and the following hostname must be used: iinsecure.example
 [+] 	  Notice: TLS setting cannot be enumerated and --ssl may be required.
 [+] 	  Vulnerability Status: Non Vulnerable
 ...
@@ -474,7 +474,7 @@ the `--class-name`, `--object-name` and `--jar-file` options are required.
 [+] 
 [+] Press Enter to stop listening.
 [+]
-[+] Incoming request from: iinsecure.dev
+[+] Incoming request from: iinsecure.example
 [+] Requested resource: /
 [+] Sending mlet:
 [+]
@@ -483,7 +483,7 @@ the `--class-name`, `--object-name` and `--jar-file` options are required.
 [+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
 [+] 	Codebase:  http://172.17.0.1:8888
 [+]
-[+] Incoming request from: iinsecure.dev
+[+] Incoming request from: iinsecure.example
 [+] Requested resource: /93691b8bae4143f087f7a3123641b20d
 [+] Sending jar file with md5sum: 6568ffb2934cb978dbd141848b8b128a
 ```
@@ -569,7 +569,7 @@ a builtin jar file is available):
 [+] 				Creating JarHandler for endpoint: /440441bf8c794d40a83caf1e34cd9993
 [+] 				Starting HTTP server... 
 [+] 				
-[+] 			Incoming request from: iinsecure.dev
+[+] 			Incoming request from: iinsecure.example
 [+] 			Requested resource: /
 [+] 			Sending mlet:
 [+]
@@ -578,7 +578,7 @@ a builtin jar file is available):
 [+] 				Object:    MLetTonkaBean:name=TonkaBean,id=1
 [+] 				Codebase:  http://172.17.0.1:8000
 [+]
-[+] 			Incoming request from: iinsecure.dev
+[+] 			Incoming request from: iinsecure.example
 [+] 			Requested resource: /440441bf8c794d40a83caf1e34cd9993
 [+] 			Sending jar file with md5sum: 55a843002e13f763137d115ce4caf705
 [+]
@@ -748,7 +748,7 @@ The `cmdline` action prints the cmdline the *JVM* was launched with:
 ```console
 [qtc@devbox ~]$ beanshooter diagnostic cmdline 172.17.0.2 1090
 VM Arguments:
-jvm_args: --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED -Djava.util.logging.config.file=/usr/local/tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -Dorg.apache.catalina.security.SecurityListener.UMASK=0027 -Dignore.endorsed.dirs= -Dcatalina.base=/usr/local/tomcat -Dcatalina.home=/usr/local/tomcat -Djava.io.tmpdir=/usr/local/tomcat/temp -Djava.rmi.server.hostname=iinsecure.dev -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.keyStore=/opt/store.p12 -Djavax.net.ssl.keyStoreType=pkcs12 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1090 -Dcom.sun.management.jmxremote.rmi.port=1099
+jvm_args: --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/java.io=ALL-UNNAMED --add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.concurrent=ALL-UNNAMED --add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED -Djava.util.logging.config.file=/usr/local/tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Djdk.tls.ephemeralDHKeySize=2048 -Djava.protocol.handler.pkgs=org.apache.catalina.webresources -Dorg.apache.catalina.security.SecurityListener.UMASK=0027 -Dignore.endorsed.dirs= -Dcatalina.base=/usr/local/tomcat -Dcatalina.home=/usr/local/tomcat -Djava.io.tmpdir=/usr/local/tomcat/temp -Djava.rmi.server.hostname=iinsecure.example -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.keyStore=/opt/store.p12 -Djavax.net.ssl.keyStoreType=pkcs12 -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=1090 -Dcom.sun.management.jmxremote.rmi.port=1099
 java_command: org.apache.catalina.startup.Bootstrap start
 java_class_path (initial): /usr/local/tomcat/bin/bootstrap.jar:/usr/local/tomcat/bin/tomcat-juli.jar
 Launcher Type: SUN_STANDARD
@@ -851,7 +851,7 @@ an *MBean* class from a user specified *URL*:
 [+] 		Creating JarHandler for endpoint: /3584de270132420aaf0812366bc46035
 [+] 		Starting HTTP server... 
 [+] 		
-[+] 	Incoming request from: iinsecure.dev
+[+] 	Incoming request from: iinsecure.example
 [+] 	Requested resource: /
 [+] 	Sending mlet:
 [+]
@@ -860,7 +860,7 @@ an *MBean* class from a user specified *URL*:
 [+] 		Object:    MLetTonkaBean:name=TonkaBean,id=1
 [+] 		Codebase:  http://172.17.0.1:8000
 [+]
-[+] 	Incoming request from: iinsecure.dev
+[+] 	Incoming request from: iinsecure.example
 [+] 	Requested resource: /3584de270132420aaf0812366bc46035
 [+] 	Sending jar file with md5sum: b2f7040f7d8f2d1f40b205d631ff7356
 [+]
