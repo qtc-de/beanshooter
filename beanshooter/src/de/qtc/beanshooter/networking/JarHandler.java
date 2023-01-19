@@ -56,11 +56,16 @@ public class JarHandler implements HttpHandler {
      */
     private byte[] getJar(String filename) throws IOException
     {
+        byte[] content = null;
         InputStream stream = this.getClass().getResourceAsStream("/" + filename);
-        byte[] content = IOUtils.toByteArray(stream);
 
-        if (content.length != 0)
-            return content;
+        if (stream != null)
+        {
+            content = IOUtils.toByteArray(stream);
+
+            if (content.length != 0)
+                return content;
+        }
 
         File file = new File(filename);
 
