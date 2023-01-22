@@ -103,6 +103,7 @@ autocompletion.
       + [upload](#tonka-upload)
       + [download](#tonka-download)
 - [JMXMP](#jmxmp)
+- [Docker Image](#docker-image)
 - [Example Server](#example-server)
 
 
@@ -1191,6 +1192,27 @@ mechanism is usually possible, the required *TLS* setting cannot be enumerated:
 [+]
 [+] 	- JMXMP serial check is work in progress but endpoints are usually vulnerable.
 [+] 	  Configuration Status: Undecided
+```
+
+
+### Docker Image
+
+---
+
+Since version `v3.1.1`, *beanshooter* is also available as docker image and can be pulled from the
+[GitHub Container Registry](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Fbeanshooter).
+For each release, there is a *normal* and a *slim* version available. Both provide a full working version of
+*beanshooter*, but only the *normal* version ships with [ysoserial](https://github.com/frohoff/ysoserial)
+included, resulting in a larger image size:
+
+* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:3.1.1` - `121MB`
+* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:3.1.1-slim` - `61.9MB`
+
+You can also build the container on your own by running the following commands:
+
+```console
+[user@host ~]$ git clone https://github.com/qtc-de/beanshooter
+[user@host ~]$ cd beanshooter && docker build -t beanshooter .
 ```
 
 
