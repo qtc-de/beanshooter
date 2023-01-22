@@ -1228,4 +1228,4 @@ and the [tomcat-example-server](https://github.com/qtc-de/beanshooter/pkgs/conta
 These servers are contained within this repository in the [docker](/docker) folder and can be used to practice *JMX* enumeration.
 You can either build the corresponding containers yourself or load them directly from the *GitHub Container Registry*.
 
-Copyright 2022, Tobias Neitzel and the *beanshooter* contributors.
+Copyright 2023, Tobias Neitzel and the *beanshooter* contributors.
