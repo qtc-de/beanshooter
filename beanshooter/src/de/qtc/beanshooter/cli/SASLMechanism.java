@@ -11,10 +11,13 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.sasl.RealmCallback;
 import javax.security.sasl.RealmChoiceCallback;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
+import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.PluginSystem;
 
@@ -166,6 +169,11 @@ public enum SASLMechanism {
                     mechanism.extra = ((MismatchedURIException)e).getUri();
 
                 return mechanism;
+            }
+
+            catch (J4pRemoteException e)
+            {
+                Logger.printlnYellow("TODO");
             }
         }
 
