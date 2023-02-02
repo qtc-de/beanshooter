@@ -13,6 +13,8 @@ import java.util.jar.Manifest;
 import javax.management.MBeanServerConnection;
 import javax.net.SocketFactory;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.cli.Operation;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -24,6 +26,7 @@ import de.qtc.beanshooter.plugin.providers.ArgumentProvider;
 import de.qtc.beanshooter.plugin.providers.AuthenticationProvider;
 import de.qtc.beanshooter.plugin.providers.JMXMPProvider;
 import de.qtc.beanshooter.plugin.providers.JNDIProvider;
+import de.qtc.beanshooter.plugin.providers.JolokiaProvider;
 import de.qtc.beanshooter.plugin.providers.RMIProvider;
 import de.qtc.beanshooter.plugin.providers.ResponseHandlerProvider;
 import de.qtc.beanshooter.plugin.providers.SocketFactoryProvider;
@@ -159,11 +162,14 @@ public class PluginSystem {
      */
     private static IMBeanServerProvider selectProvider()
     {
-        if( BeanshooterOption.CONN_JMXMP.getBool() )
+        if (BeanshooterOption.CONN_JMXMP.getBool())
             return new JMXMPProvider();
 
-        if( BeanshooterOption.CONN_JNDI.notNull() )
+        if (BeanshooterOption.CONN_JNDI.notNull())
             return new JNDIProvider();
+
+        if (BeanshooterOption.CONN_JOLOKIA.getBool())
+            return new JolokiaProvider();
 
         return new RMIProvider();
     }
@@ -192,6 +198,15 @@ public class PluginSystem {
             ExceptionHandler.pluginException(e);
         }
 
+        catch (J4pRemoteException e)
+        {
+            if (e.getMessage().contains("No JSR-160 proxy is enabled"))
+                ExceptionHandler.noJolokiaProxy(e);
+
+            else
+                ExceptionHandler.unexpectedException(e, "while connecting", "to the jolokia endpoint", true);
+        }
+
         catch (AuthenticationException e)
         {
             ExceptionHandler.handleAuthenticationException(e);
@@ -213,7 +228,7 @@ public class PluginSystem {
      * @return MBeanServerConnection to the specified remote MBeanServer
      * @throws AuthenticationException
      */
-    public static MBeanServerConnection getMBeanServerConnectionUmanaged(String host, int port, Map<String,Object> env) throws AuthenticationException
+    public static MBeanServerConnection getMBeanServerConnectionUmanaged(String host, int port, Map<String,Object> env) throws AuthenticationException, J4pRemoteException
     {
         MBeanServerConnection connection = null;
 

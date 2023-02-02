@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.management.remote.JMXConnector;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -113,6 +115,11 @@ public class SerialHelper
 
             else
                 ExceptionHandler.unexpectedException(e, "preauth deserialization", "attack", false);
+        }
+
+        catch (J4pRemoteException e)
+        {
+            Logger.printlnYellow("TODO");
         }
     }
 }

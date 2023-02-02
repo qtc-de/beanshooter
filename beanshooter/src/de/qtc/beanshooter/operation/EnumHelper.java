@@ -1,5 +1,6 @@
 package de.qtc.beanshooter.operation;
 
+import java.lang.reflect.Field;
 import java.rmi.Remote;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +13,10 @@ import java.util.stream.Collectors;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
 import javax.management.remote.JMXConnector;
+
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.jolokia.client.exception.J4pRemoteException;
+import org.jolokia.client.jmxadapter.RemoteJmxAdapter;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.cli.SASLMechanism;
@@ -56,7 +61,7 @@ public class EnumHelper
      */
     public void boundNames()
     {
-        if (BeanshooterOption.CONN_JMXMP.getBool() || BeanshooterOption.CONN_JNDI.notNull() )
+        if (BeanshooterOption.CONN_JMXMP.getBool() || BeanshooterOption.CONN_JNDI.notNull() || BeanshooterOption.CONN_JOLOKIA.getBool())
             return;
 
         if (BeanshooterOption.TARGET_OBJID_CONNECTION.notNull() || BeanshooterOption.TARGET_OBJID_SERVER.notNull())
@@ -493,6 +498,11 @@ public class EnumHelper
             }
         }
 
+        catch (J4pRemoteException e)
+        {
+            Logger.printlnYellow("TODO");
+        }
+
         finally
         {
             Logger.decreaseIndent();
@@ -593,6 +603,11 @@ public class EnumHelper
             Utils.askToContinue("Treat as credential error and continue?", e);
         }
 
+        catch (J4pRemoteException e)
+        {
+            Logger.printlnYellow("TODO");
+        }
+
         return true;
     }
 
@@ -640,6 +655,117 @@ public class EnumHelper
             Logger.printlnMixedBlue("Exception message:", e.getOriginalException().getMessage());
 
             Utils.askToContinue("Treat as credential error and continue?", e);
+        }
+
+        catch (J4pRemoteException e)
+        {
+            Logger.printlnYellow("TODO");
+        }
+    }
+
+    /**
+     * Enumerate the target Jolokia version and print it to stdout. This function should only run as part of
+     * the enum action.
+     */
+    public void enumJolokiaVersion()
+    {
+        if (client == null)
+            return;
+
+        MBeanServerConnection conn = client.getConnection();
+        if (!(conn instanceof RemoteJmxAdapter))
+            return;
+
+        String agentVersion = "unknown";
+        String protocolVersion = "unknown";
+
+        try {
+            Field agentVersionField = RemoteJmxAdapter.class.getDeclaredField("agentVersion");
+            Field protocolVersionField = RemoteJmxAdapter.class.getDeclaredField("protocolVersion");
+
+            agentVersionField.setAccessible(true);
+            protocolVersionField.setAccessible(true);
+
+            agentVersion = (String) agentVersionField.get(conn);
+            protocolVersion = (String) protocolVersionField.get(conn);
+        }
+
+        catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e)
+        {
+            return;
+        }
+
+        Logger.printlnBlue("Checking Jolokia Version:");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        Logger.printMixedYellow("- Agent Version", agentVersion, "- Protocol Version: ");
+        Logger.printlnPlainYellow(protocolVersion);
+
+        DefaultArtifactVersion targetVersion = new DefaultArtifactVersion(agentVersion);
+        DefaultArtifactVersion vulnerableVersion = new DefaultArtifactVersion("1.6.1");
+
+        if (targetVersion.compareTo(vulnerableVersion) < 0)
+        {
+            Logger.printlnMixedBlue("There are", "known security vulnerabilities", "for this version of Jolokia.");
+            Logger.statusVulnerable();
+        }
+
+        else
+            Logger.statusOk();
+
+        Logger.decreaseIndent();
+    }
+
+    /**
+     * Enumerate whether Jolokia is running with enabled proxy mode. The result is directly printed
+     * to stdout. This function should only run as part of the enum action.
+     */
+    public void enumJolokiaProxy()
+    {
+        if (BeanshooterOption.CONN_JOLOKIA_PROXY.notNull())
+            return;
+
+        BeanshooterOption.CONN_JOLOKIA_PROXY.setValue("INVALID-JMX-URL");
+        Map<String, Object> env = ArgumentHandler.getEnv();
+
+        Logger.printlnBlue("Checking whether Jolokia Proxy Mode is enabled:");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        try
+        {
+            PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
+            ExceptionHandler.internalError("enumJolokiaProxy", "No Exception encountered despite one was expected.");
+        }
+
+        catch (AuthenticationException e)
+        {
+            ExceptionHandler.internalError("enumJolokiaProxy", "Caught unexpected AuthenticationException");
+        }
+
+        catch (J4pRemoteException e)
+        {
+            if (e.getMessage().contains("No JSR-160 proxy is enabled"))
+            {
+                Logger.printlnMixedYellow("- Jolokia Proxy Mode", "is disabled.", "JMX forwarding not possible.");
+                Logger.statusOk();
+            }
+
+            if (e.getMessage().contains("java.net.MalformedURLException"))
+            {
+                Logger.printlnMixedYellow("- Jolokia Proxy Mode", "is enabled!", "You may connect to backend JMX services.");
+                Logger.statusVulnerable();
+            }
+
+            else
+                ExceptionHandler.unexpectedException(e, "while enumerating", "Jolokia proxy mode", true);
+        }
+
+        finally
+        {
+            Logger.decreaseIndent();
+            BeanshooterOption.CONN_JOLOKIA_PROXY.setValue(null);
         }
     }
 }

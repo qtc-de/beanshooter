@@ -358,4 +358,14 @@ public class MBeanServerClient {
 
         return null;
     }
+
+    /**
+     * Obtain the underlying MBeanServerConnection object.
+     *
+     * @return MBeanServerConnection object that is used by the client
+     */
+    public MBeanServerConnection getConnection()
+    {
+        return this.conn;
+    }
 }

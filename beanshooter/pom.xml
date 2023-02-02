@@ -41,6 +41,18 @@
             <version>1.0-b01-ea</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.jolokia</groupId>
+            <artifactId>jolokia-jmx-adapter</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>3.8.7</version>
+        </dependency>
+
     </dependencies>
 
     <build>

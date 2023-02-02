@@ -15,6 +15,8 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.RuntimeMBeanException;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -166,10 +168,17 @@ public class Dispatcher {
             }
         }
 
-        enumHelper.enumSerial();
+        if (BeanshooterOption.CONN_JOLOKIA.getBool())
+            enumHelper.enumJolokiaVersion();
+
+        else
+            enumHelper.enumSerial();
 
         if (!access)
             return;
+
+        if (BeanshooterOption.CONN_JOLOKIA.getBool())
+            enumHelper.enumJolokiaProxy();
 
         Logger.lineBreak();
         Set<ObjectInstance> mbeans = enumHelper.enumMBeans();
@@ -264,6 +273,11 @@ public class Dispatcher {
                 Logger.eprintlnMixedYellow("Encountered unexpected", t.getClass().getName(), "after the payload object was sent.");
 
             ExceptionHandler.showStackTrace(e);
+        }
+
+        catch (J4pRemoteException e)
+        {
+            Logger.printlnYellow("TODO");
         }
     };
 

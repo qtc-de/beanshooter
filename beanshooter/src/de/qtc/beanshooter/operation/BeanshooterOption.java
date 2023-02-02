@@ -128,6 +128,45 @@ public enum BeanshooterOption implements Option {
               ArgType.STRING,
               "jndi"),
 
+    CONN_JOLOKIA("--jolokia",
+            "Connect via Jolokia HTTP based protocol",
+            Arguments.storeTrue(),
+            OptionGroup.CONNECTION,
+            ArgType.BOOL
+            ),
+
+    CONN_JOLOKIA_ENDPOINT("--jolokia-endpoint",
+            "HTTP endpoint for Jolokia (default: /jolokia/)",
+            Arguments.store(),
+            OptionGroup.CONNECTION,
+            ArgType.STRING,
+            "endpoint"
+            ),
+
+    CONN_JOLOKIA_PROXY("--jolokia-proxy-target",
+            "Backend JMX target when Jolokia operates in proxy mode",
+            Arguments.store(),
+            OptionGroup.CONNECTION,
+            ArgType.STRING,
+            "jmxurl"
+            ),
+
+    CONN_JOLOKIA_PROXY_USER("--jolokia-proxy-user",
+            "Backend JMX user when Jolokia operates in proxy mode",
+            Arguments.store(),
+            OptionGroup.CONNECTION,
+            ArgType.STRING,
+            "user"
+            ),
+
+    CONN_JOLOKIA_PROXY_PASS("--jolokia-proxy-pass",
+            "Backend JMX password when Jolokia operates in proxy mode",
+            Arguments.store(),
+            OptionGroup.CONNECTION,
+            ArgType.STRING,
+            "password"
+            ),
+
     EXPORT_DIR("--export-dir",
             "export tonka bean and mlet file to the specified dir",
             Arguments.store(),

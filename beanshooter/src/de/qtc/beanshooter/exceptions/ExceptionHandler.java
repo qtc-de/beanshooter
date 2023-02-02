@@ -7,6 +7,8 @@ import java.util.List;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.utils.Utils;
@@ -642,6 +644,24 @@ public class ExceptionHandler {
 
         else
             ExceptionHandler.unknownReason(e);
+    }
+
+    public static void unexpectedStatus(J4pRemoteException e, String during)
+    {
+        Logger.eprintlnMixedYellow("Obtained the unexpected status code", String.valueOf(e.getStatus()), during);
+        Logger.eprintlnMixedBlue("Error Message:", e.getMessage());
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void noJolokiaProxy(J4pRemoteException e)
+    {
+        Logger.eprintlnMixedYellow("Target server", "does not", "support Jolokia proxy mode.");
+        Logger.eprintlnMixedBlue("The", "--jolokia-proxy-target", "option cannot be used.");
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
     }
 
     public static void unknownReason(Exception e, String during)

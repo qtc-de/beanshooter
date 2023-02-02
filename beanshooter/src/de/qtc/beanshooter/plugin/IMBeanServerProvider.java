@@ -4,6 +4,8 @@ import java.util.Map;
 
 import javax.management.MBeanServerConnection;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.PluginException;
 
@@ -16,5 +18,5 @@ import de.qtc.beanshooter.exceptions.PluginException;
  */
 public interface IMBeanServerProvider
 {
-    public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env) throws AuthenticationException, PluginException;
+    public MBeanServerConnection getMBeanServerConnection(String host, int port, Map<String,Object> env) throws AuthenticationException, PluginException, J4pRemoteException;
 }
