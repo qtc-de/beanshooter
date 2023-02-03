@@ -752,7 +752,7 @@ public class EnumHelper
                 Logger.statusOk();
             }
 
-            if (e.getMessage().contains("java.net.MalformedURLException"))
+            else if (e.getMessage().contains("java.net.MalformedURLException"))
             {
                 Logger.printlnMixedYellow("- Jolokia Proxy Mode", "is enabled!", "You may connect to backend JMX services.");
                 Logger.statusVulnerable();
