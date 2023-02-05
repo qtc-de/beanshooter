@@ -191,6 +191,12 @@ public class Dispatcher {
      */
     public void serial()
     {
+        if (BeanshooterOption.CONN_JOLOKIA.getBool())
+        {
+            Logger.printlnMixedYellow("The serial action", "is not", "supported for Jolokia based connections.");
+            Utils.exit();
+        }
+
         Logger.println("Attemting deserialization attack on JMX endpoint.");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -277,7 +283,8 @@ public class Dispatcher {
 
         catch (J4pRemoteException e)
         {
-            Logger.printlnYellow("TODO");
+            // Actually unreachable code, as serial action is not supported for Jolokia
+            ExceptionHandler.handleJ4pRemoteException(e, "during deserialization attack");
         }
     };
 

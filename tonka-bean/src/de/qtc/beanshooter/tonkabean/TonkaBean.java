@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -97,11 +98,13 @@ public class TonkaBean implements TonkaBeanMBean
      * @param env environment variables to use for the call
      * @return byte array containing the command output (stdout + stderr)
      */
-    public byte[] executeCommand(String[] command, String cwd, Map<String,String> env, boolean background) throws IOException, InterruptedException
+    public byte[] executeCommand(String[] command, String cwd, String[] env, boolean background) throws IOException, InterruptedException
     {
+        Map<String,String> envMap = parseEnvironment(env);
         ProcessBuilder builder = new ProcessBuilder(command);
+
         builder.directory(new File(cwd));
-        builder.environment().putAll(env);
+        builder.environment().putAll(envMap);
         builder.redirectErrorStream(true);
 
         Process proc = builder.start();
@@ -167,5 +170,28 @@ public class TonkaBean implements TonkaBeanMBean
         }
 
         return bos.toByteArray();
+    }
+
+    /**
+     * To ensure the compatibility with Jolokia based agents, the environment for the
+     * TonkaBean is no longer passed as HashMap directly, but as a String array (see
+     * https://github.com/rhuss/jolokia/issues/542 for more details).
+     *
+     * This function parses the String array back to a map.
+     *
+     * @param input  input String array obtained from beanshooter
+     * @return parsed HashMap env value
+     */
+    private Map<String, String> parseEnvironment(String[] input)
+    {
+        Map<String, String> env = new HashMap<String, String>();
+
+        if (input.length % 2 != 0)
+            return env;
+
+        for (int ctr = 0; ctr < input.length; ctr+=2)
+            env.put(input[ctr], input[ctr+1]);
+
+        return env;
     }
 }

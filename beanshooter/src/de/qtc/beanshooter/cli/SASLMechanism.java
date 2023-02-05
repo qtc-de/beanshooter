@@ -17,7 +17,6 @@ import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.MismatchedURIException;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
-import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.PluginSystem;
 
@@ -173,7 +172,8 @@ public enum SASLMechanism {
 
             catch (J4pRemoteException e)
             {
-                Logger.printlnYellow("TODO");
+                // Actually unreachable code, since SASL negotiation is not done for Jolokia based connections
+                ExceptionHandler.handleJ4pRemoteException(e, "during SASL negotiation");
             }
         }
 

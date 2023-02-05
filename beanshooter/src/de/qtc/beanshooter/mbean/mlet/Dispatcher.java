@@ -149,9 +149,9 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         {
             Set<Object> result = mlet.getMBeansFromURL(url);
 
-            for(Object o : result)
+            for (Object o : result)
             {
-                if( o instanceof Exception)
+                if (o instanceof Exception)
                     throw (Exception)o;
             }
         }

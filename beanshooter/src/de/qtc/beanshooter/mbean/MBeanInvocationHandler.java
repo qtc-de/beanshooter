@@ -1,14 +1,20 @@
 package de.qtc.beanshooter.mbean;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.openmbean.CompositeData;
 
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.exceptions.OpenTypeException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -20,8 +26,8 @@ import de.qtc.beanshooter.utils.Utils;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public class MBeanInvocationHandler implements InvocationHandler {
-
+public class MBeanInvocationHandler implements InvocationHandler
+{
     private final MBeanServerConnection conn;
     private final ObjectName objName;
 
@@ -87,6 +93,54 @@ public class MBeanInvocationHandler implements InvocationHandler {
                 throw e;
         }
 
-        return retValue;
+        return openTypeConverter(method.getReturnType(), retValue);
+    }
+
+    /**
+     * When MBeans are invoked via Jolokia, their return type sometimes differ from the regular
+     * interface definition. E.g. an MBean interface that defines Set<Object> as return type may
+     * return CompositeData[] when invoked via Jolokia.
+     *
+     * To be honest, I do not have a full understanding of this whole OpenType mechanic and I'm not
+     * sure whether there isn't a smarter way to do this, but we use this function to adapt the return
+     * type for cases that are known to cause problems.
+     *
+     * @param expected  the expected return type defined by the MBean interface
+     * @param value  the actual return value
+     * @return if value matches the expected type, return value. Otherwise, convert and return it
+     * @throws Throwable
+     */
+    private static Object openTypeConverter(Class<?> expected, Object value) throws Throwable
+    {
+        // This case was observed when running MLet getMBeansFromURL, which returns a Set<Object>
+        // by definition, but returns CompositeData[] when obtained from Jolokia
+        if (expected == Set.class && (value instanceof CompositeData[]))
+        {
+            Set<Object> retSet = new HashSet<Object>();
+
+            for(CompositeData compItem : (CompositeData[])value)
+                for (Object item : compItem.values())
+                    if ((item instanceof String) && item.toString().contains("Exception"))
+                        retSet.add(new OpenTypeException(item.toString()));
+
+            return retSet;
+        }
+
+        // This case was observed when invoking the exec methods from the TonkaBean. The interface
+        // defines the return type as byte[], but Jolokia returns Long[]
+        if (expected == byte[].class && (value instanceof Long[]))
+        {
+            Long[] values = (Long[])value;
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(baos);
+
+            for (int ctr = 0; ctr < values.length; ctr++)
+                dos.writeLong(values[ctr]);
+
+            return baos.toByteArray();
+        }
+
+        return value;
     }
 }

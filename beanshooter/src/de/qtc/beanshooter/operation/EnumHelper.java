@@ -89,7 +89,8 @@ public class EnumHelper
         Map<String,Remote> jmxMap = Utils.filterJmxEndpoints(mappings);
         int jmxEndpoints = jmxMap.size();
 
-        if( jmxEndpoints == 0 ) {
+        if( jmxEndpoints == 0 )
+        {
             Logger.printlnMixedYellow("The specified RMI registry", "does not", "contain any JMX objects.");
             Utils.exit();
         }
@@ -103,9 +104,12 @@ public class EnumHelper
             Logger.printMixedBlue("*", entry.getKey());
             String target = "";
 
-            try {
+            try
+            {
                 target = ": " + Utils.getJmxTarget(entry.getValue());
-            } catch(Exception e){}
+            }
+
+            catch(Exception e){}
 
             if (jmxMap.containsKey(entry.getKey()))
                 Logger.printlnPlainYellow(" (JMX endpoint" + target + ")");
@@ -206,13 +210,20 @@ public class EnumHelper
             ExceptionHandler.showStackTrace(e);
         }
 
-        catch (Exception e) {
+        catch (J4pRemoteException e)
+        {
+            ExceptionHandler.handleJ4pRemoteException(e, "during login attempt");
+        }
+
+        catch (Exception e)
+        {
             Logger.printlnMixedYellow("- Caught unexpected", e.getClass().getName(), "during login attempt.");
             Logger.statusUndecided("Configuration");
             ExceptionHandler.showStackTrace(e);
         }
 
-        finally {
+        finally
+        {
             Logger.decreaseIndent();
         }
 
@@ -233,7 +244,8 @@ public class EnumHelper
         Logger.lineBreak();
         Logger.increaseIndent();
 
-        try {
+        try
+        {
             MBeanServerConnection conn = PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
 
             Logger.printlnMixedYellow("- Remote MBean server", "does not", "require authentication.");
@@ -243,7 +255,8 @@ public class EnumHelper
             return true;
         }
 
-        catch (ApacheKarafException e) {
+        catch (ApacheKarafException e)
+        {
             Logger.printlnMixedYellow("- Remote MBean server", "requires authentication", "(Apache Karaf)");
             Logger.statusOk();
 
@@ -253,7 +266,8 @@ public class EnumHelper
             return enumKaraf();
         }
 
-        catch (GlassFishException e) {
+        catch (GlassFishException e)
+        {
             Logger.printlnMixedYellow("- Remote MBean server", "requires authentication", "(GlassFish)");
             Logger.statusOk();
 
@@ -262,12 +276,14 @@ public class EnumHelper
 
         catch (AuthenticationException e) {
 
-            if (e instanceof MissingCredentialsException) {
+            if (e instanceof MissingCredentialsException)
+            {
                 Logger.printlnMixedYellow("- Remote MBean server", "requires authentication.");
                 Logger.statusOk();
             }
 
-            else {
+            else
+            {
                 Logger.printlnMixedYellow("- Caught unexpected", "AuthenticationException", "during login attempt.");
                 Logger.statusUndecided("Vulnerability");
             }
@@ -275,13 +291,20 @@ public class EnumHelper
             ExceptionHandler.showStackTrace(e);
         }
 
-        catch (Exception e) {
+        catch (J4pRemoteException e)
+        {
+            ExceptionHandler.handleJ4pRemoteException(e, "during login attempt");
+        }
+
+        catch (Exception e)
+        {
             Logger.printlnMixedYellow("- Caught unexpected", e.getClass().getName(), "during login attempt.");
             Logger.statusUndecided("Vulnerability");
             ExceptionHandler.showStackTrace(e);
         }
 
-        finally {
+        finally
+        {
             Logger.decreaseIndent();
         }
 
@@ -301,7 +324,8 @@ public class EnumHelper
         Logger.lineBreak();
         Logger.increaseIndent();
 
-        try {
+        try
+        {
             MBeanServerConnection conn = PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
 
             Logger.printlnMixedYellow("- Login with default credentials", "karaf:karaf", "was successful.");
@@ -311,14 +335,16 @@ public class EnumHelper
             return true;
         }
 
-        catch (AuthenticationException e) {
-
-            if (e instanceof WrongCredentialsException) {
+        catch (AuthenticationException e)
+        {
+            if (e instanceof WrongCredentialsException)
+            {
                 Logger.printlnMixedYellow("- Default credentials", "are not", "in use.");
                 Logger.statusOk();
             }
 
-            else {
+            else
+            {
                 Logger.printlnMixedYellow("- Caught unexpected", "AuthenticationException", "during login attempt.");
                 Logger.statusUndecided("Vulnerability");
             }
@@ -326,13 +352,15 @@ public class EnumHelper
             ExceptionHandler.showStackTrace(e);
         }
 
-        catch (Exception e) {
+        catch (Exception e)
+        {
             Logger.printlnMixedYellow("- Caught unexpected", e.getClass().getName(), "during login attempt.");
             Logger.statusUndecided("Vulnerability");
             ExceptionHandler.showStackTrace(e);
         }
 
-        finally {
+        finally
+        {
             Logger.decreaseIndent();
         }
 
@@ -500,7 +528,8 @@ public class EnumHelper
 
         catch (J4pRemoteException e)
         {
-            Logger.printlnYellow("TODO");
+            // Actually unreachable code, as serial enumeration is not performed for Jolokia
+            ExceptionHandler.handleJ4pRemoteException(e, "during serial enumeration");
         }
 
         finally
@@ -605,7 +634,7 @@ public class EnumHelper
 
         catch (J4pRemoteException e)
         {
-            Logger.printlnYellow("TODO");
+            ExceptionHandler.handleJ4pRemoteException(e, "during login attempt");
         }
 
         return true;
@@ -659,7 +688,7 @@ public class EnumHelper
 
         catch (J4pRemoteException e)
         {
-            Logger.printlnYellow("TODO");
+            ExceptionHandler.handleJ4pRemoteException(e, "during login attempt");
         }
     }
 

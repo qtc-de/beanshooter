@@ -2,6 +2,7 @@ package de.qtc.beanshooter.plugin.providers;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.security.cert.CertPathValidatorException;
 import java.util.Map;
 
 import javax.management.MBeanServerConnection;
@@ -85,8 +86,49 @@ public class JolokiaProvider implements IMBeanServerProvider {
 
         catch (IOException e)
         {
-            Logger.eprintlnMixedYellow("Caught unexpected", "IOException", "while connecting to the specified JMX service.");
-            ExceptionHandler.showStackTrace(e);
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof java.net.ConnectException)
+            {
+                if (t.getMessage().contains("Connection refused"))
+                {
+                    Logger.eprintlnMixedBlue("The JMX remote object", "refused", "the connection.");
+                }
+
+                else if (t.getMessage().contains("Network is unreachable"))
+                {
+                    Logger.eprintlnMixedBlue("The JMX remote object is", "unreachable.");
+
+                }
+
+                else
+                {
+                    ExceptionHandler.unknownReason(e);
+                }
+            }
+
+            else if (t instanceof java.rmi.ConnectIOException)
+                   ExceptionHandler.connectIOException(e, "newclient");
+
+            else if (t instanceof CertPathValidatorException)
+            {
+                Logger.eprintlnMixedBlue("The server probably uses TLS settings that are", "incompatible", "with your current security settings.");
+                Logger.eprintlnMixedYellow("You may try to edit your", "java.security", "policy file to overcome the issue.");
+
+                ExceptionHandler.showStackTrace(e);
+            }
+
+            else if (t instanceof java.io.EOFException || t instanceof java.net.SocketException)
+            {
+                Logger.eprintln("The JMX server closed the connection. This usually indicates a networking problem.");
+            }
+
+            else
+            {
+                Logger.eprintlnMixedYellow("Caught unexpected", "IOException", "while connecting to the specified JMX service.");
+                ExceptionHandler.showStackTrace(e);
+            }
+
             Utils.exit();
         }
 

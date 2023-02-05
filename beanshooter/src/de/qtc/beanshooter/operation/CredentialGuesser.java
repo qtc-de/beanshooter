@@ -11,6 +11,7 @@ import org.jolokia.client.exception.J4pRemoteException;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.ProgressBar;
@@ -177,7 +178,7 @@ public class CredentialGuesser
 
                 catch (J4pRemoteException e)
                 {
-                    Logger.printlnYellow("TODO");
+                    ExceptionHandler.handleJ4pRemoteException(e, "during login attempt");
                 }
 
                 catch (AuthenticationException e) {}

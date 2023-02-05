@@ -200,11 +200,7 @@ public class PluginSystem {
 
         catch (J4pRemoteException e)
         {
-            if (e.getMessage().contains("No JSR-160 proxy is enabled"))
-                ExceptionHandler.noJolokiaProxy(e);
-
-            else
-                ExceptionHandler.unexpectedException(e, "while connecting", "to the jolokia endpoint", true);
+            ExceptionHandler.handleJ4pRemoteException(e, "while connecting to the Jolokia endpoint.");
         }
 
         catch (AuthenticationException e)

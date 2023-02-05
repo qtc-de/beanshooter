@@ -119,7 +119,8 @@ public class SerialHelper
 
         catch (J4pRemoteException e)
         {
-            Logger.printlnYellow("TODO");
+            // Actually unreachable code, as serial action is not supported for Jolokia
+            ExceptionHandler.handleJ4pRemoteException(e, "during deserialization attack");
         }
     }
 }

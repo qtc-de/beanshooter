@@ -180,47 +180,6 @@ public class RMIProvider implements IMBeanServerProvider
     }
 
     /**
-     * Returns an RMIConnection object. This is either obtained by performing a regular JMX login
-     * or by using an ObjID value directly.
-     *
-     * @param env environment to use for regular JMX logins
-     * @return RMIConnection to an remote MBeanServer
-     */
-    public RMIConnection getRMIConnection(RMIRegistryEndpoint regEndpoint, Map<String,Object> env)
-    {
-        if( BeanshooterOption.TARGET_OBJID_CONNECTION.notNull() ) {
-
-            ObjID objID = Utils.parseObjID(BeanshooterOption.TARGET_OBJID_CONNECTION.getValue());
-            return getRMIConnectionByObjID(regEndpoint, objID);
-        }
-
-        RMIServer server = getRMIServer(regEndpoint);
-        return getRMIConnectionByLogin(server, env);
-    }
-
-    /**
-     * Obtains an RMIConnection object by performing a regular JMX login.
-     *
-     * @param server RMIServer to perform the login on
-     * @param env environment to use for the login
-     * @return RMIConnection to the remote MBeanServer
-     */
-    public RMIConnection getRMIConnectionByLogin(RMIServer server, Map<String,Object> env)
-    {
-        RMIConnection conn = null;
-
-        try {
-            conn = server.newClient(env);
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return conn;
-    }
-
-    /**
      * Obtains an RMIConnection object via ObjID.
      *
      * @param objID ObjID value of the remote object to connect to

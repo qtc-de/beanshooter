@@ -646,6 +646,15 @@ public class ExceptionHandler {
             ExceptionHandler.unknownReason(e);
     }
 
+    public static void handleJ4pRemoteException(J4pRemoteException e, String during)
+    {
+        if (e.getMessage().contains("No JSR-160 proxy is enabled"))
+            ExceptionHandler.noJolokiaProxy(e);
+
+        else
+            ExceptionHandler.unexpectedStatus(e, during);
+    }
+
     public static void unexpectedStatus(J4pRemoteException e, String during)
     {
         Logger.eprintlnMixedYellow("Obtained the unexpected status code", String.valueOf(e.getStatus()), during);
@@ -702,6 +711,13 @@ public class ExceptionHandler {
         Logger.eprintln("Mismatching number of arguments for the specified signature.");
         Logger.eprintMixedBlueFirst("Expected " + expected, "argument(s), but", "got " + actual);
         Logger.printlnPlain(" arguments.");
+        Utils.exit();
+    }
+
+    public static void openTypeException(String type, String during)
+    {
+        Logger.printlnMixedYellow("Caught unexpected", type, "while " + during + ".");
+        Logger.printlnMixedBlue("StackTrace cannot be provided as the exception was caused by an", "OpenType");
         Utils.exit();
     }
 
