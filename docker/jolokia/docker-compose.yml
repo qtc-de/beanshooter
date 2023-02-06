@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+    tomcat:
+      image: ghcr.io/qtc-de/beanshooter/jolokia-example-server:1.0
+      build: .
+      entrypoint: /usr/local/tomcat/conf/start.sh
+      environment:
+        - >
+          _JAVA_OPTIONS=
+          -Dorg.jolokia.jsr160ProxyEnabled=true
+          -Djava.rmi.server.hostname=localhost
+          -Dcom.sun.management.jmxremote
+          -Dcom.sun.management.jmxremote.ssl=false
+          -Dcom.sun.management.jmxremote.local.only=true
+          -Dcom.sun.management.jmxremote.authenticate=false
+          -Dcom.sun.management.jmxremote.port=1090
+          -Dcom.sun.management.jmxremote.rmi.port=1090
+          -Dcom.sun.management.jmxremote.password.file=/usr/local/tomcat/conf/jmxremote.password
+          -Dcom.sun.management.jmxremote.access.file=/usr/local/tomcat/conf/jmxremote.access
+      volumes:
+        - ./resources/scripts/start.sh:/usr/local/tomcat/conf/start.sh
+        - ./resources/conf/jmxremote.access:/usr/local/tomcat/conf/jmxremote.access
+        - ./resources/conf/jmxremote.password:/usr/local/tomcat/conf/jmxremote.password
