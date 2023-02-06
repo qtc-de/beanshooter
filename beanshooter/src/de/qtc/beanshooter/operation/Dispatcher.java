@@ -178,7 +178,10 @@ public class Dispatcher {
             return;
 
         if (BeanshooterOption.CONN_JOLOKIA.getBool())
+        {
+            Logger.lineBreak();
             enumHelper.enumJolokiaProxy();
+        }
 
         Logger.lineBreak();
         Set<ObjectInstance> mbeans = enumHelper.enumMBeans();
