@@ -78,7 +78,7 @@ public class MBeanServerClient {
 
         try {
 
-            if( conn.isRegistered(mBeanObjectName) )
+            if (conn.isRegistered(mBeanObjectName))
             {
                 Logger.printlnMixedBlue("MBean with object name", mBeanObjectName.toString(), "is already deployed.");
                 return;
@@ -86,24 +86,39 @@ public class MBeanServerClient {
 
             conn.createMBean(mBeanClassName, mBeanObjectName);
 
-        } catch (InstanceAlreadyExistsException e) {
+        }
+
+        catch (InstanceAlreadyExistsException e)
+        {
             Logger.printlnMixedYellowFirst(className, "is already deployed.");
             return;
+        }
 
-        } catch (javax.management.ReflectionException | UndeclaredThrowableException e) {
+        catch (UnsupportedOperationException e)
+        {
+            Logger.lineBreak();
 
+            if (BeanshooterOption.CONN_JOLOKIA.getBool())
+                ExceptionHandler.jolokiaCreateMBean(e);
+
+            else
+                throw e;
+        }
+
+        catch (javax.management.ReflectionException | UndeclaredThrowableException e)
+        {
             Throwable t = ExceptionHandler.getCause(e);
 
-            if( t instanceof ClassNotFoundException) {
-
-                if( jarFile != null ) {
-
+            if (t instanceof ClassNotFoundException)
+            {
+                if (jarFile != null)
+                {
                     Logger.lineBreak();
                     Logger.increaseIndent();
 
                     Logger.println("MBean class is not known by the server.");
 
-                    if( BeanshooterOption.DEPLOY_STAGER_URL.isNull() )
+                    if (BeanshooterOption.DEPLOY_STAGER_URL.isNull())
                     {
                         Logger.eprintlnMixedYellow("Use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
                         Utils.exit();
@@ -115,21 +130,26 @@ public class MBeanServerClient {
                     mLetDispatcher.loadMBeanFromURL(mbean, BeanshooterOption.DEPLOY_STAGER_URL.getValue());
 
                     Logger.decreaseIndent();
+                }
 
-                } else {
+                else
+                {
                     Logger.lineBreak();
                     Logger.eprintlnMixedBlue("The specified class", className, "is not known by the server.");
                     Logger.eprintMixedYellow("Use the", "--jar-file");
                     Logger.eprintlnPlainMixedYellow(" and", "--stager-url", "options to provide an implementation.");
                     Utils.exit();
                 }
-
-            } else {
-                ExceptionHandler.unexpectedException(e, "deploying", "MBean", true);
             }
 
-        } catch (SecurityException e) {
+            else
+            {
+                ExceptionHandler.unexpectedException(e, "deploying", "MBean", true);
+            }
+        }
 
+        catch (SecurityException e)
+        {
             Logger.lineBreak();
 
             if( e.getMessage().contains("Invalid access level") )
@@ -140,8 +160,10 @@ public class MBeanServerClient {
 
             else
                 ExceptionHandler.unexpectedException(e, "registering", "MBean", true);
+        }
 
-        } catch (Exception e) {
+        catch (Exception e)
+        {
             ExceptionHandler.unexpectedException(e, "registering", "MBean", true);
         }
 

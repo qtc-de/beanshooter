@@ -648,8 +648,19 @@ public class ExceptionHandler {
 
     public static void handleJ4pRemoteException(J4pRemoteException e, String during)
     {
-        if (e.getMessage().contains("No JSR-160 proxy is enabled"))
+        String message = e.getMessage();
+
+        if (message.contains("No JSR-160 proxy is enabled"))
             ExceptionHandler.noJolokiaProxy(e);
+
+        if (message.contains("is not allowed by configuration"))
+            ExceptionHandler.jolokiaDenyList(e);
+
+        if (message.contains("Error: java.net.MalformedURLException"))
+            ExceptionHandler.jolokiaMalformedUrl(e);
+
+        if (message.contains("createMBean not supported"))
+            ExceptionHandler.jolokiaCreateMBean(e);
 
         else
             ExceptionHandler.unexpectedStatus(e, during);
@@ -664,10 +675,40 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void jolokiaCreateMBean(Exception e)
+    {
+        Logger.eprintlnMixedYellow("Creating new MBeans", "is not", "supported by Jolokia.");
+        Logger.eprintlnMixedBlue("New MBeans can only be loaded if the", "MLet MBean", "is already available.");
+        Logger.eprintlnMixedYellow("If this is the case you can use beanshooters", "mlet load", "action to load new MBeans.");
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
     public static void noJolokiaProxy(J4pRemoteException e)
     {
         Logger.eprintlnMixedYellow("Target server", "does not", "support Jolokia proxy mode.");
         Logger.eprintlnMixedBlue("The", "--jolokia-proxy-target", "option cannot be used.");
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void jolokiaDenyList(J4pRemoteException e)
+    {
+        Logger.eprintlnMixedYellow("The specified proxy URL", BeanshooterOption.CONN_JOLOKIA_PROXY.getValue(), "is blocked by Jolokias denylist.");
+        Logger.eprintlnMixedBlue("You may be able to", "bypass", "this filter by applying simple string modifications.");
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void jolokiaMalformedUrl(J4pRemoteException e)
+    {
+        String error = e.getMessage().split("MalformedURLException : ")[1];
+
+        Logger.eprintlnMixedYellow("Jolokia", "rejected", "the specified URL.");
+        Logger.eprintlnMixedBlue("Error message:", error);
 
         ExceptionHandler.showStackTrace(e);
         Utils.exit();

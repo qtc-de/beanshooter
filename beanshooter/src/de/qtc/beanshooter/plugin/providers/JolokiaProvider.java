@@ -72,11 +72,13 @@ public class JolokiaProvider implements IMBeanServerProvider {
                 J4pRemoteException j4p = (J4pRemoteException)t;
                 if (j4p.getStatus() == 401 || j4p.getStatus() == 403)
 
-                    if (env.containsKey(JMXConnector.CREDENTIALS))
-                        throw new WrongCredentialsException(e);
+                    if (! j4p.getMessage().contains("not allowed by configuration"))
 
-                    else
-                        throw new MissingCredentialsException(e);
+                        if (env.containsKey(JMXConnector.CREDENTIALS))
+                            throw new WrongCredentialsException(e);
+
+                        else
+                            throw new MissingCredentialsException(e);
 
                 throw j4p;
             }
