@@ -8,10 +8,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.openmbean.CompositeData;
+
+import org.jolokia.client.exception.J4pRemoteException;
 
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.OpenTypeException;
@@ -53,22 +56,27 @@ public class MBeanInvocationHandler implements InvocationHandler
     {
         Object retValue = null;
 
-        try {
+        try
+        {
             if( method.getName().equals("getAttribute") )
                 retValue = conn.getAttribute(objName, (String) args[0]);
 
             else
                 retValue = conn.invoke(objName, method.getName(), args, Utils.typesToString(method.getParameterTypes()));
+        }
 
-        } catch (InstanceNotFoundException e) {
+        catch (InstanceNotFoundException e)
+        {
             Logger.resetIndent();
 
             if(Logger.printCount != 0)
                 Logger.lineBreak();
 
             ExceptionHandler.handleInstanceNotFound(e, objName.toString());
+        }
 
-        } catch (ReflectionException e) {
+        catch (ReflectionException e)
+        {
             Logger.resetIndent();
 
             if(Logger.printCount != 0)
@@ -81,13 +89,30 @@ public class MBeanInvocationHandler implements InvocationHandler
 
             else
                 ExceptionHandler.unexpectedException(e, "invoke", "operation", true);
+        }
 
-        } catch (SecurityException e) {
-
+        catch (SecurityException e)
+        {
             String message = e.getMessage();
 
             if (message.contains("Access denied!"))
                 ExceptionHandler.mBeanAccessDenied(e, objName.toString(), method.getName());
+
+            else
+                throw e;
+        }
+
+        catch (MBeanException e)
+        {
+            Throwable cause = ExceptionHandler.getCause(e);
+
+            if (cause instanceof J4pRemoteException)
+            {
+                Logger.eprintlnMixedYellow("Caught", "J4pRemoteException", "during MBean method invocation.");
+                Logger.eprintlnMixedBlue("Jolokia reported:", cause.getMessage());
+
+                Utils.exit();
+            }
 
             else
                 throw e;
