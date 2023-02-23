@@ -111,7 +111,7 @@ public class MBeanInvocationHandler implements InvocationHandler
             if (cause instanceof J4pRemoteException)
             {
                 String message = cause.getMessage();
-                String[] split = message.split(":");
+                String[] split = message.split(":", 3);
 
                 String exceptionName = split[1].trim();
                 String exceptionMessage = split[2].trim();
