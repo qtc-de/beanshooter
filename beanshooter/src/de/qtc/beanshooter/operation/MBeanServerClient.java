@@ -85,7 +85,6 @@ public class MBeanServerClient {
             }
 
             conn.createMBean(mBeanClassName, mBeanObjectName);
-
         }
 
         catch (InstanceAlreadyExistsException e)
@@ -183,6 +182,15 @@ public class MBeanServerClient {
         try
         {
             conn.unregisterMBean(objectName);
+        }
+
+        catch (UnsupportedOperationException e)
+        {
+            if (BeanshooterOption.CONN_JOLOKIA.getBool())
+                ExceptionHandler.jolokiaRemoveMBean(e);
+
+            else
+                throw e;
         }
 
         catch (InstanceNotFoundException e)

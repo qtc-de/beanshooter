@@ -2,6 +2,7 @@ package de.qtc.beanshooter.mbean;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.RuntimeMBeanException;
 import javax.management.openmbean.CompositeData;
 
 import org.jolokia.client.exception.J4pRemoteException;
@@ -108,8 +110,31 @@ public class MBeanInvocationHandler implements InvocationHandler
 
             if (cause instanceof J4pRemoteException)
             {
+                String message = cause.getMessage();
+                String[] split = message.split(":");
+
+                String exceptionName = split[1].trim();
+                String exceptionMessage = split[2].trim();
+
+                try
+                {
+                    Class<?> exceptionClass = Class.forName(exceptionName);
+                    Constructor<?> constr = exceptionClass.getDeclaredConstructor(new Class<?>[] { String.class });
+
+                    if (Exception.class.isAssignableFrom(exceptionClass))
+                    {
+                        if (exceptionName.startsWith("java.lang.Illegal"))
+                            throw new RuntimeMBeanException((RuntimeException)constr.newInstance(exceptionMessage), "Forwarded Jolokia Exception");
+
+                        else
+                            throw new MBeanException((Exception)constr.newInstance(exceptionMessage), "Forwarded Jolokia Exception");
+                    }
+                }
+
+                catch (ClassNotFoundException | ClassCastException | NoSuchMethodException | SecurityException e2){}
+
                 Logger.eprintlnMixedYellow("Caught", "J4pRemoteException", "during MBean method invocation.");
-                Logger.eprintlnMixedBlue("Jolokia reported:", cause.getMessage());
+                Logger.eprintlnMixedBlue("Jolokia reported:", message);
 
                 Utils.exit();
             }

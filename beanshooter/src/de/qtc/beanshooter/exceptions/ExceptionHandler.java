@@ -685,6 +685,13 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void jolokiaRemoveMBean(Exception e)
+    {
+        Logger.eprintlnMixedYellow("Removing MBeans", "is not", "supported by Jolokia.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
     public static void noJolokiaProxy(J4pRemoteException e)
     {
         Logger.eprintlnMixedYellow("Target server", "does not", "support Jolokia proxy mode.");
