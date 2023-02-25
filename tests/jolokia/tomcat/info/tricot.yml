@@ -1,0 +1,33 @@
+tester:
+  title: tomcat info action
+  description: |-
+    Perform the info action within the submenu of the tomcat
+    action.
+
+  id: '10-04'
+  groups:
+    - info
+  id_pattern: '10-04-{:02}'
+
+tests:
+  - title: Info
+    description: |-
+      Use the info operation
+
+    command:
+      - beanshooter
+      - tomcat
+      - info
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean Class: org.apache.catalina.mbeans.MemoryUserDatabaseMBean'
+            - 'ObjectName: Users:type=UserDatabase,database=UserDatabase'
+            - 'Attributes:'
+            - 'Operations:'
+            - 'pathname (type: java.lang.String , writable: true)'
+            - 'java.lang.String findGroup(java.lang.String groupname)'

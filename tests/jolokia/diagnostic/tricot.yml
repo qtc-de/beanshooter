@@ -1,0 +1,12 @@
+tester:
+  title: diagnostic related tests
+  description: |-
+    Tests for the diagnostic action
+
+  id: '11'
+  groups:
+    - diagnostic
+
+testers:
+  - ./cmdline/tricot.yml
+  - ./props/tricot.yml

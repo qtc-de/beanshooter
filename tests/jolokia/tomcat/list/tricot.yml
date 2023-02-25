@@ -1,0 +1,36 @@
+tester:
+  title: tomcat list action
+  description: |-
+    Perform tests on beanshooters tomcat list action
+
+  id: '10-06'
+  groups:
+    - list
+  id_pattern: '10-06-01-{:02}'
+
+tests:
+  - title: Invoke list action
+    description: |-
+      Use the list action on the tomcat JMX endpoint
+
+    command:
+      - beanshooter
+      - tomcat
+      - list
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Listing tomcat users:'
+            - 'manager'
+            - 'admin'
+            - 's3cr3T!$'
+            - 'status'
+            - 'cr@cKM3o.O'
+            - 'Users:type=Role,rolename="manager-gui",database=UserDatabase'
+
+testers:
+  - ./error/tricot.yml

@@ -1,0 +1,79 @@
+tester:
+  title: tomcat attr action
+  description: |-
+    Perform the attr action within the submenu of the tomcat
+    operation.
+
+  id: '10-01'
+  groups:
+    - attr
+  id_pattern: '10-01-{:02}'
+
+tests:
+  - title: Get Attr
+    description: |-
+      Use the attr operation to obtain the pathname attribute
+
+    command:
+      - beanshooter
+      - tomcat
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - pathname
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'conf/tomcat-users.xml'
+
+  - title: Set Attr
+    description: |-
+      Use the attr operation to set the pathname attribute
+
+    command:
+      - beanshooter
+      - tomcat
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - pathname
+      - /tmp/test
+
+    validators:
+      - error: False
+
+  - title: Get Attr
+    description: |-
+      Use the attr operation to obtain the pathname attribute
+
+    command:
+      - beanshooter
+      - tomcat
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - pathname
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '/tmp/test'
+
+  - title: Restore Attr
+    description: |-
+      Restore the original value of the pathname attribute
+
+    command:
+      - beanshooter
+      - tomcat
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - pathname
+      - 'conf/tomcat-users.xml'
+
+    validators:
+      - error: False

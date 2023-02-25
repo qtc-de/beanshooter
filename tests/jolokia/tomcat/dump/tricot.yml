@@ -1,0 +1,77 @@
+tester:
+  title: tomcat dump action
+  description: |-
+    Perform some tests on the dump action of beanshooters tomcat operation
+
+  id: '10-02'
+  groups:
+    - dump
+  id_pattern: '10-02-01-{:02}'
+
+tests:
+  - title: Dump single file
+    description: |-
+      Create a single file dump of tomcat credentials
+
+    command:
+      - beanshooter
+      - tomcat
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - users.txt
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'Users dumped to .+users.txt'
+      - file_contains:
+        - file: users.txt
+          contains:
+            - 'manager:admin'
+            - 'admin:s3cr3T!$'
+            - 'status:cr@cKM3o.O'
+      - file_exists:
+          cleanup: True
+          files:
+            - users.txt
+
+  - title: Dump users and passwords
+    description: |-
+      Dump usernames and passwords from the tomcat server
+
+    command:
+      - beanshooter
+      - tomcat
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - users.txt
+      - passwords.txt
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'Users dumped to .+users.txt'
+            - 'Passwords dumped to .+passwords.txt'
+      - file_contains:
+        - file: users.txt
+          contains:
+            - 'manager'
+            - 'admin'
+            - 'status'
+        - file: passwords.txt
+          contains:
+            - 'admin'
+            - 's3cr3T!$'
+            - 'cr@cKM3o.O'
+      - file_exists:
+          cleanup: True
+          files:
+            - users.txt
+            - passwords.txt
+
+testers:
+  - ./error/tricot.yml

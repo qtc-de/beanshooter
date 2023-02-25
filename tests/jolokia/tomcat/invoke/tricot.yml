@@ -1,0 +1,31 @@
+tester:
+  title: tomcat invoke action
+  description: |-
+    Perform the invoke action within the submenu of the tomcat
+    operation.
+
+  id: '10-05'
+  groups:
+    - invoke
+  id_pattern: '10-05-{:02}'
+
+tests:
+  - title: Invoke
+    description: |-
+      Use the invoke operation to invoke the findUser method.
+
+    command:
+      - beanshooter
+      - tomcat
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - --signature
+      - 'java.lang.String findUser(java.lang.String username)'
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Users:type=User,username="admin",database=UserDatabase'

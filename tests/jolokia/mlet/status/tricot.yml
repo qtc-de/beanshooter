@@ -1,0 +1,104 @@
+tester:
+  title: mlet status action
+  description: |-
+    Perform tests on beanshooters mlet status action
+
+  id: '12-01'
+  groups:
+    - status
+  id_pattern: '12-01-{:02}'
+
+tests:
+  - title: Undeploy if deployed
+    description: |-
+      Undeploy the mlet MBean if it was already deployed
+
+    command:
+      - beanshooter
+      - mlet
+      - undeploy
+      - ${DOCKER-IP}
+      - 1090
+      - --no-color
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'MBean (was successfully removed|is not registered. Nothing to do)'
+
+  - title: Plain status call
+    description: |-
+      Call the status action on a non deployed mlet bean
+
+    command:
+      - beanshooter
+      - mlet
+      - status
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean Status: not deployed'
+
+
+  - title: deploy mlet bean
+    description: |-
+      Deploy the mlet MBean
+
+    command:
+      - beanshooter
+      - mlet
+      - deploy
+      - ${DOCKER-IP}
+      - 1090
+      - --no-color
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean with object name DefaultDomain:type=MLet was successfully deployed'
+
+
+  - title: Plain status call
+    description: |-
+      Call the status action on a deployed mlet bean
+
+    command:
+      - beanshooter
+      - mlet
+      - status
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean Status: deployed'
+            - 'Class Name: javax.management.loading.MLet'
+            - 'Object Name: DefaultDomain:type=MLet'
+
+
+  - title: Undeploy mlet bean
+    description: |-
+      Undeploy the mlet bean again
+
+    command:
+      - beanshooter
+      - mlet
+      - undeploy
+      - ${DOCKER-IP}
+      - 1090
+      - --no-color
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Removing MBean with ObjectName DefaultDomain:type=MLet from the MBeanServer'
+            - 'MBean was successfully removed'
