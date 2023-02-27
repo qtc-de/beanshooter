@@ -1,0 +1,34 @@
+tester:
+  title: deploy action
+  description: |-
+    Perform tests on beanshooters deploy action. Since deploy is not supported
+    for Jolokia, these tests are rather short.
+
+  id: '15-03'
+  groups:
+    - deploy
+    - target
+  id_pattern: '15-03-01-{:02}'
+
+
+tests:
+  - title: Deploy StringMonitor
+    description: |-
+      Attempt to deploy the StringMonitor MBean
+
+    command:
+      - beanshooter
+      - deploy
+      - ${TARGET}
+      - ${OPTIONS}
+      - javax.management.monitor.StringMonitor
+      - 'qtc.test:type=Monitor'
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Creating new MBeans is not supported by Jolokia'
+            - 'New MBeans can only be loaded if the MLet MBean is already available.'
+            - 'If this is the case you can use beanshooters mlet load action to load new MBeans.'
+            - 'Cannot continue from here.'

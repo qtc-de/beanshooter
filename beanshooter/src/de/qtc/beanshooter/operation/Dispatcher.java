@@ -196,7 +196,7 @@ public class Dispatcher {
     {
         if (BeanshooterOption.CONN_JOLOKIA.getBool())
         {
-            Logger.printlnMixedYellow("The serial action", "is not", "supported for Jolokia based connections.");
+            Logger.eprintlnMixedYellow("The serial action", "is not", "supported for Jolokia based connections.");
             Utils.exit();
         }
 
@@ -377,6 +377,17 @@ public class Dispatcher {
 
         catch (MBeanException | ReflectionException | IOException e)
         {
+            Throwable t = ExceptionHandler.getCause(e);
+            String message = t.getMessage();
+
+            if (message.contains("No operation " + methodName))
+            {
+                if (message.contains("Known signatures: "))
+                    ExceptionHandler.noOperationAlternative(e, signature, methodName, message);
+
+                ExceptionHandler.noOperation(e, signature);
+            }
+
             Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while invoking %s on %s.", methodName, objectName.toString()));
             Logger.println("beanshooter does not handle exceptions for custom method invocations.");
             ExceptionHandler.stackTrace(e);

@@ -1,0 +1,167 @@
+tester:
+  title: attr action
+  description: |-
+    Perform tests on beanshooters attr action
+
+  id: '15-01'
+  groups:
+    - attr
+    - target
+  id_pattern: '15-01-01-{:02}'
+
+tests:
+  - title: Read attribute
+    description: |-
+      Attempts to read the Verbose attribute from the java.lang:type=Memory MBean.
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - java.lang:type=Memory
+      - Verbose
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'false'
+
+  - title: Write attribute
+    description: |-
+      Attempts to write the Verbose attribute from the java.lang:type=Memory MBean.
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - java.lang:type=Memory
+      - Verbose
+      - 'true'
+      - --type
+      - boolean
+
+    validators:
+      - error: False
+
+  - title: Read new attribute
+    description: |-
+      Attempts to read the Verbose attribute from the java.lang:type=Memory MBean.
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - java.lang:type=Memory
+      - Verbose
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'true'
+
+
+  - title: Restore attribute
+    description: |-
+      Attempts to write the Verbose attribute from the java.lang:type=Memory MBean.
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - java.lang:type=Memory
+      - Verbose
+      - 'false'
+      - --type
+      - boolean
+
+    validators:
+      - error: False
+
+
+  - title: Read attribute 2
+    description: |-
+      Attempts to read the UsageThreshold attribute from the
+      java.lang:name=Metaspace,type=MemoryPool MBean
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - java.lang:name=Metaspace,type=MemoryPool
+      - UsageThreshold
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '0'
+
+
+  - title: Write attribute 2
+    description: |-
+      Attempts to write the UsageThreshold attribute from the
+      java.lang:name=Metaspace,type=MemoryPool MBean
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - java.lang:name=Metaspace,type=MemoryPool
+      - UsageThreshold
+      - 44L
+      - --type
+      - long
+
+    validators:
+      - error: False
+
+
+  - title: Read new attribute 2
+    description: |-
+      Attempts to read the UsageThreshold attribute from the
+      java.lang:name=Metaspace,type=MemoryPool MBean
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - java.lang:name=Metaspace,type=MemoryPool
+      - UsageThreshold
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '44'
+
+
+  - title: Restore attribute 2
+    description: |-
+      Attempts to restore the UsageThreshold attribute from the
+      java.lang:name=Metaspace,type=MemoryPool MBean
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - java.lang:name=Metaspace,type=MemoryPool
+      - UsageThreshold
+      - 0L
+      - --type
+      - long
+
+    validators:
+      - error: False
+
+testers:
+  - ./error/tricot.yml

@@ -1,0 +1,32 @@
+tester:
+  title: enum action (Error)
+  description: |-
+    Perform tests on beanshooters error handling for the enum action
+
+  id: '15-04-02'
+  groups:
+    - error
+  id_pattern: '15-04-02-{:02}'
+
+
+tests:
+  - title: Wrong Credentials
+    description: |-
+      Invoke the enum actio with wrong credentials
+
+    command:
+      - beanshooter
+      - enum
+      - ${TARGET_NO_AUTH}
+      - ${OPTIONS}
+      - --username
+      - harry
+      - --password
+      - hirsch
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Caught AuthenticationException during login attempt
+            - The specified credentials are probably invalid

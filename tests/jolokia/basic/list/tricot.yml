@@ -1,0 +1,29 @@
+tester:
+  title: list action
+  description: |-
+    Perform tests on beanshooters list action
+
+  id: '15-07'
+  groups:
+    - list
+    - target
+  id_pattern: '15-07-01-{:02}'
+
+tests:
+  - title: List Jolokia
+    description: |-
+      Performs the list action on the Jolokia endpoint
+
+    command:
+      - beanshooter
+      - list
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Available MBeans:'
+            - 'javax.management.MBeanServerDelegate (JMImplementation:type=MBeanServerDelegate)'
+            - 'sun.management.MemoryManagerImpl (java.lang:name=Metaspace Manager,type=MemoryManager)'

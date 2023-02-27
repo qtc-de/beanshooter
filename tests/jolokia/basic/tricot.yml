@@ -1,0 +1,18 @@
+tester:
+  title: Jolokia Basic Tests
+  description: |-
+    Test the basic beanshooter functionalities using the Jolokia adapter
+
+  id: '15'
+  groups:
+    - basic
+
+testers:
+  - ./attr/tricot.yml
+  - ./brute/tricot.yml
+  - ./deploy/tricot.yml
+  - ./enum/tricot.yml
+  - ./info/tricot.yml
+  - ./invoke/tricot.yml
+  - ./list/tricot.yml
+  - ./serial/tricot.yml

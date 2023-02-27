@@ -26,9 +26,15 @@ variables:
     - --password
     - admin
 
+  TARGET_NO_AUTH:
+    - ${DOCKER-IP}
+    - 8080
+    - --jolokia
+
 testers:
   - ./tomcat/tricot.yml
   - ./diagnostic/tricot.yml
   - ./mlet/tricot.yml
   - ./hotspot/tricot.yml
   - ./recorder/tricot.yml
+  - ./basic/tricot.yml

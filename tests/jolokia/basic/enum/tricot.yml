@@ -1,0 +1,53 @@
+tester:
+  title: enum action
+  description: |-
+    Perform tests on beanshooters enum action
+
+  id: '15-04'
+  groups:
+    - enum
+    - target
+  id_pattern: '15-04-01-{:02}'
+
+tests:
+  - title: Enum Action - Unauth
+    description: |-
+      Perform the enum operation on the Jolokia endpoint
+
+    command:
+      - beanshooter
+      - enum
+      - ${TARGET_NO_AUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - Remote MBean server requires authentication
+            - Non Vulnerable
+
+  - title: Enum Action - Auth
+    description: |-
+      Perform the enum operation on the Jolokia endpoint
+
+    command:
+      - beanshooter
+      - enum
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Login successful! The specified credentials are correct'
+            - 'Agent Version 1.7.1 - Protocol Version: 7.2'
+            - 'Jolokia Proxy Mode is enabled! You may connect to backend JMX services'
+            - '75 MBeans are currently registred on the MBean server'
+            - 'Listing 3 tomcat users'
+            - 'Username:  admin'
+            - 'Password:  s3cr3T!$'
+
+testers:
+  - ./error/tricot.yml

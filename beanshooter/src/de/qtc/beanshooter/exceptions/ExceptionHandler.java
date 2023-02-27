@@ -721,6 +721,25 @@ public class ExceptionHandler {
         Utils.exit();
     }
 
+    public static void noOperation(Exception e, String signature)
+    {
+        Logger.eprintlnMixedYellow("The specified method signature", signature, "is not known by the server.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void noOperationAlternative(Exception e, String signature, String method, String message)
+    {
+        String alternatives = message.substring(message.lastIndexOf(' ')).trim();
+
+        Logger.eprintlnMixedYellow("The specified method signature", signature, "is not known by the server.");
+        Logger.eprintMixedYellow("The following signatures are known", alternatives, "for the method ");
+        Logger.eprintlnPlainBlue(method);
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
     public static void unknownReason(Exception e, String during)
     {
         Throwable t = ExceptionHandler.getCause(e);

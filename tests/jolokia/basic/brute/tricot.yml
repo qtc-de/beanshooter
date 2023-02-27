@@ -1,0 +1,114 @@
+tester:
+  title: brute action
+  description: |-
+    Perform tests on beanshooters brute action
+
+  id: '15-02'
+  groups:
+    - brute
+    - target
+  id_pattern: '15-02-01-{:02}'
+
+variables:
+  username_file: /tmp/beanshooter_usernames.tmp
+  password_file: /tmp/beanshooter_passwords.tmp
+
+plugins:
+  - tempfile:
+      path: ${username_file}
+      content: |-
+        Tony
+        manager
+        Carlos
+        admin
+  - tempfile:
+      path: ${password_file}
+      content: |-
+        password
+        secret
+        secure
+        admin
+
+tests:
+  - title: Bruteforce Jolokia
+    description: |-
+      Performs a bruteforce attack on a Jolokia endpoint
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_NO_AUTH}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: manager:admin'
+
+  - title: Bruteforce Jolokia with custom wordlist (username)
+    description: |-
+      Performs a bruteforce attack on a Jolokia endpoint with a
+      custom username list
+
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_NO_AUTH}
+      - ${OPTIONS}
+      - --username-file
+      - ${username_file}
+      - --password
+      - admin
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: manager:admin'
+            - '[4 / 4]'
+            - '100%'
+
+  - title: Bruteforce Jolokia with custom wordlist (password)
+    description: |-
+      Performs a bruteforce attack on a Jolokia endpoint with a
+      custom password list
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_NO_AUTH}
+      - ${OPTIONS}
+      - --username
+      - manager
+      - --password-file
+      - ${password_file}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: manager:admin'
+            - '[4 / 4]'
+            - '100%'
+
+  - title: Bruteforce Jolokia with custom wordlist (both)
+    description: |-
+      Performs a bruteforce attack on a Jolokia endpoint with
+      custom wordlists
+    command:
+      - beanshooter
+      - brute
+      - ${TARGET_NO_AUTH}
+      - ${OPTIONS}
+      - --username-file
+      - ${username_file}
+      - --password-file
+      - ${password_file}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Found valid credentials: manager:admin'
+            - '[16 / 16]'
+            - '100%'

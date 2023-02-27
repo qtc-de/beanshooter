@@ -1,0 +1,105 @@
+tester:
+  title: invoke action
+  description: |-
+    Perform tests on beanshooters invoke action
+
+  id: '15-06'
+  groups:
+    - invoke
+    - target
+  id_pattern: '15-06-01-{:02}'
+
+
+tests:
+  - title: Invoke PlatformLoggingImpl (1/2)
+    description: |-
+      Perform an invoke operation on the PlatformLoggingImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.util.logging:type=Logging'
+      - --signature
+      - 'void setLoggerLevel(java.lang.String p0, java.lang.String p1)'
+      - org.apache.tomcat
+      - 1
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '[+] Call was successful'
+
+
+  - title: Invoke PlatformLoggingImpl (2/2)
+    description: |-
+      Perform an invoke operation on the PlatformLoggingImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.util.logging:type=Logging'
+      - --signature
+      - 'void getLoggerLevel(java.lang.String p0)'
+      - org.apache.tomcat
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '1'
+
+
+  - title: Invoke ThreadImpl (1/2)
+    description: |-
+      Perform an invoke operation on the ThreadImpl MBean
+
+    command:
+      - beanshooter
+      - attr
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - "AllThreadIds"
+
+    extractors:
+      - regex:
+          pattern: '^(\d+)$'
+          variable: 'thread-ids'
+          on_miss: 'break'
+          multiline: true
+
+    validators:
+      - error: False
+      - regex:
+          multiline: true
+          match:
+            - '^\d+$'
+
+
+  - title: Invoke ThreadImpl (2/2)
+    description: |-
+      Perform an invoke operation on the ThreadImpl MBean
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - --signature
+      - "getThreadInfo(long id)"
+      - ${thread-ids-0-1}L
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - javax.management.openmbean.CompositeDataSupport
+
+testers:
+  - ./error/tricot.yml

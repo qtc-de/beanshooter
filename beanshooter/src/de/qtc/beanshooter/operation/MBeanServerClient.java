@@ -18,6 +18,9 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
+import org.jolokia.client.exception.J4pRemoteException;
+import org.jolokia.client.exception.UncheckedJmxAdapterException;
+
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.DynamicMBean;
@@ -282,9 +285,10 @@ public class MBeanServerClient {
                 ExceptionHandler.noSuchMethod(e, methodName);
 
             throw e;
+        }
 
-        } catch (SecurityException e) {
-
+        catch (SecurityException e)
+        {
             String message = e.getMessage();
 
             if (message.contains("Access denied!"))
@@ -292,6 +296,17 @@ public class MBeanServerClient {
 
             else
                 throw e;
+        }
+
+        catch (MBeanException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+            String message = t.getMessage();
+
+            if (t instanceof J4pRemoteException && message.contains("javax.management.InstanceNotFoundException"))
+                ExceptionHandler.handleInstanceNotFound(e, name.toString());
+
+            throw e;
         }
 
         return result;
@@ -312,6 +327,24 @@ public class MBeanServerClient {
         try
         {
             return conn.getAttribute(name, attributeName);
+        }
+
+        catch (UncheckedJmxAdapterException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof J4pRemoteException)
+            {
+                String message = t.getMessage();
+
+                if (message.contains("InstanceNotFoundException"))
+                    ExceptionHandler.handleInstanceNotFound(e, name.toString());
+
+                else if (message.contains("AttributeNotFoundException"))
+                    ExceptionHandler.noSuchAttribute(e, attributeName);
+            }
+
+            throw e;
         }
 
         catch (InstanceNotFoundException e)
@@ -342,6 +375,32 @@ public class MBeanServerClient {
         try
         {
             conn.setAttribute(name, attr);
+        }
+
+        catch (UncheckedJmxAdapterException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof J4pRemoteException)
+            {
+                String message = t.getMessage();
+
+                if (message.contains("InstanceNotFoundException"))
+                    ExceptionHandler.handleInstanceNotFound(e, name.toString());
+
+                else if (message.contains("AttributeNotFoundException"))
+                    ExceptionHandler.noSuchAttribute(e, attr.getName());
+
+                else if (message.contains("InvalidAttributeValueException"))
+                {
+                    Logger.eprintlnMixedYellow("Caught", "InvalidAttributeValueException", "while setting the attribute.");
+                    Logger.eprintlnMixedBlue("The specified attribute value of class", attr.getValue().getClass().getName(), "is probably not compatible.");
+                    Logger.eprintlnMixedYellow("You can use the", "--type", "option to specify a different type manually.");
+                    Utils.exit();
+                }
+            }
+
+            throw e;
         }
 
         catch (InstanceNotFoundException e)
