@@ -35,7 +35,8 @@ function _beanshooter()
 
     file_like="--jar-file --config --plugin --export-dir --export-mlet --export-jar --username-file --password-file --yso --output-file"
     unguessable="--class-name --object-name --bound-name --objid-server --objid-connection --username --password --stager-port --threads"
-    unguessable="$unguessable --class-filter --obj-filter --cwd --env --signature --shell"
+    unguessable="$unguessable --class-filter --obj-filter --cwd --env --signature --shell --jolokia-proxy --jolokia-proxy-user"
+    unguessable="$unguessable --jolokia-proxy-password --jolokia-endpoint"
     value_options="$file_like $unguessable --stager-url --stager-host --sasl"
 
     _count_args "" "@(${value_options// /|})"
@@ -51,7 +52,7 @@ function _beanshooter()
     operations="attr brute deploy enum info invoke list serial stager undeploy diagnostic hotspot mlet recorder tomcat tonka"
     sasl_mechanisms="plain digest cram gssapi ntlm"
     general_opts="--help --config --verbose --plugin --no-color --stack-trace"
-    conn_opts="--follow --ssl --jmxmp --sasl"
+    conn_opts="--follow --ssl --jmxmp --sasl --jolokia --jolokia-proxy --jolokia-proxy-user --jolokia-proxy-password --jolokia-endpoint"
     target_opts="--bound-name --objid-server --objid-connection"
     stager_opts="--stager-host --stager-port --no-stager --stager-url"
     common_three="${general_opts} ${conn_opts} ${target_opts}"

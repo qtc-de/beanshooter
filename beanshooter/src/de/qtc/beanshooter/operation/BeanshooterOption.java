@@ -143,7 +143,7 @@ public enum BeanshooterOption implements Option {
             "endpoint"
             ),
 
-    CONN_JOLOKIA_PROXY("--jolokia-proxy-target",
+    CONN_JOLOKIA_PROXY("--jolokia-proxy",
             "Backend JMX target when Jolokia operates in proxy mode",
             Arguments.store(),
             OptionGroup.CONNECTION,
