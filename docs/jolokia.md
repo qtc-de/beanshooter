@@ -77,7 +77,7 @@ interesting detail about *Proxy Mode* is that the target *RMI based JMX* service
 
 Apart from that, *Proxy Mode* could be useful to enumerate the presence of other services in the backend.
 
-> **Q:** How does *beanshooter* compare to [Jolokia Exploitation Toolkit](https://github.com/laluka/jolokia-exploitation-toolkit)
+> **Q:** How does *beanshooter* compare to [Jolokia Exploitation Toolkit](https://github.com/laluka/jolokia-exploitation-toolkit)?
 
 **A:** *Jolokia Exploitation Toolkit* is a great collection of possible techniques to abuse *Jolokia*. Most of these techniques
 are even relevant for regular *RMI based JMX* when deploying *MBeans* is not possible due to permission or firewall restrictions.
