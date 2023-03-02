@@ -103,6 +103,7 @@ autocompletion.
       + [upload](#tonka-upload)
       + [download](#tonka-download)
 - [JMXMP](#jmxmp)
+- [Jolokia](#jolokia)
 - [Docker Image](#docker-image)
 - [Example Server](#example-server)
 
@@ -1193,6 +1194,44 @@ mechanism is usually possible, the required *TLS* setting cannot be enumerated:
 [+] 	- JMXMP serial check is work in progress but endpoints are usually vulnerable.
 [+] 	  Configuration Status: Undecided
 ```
+
+
+### Jolokia
+
+---
+
+Starting from *v4.0.0*, *beanshooter* supports [Jolokia](https://github.com/rhuss/jolokia) based JMX endpoints.
+Establishing connections to a *Jolokia* based endpoint requires the usual target format and the `--jolokia` flag:
+
+```console
+[qtc@devbox ~]$ beanshooter enum 172.17.0.2 8080 --jolokia --username manager --password admin
+[+] Checking specified credentials:
+[+]
+[+] 	- Login successful! The specified credentials are correct.
+[+] 	  Username: manager  - Password: admin
+[+]
+[+] Checking Jolokia Version:
+[+]
+[+] 	- Agent Version 1.7.1 - Protocol Version: 7.2
+[+] 	  Vulnerability Status: Non Vulnerable
+[+]
+[+] Checking whether Jolokia Proxy Mode is enabled:
+[+]
+[+] 	- Jolokia Proxy Mode is enabled! You may connect to backend JMX services.
+[+] 	  Vulnerability Status: Vulnerable
+[+]
+[+] Checking available MBeans:
+[+]
+[+] 	- 75 MBeans are currently registred on the MBean server.
+[+] 	  Listing 56 non default MBeans:
+...
+```
+
+Due to the limited feature set of *Jolokia*, not all *beanshooter* operations are supported. Please
+consult the [Jolokia FAQ](/docs/jolokia.md#faq) if you have any questions. For playing around with
+*Jolokia*, *beanshooter* provides an [example server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Fjolokia-example-server)
+that exposes an *Jolokia* endpoint on port `8080`. Additionally, a regular *RMI* based *JMX* endpoint
+can be found on port `1090`.
 
 
 ### Docker Image
