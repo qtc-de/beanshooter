@@ -377,6 +377,11 @@ public class Logger {
         elog(yellow(first) + " " + second);
     }
 
+    public static void eprintlnPlainMixedBlueFirst(String first, String second)
+    {
+        elog(blue(first) + " " + second);
+    }
+
     public static void printlnPlainMixedYellowFirst(String first, String second, String third)
     {
         log(yellow(first) + " " + second + " " + yellow(third));

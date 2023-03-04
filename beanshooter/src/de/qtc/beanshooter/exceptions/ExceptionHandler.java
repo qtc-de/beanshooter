@@ -695,7 +695,8 @@ public class ExceptionHandler {
     public static void noJolokiaProxy(J4pRemoteException e)
     {
         Logger.eprintlnMixedYellow("Target server", "does not", "support Jolokia proxy mode.");
-        Logger.eprintlnMixedBlue("The", "--jolokia-proxy-target", "option cannot be used.");
+        Logger.eprintMixedBlue("Neither the", "jolokia", "action nor the ");
+        Logger.eprintlnPlainMixedBlueFirst("--jolokia-proxy", "option can be used.");
 
         ExceptionHandler.showStackTrace(e);
         Utils.exit();

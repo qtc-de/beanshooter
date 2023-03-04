@@ -352,6 +352,37 @@ public enum BeanshooterOption implements Option {
                    ArgType.BOOL
                    ),
 
+    JOLOKIA_HOST("proxy-host",
+                 "target host to trigger the outbound connection to",
+                 Arguments.store(),
+                 OptionGroup.ACTION,
+                 ArgType.STRING,
+                 "proxy-host"
+                ),
+
+    JOLOKIA_PORT("proxy-port",
+                 "target port to trigger the outbound connection to",
+                 Arguments.store(),
+                 OptionGroup.ACTION,
+                 ArgType.INT,
+                 "proxy-port"
+                ),
+
+    JOLOKIA_LDAP("--ldap",
+            "trigger an outbound LDAP connection instead of RMI",
+            Arguments.storeTrue(),
+            OptionGroup.ACTION,
+            ArgType.BOOL
+            ),
+
+    JOLOKIA_LOOKUP("--lookup",
+            "use the specified name for the JNDI lookup",
+            Arguments.store(),
+            OptionGroup.ACTION,
+            ArgType.STRING,
+            "name"
+            ),
+
     OBJ_NAME("object-name",
              "the ObjectName to perform the operation on",
              Arguments.store(),

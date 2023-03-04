@@ -188,6 +188,26 @@ public enum BeanshooterOperation implements Operation {
              BeanshooterOption.INVOKE_NO_WRAP,
     }),
 
+    JOLOKIA("jolokia", "trigger outbound RMI or LDAP connections", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JOLOKIA,
+            BeanshooterOption.CONN_JOLOKIA_ENDPOINT,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.JOLOKIA_HOST,
+            BeanshooterOption.JOLOKIA_PORT,
+            BeanshooterOption.JOLOKIA_LOOKUP,
+            BeanshooterOption.JOLOKIA_LDAP,
+    }),
+
     LIST("list", "list available MBEans on the remote MBean server", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,
             BeanshooterOption.GLOBAL_VERBOSE,
