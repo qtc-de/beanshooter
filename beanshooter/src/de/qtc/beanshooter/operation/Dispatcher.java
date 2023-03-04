@@ -388,8 +388,8 @@ public class Dispatcher {
                 ExceptionHandler.noOperation(e, signature);
             }
 
-            Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while invoking %s on %s.", methodName, objectName.toString()));
-            Logger.println("beanshooter does not handle exceptions for custom method invocations.");
+            Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while invoking %s on %s.", methodName, objectName.toString()));
+            Logger.eprintln("beanshooter does not handle exceptions for custom method invocations.");
             ExceptionHandler.stackTrace(e);
         }
     }
@@ -464,8 +464,16 @@ public class Dispatcher {
 
         catch (MBeanException | ReflectionException | IOException e)
         {
-            Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while obtaining attribute %s from %s", attrName, objectName));
-            Logger.println("beanshooter does not handle exceptions for custom method invocations.");
+            if (e instanceof ReflectionException && e.getMessage().contains("Cannot find setter method"))
+            {
+                Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while setting attribute %s from %s", attrName, objectName));
+                Logger.eprintlnMixedBlue("There seems to be", "no setter available", "for the requested attribute.");
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
+            }
+
+            Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while accessing attribute %s from %s", attrName, objectName));
+            Logger.eprintln("beanshooter does not handle exceptions for custom attribute access.");
             ExceptionHandler.stackTrace(e);
             Utils.exit();
         }
