@@ -82,5 +82,6 @@ Apart from that, *Proxy Mode* could be useful to enumerate the presence of other
 **A:** *Jolokia Exploitation Toolkit* is a great collection of possible techniques to abuse *Jolokia*. Most of these techniques
 are even relevant for regular *RMI based JMX* when deploying *MBeans* is not possible due to permission or firewall restrictions.
 Therefore, most of these techniques have already been implemented by *beanshooter* and are now also available when targeting
-*Jolokia* with *beanshooter*. Some of them are only implicitly available. E.g. you can trigger an outbound *JNDI LDAP based* connection
-by using `--jolokia-proxy service:jmx:Rmi:///jndi/ldap://172.17.0.1:1337/ups`.
+*Jolokia*. Additionally, *beanshooter v4.0.0* added the new `jolokia` action, that can be used to trigger outbound connections
+when a *Jolokia* agent is running in proxy mode. Alternatively, this could also be done by using the `--jolokia-proxy` option
+on other operations.
