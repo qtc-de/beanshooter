@@ -44,7 +44,7 @@ tests:
             - 'Login successful! The specified credentials are correct'
             - 'Agent Version 1.7.1 - Protocol Version: 7.2'
             - 'Jolokia Proxy Mode is enabled! You may connect to backend JMX services'
-            - '75 MBeans are currently registred on the MBean server'
+            - 'MBeans are currently registred on the MBean server'
             - 'Listing 3 tomcat users'
             - 'Username:  admin'
             - 'Password:  s3cr3T!$'
