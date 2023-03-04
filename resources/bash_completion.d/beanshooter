@@ -36,7 +36,7 @@ function _beanshooter()
     file_like="--jar-file --config --plugin --export-dir --export-mlet --export-jar --username-file --password-file --yso --output-file"
     unguessable="--class-name --object-name --bound-name --objid-server --objid-connection --username --password --stager-port --threads"
     unguessable="$unguessable --class-filter --obj-filter --cwd --env --signature --shell --jolokia-proxy --jolokia-proxy-user"
-    unguessable="$unguessable --jolokia-proxy-password --jolokia-endpoint"
+    unguessable="$unguessable --jolokia-proxy-password --jolokia-endpoint --lookup"
     value_options="$file_like $unguessable --stager-url --stager-host --sasl"
 
     _count_args "" "@(${value_options// /|})"
@@ -49,7 +49,7 @@ function _beanshooter()
     gadgets="$gadgets JRMPClient JRMPListener JSON1 JavassistWeld1 Jdk7u21 Jython1 MozillaRhino1 MozillaRhino2"
     gadgets="$gadgets Myfaces1 Myfaces2 ROME Spring1 Spring2 URLDNS Vaadin1 Wicket1"
 
-    operations="attr brute deploy enum info invoke list serial stager undeploy diagnostic hotspot mlet recorder tomcat tonka"
+    operations="attr brute deploy enum info invoke list serial stager undeploy diagnostic hotspot mlet recorder tomcat tonka jolokia"
     sasl_mechanisms="plain digest cram gssapi ntlm"
     general_opts="--help --config --verbose --plugin --no-color --stack-trace"
     conn_opts="--follow --ssl --jmxmp --sasl --jolokia --jolokia-proxy --jolokia-proxy-user --jolokia-proxy-password --jolokia-endpoint"
@@ -110,6 +110,16 @@ function _beanshooter()
         opts="$opts --no-wrap"
         opts="$opts $auth_opts"
         opts="$opts $common_three"
+
+    elif [[ ${words[1]} == "jolokia" ]] && _comp_beanoption 6; then
+        opts="--lookup"
+        opts="$opts --ldap"
+        opts="$opts --follow"
+        opts="$opts --ssl"
+        opts="$opts --jolokia"
+        opts="$opts --jolokia-endpoint"
+        opts="$opts $auth_opts"
+        opts="$opts $general_opts"
 
     elif [[ ${words[1]} == "deploy" ]] && _comp_beanoption 6; then
         opts="$auth_opts"
