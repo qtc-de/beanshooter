@@ -11,10 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Add *Jolokia* support
+* Add [jolokia-example-server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Fjolokia-example-server)
+* Add [Jolokia documentation](/docs/jolokia.md)
 
 ### Changed
 
 * Make the *TonkaBean* *OpenType* compatible
+* Update default credential list
+* Some bugfixes and improved exception handling
 
 
 ## [3.1.1] - Jan 19, 2023
