@@ -15,6 +15,9 @@ Before the start with the *FAQ* here is a short listing of *Jolokia* related *be
 * `--jolokia-proxy-user <USER>`: username for accessing authenticated proxy *JMX* servers.
 * `--jolokia-proxy-password <PASS>`: password for accessing authenticated proxy *JMX* servers.
 
+Additionally, there is the [jolokia action](/README.md#jolokia) that can be used to trigger an outbound connection from a *Jolokia*
+agent running in proxy mode.
+
 
 ### FAQ
 
@@ -28,6 +31,12 @@ integrated into the *Java* distribution itself. *Jolokia* can be accessed like a
 *HTTP(S)* to transport information. The agent component converts incoming requests to *MBean* calls and returns
 the call result back to the client. This makes it easy to interface with *JMX* from other programming languages
 and allows easier firewall setups as for *RMI*.
+
+> **Q:** How can I connect to a *Jolokia* endpoint using *beanshooter*?
+
+**A**: Just use the regular `beanshooter <operation> <target-host> <target-port>` command line structure and add the additional
+`--jolokia` switch. If the *Jolokia* endpoint is running on a different *URL* than `/jolokia/`, you need to specify it using the
+`--jolokia-endpoint` argument. *HTTPS* based endpoints can be accessed using `--ssl` as usual.
 
 > **Q:** Is the feature set of *Jolokia* equivalent to *RMI* based *JMX*?
 
