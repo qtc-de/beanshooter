@@ -47,8 +47,6 @@ public class JolokiaProvider implements IMBeanServerProvider {
         String endpoint = BeanshooterOption.CONN_JOLOKIA_ENDPOINT.getValue("/jolokia/");
         String connString = String.format("service:jmx:jolokia://%s:%d%s", host, port, endpoint);
 
-        java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
-
         try
         {
             JMXServiceURL jmxUrl = new JMXServiceURL(connString);

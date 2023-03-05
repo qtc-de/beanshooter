@@ -12,8 +12,8 @@ import javax.net.ssl.X509TrustManager;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public class DummyTrustManager implements X509TrustManager {
-
+public class DummyTrustManager implements X509TrustManager
+{
     public X509Certificate[] getAcceptedIssuers() {
         return null;
     }

@@ -2,13 +2,25 @@ package de.qtc.beanshooter.utils;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import javax.management.remote.JMXServiceURL;
+import javax.net.ssl.SSLContext;
 
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
 import org.jolokia.client.J4pClientBuilder;
 import org.jolokia.client.jmxadapter.JolokiaJmxConnector;
 
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 
 /**
@@ -55,6 +67,31 @@ public class ExtendedJolokiaJmxConnector extends JolokiaJmxConnector
         final J4pClientBuilder clientBuilder = new J4pClientBuilder().url(
                 internalProtocol + "://" + this.serviceUrl.getHost() + ":" + this.serviceUrl.getPort()
                 + prefixWithSlashIfNone(this.serviceUrl.getURLPath()));
+
+        try
+        {
+            // Taken from: https://stackoverflow.com/a/19519566
+
+            NoopHostnameVerifier verifier = NoopHostnameVerifier.INSTANCE;
+            SSLContext ctx = SSLContexts.custom().loadTrustMaterial(new TrustStrategy()
+            {
+                @Override
+                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException
+                {
+                    return true;
+                }
+             }).build();
+
+            SSLConnectionSocketFactory facs = new SSLConnectionSocketFactory(ctx, verifier);
+            clientBuilder.sslConnectionSocketFactory(facs);
+        }
+
+        catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e)
+        {
+            Logger.printlnMixedYellow("Caught unexpected", e.getClass().getName(), "while setting the SSL context for Jolokia.");
+            ExceptionHandler.stackTrace(e);
+            Utils.exit();
+        }
 
         if (mergedEnv.containsKey(CREDENTIALS))
         {
