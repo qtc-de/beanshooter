@@ -11,6 +11,7 @@ import javax.management.remote.JMXServiceURL;
 
 import org.jolokia.client.exception.J4pRemoteException;
 import org.jolokia.client.exception.UncheckedJmxAdapterException;
+import org.json.simple.parser.ParseException;
 
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -19,7 +20,6 @@ import de.qtc.beanshooter.exceptions.WrongCredentialsException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.IMBeanServerProvider;
-import de.qtc.beanshooter.plugin.PluginSystem;
 import de.qtc.beanshooter.utils.ExtendedJolokiaJmxConnector;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -79,6 +79,15 @@ public class JolokiaProvider implements IMBeanServerProvider {
                             throw new MissingCredentialsException(e);
 
                 throw j4p;
+            }
+
+            else if (t instanceof ParseException)
+            {
+                Logger.eprintlnMixedYellow("Caught", "ParseException", "while parsing the server response.");
+                Logger.eprintlnMixedBlue("The specified target is", "probably not", "a Jolokia endpoint.");
+
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
             }
 
             ExceptionHandler.unexpectedException(e, "while connecting", "to the jolokia endpoint", true);
