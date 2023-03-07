@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.qtc.beanshooter</groupId>
         <artifactId>reactor</artifactId>
-        <version>3.1.1</version>
+        <version>4.0.0</version>
     </parent>
 
     <artifactId>beanshooter</artifactId>
@@ -39,6 +39,18 @@
             <groupId>org.glassfish.external</groupId>
             <artifactId>opendmk_jmxremote_optional_jar</artifactId>
             <version>1.0-b01-ea</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jolokia</groupId>
+            <artifactId>jolokia-jmx-adapter</artifactId>
+            <version>1.7.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>3.8.7</version>
         </dependency>
 
     </dependencies>

@@ -1,0 +1,40 @@
+tester:
+  title: Jolokia releated tests
+  description: |-
+    This folder contains tests related to the jolokia adapter
+
+  groups:
+    - jolokia
+
+containers:
+  - name: 'jolokia-example-server'
+    image: 'ghcr.io/qtc-de/beanshooter/jolokia-example-server:1.0'
+    volumes:
+      - '${volume}:${volume-d}'
+    aliases:
+      DOCKER-jolokia-example-server-IP: DOCKER-IP
+      DOCKER-jolokia-example-server-GATEWAY: DOCKER-GW
+    init: 5
+
+variables:
+  TARGET:
+    - ${DOCKER-IP}
+    - 8080
+    - --jolokia
+    - --username
+    - manager
+    - --password
+    - admin
+
+  TARGET_NO_AUTH:
+    - ${DOCKER-IP}
+    - 8080
+    - --jolokia
+
+testers:
+  - ./tomcat/tricot.yml
+  - ./diagnostic/tricot.yml
+  - ./mlet/tricot.yml
+  - ./hotspot/tricot.yml
+  - ./recorder/tricot.yml
+  - ./basic/tricot.yml

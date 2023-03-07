@@ -7,6 +7,8 @@ import java.util.List;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.utils.Utils;
@@ -644,6 +646,101 @@ public class ExceptionHandler {
             ExceptionHandler.unknownReason(e);
     }
 
+    public static void handleJ4pRemoteException(J4pRemoteException e, String during)
+    {
+        String message = e.getMessage();
+
+        if (message.contains("No JSR-160 proxy is enabled"))
+            ExceptionHandler.noJolokiaProxy(e);
+
+        if (message.contains("is not allowed by configuration"))
+            ExceptionHandler.jolokiaDenyList(e);
+
+        if (message.contains("Error: java.net.MalformedURLException"))
+            ExceptionHandler.jolokiaMalformedUrl(e);
+
+        if (message.contains("createMBean not supported"))
+            ExceptionHandler.jolokiaCreateMBean(e);
+
+        else
+            ExceptionHandler.unexpectedStatus(e, during);
+    }
+
+    public static void unexpectedStatus(J4pRemoteException e, String during)
+    {
+        Logger.eprintlnMixedYellow("Obtained the unexpected status code", String.valueOf(e.getStatus()), during);
+        Logger.eprintlnMixedBlue("Error Message:", e.getMessage());
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void jolokiaCreateMBean(Exception e)
+    {
+        Logger.eprintlnMixedYellow("Creating new MBeans", "is not", "supported by Jolokia.");
+        Logger.eprintlnMixedBlue("New MBeans can only be loaded if the", "MLet MBean", "is already available.");
+        Logger.eprintlnMixedYellow("If this is the case you can use beanshooters", "mlet load", "action to load new MBeans.");
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void jolokiaRemoveMBean(Exception e)
+    {
+        Logger.eprintlnMixedYellow("Removing MBeans", "is not", "supported by Jolokia.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void noJolokiaProxy(J4pRemoteException e)
+    {
+        Logger.eprintlnMixedYellow("Target server", "does not", "support Jolokia proxy mode.");
+        Logger.eprintMixedBlue("Neither the", "jolokia", "action nor the ");
+        Logger.eprintlnPlainMixedBlueFirst("--jolokia-proxy", "option can be used.");
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void jolokiaDenyList(J4pRemoteException e)
+    {
+        Logger.eprintlnMixedYellow("The specified proxy URL", BeanshooterOption.CONN_JOLOKIA_PROXY.getValue(), "is blocked by Jolokias denylist.");
+        Logger.eprintlnMixedBlue("You may be able to", "bypass", "this filter by applying simple string modifications.");
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void jolokiaMalformedUrl(J4pRemoteException e)
+    {
+        String error = e.getMessage().split("MalformedURLException : ")[1];
+
+        Logger.eprintlnMixedYellow("Jolokia", "rejected", "the specified URL.");
+        Logger.eprintlnMixedBlue("Error message:", error);
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void noOperation(Exception e, String signature)
+    {
+        Logger.eprintlnMixedYellow("The specified method signature", signature, "is not known by the server.");
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
+    public static void noOperationAlternative(Exception e, String signature, String method, String message)
+    {
+        String alternatives = message.substring(message.lastIndexOf(' ')).trim();
+
+        Logger.eprintlnMixedYellow("The specified method signature", signature, "is not known by the server.");
+        Logger.eprintMixedYellow("The following signatures are known", alternatives, "for the method ");
+        Logger.eprintlnPlainBlue(method);
+
+        ExceptionHandler.showStackTrace(e);
+        Utils.exit();
+    }
+
     public static void unknownReason(Exception e, String during)
     {
         Throwable t = ExceptionHandler.getCause(e);
@@ -682,6 +779,13 @@ public class ExceptionHandler {
         Logger.eprintln("Mismatching number of arguments for the specified signature.");
         Logger.eprintMixedBlueFirst("Expected " + expected, "argument(s), but", "got " + actual);
         Logger.printlnPlain(" arguments.");
+        Utils.exit();
+    }
+
+    public static void openTypeException(String type, String during)
+    {
+        Logger.printlnMixedYellow("Caught unexpected", type, "while " + during + ".");
+        Logger.printlnMixedBlue("StackTrace cannot be provided as the exception was caused by an", "OpenType");
         Utils.exit();
     }
 

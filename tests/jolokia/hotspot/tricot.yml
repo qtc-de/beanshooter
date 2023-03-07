@@ -1,0 +1,14 @@
+tester:
+  title: hotspot related tests
+  description: |-
+    Tests for beanshooters hotspot action
+
+  id: '13'
+  groups:
+    - hotspot
+
+testers:
+  - ./dump/tricot.yml
+  - ./list/tricot.yml
+  - ./get/tricot.yml
+  - ./set/tricot.yml

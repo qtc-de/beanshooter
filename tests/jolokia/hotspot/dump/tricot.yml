@@ -1,0 +1,35 @@
+tester:
+  title: hotspot dump action
+  description: |-
+    Perform tests on beanshooters hotspot dump action
+
+  id: '13-01'
+  groups:
+    - dump
+  id_pattern: '13-01-01-{:02}'
+
+tests:
+  - title: Create a heapdump
+    description: |-
+      Create a heapdump
+
+    command:
+      - beanshooter
+      - hotspot
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${volume-d}/dump.hprof
+
+    validators:
+      - error: False
+      - regex:
+          match:
+            - 'Heapdump file .+ was created successfully'
+      - file_exists:
+          cleanup: True
+          files:
+            - ${volume}/dump.hprof
+
+testers:
+  - ./error/tricot.yml

@@ -1,0 +1,28 @@
+tester:
+  title: diagnostic props action
+  description: |-
+    Perform tests on beanshooters diagnostic props action
+
+  id: '11-02'
+  groups:
+    - props
+  id_pattern: '11-02-{:02}'
+
+tests:
+  - title: Get props
+    description: |-
+      Obtain currently set system properties
+
+    command:
+      - beanshooter
+      - diagnostic
+      - props
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'os.name=Linux'
+            - 'user.dir=/usr/local/tomcat'

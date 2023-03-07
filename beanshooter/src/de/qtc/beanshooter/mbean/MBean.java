@@ -37,7 +37,11 @@ public enum MBean implements IMBean
             "diagnostic",
             "Diagnostic Command MBean",
              Utils.getObjectName("com.sun.management:type=DiagnosticCommand"),
-             "com.sun.management.internal.DiagnosticCommandImpl",
+             new String[]
+             {
+                     "com.sun.management.internal.DiagnosticCommandImpl",
+                     "sun.management.DiagnosticCommandImpl"
+             },
              null,
              DiagnosticCommandOperation.values(),
              DiagnosticCommandOption.values()
@@ -47,7 +51,11 @@ public enum MBean implements IMBean
             "hotspot",
             "HotSpot Diagnostic MBean",
              Utils.getObjectName("com.sun.management:type=HotSpotDiagnostic"),
-             "com.sun.management.internal.HotSpotDiagnostic",
+             new String[]
+             {
+                     "com.sun.management.internal.HotSpotDiagnostic",
+                     "sun.management.HotSpotDiagnostic"
+             },
              null,
              HotSpotDiagnosticOperation.values(),
              HotSpotDiagnosticOption.values()
@@ -56,7 +64,10 @@ public enum MBean implements IMBean
     MLET("mlet",
          "default JMX bean that can be used to load additional beans dynamically",
          Utils.getObjectName("DefaultDomain:type=MLet"),
-         "javax.management.loading.MLet",
+         new String[]
+         {
+                 "javax.management.loading.MLet",
+         },
          null,
          MLetOperation.values(),
          MLetOption.values()
@@ -66,7 +77,10 @@ public enum MBean implements IMBean
             "recorder",
             "jfr Flight Recorder MBean",
              Utils.getObjectName("jdk.management.jfr:type=FlightRecorder"),
-             "jdk.management.jfr.FlightRecorderMXBeanImpl",
+             new String[]
+             {
+                     "jdk.management.jfr.FlightRecorderMXBeanImpl",
+             },
              null,
              FlightRecorderOperation.values(),
              FlightRecorderOption.values()
@@ -76,7 +90,10 @@ public enum MBean implements IMBean
            "tomcat",
            "tomcat MemoryUserDatabaseMBean used for user management",
             Utils.getObjectName("Users:type=UserDatabase,database=UserDatabase"),
-            "org.apache.catalina.mbeans.MemoryUserDatabaseMBean",
+            new String[]
+            {
+                    "org.apache.catalina.mbeans.MemoryUserDatabaseMBean",
+            },
             null,
             MemoryUserDatabaseMBeanOperation.values(),
             MemoryUserDatabaseMBeanOption.values()
@@ -85,8 +102,11 @@ public enum MBean implements IMBean
     TONKA("tonka",
           "general purpose bean for executing commands and uploading or download files",
           Utils.getObjectName("MLetTonkaBean:name=TonkaBean,id=1"),
-          "de.qtc.beanshooter.tonkabean.TonkaBean",
-          "tonka-bean-3.1.1-jar-with-dependencies.jar",
+          new String[]
+          {
+                  "de.qtc.beanshooter.tonkabean.TonkaBean",
+          },
+          "tonka-bean-4.0.0-jar-with-dependencies.jar",
           TonkaBeanOperation.values(),
           TonkaBeanOption.values()
          );
@@ -94,7 +114,7 @@ public enum MBean implements IMBean
     private String name;
     private String description;
     private ObjectName objectName;
-    private String mBeanClass;
+    private String[] mBeanClasses;
     private String jarFileName;
     private Operation[] operations;
     private Option[] options;
@@ -105,18 +125,18 @@ public enum MBean implements IMBean
      * @param name display name of the corresponding MBean
      * @param description short description for the help menu
      * @param objName ObjectName used by the MBean
-     * @param mBeanClass Class name implemented by the MBean
+     * @param mBeanClasses Class names implemented by the MBean
      * @param jarName optional jar name that implements the MBean
      * @param operations available operations on this MBean
      * @param options available options on this MBean
      */
-    MBean(String name, String description, ObjectName objName, String mBeanClass, String jarName, Operation[] operations, Option[] options)
+    MBean(String name, String description, ObjectName objName, String[] mBeanClasses, String jarName, Operation[] operations, Option[] options)
     {
         this.name = name;
         this.description = description;
         this.operations = operations;
         this.objectName = objName;
-        this.mBeanClass = mBeanClass;
+        this.mBeanClasses = mBeanClasses;
         this.jarFileName = jarName;
         this.options = options;
     }
@@ -158,7 +178,7 @@ public enum MBean implements IMBean
      */
     public String getMBeanClass()
     {
-        return this.mBeanClass;
+        return this.mBeanClasses[0];
     }
 
     /**
@@ -254,7 +274,12 @@ public enum MBean implements IMBean
         List<String> mBeanNames = new ArrayList<String>();
 
         for( MBean bean : MBean.values())
-            mBeanNames.add(bean.getMBeanClass());
+        {
+            for (String className : bean.mBeanClasses)
+            {
+                mBeanNames.add(className);
+            }
+        }
 
         return mBeanNames;
     }

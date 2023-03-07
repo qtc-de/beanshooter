@@ -1,0 +1,31 @@
+tester:
+  title: diagnostic cmdline action
+  description: |-
+    Perform tests on beanshooters diagnostic cmdline action
+
+  id: '11-01'
+  groups:
+    - cmdline
+  id_pattern: '11-01-{:02}'
+
+tests:
+  - title: Get cmdline
+    description: |-
+      Obtain the servers cmdline
+
+    command:
+      - beanshooter
+      - diagnostic
+      - cmdline
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'VM Arguments'
+            - '-Dcom.sun.management.jmxremote.port=1090'
+            - '-Dcom.sun.management.jmxremote.rmi.port=1090'
+            - '-Dcom.sun.management.jmxremote.password.file=/usr/local/tomcat/conf/jmxremote.password'
+            - '-Dcom.sun.management.jmxremote.access.file=/usr/local/tomcat/conf/jmxremote.access'

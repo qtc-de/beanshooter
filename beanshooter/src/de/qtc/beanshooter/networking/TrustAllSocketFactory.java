@@ -23,8 +23,8 @@ import de.qtc.beanshooter.utils.Utils;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public class TrustAllSocketFactory implements RMIClientSocketFactory {
-
+public class TrustAllSocketFactory implements RMIClientSocketFactory
+{
     private SSLSocketFactory fax;
     private int readTimeout;
     private int connectTimeout;

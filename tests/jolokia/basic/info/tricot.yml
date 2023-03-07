@@ -1,0 +1,59 @@
+tester:
+  title: info action
+  description: |-
+    Perform tests on beanshooters info action
+
+  id: '15-05'
+  groups:
+    - info
+    - target
+  id_pattern: '15-05-01-{:02}'
+
+tests:
+  - title: Global info
+    description: |-
+      Obtain information on methods and attributes from all MBeans
+
+    command:
+      - beanshooter
+      - info
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean Class: sun.management.MemoryManagerImpl'
+            - 'ObjectName: java.lang:name=Metaspace Manager,type=MemoryManager'
+            - 'Attributes:'
+            - 'Operations:'
+            - 'ObjectName (type: javax.management.ObjectName , writable: false)'
+
+
+  - title: Compilation info
+    description: |-
+      Obtain information on methods and attributes from the java.lang:type=Compilation MBean
+
+    command:
+      - beanshooter
+      - info
+      - ${TARGET}
+      - ${OPTIONS}
+      - java.lang:type=Compilation
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'MBean Class: sun.management.CompilationImpl'
+            - 'ObjectName: java.lang:type=Compilation'
+            - 'Attributes:'
+            - 'Operations:'
+            - 'TotalCompilationTime (type: long , writable: false)'
+          invert:
+            - 'MBean Class: sun.management.MemoryManagerImpl'
+            - 'ObjectName: java.lang:name=Metaspace Manager,type=MemoryManager'
+
+testers:
+  - ./error/tricot.yml

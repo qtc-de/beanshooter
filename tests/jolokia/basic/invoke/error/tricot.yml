@@ -1,0 +1,158 @@
+tester:
+  title: invoke action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters invoke action
+
+  id: '15-06-03'
+  groups:
+    - error
+  id_pattern: '15-06-03-{:02}'
+
+
+tests:
+  - title: Missing signature
+    description: |-
+      Perform an invoke operation without a signature
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Error: The specified aciton requires the --signature option'
+
+
+  - title: Invalid Signature
+    description: |-
+      Perform an invoke operation with an invalid signature
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - --signature
+      - "getThreadInfo(long id"
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The specified method signature void getThreadInfo(long id is invalid'
+            - 'Make sure to use full qualified class names and that all classes are available on the classpath'
+
+
+  - title: Non available Signature
+    description: |-
+      Perform an invoke operation with a non available signature
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - --signature
+      - "getThreadInfo(String id)"
+      - "hello"
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The specified method signature getThreadInfo(String id) is not known by the server'
+            - 'The following signatures are known'
+            - 'for the method getThreadInfo'
+
+
+  - title: Wrong parameter count (to few)
+    description: |-
+      Call a method and specify too few parameters
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - --signature
+      - "getThreadInfo(long id)"
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Mismatching number of arguments for the specified signature'
+            - 'Expected 1 argument(s), but got 0'
+
+
+  - title: Wrong parameter count (to many)
+    description: |-
+      Call a method and specify too many parameters
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.lang:type=Threading'
+      - --signature
+      - "getThreadInfo(long id)"
+      - 1L
+      - 2L
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Mismatching number of arguments for the specified signature'
+            - 'Expected 1 argument(s), but got 2'
+
+
+  - title: Wrong ObjectName
+    description: |-
+      Call a method and specify a wrong ObjectName
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.lang:type=Threadinh'
+      - --signature
+      - "getThreadInfo(long id)"
+      - 1L
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The specified MBean java.lang:type=Threadinh does probably not exist on the endpoint'
+
+
+  - title: Invalid ObjectName
+    description: |-
+      Call a method and specify an invalid ObjectName
+
+    command:
+      - beanshooter
+      - invoke
+      - ${TARGET}
+      - ${OPTIONS}
+      - 'java.lang'
+      - --signature
+      - "getThreadInfo(long id)"
+      - 1L
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The specified ObjectName java.lang is invalid'

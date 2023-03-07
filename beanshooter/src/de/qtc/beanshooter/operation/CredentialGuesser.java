@@ -7,8 +7,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
+import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.ProgressBar;
@@ -171,6 +174,11 @@ public class CredentialGuesser
 
                     if( BeanshooterOption.BRUTE_FIRST.getBool() )
                         pool.shutdownNow();
+                }
+
+                catch (J4pRemoteException e)
+                {
+                    ExceptionHandler.handleJ4pRemoteException(e, "during login attempt");
                 }
 
                 catch (AuthenticationException e) {}

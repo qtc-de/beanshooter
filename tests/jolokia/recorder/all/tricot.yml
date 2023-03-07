@@ -1,0 +1,124 @@
+tester:
+  title: recorder actions
+  description: |-
+    The actions of beanshooters recorder operation all kind of depend
+    on each other. Performing the tests separately would not make much
+    sense, as a test for one action would require to also invoke the
+    other one. Therefore, we use one test module to test all actions
+    at once.
+
+  id: '14-01'
+  groups:
+    - all
+  id_pattern: '14-01-01-{:02}'
+
+tests:
+  - title: New
+    description: |-
+      Create a new recording
+
+    command:
+      - beanshooter
+      - recorder
+      - new
+      - ${TARGET}
+      - ${OPTIONS}
+
+    extractors:
+      - regex:
+          pattern: 'with ID: (\d+)'
+          variable: 'ID'
+          on_miss: 'break'
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Requesting new recording on the MBeanServer'
+            - 'New recording created successfully with ID: '
+
+  - title: Start
+    description: |-
+      Start the new recording
+
+    command:
+      - beanshooter
+      - recorder
+      - start
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Recording with ID 1 started successfully'
+
+  - title: Dump
+    description: |-
+      Dump the recordig to a file on the server
+
+    command:
+      - beanshooter
+      - recorder
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - ${volume-d}/recording.dump
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - ' Recording with ID 1 was successfully dumped to'
+      - file_exists:
+          cleanup: True
+          files:
+            - ${volume}/recording.dump
+
+  - title: Stop
+    description: |-
+      Stop the recording
+
+    command:
+      - beanshooter
+      - recorder
+      - stop
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Recording with ID 1 stopped successfully'
+
+  - title: Save
+    description: |-
+      save the recording
+
+    command:
+      - beanshooter
+      - recorder
+      - save
+      - ${TARGET}
+      - ${OPTIONS}
+      - ${ID-0-1}
+      - /tmp/recording.dump
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Saving recording with ID: 1'
+            - 'Writing recording data to: /tmp/recording.dump'
+      - file_exists:
+         cleanup: True
+         files:
+            - /tmp/recording.dump
+
+testers:
+  - ./error/tricot.yml

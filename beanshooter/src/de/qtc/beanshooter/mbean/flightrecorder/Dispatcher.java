@@ -77,7 +77,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             if (t instanceof IllegalArgumentException && t.getMessage().contains("No recording available with id"))
                 Logger.eprintlnMixedYellow("A recording with ID", String.valueOf(recordingID), "does not exist.");
 
-            else if ( t instanceof java.lang.IllegalStateException && t.getMessage().contains("Recording can only be started once"))
+            else if ( t instanceof IllegalStateException && t.getMessage().contains("Recording can only be started once"))
                 Logger.eprintlnMixedYellow("The recording with ID", String.valueOf(recordingID), "was already started.");
 
             else
@@ -110,10 +110,10 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             if (t instanceof IllegalArgumentException && t.getMessage().contains("No recording available with id"))
                 Logger.eprintlnMixedYellow("A recording with ID", String.valueOf(recordingID), "does not exist.");
 
-            else if ( t instanceof java.lang.IllegalStateException && t.getMessage().contains("Recording must be started before it can be stopped"))
+            else if ( t instanceof IllegalStateException && t.getMessage().contains("Recording must be started before it can be stopped"))
                 Logger.eprintlnMixedYellow("The recording with ID", String.valueOf(recordingID), "was not started yet.");
 
-            else if ( t instanceof java.lang.IllegalStateException && t.getMessage().contains("Can't stop an already stopped recording"))
+            else if ( t instanceof IllegalStateException && t.getMessage().contains("Can't stop an already stopped recording"))
                 Logger.eprintlnMixedYellow("The recording with ID", String.valueOf(recordingID), "was already stopped.");
 
             else

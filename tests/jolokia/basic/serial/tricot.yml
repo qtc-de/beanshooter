@@ -1,0 +1,48 @@
+tester:
+  title: serial action
+  description: |-
+    Perform tests on beanshooters serial action. Since serialization attacks
+    are not supported via Jolokia, these tests are rather short.
+
+  id: '15-08'
+  groups:
+    - serial
+    - target
+  id_pattern: '15-08-01-{:02}'
+
+tests:
+  - title: Plain Deserialization
+    description: |-
+      Attempt a deserialization attack on a Jolokia endpoint
+
+    command:
+      - beanshooter
+      - serial
+      - ${TARGET}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch /tmp/test'
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The serial action is not supported for Jolokia based connections
+
+  - title: Preauth deserialization
+    description: |-
+      Attempt a pre-auth deserialization attack on a Jolokia endpoint
+
+    command:
+      - beanshooter
+      - serial
+      - ${TARGET}
+      - ${OPTIONS}
+      - CommonsCollections6
+      - 'touch /tmp/test'
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - The serial action is not supported for Jolokia based connections

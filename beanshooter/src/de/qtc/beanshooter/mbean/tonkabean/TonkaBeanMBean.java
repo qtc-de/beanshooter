@@ -1,7 +1,5 @@
 package de.qtc.beanshooter.mbean.tonkabean;
 
-import java.util.Map;
-
 import javax.management.MBeanException;
 import javax.management.RuntimeMBeanException;
 
@@ -18,7 +16,7 @@ public interface TonkaBeanMBean
     public String[] shellInit() throws MBeanException;
     public String toServerDir(String cwd, String change) throws MBeanException, RuntimeMBeanException;
 
-    public byte[] executeCommand(String[] cmd, String cwd, Map<String,String> env, boolean background) throws MBeanException;
+    public byte[] executeCommand(String[] cmd, String cwd, String[] env, boolean background) throws MBeanException;
 
     public byte[] downloadFile(String filename) throws MBeanException;
     public String uploadFile(String destination, String filename, byte[] content) throws MBeanException;

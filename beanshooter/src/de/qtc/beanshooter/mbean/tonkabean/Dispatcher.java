@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.management.MBeanException;
 import javax.management.RuntimeMBeanException;
@@ -112,7 +113,9 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     {
         String cwd = TonkaBeanOption.EXEC_CWD.getValue(".");
         boolean background = TonkaBeanOption.EXEC_BACK.getBool();
+
         Map<String,String> env = Utils.parseEnvironmentString(TonkaBeanOption.EXEC_ENV.<String>getValue(""));
+        String[] envArray = envToString(env);
 
         if( TonkaBeanOption.EXEC_RAW.getBool() )
             Logger.disableStdout();
@@ -122,7 +125,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
         try
         {
-            byte[] result = tonkaBean.executeCommand(command.toArray(new String[0]), cwd, env, background);
+            byte[] result = tonkaBean.executeCommand(command.toArray(new String[0]), cwd, envArray, background);
 
             if (background)
                 return;
@@ -375,11 +378,13 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
     private void shellCommand(String command, List<String> shell, Map<String,String> env, boolean background)
     {
         shell.add(command);
+
+        String[] envArray = envToString(env);
         String[] commandArray = shell.toArray(new String[0]);
 
         try
         {
-            byte[] result = tonkaBean.executeCommand(commandArray, cwd, env, background);
+            byte[] result = tonkaBean.executeCommand(commandArray, cwd, envArray, background);
 
             if (background)
             {
@@ -624,4 +629,29 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                 break;
         }
     }
+
+    /**
+     * To ensure the compatibility with Jolokia based agents, the environment for the
+     * TonkaBean is no longer passed as HashMap directly, but as a String array (see
+     * https://github.com/rhuss/jolokia/issues/542 for more details).
+     *
+     * This function parses the old HashMap format into a String array
+     *
+     * @param env  old Map style environment
+     * @return environment as String array
+     */
+    private String[] envToString(Map<String,String> env)
+    {
+        int ctr = 0;
+        String[] envArray = new String[env.keySet().size() * 2];
+
+        for (Entry<String,String> entry : env.entrySet())
+        {
+            envArray[ctr++] = entry.getKey();
+            envArray[ctr++] = entry.getValue();
+        }
+
+        return envArray;
+    }
+
 }

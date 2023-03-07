@@ -11,6 +11,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.sasl.RealmCallback;
 import javax.security.sasl.RealmChoiceCallback;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.MismatchedURIException;
@@ -166,6 +168,12 @@ public enum SASLMechanism {
                     mechanism.extra = ((MismatchedURIException)e).getUri();
 
                 return mechanism;
+            }
+
+            catch (J4pRemoteException e)
+            {
+                // Actually unreachable code, since SASL negotiation is not done for Jolokia based connections
+                ExceptionHandler.handleJ4pRemoteException(e, "during SASL negotiation");
             }
         }
 

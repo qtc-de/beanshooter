@@ -1,0 +1,33 @@
+tester:
+  title: hotspot get action
+  description: |-
+    Perform tests on beanshooters hotspot get action
+
+  id: '13-03'
+  groups:
+    - get
+  id_pattern: '13-03-01-{:02}'
+
+tests:
+  - title: Get option
+    description: |-
+      Attempt to get a diagnostic option value
+
+    command:
+      - beanshooter
+      - hotspot
+      - get
+      - ${TARGET}
+      - ${OPTIONS}
+      - HeapDumpBeforeFullGC
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - '[+] Name: HeapDumpBeforeFullGC'
+            - '[+] Value: false'
+            - '[+] Writable: true'
+
+testers:
+  - ./error/tricot.yml

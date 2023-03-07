@@ -1,0 +1,28 @@
+tester:
+  title: hotspot get action (Error)
+  description: |-
+    Perform tests for the error handling of beanshooters hotspot get action.
+
+  id: '13-03-02'
+  groups:
+    - error
+  id_pattern: '13-03-02-{:02}'
+
+tests:
+  - title: Non existent
+    description: |-
+      Attempt to get information on non existent option
+
+    command:
+      - beanshooter
+      - hotspot
+      - get
+      - ${TARGET}
+      - ${OPTIONS}
+      - test
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'A VMOption with name test does not exist on the remote server'

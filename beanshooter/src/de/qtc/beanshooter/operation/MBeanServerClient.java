@@ -18,6 +18,9 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
+import org.jolokia.client.exception.J4pRemoteException;
+import org.jolokia.client.exception.UncheckedJmxAdapterException;
+
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.DynamicMBean;
@@ -78,32 +81,46 @@ public class MBeanServerClient {
 
         try {
 
-            if( conn.isRegistered(mBeanObjectName) )
+            if (conn.isRegistered(mBeanObjectName))
             {
                 Logger.printlnMixedBlue("MBean with object name", mBeanObjectName.toString(), "is already deployed.");
                 return;
             }
 
             conn.createMBean(mBeanClassName, mBeanObjectName);
+        }
 
-        } catch (InstanceAlreadyExistsException e) {
+        catch (InstanceAlreadyExistsException e)
+        {
             Logger.printlnMixedYellowFirst(className, "is already deployed.");
             return;
+        }
 
-        } catch (javax.management.ReflectionException | UndeclaredThrowableException e) {
+        catch (UnsupportedOperationException e)
+        {
+            Logger.lineBreak();
 
+            if (BeanshooterOption.CONN_JOLOKIA.getBool())
+                ExceptionHandler.jolokiaCreateMBean(e);
+
+            else
+                throw e;
+        }
+
+        catch (javax.management.ReflectionException | UndeclaredThrowableException e)
+        {
             Throwable t = ExceptionHandler.getCause(e);
 
-            if( t instanceof ClassNotFoundException) {
-
-                if( jarFile != null ) {
-
+            if (t instanceof ClassNotFoundException)
+            {
+                if (jarFile != null)
+                {
                     Logger.lineBreak();
                     Logger.increaseIndent();
 
                     Logger.println("MBean class is not known by the server.");
 
-                    if( BeanshooterOption.DEPLOY_STAGER_URL.isNull() )
+                    if (BeanshooterOption.DEPLOY_STAGER_URL.isNull())
                     {
                         Logger.eprintlnMixedYellow("Use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
                         Utils.exit();
@@ -115,21 +132,26 @@ public class MBeanServerClient {
                     mLetDispatcher.loadMBeanFromURL(mbean, BeanshooterOption.DEPLOY_STAGER_URL.getValue());
 
                     Logger.decreaseIndent();
+                }
 
-                } else {
+                else
+                {
                     Logger.lineBreak();
                     Logger.eprintlnMixedBlue("The specified class", className, "is not known by the server.");
                     Logger.eprintMixedYellow("Use the", "--jar-file");
                     Logger.eprintlnPlainMixedYellow(" and", "--stager-url", "options to provide an implementation.");
                     Utils.exit();
                 }
-
-            } else {
-                ExceptionHandler.unexpectedException(e, "deploying", "MBean", true);
             }
 
-        } catch (SecurityException e) {
+            else
+            {
+                ExceptionHandler.unexpectedException(e, "deploying", "MBean", true);
+            }
+        }
 
+        catch (SecurityException e)
+        {
             Logger.lineBreak();
 
             if( e.getMessage().contains("Invalid access level") )
@@ -140,8 +162,10 @@ public class MBeanServerClient {
 
             else
                 ExceptionHandler.unexpectedException(e, "registering", "MBean", true);
+        }
 
-        } catch (Exception e) {
+        catch (Exception e)
+        {
             ExceptionHandler.unexpectedException(e, "registering", "MBean", true);
         }
 
@@ -161,6 +185,15 @@ public class MBeanServerClient {
         try
         {
             conn.unregisterMBean(objectName);
+        }
+
+        catch (UnsupportedOperationException e)
+        {
+            if (BeanshooterOption.CONN_JOLOKIA.getBool())
+                ExceptionHandler.jolokiaRemoveMBean(e);
+
+            else
+                throw e;
         }
 
         catch (InstanceNotFoundException e)
@@ -252,9 +285,10 @@ public class MBeanServerClient {
                 ExceptionHandler.noSuchMethod(e, methodName);
 
             throw e;
+        }
 
-        } catch (SecurityException e) {
-
+        catch (SecurityException e)
+        {
             String message = e.getMessage();
 
             if (message.contains("Access denied!"))
@@ -262,6 +296,17 @@ public class MBeanServerClient {
 
             else
                 throw e;
+        }
+
+        catch (MBeanException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+            String message = t.getMessage();
+
+            if (t instanceof J4pRemoteException && message.contains("javax.management.InstanceNotFoundException"))
+                ExceptionHandler.handleInstanceNotFound(e, name.toString());
+
+            throw e;
         }
 
         return result;
@@ -282,6 +327,24 @@ public class MBeanServerClient {
         try
         {
             return conn.getAttribute(name, attributeName);
+        }
+
+        catch (UncheckedJmxAdapterException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof J4pRemoteException)
+            {
+                String message = t.getMessage();
+
+                if (message.contains("InstanceNotFoundException"))
+                    ExceptionHandler.handleInstanceNotFound(e, name.toString());
+
+                else if (message.contains("AttributeNotFoundException"))
+                    ExceptionHandler.noSuchAttribute(e, attributeName);
+            }
+
+            throw e;
         }
 
         catch (InstanceNotFoundException e)
@@ -312,6 +375,32 @@ public class MBeanServerClient {
         try
         {
             conn.setAttribute(name, attr);
+        }
+
+        catch (UncheckedJmxAdapterException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof J4pRemoteException)
+            {
+                String message = t.getMessage();
+
+                if (message.contains("InstanceNotFoundException"))
+                    ExceptionHandler.handleInstanceNotFound(e, name.toString());
+
+                else if (message.contains("AttributeNotFoundException"))
+                    ExceptionHandler.noSuchAttribute(e, attr.getName());
+
+                else if (message.contains("InvalidAttributeValueException"))
+                {
+                    Logger.eprintlnMixedYellow("Caught", "InvalidAttributeValueException", "while setting the attribute.");
+                    Logger.eprintlnMixedBlue("The specified attribute value of class", attr.getValue().getClass().getName(), "is probably not compatible.");
+                    Logger.eprintlnMixedYellow("You can use the", "--type", "option to specify a different type manually.");
+                    Utils.exit();
+                }
+            }
+
+            throw e;
         }
 
         catch (InstanceNotFoundException e)
@@ -357,5 +446,15 @@ public class MBeanServerClient {
         }
 
         return null;
+    }
+
+    /**
+     * Obtain the underlying MBeanServerConnection object.
+     *
+     * @return MBeanServerConnection object that is used by the client
+     */
+    public MBeanServerConnection getConnection()
+    {
+        return this.conn;
     }
 }

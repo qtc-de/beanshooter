@@ -1,0 +1,47 @@
+tester:
+  title: hotspot dump action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters hotspot dump action
+
+  id: '13-01-02'
+  groups:
+    - error
+  id_pattern: '13-01-02-{:02}'
+
+
+tests:
+  - title: Non extisting dir
+    description: |-
+      Attempt to create the dump in a non existing dir
+
+    command:
+      - beanshooter
+      - hotspot
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - /nonono/nonono.hprof
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'The parent directory of /nonono/nonono.hprof seems not to exist'
+
+  - title: Wrong extension
+    description: |-
+      Attempt to create a dump with an invalid file extension.
+
+    command:
+      - beanshooter
+      - hotspot
+      - dump
+      - ${TARGET}
+      - ${OPTIONS}
+      - /tmp/test.jsp
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Heapdump file must have .hprof extention'

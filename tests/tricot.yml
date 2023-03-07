@@ -34,3 +34,4 @@ testers:
   - ./serverless/tricot.yml
   - ./jmx-example-server-2/tricot.yml
   - ./tomcat-server/tricot.yml
+  - ./jolokia/tricot.yml

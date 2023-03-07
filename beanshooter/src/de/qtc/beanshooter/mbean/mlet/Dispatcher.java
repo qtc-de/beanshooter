@@ -149,14 +149,14 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
         {
             Set<Object> result = mlet.getMBeansFromURL(url);
 
-            for(Object o : result)
+            for (Object o : result)
             {
-                if( o instanceof Exception)
+                if (o instanceof Exception)
                     throw (Exception)o;
             }
         }
 
-        catch(MBeanException e)
+        catch (MBeanException e)
         {
             Throwable t = ExceptionHandler.getCause(e);
 
@@ -164,45 +164,46 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Logger.eprintMixedYellow("Caught", t.getClass().getName(), "while invoking ");
             Logger.eprintlnPlainBlue("getMBeansFromURL");
 
-            if( t instanceof java.net.NoRouteToHostException )
+            if (t instanceof java.net.NoRouteToHostException)
             {
                 Logger.eprintlnMixedBlue("MBeanServer is unable to connect to", urlString + ".");
             }
 
-            else if( t instanceof java.net.ConnectException )
+            else if (t instanceof java.net.ConnectException)
             {
-                if( t.getMessage().contains("Connection refused") )
+                if (t.getMessage().contains("Connection refused"))
                     Logger.eprintlnMixedBlue("Target", urlString, "refused the connection.");
 
                 else
                     ExceptionHandler.unknownReason(e);
             }
 
-            else if( t instanceof javax.management.ServiceNotFoundException )
+            else if (t instanceof javax.management.ServiceNotFoundException)
             {
-                if( t.getMessage().contains("MLET tag not defined in file") )
+                if (t.getMessage().contains("MLET tag not defined in file"))
                 {
-                    if( url.getProtocol().equals("file") )
+                    if (url.getProtocol().equals("file"))
                         Logger.eprintlnMixedBlue("The specified resource", urlString, "was found, but is not a valid MLET resource.");
 
                     else
                         Logger.eprintlnMixedYellow("The specified resource", urlString, "was either not found or is not a valid MLET resource.");
                 }
 
+                else if (t.getMessage().contains("Connection refused"))
+                    Logger.eprintlnMixedBlue("Target", urlString, "refused the connection.");
+
                 else
-                {
                     ExceptionHandler.unknownReason(e);
-                }
             }
 
-            else if( t instanceof java.io.FileNotFoundException )
+            else if (t instanceof java.io.FileNotFoundException)
             {
                 Logger.printlnMixedBlue("MBeanServer is unable to find resource", urlString);
             }
 
-            else if( t instanceof IOException )
+            else if (t instanceof IOException)
             {
-                if( t.getMessage().contains("Invalid Http response") )
+                if (t.getMessage().contains("Invalid Http response"))
                     Logger.eprintlnMixedBlue("The specified endpoint", urlString, "returned an invalid HTTP response.");
 
                 else
@@ -214,19 +215,17 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                 Throwable serviceNotFound = ExceptionHandler.getThrowable("ServiceNotFoundException", e);
 
                 if (serviceNotFound != null && serviceNotFound.getMessage().contains("Problems while parsing URL"))
-                {
                     Logger.eprintlnMixedBlue("The specified URL", urlString, "seems to be invalid.");
-                    Utils.exit();
-                }
 
-                ExceptionHandler.unknownReason(e);
+                else
+                    ExceptionHandler.unknownReason(e);
             }
 
             ExceptionHandler.showStackTrace(e);
             Utils.exit();
         }
 
-        catch(ReflectionException | NotCompliantMBeanException e)
+        catch (ReflectionException | NotCompliantMBeanException e)
         {
             Logger.lineBreak();
             Logger.resetIndent();
@@ -237,7 +236,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             Utils.exit();
         }
 
-        catch(Exception e)
+        catch (Exception e)
         {
             ExceptionHandler.unexpectedException(e, "loading", "MBean", true);
         }

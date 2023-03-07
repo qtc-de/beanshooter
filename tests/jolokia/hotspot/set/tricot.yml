@@ -1,0 +1,51 @@
+tester:
+  title: hotspot set action
+  description: |-
+    Perform tests on beanshooters hotspot set action
+
+  id: '13-04'
+  groups:
+    - set
+  id_pattern: '13-04-01-{:02}'
+
+tests:
+  - title: Set option
+    description: |-
+      Attempt to set a diagnostic option value
+
+    command:
+      - beanshooter
+      - hotspot
+      - set
+      - ${TARGET}
+      - ${OPTIONS}
+      - HeapDumpPath
+      - /tmp/test
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Option was set successfully'
+
+  - title: Verify
+    description: |-
+      Verify the newly set option value
+
+    command:
+      - beanshooter
+      - hotspot
+      - get
+      - ${TARGET}
+      - ${OPTIONS}
+      - HeapDumpPath
+
+    validators:
+      - error: False
+      - contains:
+          values:
+            - 'Name: HeapDumpPath'
+            - 'Value: /tmp/test'
+
+testers:
+  - ./error/tricot.yml

@@ -1,0 +1,27 @@
+tester:
+  title: tomcat list action (Error)
+  description: |-
+    Perform tests on the error handling of beanshooters tomcat list action
+
+  id: '10-06-02'
+  groups:
+    - error
+  id_pattern: '10-06-02-{:02}'
+
+tests:
+  - title: Undeploy UserMemoryDatabaseBean
+    description: |-
+      Undeploy the MBean that is used for listing the users
+
+    command:
+      - beanshooter
+      - tomcat
+      - undeploy
+      - ${TARGET}
+      - ${OPTIONS}
+
+    validators:
+      - error: True
+      - contains:
+          values:
+            - 'Removing MBeans is not supported by Jolokia'
