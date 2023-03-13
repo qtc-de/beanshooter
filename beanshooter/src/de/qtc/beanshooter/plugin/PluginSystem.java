@@ -408,6 +408,29 @@ public class PluginSystem {
     }
 
     /**
+     * Create an Object from a Java expression.
+     *
+     * @param str  Java expression. Class names need to be specified full qualified
+     * @return Object created from the Java expression
+     */
+    public static Object strToObj(String str)
+    {
+        Object args = null;
+
+        try
+        {
+            args = argumentProvider.strToObj(str);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return args;
+    }
+
+    /**
      * Pass the user supplied method signature to the ArgumentProvider and return the resulting
      * string array of parameter types.
      *

@@ -74,6 +74,41 @@ public class ArgumentProvider implements IArgumentProvider
      }
 
      /**
+      * Create an Object from a Java expression.
+      *
+      * @param str  Java expression. Class names need to be specified full qualified
+      * @return Object created from the Java expression
+      */
+      public Object strToObj(String str)
+      {
+          Object result = null;
+          ClassPool pool = ClassPool.getDefault();
+
+          try {
+              CtClass evaluator = pool.makeClass("de.qtc.rmg.plugin.providers.DefaultArgumentProvider");
+              String evalFunction = "public static Object eval() {"
+                                  + "        return " + str + ";"
+                                  + "}";
+
+              CtMethod me = CtNewMethod.make(evalFunction, evaluator);
+              evaluator.addMethod(me);
+
+              Class<?> evalClass = evaluator.toClass();
+              Method m = evalClass.getDeclaredMethods()[0];
+
+              result = (Object) m.invoke(evalClass, (Object[])null);
+
+          } catch(VerifyError | CannotCompileException e) {
+              ExceptionHandler.invalidArgumentException(e, str);
+
+          } catch (Exception e) {
+              ExceptionHandler.unexpectedException(e, "argument array", "generation", true);
+          }
+
+          return result;
+      }
+
+     /**
      * MBean calls are dispatched using an array of argument objects and an array of class names of the
      * corresponding argument types. In ordinary MBean clients, this is no problem, as the methods are available
      * within the client and obtaining the argument types of a method can be done automatically

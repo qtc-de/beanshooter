@@ -17,6 +17,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.RuntimeOperationsException;
 
 import org.jolokia.client.exception.J4pRemoteException;
 import org.jolokia.client.exception.UncheckedJmxAdapterException;
@@ -76,6 +77,21 @@ public class MBeanServerClient {
      */
     public void deployMBean(String mBeanClassName, ObjectName mBeanObjectName, String jarFile)
     {
+        deployMBean(mBeanClassName, mBeanObjectName, jarFile, null, null);
+    }
+
+    /**
+     * Deploys the specified MBean. If the load parameter is set to true, the MBean will be loaded
+     * using getMBeansFromURL if it is not known to the MBEanServer.
+     *
+     * @param mBeanClassName class that is implemented by the MBean
+     * @param mBeanObjectName objectName implemented by the MBean
+     * @param jarFile path to a jar file for remote deployments (null if not desired)
+     * @param if a specific constructor should be used, define its parameters here
+     * @param if a specific constructor should be used, define its signature here
+     */
+    public void deployMBean(String mBeanClassName, ObjectName mBeanObjectName, String jarFile, Object[] params, String[] signature)
+    {
         String className = mBeanClassName.substring(mBeanClassName.lastIndexOf(".") + 1);
         Logger.printlnMixedYellow("Deplyoing MBean:", className);
 
@@ -87,7 +103,11 @@ public class MBeanServerClient {
                 return;
             }
 
-            conn.createMBean(mBeanClassName, mBeanObjectName);
+            if (params == null || signature == null)
+                conn.createMBean(mBeanClassName, mBeanObjectName);
+
+            else
+                conn.createMBean(mBeanClassName, mBeanObjectName, params, signature);
         }
 
         catch (InstanceAlreadyExistsException e)
@@ -305,6 +325,30 @@ public class MBeanServerClient {
 
             if (t instanceof J4pRemoteException && message.contains("javax.management.InstanceNotFoundException"))
                 ExceptionHandler.handleInstanceNotFound(e, name.toString());
+
+            throw e;
+        }
+
+        catch (RuntimeOperationsException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof IllegalArgumentException)
+            {
+                String[] actualArgumentTypes = new String[args.length];
+
+                for (int ctr = 0; ctr < args.length; ctr++)
+                {
+                    actualArgumentTypes[ctr] = args[ctr].getClass().getName();
+                }
+
+                Logger.eprintlnMixedYellow("Caught unexpected", "IllegalArgumentException", "while invoking the method.");
+                Logger.eprintlnMixedBlue("The specified argument types:", String.join(", ", actualArgumentTypes));
+                Logger.eprintlnMixedBlue("Do not match the expected argument types:", String.join(" ,", argTypes));
+
+                ExceptionHandler.showStackTrace(e);
+                Utils.exit();
+            }
 
             throw e;
         }

@@ -9,11 +9,17 @@ import java.util.Set;
 
 import javax.management.Attribute;
 import javax.management.MBeanException;
+import javax.management.MBeanParameterInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.RuntimeMBeanException;
+import javax.management.modelmbean.ModelMBeanAttributeInfo;
+import javax.management.modelmbean.ModelMBeanInfo;
+import javax.management.modelmbean.ModelMBeanInfoSupport;
+import javax.management.modelmbean.ModelMBeanOperationInfo;
+import javax.management.modelmbean.RequiredModelMBean;
 
 import org.jolokia.client.exception.J4pRemoteException;
 
@@ -100,6 +106,79 @@ public class Dispatcher {
 
         MBeanServerClient mBeanServerClient = getMBeanServerClient();
         mBeanServerClient.deployMBean(mBeanClassName, mBeanObjectName, BeanshooterOption.DEPLOY_JAR_FILE.getValue());
+
+        Logger.decreaseIndent();
+    }
+
+    /**
+     * Creates a new RequiredModelMBean on the remote MBean server that allows access to a user specified
+     * class.
+     */
+    public void model()
+    {
+        String className = ArgumentHandler.require(BeanshooterOption.MODEL_CLASS_NAME);
+        ObjectName mBeanObjectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.MODEL_OBJ_NAME));
+
+        MBeanServerClient mBeanServerClient = getMBeanServerClient();
+
+        try {
+            Class<?> cls = Class.forName(className);
+            ModelMBeanOperationInfo[] ops = Utils.createModelMBeanInfosFromClass(cls);
+
+            Logger.printlnBlue("Deploying RequiredModelMBean supporting methods from " + cls.getName());
+            Logger.lineBreak();
+            Logger.increaseIndent();
+
+            ModelMBeanInfo mmbi = new ModelMBeanInfoSupport(cls.getName(), "ModelMBean", new ModelMBeanAttributeInfo[] {}, null, ops, null);
+            mBeanServerClient.deployMBean(RequiredModelMBean.class.getName(), mBeanObjectName, null, new Object[] { mmbi }, new String[] { ModelMBeanInfo.class.getName() });
+
+            Logger.lineBreak();
+            Logger.printlnYellow("Available Methods:");
+
+            for (ModelMBeanOperationInfo op : ops)
+            {
+                String ret = op.getReturnType();
+                String name = op.getName();
+                StringBuilder args = new StringBuilder();
+
+                for (MBeanParameterInfo param : op.getSignature())
+                {
+                    args.append(param.getType());
+                    args.append(", ");
+                }
+
+                if (op.getSignature().length > 0)
+                    args.setLength(args.length() - 2);
+
+                Logger.printMixedBlue("  -", ret + " ");
+                Logger.printPlainYellow(name);
+                Logger.printlnPlainBlue("(" + args.toString() + ")");
+            }
+        }
+
+        catch (ClassNotFoundException e)
+        {
+            Logger.eprintlnMixedYellow("The specified class", className, "cannot be found.");
+            Utils.exit();
+        }
+
+        if (BeanshooterOption.MODEL_RESOURCE.notNull())
+        {
+            Object managedResource = PluginSystem.strToObj(BeanshooterOption.MODEL_RESOURCE.getValue());
+
+            try
+            {
+                Logger.lineBreak();
+                Logger.printlnMixedYellow("Setting managed resource to:", BeanshooterOption.MODEL_RESOURCE.getValue());
+                mBeanServerClient.invoke(mBeanObjectName, "setManagedResource", new String[] { Object.class.getName(), "java.lang.String" }, managedResource, "objectReference");
+                Logger.printlnMixedBlue("Managed resource was set", "successfully.");
+            }
+
+            catch (MBeanException | ReflectionException | IOException e)
+            {
+                ExceptionHandler.internalError("model", "Caught" + e.getClass().getName() + "while invoking setManagedResource.");
+            }
+        }
 
         Logger.decreaseIndent();
     }
@@ -380,7 +459,7 @@ public class Dispatcher {
             Throwable t = ExceptionHandler.getCause(e);
             String message = t.getMessage();
 
-            if (message.contains("No operation " + methodName))
+            if (message != null && message.contains("No operation " + methodName))
             {
                 if (message.contains("Known signatures: "))
                     ExceptionHandler.noOperationAlternative(e, signature, methodName, message);

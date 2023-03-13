@@ -2,6 +2,7 @@ package de.qtc.beanshooter.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -35,14 +36,18 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.management.Descriptor;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.modelmbean.DescriptorSupport;
+import javax.management.modelmbean.ModelMBeanOperationInfo;
+import javax.management.modelmbean.RequiredModelMBean;
 
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
-
+import de.qtc.beanshooter.operation.BeanshooterOption;
 import sun.rmi.server.UnicastRef;
 import sun.rmi.transport.LiveRef;
 import sun.rmi.transport.tcp.TCPEndpoint;
@@ -658,5 +663,51 @@ public class Utils {
         int port = endpoint.getPort();
 
         return String.format("%s:%d", host, port);
+    }
+
+    /**
+     * Create an array of ModelMBeanOperationInfo from the specified class. This method uses reflection to
+     * determine all the available methods within the specified class, filters methods with non serializable
+     * parameters and wraps each method into an ModelMBeanOperationInfo.
+     *
+     * @param cls  Class to obtain ModelMBeanOperationInfos from
+     * @return Array of ModelMBeanOperationInfo for the specified class
+     */
+    public static ModelMBeanOperationInfo[] createModelMBeanInfosFromClass(Class<?> cls)
+    {
+        Method[] methods = cls.getDeclaredMethods();
+        List<ModelMBeanOperationInfo> infos = new ArrayList<ModelMBeanOperationInfo>();;
+
+        outer:
+        for (Method method : methods)
+        {
+            if (!BeanshooterOption.MODEL_ALL_METHODS.getBool())
+            {
+                for (Class<?> paramType : method.getParameterTypes())
+                {
+                    if (!(Serializable.class.isAssignableFrom(paramType)))
+                        continue outer;
+                }
+            }
+
+            Descriptor methodDescriptor = new DescriptorSupport(new String[] { "name=" + method.getName(), "descriptorType=operation", "class=" + cls.getName()});
+            ModelMBeanOperationInfo info = new ModelMBeanOperationInfo(method.getName(), method, methodDescriptor);
+
+            infos.add(info);
+        }
+
+        try
+        {
+            Method setManagedResource = RequiredModelMBean.class.getMethod("setManagedResource", new Class[] {Object.class, String.class});
+            ModelMBeanOperationInfo info = new ModelMBeanOperationInfo("setManagedResource", setManagedResource);
+            infos.add(info);
+        }
+
+        catch (NoSuchMethodException | SecurityException e)
+        {
+            ExceptionHandler.internalError("createModelMBeanInfosFromClass", "unable to find setManagedResource method");
+        }
+
+        return infos.toArray(new ModelMBeanOperationInfo[0]);
     }
 }

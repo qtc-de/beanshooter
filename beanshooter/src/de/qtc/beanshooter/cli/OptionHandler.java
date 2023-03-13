@@ -147,6 +147,9 @@ public class OptionHandler {
         if (option == BeanshooterOption.ATTR_VALUE)
             arg.nargs("?");
 
+        if (option == BeanshooterOption.MODEL_RESOURCE)
+            arg.nargs("?");
+
         if (option == BeanshooterOption.OBJ_NAME)
             arg.nargs("?");
 
