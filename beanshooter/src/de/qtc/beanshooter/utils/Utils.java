@@ -1,6 +1,9 @@
 package de.qtc.beanshooter.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -37,17 +40,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.management.Descriptor;
+import javax.management.ImmutableDescriptor;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.modelmbean.DescriptorSupport;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 import javax.management.modelmbean.RequiredModelMBean;
 
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
+import de.qtc.beanshooter.plugin.PluginSystem;
 import sun.rmi.server.UnicastRef;
 import sun.rmi.transport.LiveRef;
 import sun.rmi.transport.tcp.TCPEndpoint;
@@ -675,8 +679,13 @@ public class Utils {
      */
     public static ModelMBeanOperationInfo[] createModelMBeanInfosFromClass(Class<?> cls)
     {
-        Method[] methods = cls.getDeclaredMethods();
+        Method[] methods = cls.getMethods();
         List<ModelMBeanOperationInfo> infos = new ArrayList<ModelMBeanOperationInfo>();;
+
+        Map<String, Object> descriptorFields = new HashMap<String, Object>();
+        descriptorFields.put("class", cls.getName());
+        descriptorFields.put("role", "operation");
+        descriptorFields.put("descriptorType", "operation");
 
         outer:
         for (Method method : methods)
@@ -690,7 +699,10 @@ public class Utils {
                 }
             }
 
-            Descriptor methodDescriptor = new DescriptorSupport(new String[] { "name=" + method.getName(), "descriptorType=operation", "class=" + cls.getName()});
+            descriptorFields.put("name", method.getName());
+            descriptorFields.put("displayName", method.getName());
+
+            Descriptor methodDescriptor = new ImmutableDescriptor(descriptorFields);
             ModelMBeanOperationInfo info = new ModelMBeanOperationInfo(method.getName(), method, methodDescriptor);
 
             infos.add(info);
@@ -709,5 +721,83 @@ public class Utils {
         }
 
         return infos.toArray(new ModelMBeanOperationInfo[0]);
+    }
+
+    public static ModelMBeanOperationInfo[] createModelMBeanInfosFromArg(String className)
+    {
+        List<ModelMBeanOperationInfo> operationInfos = new ArrayList<ModelMBeanOperationInfo>();
+
+        if (BeanshooterOption.MODEL_SIGNATURE.notNull())
+        {
+            ModelMBeanOperationInfo operationInfo = crateModelMBeanInfoFromString(className, BeanshooterOption.MODEL_SIGNATURE.getValue());
+            operationInfos.add(operationInfo);
+        }
+
+        else if (BeanshooterOption.MODEL_SIGNATURE_FILE.notNull())
+        {
+            try (BufferedReader br = new BufferedReader(new FileReader(BeanshooterOption.MODEL_SIGNATURE_FILE.<String>getValue())))
+            {
+                String line;
+
+                while ((line = br.readLine()) != null)
+                {
+                    ModelMBeanOperationInfo operationInfo = crateModelMBeanInfoFromString(className, line);
+                    operationInfos.add(operationInfo);
+                }
+            }
+
+            catch (FileNotFoundException e)
+            {
+                Logger.printlnMixedYellow("Caught unexpected", "FileNotFoundException", "while preparing method signatures.");
+                Logger.printlnMixedBlue("The specified input file", BeanshooterOption.MODEL_SIGNATURE_FILE.getValue(), "seems not to exist.");
+                Utils.exit();
+            }
+
+            catch (IOException e)
+            {
+                ExceptionHandler.handleFileRead(e, BeanshooterOption.MODEL_SIGNATURE_FILE.getValue(), true);
+            }
+        }
+
+        else
+        {
+            ExceptionHandler.internalError("createModelMBeanInfosFromArg", "Method was called but neither --signature nor --signature file was specified");
+        }
+
+        try
+        {
+            Method setManagedResource = RequiredModelMBean.class.getMethod("setManagedResource", new Class[] {Object.class, String.class});
+            ModelMBeanOperationInfo info = new ModelMBeanOperationInfo("setManagedResource", setManagedResource);
+            operationInfos.add(info);
+        }
+
+        catch (NoSuchMethodException | SecurityException e)
+        {
+            ExceptionHandler.internalError("createModelMBeanInfosFromClass", "unable to find setManagedResource method");
+        }
+
+        return operationInfos.toArray(new ModelMBeanOperationInfo[0]);
+    }
+
+    public static ModelMBeanOperationInfo crateModelMBeanInfoFromString(String className, String method)
+    {
+        String[] methodDesc = PluginSystem.getArgumentTypes(method, false, true);
+
+        Map<String, Object> descriptorFields = new HashMap<String, Object>();
+        descriptorFields.put("name", methodDesc[0]);
+        descriptorFields.put("displayName", methodDesc[0]);
+        descriptorFields.put("class", className);
+        descriptorFields.put("role", "operation");
+        descriptorFields.put("descriptorType", "operation");
+
+        Descriptor methodDescriptor = new ImmutableDescriptor(descriptorFields);
+        MBeanParameterInfo[] paramInfos = new MBeanParameterInfo[methodDesc.length - 1];
+
+        for (int ctr = 1; ctr < methodDesc.length; ctr++)
+        {
+            paramInfos[ctr - 1] = new MBeanParameterInfo(null, methodDesc[ctr], null);
+        }
+
+        return new ModelMBeanOperationInfo(methodDesc[0], null, paramInfos, className, MBeanOperationInfo.UNKNOWN, methodDescriptor);
     }
 }

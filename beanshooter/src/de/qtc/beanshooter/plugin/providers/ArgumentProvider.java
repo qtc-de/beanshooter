@@ -108,6 +108,14 @@ public class ArgumentProvider implements IArgumentProvider
           return result;
       }
 
+      /**
+       * See description below.
+       */
+      public String[] getArgumentTypes(String signature)
+      {
+          return getArgumentTypes(signature, false, false);
+      }
+
      /**
      * MBean calls are dispatched using an array of argument objects and an array of class names of the
      * corresponding argument types. In ordinary MBean clients, this is no problem, as the methods are available
@@ -126,14 +134,14 @@ public class ArgumentProvider implements IArgumentProvider
      * create a dummy method from the user specified method signature and when obtain the correct
      * type names via reflection and getParameterTypes() on the associated method object.
      */
-    public String[] getArgumentTypes(String signature)
+    public String[] getArgumentTypes(String signature, boolean includeReturn, boolean includeName)
     {
         ClassPool pool = ClassPool.getDefault();
         List<String> result = new ArrayList<String>();
         signature = Utils.makeVoid(signature);
 
         try {
-            CtClass evaluator = pool.makeClass("de.qtc.rmg.plugin.providers.DefaultArgumentProvider2");
+            CtClass evaluator = pool.makeClass("de.qtc.rmg.plugin.providers.DefaultArgumentProvider2" + System.nanoTime());
             String dummyFunction = "public static " + signature + " {}";
 
             CtMethod me = CtNewMethod.make(dummyFunction, evaluator);
@@ -141,6 +149,12 @@ public class ArgumentProvider implements IArgumentProvider
 
             Class<?> evalClass = evaluator.toClass();
             targetMethod = evalClass.getDeclaredMethods()[0];
+
+            if (includeReturn)
+                result.add(targetMethod.getReturnType().getName());
+
+            if (includeName)
+                result.add(targetMethod.getName());
 
             for(Class<?> type : targetMethod.getParameterTypes())
                 result.add(type.getName());

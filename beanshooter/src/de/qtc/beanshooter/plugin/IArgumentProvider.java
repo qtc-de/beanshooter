@@ -23,5 +23,6 @@ public interface IArgumentProvider
     Object[] getArgumentArray(String[] argumentArray) throws PluginException;
     Object strToObj(String str) throws PluginException;
     String[] getArgumentTypes(String signature) throws PluginException;
+    String[] getArgumentTypes(String signature, boolean includeReturn, boolean includeName) throws PluginException;
     String getMethodName(String signature) throws PluginException;
 }

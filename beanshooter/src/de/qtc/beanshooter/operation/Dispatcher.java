@@ -119,47 +119,57 @@ public class Dispatcher {
         String className = ArgumentHandler.require(BeanshooterOption.MODEL_CLASS_NAME);
         ObjectName mBeanObjectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.MODEL_OBJ_NAME));
 
+        ModelMBeanOperationInfo[] ops;
         MBeanServerClient mBeanServerClient = getMBeanServerClient();
 
-        try {
+        try
+        {
             Class<?> cls = Class.forName(className);
-            ModelMBeanOperationInfo[] ops = Utils.createModelMBeanInfosFromClass(cls);
-
+            ops = Utils.createModelMBeanInfosFromClass(cls);
             Logger.printlnBlue("Deploying RequiredModelMBean supporting methods from " + cls.getName());
-            Logger.lineBreak();
-            Logger.increaseIndent();
-
-            ModelMBeanInfo mmbi = new ModelMBeanInfoSupport(cls.getName(), "ModelMBean", new ModelMBeanAttributeInfo[] {}, null, ops, null);
-            mBeanServerClient.deployMBean(RequiredModelMBean.class.getName(), mBeanObjectName, null, new Object[] { mmbi }, new String[] { ModelMBeanInfo.class.getName() });
-
-            Logger.lineBreak();
-            Logger.printlnYellow("Available Methods:");
-
-            for (ModelMBeanOperationInfo op : ops)
-            {
-                String ret = op.getReturnType();
-                String name = op.getName();
-                StringBuilder args = new StringBuilder();
-
-                for (MBeanParameterInfo param : op.getSignature())
-                {
-                    args.append(param.getType());
-                    args.append(", ");
-                }
-
-                if (op.getSignature().length > 0)
-                    args.setLength(args.length() - 2);
-
-                Logger.printMixedBlue("  -", ret + " ");
-                Logger.printPlainYellow(name);
-                Logger.printlnPlainBlue("(" + args.toString() + ")");
-            }
         }
 
         catch (ClassNotFoundException e)
         {
-            Logger.eprintlnMixedYellow("The specified class", className, "cannot be found.");
-            Utils.exit();
+            if (BeanshooterOption.MODEL_SIGNATURE.isNull() && BeanshooterOption.MODEL_SIGNATURE_FILE.isNull())
+            {
+                Logger.eprintlnMixedYellow("The specified class", className, "cannot be found locally.");
+                Logger.eprintMixedBlue("You can still use it by providing method signatures via", "--signature", "or");
+                Logger.eprintlnPlainBlue("--signature-file");
+                Utils.exit();
+            }
+
+            ops = Utils.createModelMBeanInfosFromArg(className);
+            Logger.printlnBlue("Deploying RequiredModelMBean supporting user specified methods");
+        }
+
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        ModelMBeanInfo mmbi = new ModelMBeanInfoSupport(className, "ModelMBean", new ModelMBeanAttributeInfo[] {}, null, ops, null);
+        mBeanServerClient.deployMBean(RequiredModelMBean.class.getName(), mBeanObjectName, null, new Object[] { mmbi }, new String[] { ModelMBeanInfo.class.getName() });
+
+        Logger.lineBreak();
+        Logger.printlnYellow("Available Methods:");
+
+        for (ModelMBeanOperationInfo op : ops)
+        {
+            String ret = op.getReturnType();
+            String name = op.getName();
+            StringBuilder args = new StringBuilder();
+
+            for (MBeanParameterInfo param : op.getSignature())
+            {
+                args.append(param.getType());
+                args.append(", ");
+            }
+
+            if (op.getSignature().length > 0)
+                args.setLength(args.length() - 2);
+
+            Logger.printMixedBlue("  -", ret + " ");
+            Logger.printPlainYellow(name);
+            Logger.printlnPlainBlue("(" + args.toString() + ")");
         }
 
         if (BeanshooterOption.MODEL_RESOURCE.notNull())
@@ -176,7 +186,8 @@ public class Dispatcher {
 
             catch (MBeanException | ReflectionException | IOException e)
             {
-                ExceptionHandler.internalError("model", "Caught" + e.getClass().getName() + "while invoking setManagedResource.");
+                ExceptionHandler.showStackTrace(e);
+                ExceptionHandler.internalError("model", "Caught " + e.getClass().getName() + " while invoking setManagedResource.");
             }
         }
 

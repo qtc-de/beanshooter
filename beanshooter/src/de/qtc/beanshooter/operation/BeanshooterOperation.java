@@ -260,6 +260,8 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.MODEL_CLASS_NAME,
             BeanshooterOption.MODEL_RESOURCE,
             BeanshooterOption.MODEL_ALL_METHODS,
+            BeanshooterOption.MODEL_SIGNATURE,
+            BeanshooterOption.MODEL_SIGNATURE_FILE
     }),
 
 

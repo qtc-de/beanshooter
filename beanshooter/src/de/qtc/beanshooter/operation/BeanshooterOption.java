@@ -467,6 +467,21 @@ public enum BeanshooterOption implements Option {
                ArgType.BOOL
               ),
 
+    MODEL_SIGNATURE("--signature",
+            "create a RequiredModelMBean with the specified method signature",
+            Arguments.store(),
+            OptionGroup.ACTION,
+            ArgType.STRING
+              ),
+
+
+    MODEL_SIGNATURE_FILE("--signature-file",
+            "create a RequiredModelMBean with method signatures from a file",
+            Arguments.store(),
+            OptionGroup.ACTION,
+            ArgType.STRING
+              ),
+
     STAGER_HOST("host",
                 "the IP address to listen on",
                 Arguments.store(),
