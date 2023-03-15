@@ -566,6 +566,31 @@ sun.io.unicode.encoding
 ...
 ```
 
+The `model` action uses reflection to determine available methods on the specified class. If you do not
+have the class locally available, you can still use it by specifying available methods via the `--signature`
+or `--signature-file` options. That being said, in order to get access to non default classes you need to
+provide an object instance that is also not a default class (not present in `rt.jar`). For *beanshooters*
+*example-server*, `javax.management.remote.message.VersionMessage` is suitable, as this class is present
+in `opendmk_jmxremote_optional_jar` which is present in the client as well as in the server. We can use
+this as an object instance to invoke methods on other custom classes, like `de.qtc.beanshooter.server.utils.Logger`:
+
+```console
+[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 de.qtc.beanshooter:version=0 de.qtc.beanshooter.server.utils.Logger 'new javax.management.remote.message.VersionMessage("test")' --signature 'String getIndent()'
+[+] Deploying RequiredModelMBean supporting user specified methods
+[+]
+[+] 	Deplyoing MBean: RequiredModelMBean
+[+] 	MBean with object name de.qtc.beanshooter:version=0 was successfully deployed.
+[+]
+[+] 	Available Methods:
+[+] 	  - String getIndent()
+[+] 	  - void setManagedResource(java.lang.Object, java.lang.String)
+[+]
+[+] 	Setting managed resource to: new javax.management.remote.message.VersionMessage("test")
+[+] 	Managed resource was set successfully.
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=0 --signature 'String getIndent()'
+EMPTY OUTPUT - Just an Indent ;)
+```
+
 If you want to know more about the technique that is implemented by the `model` action, I highly
 recommend [this blog post](TODO) by [CODE WHITE](https://www.code-white.com/en/) which explains it
 in great detail.
