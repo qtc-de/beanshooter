@@ -173,7 +173,7 @@ tests:
             - Exporting MLet HTML file to
       - file_exists:
          files:
-             - tonka-bean-4.0.0-jar-with-dependencies.jar
+             - tonka-bean-4.1.0-jar-with-dependencies.jar
              - index.html
 
 
@@ -189,7 +189,7 @@ tests:
       - de.qtc.beanshooter.tonkabean.TonkaBean
       - 'de.qtc.beanshooter:type=Test'
       - --jar-file
-      - ./tonka-bean-4.0.0-jar-with-dependencies.jar
+      - ./tonka-bean-4.1.0-jar-with-dependencies.jar
       - --stager-url
       - http://${DOCKER-GW}:4444
 
@@ -212,7 +212,7 @@ tests:
       - file_exists:
          cleanup: True
          files:
-             - tonka-bean-4.0.0-jar-with-dependencies.jar
+             - tonka-bean-4.1.0-jar-with-dependencies.jar
              - index.html
 
 

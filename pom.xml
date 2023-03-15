@@ -5,7 +5,7 @@
     <artifactId>reactor</artifactId>
     <name>reactor</name>
     <packaging>pom</packaging>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
     <description>JMX enumeration and attacking tool</description>
 
     <modules>
