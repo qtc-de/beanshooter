@@ -723,6 +723,14 @@ public class Utils {
         return infos.toArray(new ModelMBeanOperationInfo[0]);
     }
 
+    /**
+     * Create an array of ModelMBeanOperationInfo from user specified signatures. This function inspects the
+     * MODEL_SIGNATURE and MODEL_SIGNATURE_FILE options and parses the contents accordingly. For each signature,
+     * a new ModelMBeanOperationInfo is created. All methods are expected to be present in the specified className.
+     *
+     * @param className  Class where the signatures are defined
+     * @return Array of ModelMBeanOperationInfo, one for each specified signature
+     */
     public static ModelMBeanOperationInfo[] createModelMBeanInfosFromArg(String className)
     {
         List<ModelMBeanOperationInfo> operationInfos = new ArrayList<ModelMBeanOperationInfo>();
@@ -779,6 +787,13 @@ public class Utils {
         return operationInfos.toArray(new ModelMBeanOperationInfo[0]);
     }
 
+    /**
+     * Create a ModelMBeanOperationInfo from the specified method signature.
+     *
+     * @param className  the class where the method is defined in
+     * @param method  the method signature
+     * @return ModelMBeanOperationInfo for the specified parameters
+     */
     public static ModelMBeanOperationInfo crateModelMBeanInfoFromString(String className, String method)
     {
         String[] methodDesc = PluginSystem.getArgumentTypes(method, false, true);

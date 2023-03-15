@@ -474,6 +474,19 @@ public enum BeanshooterOption implements Option {
             ArgType.STRING
               ),
 
+    STANDARD_OPERATION("operation",
+             "operation to execute via StandardMBean",
+             Arguments.store(),
+             OptionGroup.ACTION,
+             ArgType.STRING
+               ),
+
+    STANDARD_OPERATION_ARGS("args",
+              "arguments for the operation to execute via StandardMBean",
+              Arguments.store(),
+              OptionGroup.ACTION,
+              ArgType.STRING
+                ),
 
     MODEL_SIGNATURE_FILE("--signature-file",
             "create a RequiredModelMBean with method signatures from a file",

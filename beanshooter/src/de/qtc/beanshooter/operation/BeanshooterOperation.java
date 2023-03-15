@@ -264,6 +264,31 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.MODEL_SIGNATURE_FILE
     }),
 
+    STANDARD("standard", "creates a StandardMBean on the server", new Option[] {
+            BeanshooterOption.GLOBAL_CONFIG,
+            BeanshooterOption.GLOBAL_VERBOSE,
+            BeanshooterOption.GLOBAL_PLUGIN,
+            BeanshooterOption.GLOBAL_NO_COLOR,
+            BeanshooterOption.GLOBAL_STACK_TRACE,
+            BeanshooterOption.TARGET_HOST,
+            BeanshooterOption.TARGET_PORT,
+            BeanshooterOption.TARGET_BOUND_NAME,
+            BeanshooterOption.TARGET_OBJID_SERVER,
+            BeanshooterOption.TARGET_OBJID_CONNECTION,
+            BeanshooterOption.CONN_FOLLOW,
+            BeanshooterOption.CONN_SSL,
+            BeanshooterOption.CONN_JMXMP,
+            BeanshooterOption.CONN_JOLOKIA,
+            BeanshooterOption.CONN_JOLOKIA_ENDPOINT,
+            BeanshooterOption.CONN_JOLOKIA_PROXY,
+            BeanshooterOption.CONN_JOLOKIA_PROXY_USER,
+            BeanshooterOption.CONN_JOLOKIA_PROXY_PASS,
+            BeanshooterOption.CONN_USER,
+            BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_SASL,
+            BeanshooterOption.STANDARD_OPERATION,
+            BeanshooterOption.STANDARD_OPERATION_ARGS,
+    }),
 
     SERIAL("serial", "perform a deserialization attack", new Option[] {
             BeanshooterOption.GLOBAL_CONFIG,

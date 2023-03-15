@@ -138,6 +138,12 @@ public class OptionHandler {
         if (option == TonkaBeanOption.EXEC_ARRAY)
             arg.nargs("+");
 
+        if (option == BeanshooterOption.STANDARD_OPERATION_ARGS)
+        {
+            arg.nargs("?");
+            arg.setDefault("");
+        }
+
         if (option == TonkaBeanOption.DOWNLOAD_DEST)
             arg.nargs("?");
 
@@ -164,6 +170,11 @@ public class OptionHandler {
             List<String> mBeanNames = MBean.getLoadableBeanNames();
             mBeanNames.add("custom");
             arg.choices(mBeanNames);
+        }
+
+        if (option == BeanshooterOption.STANDARD_OPERATION)
+        {
+            arg.choices(new String[] { "exec", "upload", "tonka" });
         }
     }
 }
