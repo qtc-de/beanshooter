@@ -113,7 +113,7 @@ public class ArgumentProvider implements IArgumentProvider
        */
       public String[] getArgumentTypes(String signature)
       {
-          return getArgumentTypes(signature, false, false);
+          return getArgumentTypes(signature, false);
       }
 
      /**
@@ -134,7 +134,7 @@ public class ArgumentProvider implements IArgumentProvider
      * create a dummy method from the user specified method signature and when obtain the correct
      * type names via reflection and getParameterTypes() on the associated method object.
      */
-    public String[] getArgumentTypes(String signature, boolean includeReturn, boolean includeName)
+    public String[] getArgumentTypes(String signature, boolean includeName)
     {
         ClassPool pool = ClassPool.getDefault();
         List<String> result = new ArrayList<String>();
@@ -149,9 +149,6 @@ public class ArgumentProvider implements IArgumentProvider
 
             Class<?> evalClass = evaluator.toClass();
             targetMethod = evalClass.getDeclaredMethods()[0];
-
-            if (includeReturn)
-                result.add(targetMethod.getReturnType().getName());
 
             if (includeName)
                 result.add(targetMethod.getName());

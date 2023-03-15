@@ -459,17 +459,16 @@ public class PluginSystem {
      * string array of parameter types.
      *
      * @param signature user supplied method signature
-     * @param includeReturn  whether to include the methods retrun value as a type
      * @param includeNanme     whether to include the methods name as a string
      * @return String array containing the parsed parameter type names
      */
-    public static String[] getArgumentTypes(String signature, boolean includeReturn, boolean includeName)
+    public static String[] getArgumentTypes(String signature, boolean includeName)
     {
         String[] types = null;
 
         try
         {
-            types = argumentProvider.getArgumentTypes(signature, includeReturn, includeName);
+            types = argumentProvider.getArgumentTypes(signature, includeName);
         }
 
         catch (PluginException e)

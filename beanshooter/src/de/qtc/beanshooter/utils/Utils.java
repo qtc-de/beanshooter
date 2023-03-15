@@ -796,7 +796,8 @@ public class Utils {
      */
     public static ModelMBeanOperationInfo crateModelMBeanInfoFromString(String className, String method)
     {
-        String[] methodDesc = PluginSystem.getArgumentTypes(method, false, true);
+        String[] methodDesc = PluginSystem.getArgumentTypes(method, true);
+        String returnValue = method.split(" ", 2)[0];
 
         Map<String, Object> descriptorFields = new HashMap<String, Object>();
         descriptorFields.put("name", methodDesc[0]);
@@ -813,6 +814,6 @@ public class Utils {
             paramInfos[ctr - 1] = new MBeanParameterInfo(null, methodDesc[ctr], null);
         }
 
-        return new ModelMBeanOperationInfo(methodDesc[0], null, paramInfos, className, MBeanOperationInfo.UNKNOWN, methodDescriptor);
+        return new ModelMBeanOperationInfo(methodDesc[0], null, paramInfos, returnValue, MBeanOperationInfo.UNKNOWN, methodDescriptor);
     }
 }
