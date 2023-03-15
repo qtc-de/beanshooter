@@ -134,7 +134,7 @@ public class Dispatcher {
             if (BeanshooterOption.MODEL_SIGNATURE.isNull() && BeanshooterOption.MODEL_SIGNATURE_FILE.isNull())
             {
                 Logger.eprintlnMixedYellow("The specified class", className, "cannot be found locally.");
-                Logger.eprintMixedBlue("You can still use it by providing method signatures via", "--signature", "or");
+                Logger.eprintMixedBlue("You can still use it by providing method signatures via", "--signature", "or ");
                 Logger.eprintlnPlainBlue("--signature-file");
                 Utils.exit();
             }
