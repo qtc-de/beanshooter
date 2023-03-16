@@ -50,8 +50,8 @@ arbitrary *Java* objects are therefore not possible.
 > **Q:** What *beanshooter* operations are supported for *Jolokia* endpoints?
 
 **A**: All operations that do not require the creation or removal of *MBeans* or the transport of complex *Java* types.
-In essence, this means that the `deploy`, `undeploy` and `serial` actions are not supported. All other operations are
-supported, as long as the only utilize *OpenTypes*, but this should be the case for most actions.
+In essence, this means that the `deploy`, `undeploy`, `model`, `standard` and `serial` actions are not supported. All
+other operations are supported, as long as the only utilize *OpenTypes*, but this should be the case for most actions.
 
 > **Q:** Can I use the *TonkaBean* via *Jolokia*?
 
