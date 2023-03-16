@@ -65,7 +65,7 @@ public class ExceptionHandler {
     public static void internalException(Exception e, String functionName, boolean exit)
     {
         Logger.eprintMixedYellow("Internal error. Caught unexpected", e.getClass().getName(), "within the ");
-        Logger.printlnPlainMixedBlue(functionName, "function.");
+        Logger.eprintlnPlainMixedBlue(functionName, "function.");
         stackTrace(e);
 
         if(exit)
