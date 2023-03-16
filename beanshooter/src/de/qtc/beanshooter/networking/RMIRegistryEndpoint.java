@@ -51,13 +51,15 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
         this.remoteObjectCache = new HashMap<String,Remote>();
         SocketFactorySetup(host, port);
 
-        try {
+        try
+        {
             this.rmiRegistry = LocateRegistry.getRegistry(host, port, csf);
+        }
 
-        } catch( RemoteException e ) {
+        catch (RemoteException e)
+        {
             ExceptionHandler.internalError("RMIRegistryEndpoint.locateRegistry", "Caught unexpected RemoteException.");
-            ExceptionHandler.stackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
     }
 
@@ -98,29 +100,40 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
      */
     public String[] getBoundNames()
     {
-        if( BeanshooterOption.TARGET_BOUND_NAME.notNull() )
+        if (BeanshooterOption.TARGET_BOUND_NAME.notNull())
             return new String[] { BeanshooterOption.TARGET_BOUND_NAME.getValue() };
 
         String[] boundNames = null;
 
-        try {
+        try
+        {
             boundNames = rmiRegistry.list();
+        }
 
-        } catch( java.rmi.ConnectIOException e ) {
+        catch (java.rmi.ConnectIOException e)
+        {
             ExceptionHandler.connectIOException(e, "list");
+        }
 
-        } catch( java.rmi.ConnectException e ) {
+        catch (java.rmi.ConnectException e )
+        {
             ExceptionHandler.connectException(e, "list");
+        }
 
-        } catch( java.rmi.UnknownHostException e ) {
+        catch (java.rmi.UnknownHostException e)
+        {
             ExceptionHandler.unknownHost(e, host, true);
+        }
 
-        } catch( java.rmi.NoSuchObjectException e ) {
+        catch (java.rmi.NoSuchObjectException e)
+        {
             Logger.printlnMixedYellow("Caught", "NoSuchObjectException", "during list operation.");
             Logger.printlnMixedBlue("The specified endpoint",  "is not", "an RMI registry.");
-            Utils.exit();
+            Utils.exit(e);
+        }
 
-        } catch( Exception e ) {
+        catch (Exception e)
+        {
             ExceptionHandler.unexpectedException(e, "list", "call", true);
         }
 

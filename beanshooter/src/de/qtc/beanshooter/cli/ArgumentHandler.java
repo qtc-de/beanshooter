@@ -234,8 +234,8 @@ public class ArgumentHandler
     {
         StringBuilder helpString = new StringBuilder();
 
-        for( Option option : options ) {
-
+        for (Option option : options)
+        {
             if( option.notNull() )
                 return option.getValue();
 
@@ -243,9 +243,9 @@ public class ArgumentHandler
             helpString.append(", ");
         }
 
-         helpString.setLength(helpString.length() - 2);
+        helpString.setLength(helpString.length() - 2);
 
-         Logger.resetIndent();
+        Logger.resetIndent();
         Logger.eprintlnMixedYellow("Error: The specified aciton requires one of the", helpString.toString(), "options.");
         Utils.exit();
 

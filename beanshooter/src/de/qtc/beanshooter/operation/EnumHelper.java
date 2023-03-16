@@ -622,8 +622,7 @@ public class EnumHelper
             {
                 Logger.printlnMixedBlue("Caught", "SaslProfileException", "during login attempt.");
                 Logger.printlnMixedYellow("Use the", "--sasl", "option to specify a matching SASL profile.");
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             Logger.printlnMixedYellow("Caught unknown", e.getOriginalException().getClass().getName(), "during connection attempt.");
@@ -668,16 +667,14 @@ public class EnumHelper
                 Logger.printlnMixedYellow("Caught", "MismatchedURIException", "during login attempt.");
                 Logger.printlnMixedBlueFirst("Digest authentication", "requires the correct hostname to be used.");
                 Logger.printlnMixedBlue("The following hostname is expected by the server:", ((MismatchedURIException)e).getUri());
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             if(e instanceof SaslProfileException)
             {
                 Logger.printlnMixedBlue("Caught", "SaslProfileException", "during login attempt.");
                 Logger.printlnMixedYellow("Use the", "--sasl", "option to specify a matching SASL profile.");
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             Logger.printlnMixedYellow("Caught unknown", e.getOriginalException().getClass().getName(), "during login attempt.");

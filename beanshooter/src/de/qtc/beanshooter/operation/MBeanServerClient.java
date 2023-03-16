@@ -2,6 +2,7 @@ package de.qtc.beanshooter.operation;
 
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.rmi.UnmarshalException;
 import java.util.Set;
 
 import javax.management.Attribute;
@@ -143,7 +144,7 @@ public class MBeanServerClient {
                     if (BeanshooterOption.DEPLOY_STAGER_URL.isNull())
                     {
                         Logger.eprintlnMixedYellow("Use the", BeanshooterOption.DEPLOY_STAGER_URL.getName(), "option to load the MBean from remote.");
-                        Utils.exit();
+                        Utils.exit(e);
                     }
 
                     DynamicMBean mbean = new DynamicMBean(mBeanObjectName, mBeanClassName, jarFile);
@@ -160,7 +161,7 @@ public class MBeanServerClient {
                     Logger.eprintlnMixedBlue("The specified class", className, "is not known by the server.");
                     Logger.eprintMixedYellow("Use the", "--jar-file");
                     Logger.eprintlnPlainMixedYellow(" and", "--stager-url", "options to provide an implementation.");
-                    Utils.exit();
+                    Utils.exit(e);
                 }
             }
 
@@ -182,6 +183,21 @@ public class MBeanServerClient {
 
             else
                 ExceptionHandler.unexpectedException(e, "registering", "MBean", true);
+        }
+
+        catch (UnmarshalException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof ClassNotFoundException)
+            {
+                String missingClass = t.getMessage().split(" ")[0];
+                Logger.eprintlnMixedYellow("Caught", "ClassNotFoundException", "during MBean deployment.");
+                Logger.eprintlnMixedBlue("The class", missingClass, "is not known by the server.");
+                Utils.exit(e);
+            }
+
+            ExceptionHandler.unexpectedException(e, "registering", "MBean", true);
         }
 
         catch (Exception e)
@@ -345,9 +361,7 @@ public class MBeanServerClient {
                 Logger.eprintlnMixedYellow("Caught unexpected", "IllegalArgumentException", "while invoking the method.");
                 Logger.eprintlnMixedBlue("The specified argument types:", String.join(", ", actualArgumentTypes));
                 Logger.eprintlnMixedBlue("Do not match the expected argument types:", String.join(" ,", argTypes));
-
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             throw e;
@@ -440,7 +454,7 @@ public class MBeanServerClient {
                     Logger.eprintlnMixedYellow("Caught", "InvalidAttributeValueException", "while setting the attribute.");
                     Logger.eprintlnMixedBlue("The specified attribute value of class", attr.getValue().getClass().getName(), "is probably not compatible.");
                     Logger.eprintlnMixedYellow("You can use the", "--type", "option to specify a different type manually.");
-                    Utils.exit();
+                    Utils.exit(e);
                 }
             }
 
@@ -462,7 +476,7 @@ public class MBeanServerClient {
             Logger.eprintlnMixedYellow("Caught", "InvalidAttributeValueException", "while setting the attribute.");
             Logger.eprintlnMixedBlue("The specified attribute value of class", attr.getValue().getClass().getName(), "is probably not compatible.");
             Logger.eprintlnMixedYellow("You can use the", "--type", "option to specify a different type manually.");
-            Utils.exit();
+            Utils.exit(e);
         }
     }
 

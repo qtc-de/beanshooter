@@ -14,6 +14,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.RuntimeErrorException;
 import javax.management.RuntimeMBeanException;
 import javax.management.StandardMBean;
 import javax.management.modelmbean.ModelMBeanAttributeInfo;
@@ -138,7 +139,7 @@ public class Dispatcher {
                 Logger.eprintlnMixedYellow("The specified class", className, "cannot be found locally.");
                 Logger.eprintMixedBlue("You can still use it by providing method signatures via", "--signature", "or ");
                 Logger.eprintlnPlainBlue("--signature-file");
-                Utils.exit();
+                Utils.exit(e);
             }
 
             ops = Utils.createModelMBeanInfosFromArg(className);
@@ -384,7 +385,7 @@ public class Dispatcher {
     };
 
     /**
-     * Deploy a StandardMBean that implements TemplatesImpl.
+     * Attempt to bruteforce valid credentials on the targeted JMX endpoint.
      */
     public void standard()
     {
@@ -417,22 +418,64 @@ public class Dispatcher {
         {
             mBeanServerClient.invoke(mBeanObjectName, "newTransformer", new String[0]);
         }
-        catch (RuntimeMBeanException | MBeanException | ReflectionException | IOException e)
+
+        catch (RuntimeMBeanException e)
         {
             Throwable t = ExceptionHandler.getCause(e);
 
-            if (e instanceof RuntimeMBeanException)
+            if (t instanceof NullPointerException)
             {
-                if (t instanceof NullPointerException)
-                {
-                    Logger.printlnMixedBlue("Caught", "NullPointerException", "while invoking the newTransformer action.");
-                    Logger.printlnMixedBlue("This is expected bahavior and the attack most likely", "worked", ":)");
-                }
+                Logger.printlnMixedBlue("Caught", "NullPointerException", "while invoking the newTransformer action.");
+                Logger.printlnMixedBlue("This is expected bahavior and the attack most likely", "worked", ":)");
+            }
+
+            else
+            {
+                ExceptionHandler.unexpectedException(e, "standard", "action", true);
             }
         }
 
-        Logger.lineBreak();
-        mBeanServerClient.unregisterMBean(mBeanObjectName);
+        catch (RuntimeErrorException e)
+        {
+            if (operation.equals("template-upload"))
+            {
+                String[] split = arguments.split("::");
+
+                if (split.length < 2)
+                    ExceptionHandler.handleFileWrite(e, arguments, false);
+
+                else
+                    ExceptionHandler.handleFileWrite(e, split[1], false);
+            }
+
+            else
+            {
+                ExceptionHandler.unexpectedException(e, "standard", "action", false);
+            }
+        }
+
+        catch (MBeanException | ReflectionException | IOException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof IllegalAccessError && t.getMessage().contains("module java.xml does not export"))
+            {
+                Logger.eprintlnMixedYellow("Caught", "IllegalAccessError", "during template transformation.");
+                Logger.eprintlnMixedBlue("The server does not export", "AbstractTranslet", "which prevents the standard action from working.");
+                ExceptionHandler.showStackTrace(e);
+            }
+
+            else
+            {
+                ExceptionHandler.unexpectedException(e, "standard", "action", false);
+            }
+        }
+
+        finally
+        {
+            Logger.lineBreak();
+            mBeanServerClient.unregisterMBean(mBeanObjectName);
+        }
     };
 
     /**
@@ -612,14 +655,12 @@ public class Dispatcher {
             {
                 Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while setting attribute %s from %s", attrName, objectName));
                 Logger.eprintlnMixedBlue("There seems to be", "no setter available", "for the requested attribute.");
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while accessing attribute %s from %s", attrName, objectName));
             Logger.eprintln("beanshooter does not handle exceptions for custom attribute access.");
-            ExceptionHandler.stackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
     }
 

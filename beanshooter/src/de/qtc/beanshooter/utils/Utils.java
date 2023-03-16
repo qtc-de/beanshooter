@@ -77,6 +77,18 @@ public class Utils {
     }
 
     /**
+     * Just a wrapper around System.exit(1) that prints an information before quitting.
+     * Also a stacktrace is printed if --stack-trace was used.
+     */
+    public static void exit(Exception e)
+    {
+        ExceptionHandler.showStackTrace(e);
+
+        Logger.eprintln("Cannot continue from here.");
+        System.exit(1);
+    }
+
+    /**
      * Just a wrapper around System.exit(1) that prints an information before quitting. This
      * version is invoked with a boolean that decides whether the exit should be performed.
      *
@@ -758,7 +770,7 @@ public class Utils {
             {
                 Logger.printlnMixedYellow("Caught unexpected", "FileNotFoundException", "while preparing method signatures.");
                 Logger.printlnMixedBlue("The specified input file", BeanshooterOption.MODEL_SIGNATURE_FILE.getValue(), "seems not to exist.");
-                Utils.exit();
+                Utils.exit(e);
             }
 
             catch (IOException e)

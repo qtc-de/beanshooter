@@ -288,6 +288,7 @@ public enum BeanshooterOperation implements Operation {
             BeanshooterOption.CONN_SASL,
             BeanshooterOption.STANDARD_OPERATION,
             BeanshooterOption.STANDARD_OPERATION_ARGS,
+            BeanshooterOption.STANDARD_EXEC_ARRAY,
     }),
 
     SERIAL("serial", "perform a deserialization attack", new Option[] {

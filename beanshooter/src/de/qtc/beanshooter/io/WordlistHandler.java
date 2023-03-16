@@ -35,31 +35,31 @@ public class WordlistHandler
         String[] usernames = null;
         String[] passwords = null;
 
-        if(BeanshooterOption.BRUTE_USER.notNull())
+        if (BeanshooterOption.BRUTE_USER.notNull())
             usernames = new String[] { BeanshooterOption.BRUTE_USER.getValue() };
 
-        else if(BeanshooterOption.BRUTE_USER_FILE.notNull())
+        else if (BeanshooterOption.BRUTE_USER_FILE.notNull())
             usernames = readWordlist(BeanshooterOption.BRUTE_USER_FILE.getValue(), "user");
 
-        if(BeanshooterOption.BRUTE_PASSWORD.notNull())
+        if (BeanshooterOption.BRUTE_PASSWORD.notNull())
             passwords = new String[] { BeanshooterOption.BRUTE_PASSWORD.getValue() };
 
-        else if(BeanshooterOption.BRUTE_PW_FILE.notNull())
+        else if (BeanshooterOption.BRUTE_PW_FILE.notNull())
             passwords = readWordlist(BeanshooterOption.BRUTE_PW_FILE.getValue(), "password");
 
-        if(usernames == null && passwords != null)
+        if (usernames == null && passwords != null)
         {
             Logger.eprintlnMixedYellowFirst("No username(s)", "specified for the brute action.");
             Utils.exit();
         }
 
-        else if(usernames != null && passwords == null)
+        else if (usernames != null && passwords == null)
         {
             Logger.eprintlnMixedYellowFirst("No password(s)", "specified for the brute action.");
             Utils.exit();
         }
 
-        else if( usernames != null && passwords != null)
+        else if (usernames != null && passwords != null)
             return makeMap(usernames, passwords);
 
         return readCredpairList();

@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.mbean.mlet.MLetOption;
@@ -54,24 +53,27 @@ public class OptionHandler {
 
             Object defaultValue = config.getProperty(option.name().toLowerCase());
 
-            try {
-
-                if( defaultValue != null && !((String) defaultValue).isEmpty() ) {
-
-                    if( option.getArgType() == ArgType.INT )
+            try
+            {
+                if  (defaultValue != null && !((String) defaultValue).isEmpty())
+                {
+                    if (option.getArgType() == ArgType.INT)
                         defaultValue = Integer.valueOf((String) defaultValue);
 
-                    else if( option.getArgType() == ArgType.BOOL )
+                    else if(option.getArgType() == ArgType.BOOL)
                         defaultValue = Boolean.valueOf((String) defaultValue);
-
-                } else if( defaultValue != null && ((String) defaultValue).isEmpty() ) {
-                    defaultValue = null;
                 }
 
-            } catch( Exception e ) {
+                else if(defaultValue != null && ((String) defaultValue).isEmpty())
+                {
+                    defaultValue = null;
+                }
+            }
+
+            catch (Exception e)
+            {
                 Logger.eprintlnMixedYellow("RMGOption", option.getName(), "obtained an invalid argument.");
-                ExceptionHandler.stackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             option.setValue(args, defaultValue);

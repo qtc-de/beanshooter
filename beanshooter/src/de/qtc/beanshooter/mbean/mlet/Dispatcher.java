@@ -221,8 +221,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                     ExceptionHandler.unknownReason(e);
             }
 
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
 
         catch (ReflectionException | NotCompliantMBeanException e)
@@ -232,8 +231,7 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
 
             Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while loading MBean.");
             Logger.eprintlnMixedBlue("This usually means that the supplied MBean class", "was not", "valid.");
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
 
         catch (Exception e)

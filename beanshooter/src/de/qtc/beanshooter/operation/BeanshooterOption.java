@@ -488,6 +488,13 @@ public enum BeanshooterOption implements Option {
               ArgType.STRING
                 ),
 
+    STANDARD_EXEC_ARRAY("--exec-array",
+               "space-split the command in three parts and pass it as array to Runtime.exec",
+               Arguments.storeTrue(),
+               OptionGroup.ACTION,
+               ArgType.BOOL
+                 ),
+
     MODEL_SIGNATURE_FILE("--signature-file",
             "create a RequiredModelMBean with method signatures from a file",
             Arguments.store(),

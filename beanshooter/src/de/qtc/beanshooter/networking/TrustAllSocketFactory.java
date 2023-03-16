@@ -12,7 +12,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 
-import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.utils.Utils;
 
@@ -53,16 +52,18 @@ public class TrustAllSocketFactory implements RMIClientSocketFactory
         this.readTimeout = readTimeout;
         this.connectTimeout = connectTimeout;
 
-        try {
+        try
+        {
             SSLContext ctx = SSLContext.getInstance("TLS");
             ctx.init(null, new TrustManager[] { new DummyTrustManager() }, null);
 
             fax = ctx.getSocketFactory();
+        }
 
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+        catch (NoSuchAlgorithmException | KeyManagementException e)
+        {
             Logger.eprintlnMixedBlue("Unable to create", "TrustAllSocketFactory", "for SSL connections.");
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
     }
 
