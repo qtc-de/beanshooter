@@ -34,6 +34,7 @@ function _beanshooter()
     _init_completion || return
 
     file_like="--jar-file --config --plugin --export-dir --export-mlet --export-jar --username-file --password-file --yso --output-file"
+    file_like="$file_like --signature-file"
     unguessable="--class-name --object-name --bound-name --objid-server --objid-connection --username --password --stager-port --threads"
     unguessable="$unguessable --class-filter --obj-filter --cwd --env --signature --shell --jolokia-proxy --jolokia-proxy-user"
     unguessable="$unguessable --jolokia-proxy-password --jolokia-endpoint --lookup"
@@ -49,7 +50,7 @@ function _beanshooter()
     gadgets="$gadgets JRMPClient JRMPListener JSON1 JavassistWeld1 Jdk7u21 Jython1 MozillaRhino1 MozillaRhino2"
     gadgets="$gadgets Myfaces1 Myfaces2 ROME Spring1 Spring2 URLDNS Vaadin1 Wicket1"
 
-    operations="attr brute deploy enum info invoke list serial stager undeploy diagnostic hotspot mlet recorder tomcat tonka jolokia"
+    operations="attr brute deploy enum info invoke list serial stager undeploy diagnostic hotspot mlet recorder tomcat tonka jolokia model standard"
     sasl_mechanisms="plain digest cram gssapi ntlm"
     general_opts="--help --config --verbose --plugin --no-color --stack-trace"
     conn_opts="--follow --ssl --jmxmp --sasl --jolokia --jolokia-proxy --jolokia-proxy-user --jolokia-proxy-password --jolokia-endpoint"
@@ -120,6 +121,36 @@ function _beanshooter()
         opts="$opts --jolokia-endpoint"
         opts="$opts $auth_opts"
         opts="$opts $general_opts"
+
+    elif [[ ${words[1]} == "model" ]] && _comp_beanoption 7; then
+        opts="--all-methods"
+        opts="$opts --signature"
+        opts="$opts --signature-file"
+        opts="$opts $auth_opts"
+        opts="$opts $common_three"
+
+    elif [[ ${words[1]} == "standard" ]]; then
+
+        if [[ $cur == -* ]] || [[ $args -ge 6 ]] || [[ $args -ge 5 && ${words[4]} == "tonka" ]]; then
+
+            opts="$auth_opts"
+            opts="$opts $common_three"
+
+            if [[ ${words[4]} == "exec" ]]; then
+                opts="$opts --exec-array"
+            fi
+
+        elif [[ $args -eq 4 ]]; then
+            opts="exec tonka upload"
+
+        elif [[ $args -eq 5 ]] && [[ $prev == "upload" ]]; then
+                compopt -o nospace
+                _filedir
+                return
+
+        else
+            return 0
+        fi
 
     elif [[ ${words[1]} == "deploy" ]] && _comp_beanoption 6; then
         opts="$auth_opts"
