@@ -871,6 +871,9 @@ a builtin jar file is available):
 [+] 	MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed
 ```
 
+From *beanshooter v4.1.0* on, it is also possible to deploy the *TonkaBean* via the [standard](#standard) action.
+Bean deployment via the `standard` action **does not** require outbound network connections from the target server.
+
 #### Generic Export
 
 Sometimes it is not possible to serve an *MBean* implementation using *beanshooters* stager server. A common
