@@ -174,6 +174,9 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
                 if (t.getMessage().contains("Connection refused"))
                     Logger.eprintlnMixedBlue("Target", urlString, "refused the connection.");
 
+                else if (t.getMessage().contains("Operation timed out"))
+                    Logger.eprintlnMixedBlue("Outbound connections seem to be", "blocked", "by the target.");
+
                 else
                     ExceptionHandler.unknownReason(e);
             }
