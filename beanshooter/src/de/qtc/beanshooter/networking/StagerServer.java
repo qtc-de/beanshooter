@@ -78,7 +78,7 @@ public class StagerServer
 
             server.setExecutor(null);
 
-            Logger.printlnYellow("Starting HTTP server.");
+            Logger.printlnYellow("Waiting for incoming connections...");
             Logger.println("");
 
             server.start();

@@ -42,7 +42,7 @@ tests:
           values:
             - 'MBean class is not known by the server'
             - 'Creating MLetHandler for endpoint: /'
-            - 'Starting HTTP server.'
+            - 'Waiting for incoming connections'
             - 'Incoming request from: '
             - 'de.qtc.beanshooter.tonkabean.TonkaBean'
             - 'MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed'
