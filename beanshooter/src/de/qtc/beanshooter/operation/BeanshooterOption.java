@@ -439,6 +439,69 @@ public enum BeanshooterOption implements Option {
                                ArgType.STRING
                             ),
 
+    MODEL_OBJ_NAME("object-name",
+               "ObjectName for the newly deployed RequiredModelMBean",
+               Arguments.store(),
+               OptionGroup.ACTION,
+               ArgType.STRING
+              ),
+
+    MODEL_CLASS_NAME("class-name",
+            "Class that should be made accessible via the deployed RequiredModelMBean",
+            Arguments.store(),
+            OptionGroup.ACTION,
+            ArgType.STRING
+              ),
+
+    MODEL_RESOURCE("resource",
+                      "managed resource for the RequiredModelMBean",
+                      Arguments.store(),
+                      OptionGroup.ACTION,
+                      ArgType.STRING
+                  ),
+
+    MODEL_ALL_METHODS("--all-methods",
+               "also deploy methods with non serializable parameters",
+               Arguments.storeTrue(),
+               OptionGroup.ACTION,
+               ArgType.BOOL
+              ),
+
+    MODEL_SIGNATURE("--signature",
+            "create a RequiredModelMBean with the specified method signature",
+            Arguments.store(),
+            OptionGroup.ACTION,
+            ArgType.STRING
+              ),
+
+    STANDARD_OPERATION("operation",
+             "operation to execute via StandardMBean",
+             Arguments.store(),
+             OptionGroup.ACTION,
+             ArgType.STRING
+               ),
+
+    STANDARD_OPERATION_ARGS("args",
+              "arguments for the operation to execute via StandardMBean",
+              Arguments.store(),
+              OptionGroup.ACTION,
+              ArgType.STRING
+                ),
+
+    STANDARD_EXEC_ARRAY("--exec-array",
+               "space-split the command in three parts and pass it as array to Runtime.exec",
+               Arguments.storeTrue(),
+               OptionGroup.ACTION,
+               ArgType.BOOL
+                 ),
+
+    MODEL_SIGNATURE_FILE("--signature-file",
+            "create a RequiredModelMBean with method signatures from a file",
+            Arguments.store(),
+            OptionGroup.ACTION,
+            ArgType.STRING
+              ),
+
     STAGER_HOST("host",
                 "the IP address to listen on",
                 Arguments.store(),

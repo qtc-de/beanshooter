@@ -74,6 +74,49 @@ public class ArgumentProvider implements IArgumentProvider
      }
 
      /**
+      * Create an Object from a Java expression.
+      *
+      * @param str  Java expression. Class names need to be specified full qualified
+      * @return Object created from the Java expression
+      */
+      public Object strToObj(String str)
+      {
+          Object result = null;
+          ClassPool pool = ClassPool.getDefault();
+
+          try {
+              CtClass evaluator = pool.makeClass("de.qtc.rmg.plugin.providers.DefaultArgumentProvider");
+              String evalFunction = "public static Object eval() {"
+                                  + "        return " + str + ";"
+                                  + "}";
+
+              CtMethod me = CtNewMethod.make(evalFunction, evaluator);
+              evaluator.addMethod(me);
+
+              Class<?> evalClass = evaluator.toClass();
+              Method m = evalClass.getDeclaredMethods()[0];
+
+              result = (Object) m.invoke(evalClass, (Object[])null);
+
+          } catch(VerifyError | CannotCompileException e) {
+              ExceptionHandler.invalidArgumentException(e, str);
+
+          } catch (Exception e) {
+              ExceptionHandler.unexpectedException(e, "argument array", "generation", true);
+          }
+
+          return result;
+      }
+
+      /**
+       * See description below.
+       */
+      public String[] getArgumentTypes(String signature)
+      {
+          return getArgumentTypes(signature, false);
+      }
+
+     /**
      * MBean calls are dispatched using an array of argument objects and an array of class names of the
      * corresponding argument types. In ordinary MBean clients, this is no problem, as the methods are available
      * within the client and obtaining the argument types of a method can be done automatically
@@ -91,14 +134,14 @@ public class ArgumentProvider implements IArgumentProvider
      * create a dummy method from the user specified method signature and when obtain the correct
      * type names via reflection and getParameterTypes() on the associated method object.
      */
-    public String[] getArgumentTypes(String signature)
+    public String[] getArgumentTypes(String signature, boolean includeName)
     {
         ClassPool pool = ClassPool.getDefault();
         List<String> result = new ArrayList<String>();
         signature = Utils.makeVoid(signature);
 
         try {
-            CtClass evaluator = pool.makeClass("de.qtc.rmg.plugin.providers.DefaultArgumentProvider2");
+            CtClass evaluator = pool.makeClass("de.qtc.rmg.plugin.providers.DefaultArgumentProvider2" + System.nanoTime());
             String dummyFunction = "public static " + signature + " {}";
 
             CtMethod me = CtNewMethod.make(dummyFunction, evaluator);
@@ -106,6 +149,9 @@ public class ArgumentProvider implements IArgumentProvider
 
             Class<?> evalClass = evaluator.toClass();
             targetMethod = evalClass.getDeclaredMethods()[0];
+
+            if (includeName)
+                result.add(targetMethod.getName());
 
             for(Class<?> type : targetMethod.getParameterTypes())
                 result.add(type.getName());

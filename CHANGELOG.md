@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [4.1.0] - Mar 20, 2023
+
+### Added
+
+* Add [model](/#model) action (see CODE WHITE [blog post](https://codewhitesec.blogspot.com/2023/03/jmx-exploitation-revisited.html))
+* Add [standard](/#standard) action (see CODE WHITE [blog post](https://codewhitesec.blogspot.com/2023/03/jmx-exploitation-revisited.html))
+
+### Changed
+
+* Improved exception handling
+
+
 ## [4.0.0] - Mar 07, 2023
 
 ### Added

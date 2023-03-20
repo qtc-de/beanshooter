@@ -54,7 +54,7 @@ public class RMIProvider implements IMBeanServerProvider
         RMIConnector rmiConnector = null;
         MBeanServerConnection connection = null;
 
-        if( BeanshooterOption.TARGET_OBJID_CONNECTION.notNull() )
+        if (BeanshooterOption.TARGET_OBJID_CONNECTION.notNull())
         {
             ObjID objID = Utils.parseObjID(BeanshooterOption.TARGET_OBJID_CONNECTION.getValue());
             RMIConnection conn = getRMIConnectionByObjID(regEndpoint, objID);
@@ -139,9 +139,7 @@ public class RMIProvider implements IMBeanServerProvider
             {
                 Logger.eprintlnMixedBlue("The server probably uses TLS settings that are", "incompatible", "with your current security settings.");
                 Logger.eprintlnMixedYellow("You may try to edit your", "java.security", "policy file to overcome the issue.");
-
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             else
@@ -149,8 +147,7 @@ public class RMIProvider implements IMBeanServerProvider
                 ExceptionHandler.unknownReason(e);
             }
 
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
 
         catch (SecurityException e)
@@ -234,16 +231,21 @@ public class RMIProvider implements IMBeanServerProvider
     {
         RMIServer returnValue = null;
 
-        try {
+        try
+        {
             returnValue = (RMIServer)regEndpoint.lookup(boundName);
+        }
 
-        } catch (ClassNotFoundException e) {
+        catch (ClassNotFoundException e)
+        {
             ExceptionHandler.lookupClassNotFoundException(e, e.getMessage());
+        }
 
-        } catch( ClassCastException e) {
+        catch (ClassCastException e)
+        {
             Logger.printlnMixedYellow("Unable to cast remote object to", "RMIServer", "class.");
             Logger.printlnMixedBlue("You probbably specified a bound name that does not implement the", "RMIServer", "interface.");
-            Utils.exit();
+            Utils.exit(e);
         }
 
         return returnValue;

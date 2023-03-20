@@ -85,9 +85,7 @@ public class JolokiaProvider implements IMBeanServerProvider {
             {
                 Logger.eprintlnMixedYellow("Caught", "ParseException", "while parsing the server response.");
                 Logger.eprintlnMixedBlue("The specified target is", "probably not", "a Jolokia endpoint.");
-
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             ExceptionHandler.unexpectedException(e, "while connecting", "to the jolokia endpoint", true);
@@ -130,6 +128,7 @@ public class JolokiaProvider implements IMBeanServerProvider {
             else if (t instanceof java.io.EOFException || t instanceof java.net.SocketException)
             {
                 Logger.eprintln("The JMX server closed the connection. This usually indicates a networking problem.");
+                ExceptionHandler.showStackTrace(e);
             }
 
             else

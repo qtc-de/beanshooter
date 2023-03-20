@@ -131,12 +131,15 @@ public class MBeanInvocationHandler implements InvocationHandler
                     }
                 }
 
-                catch (ClassNotFoundException | ClassCastException | NoSuchMethodException | SecurityException e2){}
+                catch (ClassNotFoundException | ClassCastException | NoSuchMethodException | SecurityException e2)
+                {
+                    // If we cannot create a forwarding exception, we fall through to the generic exception message
+                }
 
                 Logger.eprintlnMixedYellow("Caught", "J4pRemoteException", "during MBean method invocation.");
                 Logger.eprintlnMixedBlue("Jolokia reported:", message);
 
-                Utils.exit();
+                Utils.exit(e);
             }
 
             else

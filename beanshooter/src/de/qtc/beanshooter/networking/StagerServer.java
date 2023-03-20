@@ -78,7 +78,7 @@ public class StagerServer
 
             server.setExecutor(null);
 
-            Logger.printlnYellow("Starting HTTP server.");
+            Logger.printlnYellow("Waiting for incoming connections...");
             Logger.println("");
 
             server.start();
@@ -110,9 +110,7 @@ public class StagerServer
                 ExceptionHandler.unknownReason(e);
             }
 
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
-
+            Utils.exit(e);
         }
 
         catch( java.lang.IllegalArgumentException e )
@@ -124,8 +122,7 @@ public class StagerServer
                 Logger.eprintlnMixedYellow("Caught", "IllegalArgumentException", "while creating the stager server.");
                 Logger.eprintlnMixedBlue("The specified port", String.valueOf(port), "is out of range.");
                 Logger.eprintlnMixedYellow("Specify a port within the range", String.format("0-%s", Short.MAX_VALUE * 2 + 1));
-                ExceptionHandler.showStackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             else

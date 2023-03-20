@@ -91,12 +91,14 @@ public class PluginSystem {
         JarInputStream jarStream = null;
         File pluginFile = new File(pluginPath);
 
-        if(!pluginFile.exists()) {
+        if (!pluginFile.exists())
+        {
             Logger.eprintlnMixedYellow("Specified plugin path", pluginPath, "does not exist.");
             Utils.exit();
         }
 
-        try {
+        try
+        {
             jarStream = new JarInputStream(new FileInputStream(pluginFile));
             Manifest mf = jarStream.getManifest();
             pluginClassName = mf.getMainAttributes().getValue(manifestAttribute);
@@ -105,50 +107,67 @@ public class PluginSystem {
             if(pluginClassName == null)
                 throw new MalformedPluginException();
 
-        } catch(Exception e) {
-            Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while reading the Manifest of the specified plugin.");
-            Logger.eprintlnMixedBlue("Plugins need to be valid JAR files that contain the", manifestAttribute, "attribute.");
-            Utils.exit();
         }
 
-        try {
+        catch(Exception e)
+        {
+            Logger.eprintlnMixedYellow("Caught", e.getClass().getName(), "while reading the Manifest of the specified plugin.");
+            Logger.eprintlnMixedBlue("Plugins need to be valid JAR files that contain the", manifestAttribute, "attribute.");
+            Utils.exit(e);
+        }
+
+        try
+        {
             URLClassLoader ucl = new URLClassLoader(new URL[] {pluginFile.toURI().toURL()});
             Class<?> pluginClass = Class.forName(pluginClassName, true, ucl);
             pluginInstance = pluginClass.newInstance();
-
-        } catch(Exception e) {
-            Logger.eprintMixedYellow("Caught", e.getClass().getName(), "while reading plugin file ");
-            Logger.printlnPlainBlue(pluginPath);
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
         }
 
-        if(pluginInstance instanceof IMBeanServerProvider) {
+        catch (Exception e)
+        {
+            Logger.eprintMixedYellow("Caught", e.getClass().getName(), "while reading plugin file ");
+            Logger.printlnPlainBlue(pluginPath);
+            Utils.exit(e);
+        }
+
+        if (pluginInstance instanceof IMBeanServerProvider)
+        {
             mBeanServerProvider = (IMBeanServerProvider)pluginInstance;
             inUse = true;
+        }
 
-        } if(pluginInstance instanceof ISocketFactoryProvider) {
+        if (pluginInstance instanceof ISocketFactoryProvider)
+        {
             socketFactoryProvider = (ISocketFactoryProvider)pluginInstance;
             inUse = true;
+        }
 
-        } if(pluginInstance instanceof IPayloadProvider) {
+        if (pluginInstance instanceof IPayloadProvider)
+        {
             payloadProvider = (IPayloadProvider)pluginInstance;
             inUse = true;
+        }
 
-        } if(pluginInstance instanceof IArgumentProvider) {
+        if (pluginInstance instanceof IArgumentProvider)
+        {
             argumentProvider = (IArgumentProvider)pluginInstance;
             inUse = true;
+        }
 
-        } if(pluginInstance instanceof IResponseHandler) {
+        if (pluginInstance instanceof IResponseHandler)
+        {
             responseHandler = (IResponseHandler)pluginInstance;
             inUse = true;
+        }
 
-        } if(pluginInstance instanceof IAuthenticationProvider) {
+        if (pluginInstance instanceof IAuthenticationProvider)
+        {
             authenticationProvider = (IAuthenticationProvider)pluginInstance;
             inUse = true;
         }
 
-        if(!inUse) {
+        if (!inUse)
+        {
             Logger.eprintMixedBlue("Plugin", pluginPath, "was successfully loaded, but is ");
             Logger.eprintlnPlainYellow("not in use.");
             Logger.eprintln("Plugins should implement at least one of the available plugin interfaces.");
@@ -408,6 +427,29 @@ public class PluginSystem {
     }
 
     /**
+     * Create an Object from a Java expression.
+     *
+     * @param str  Java expression. Class names need to be specified full qualified
+     * @return Object created from the Java expression
+     */
+    public static Object strToObj(String str)
+    {
+        Object args = null;
+
+        try
+        {
+            args = argumentProvider.strToObj(str);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return args;
+    }
+
+    /**
      * Pass the user supplied method signature to the ArgumentProvider and return the resulting
      * string array of parameter types.
      *
@@ -421,6 +463,31 @@ public class PluginSystem {
         try
         {
             types = argumentProvider.getArgumentTypes(signature);
+        }
+
+        catch (PluginException e)
+        {
+            ExceptionHandler.pluginException(e);
+        }
+
+        return types;
+    }
+
+    /**
+     * Pass the user supplied method signature to the ArgumentProvider and return the resulting
+     * string array of parameter types.
+     *
+     * @param signature user supplied method signature
+     * @param includeNanme     whether to include the methods name as a string
+     * @return String array containing the parsed parameter type names
+     */
+    public static String[] getArgumentTypes(String signature, boolean includeName)
+    {
+        String[] types = null;
+
+        try
+        {
+            types = argumentProvider.getArgumentTypes(signature, includeName);
         }
 
         catch (PluginException e)

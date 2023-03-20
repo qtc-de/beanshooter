@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
     beanshooter:
-      image: ghcr.io/qtc-de/beanshooter/jmx-example-server:2.0
+      image: ghcr.io/qtc-de/beanshooter/jmx-example-server:2.1
       build: .
         #environment:
         #  - > 

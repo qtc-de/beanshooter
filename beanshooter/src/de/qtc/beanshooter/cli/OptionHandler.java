@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.mbean.mlet.MLetOption;
@@ -54,24 +53,27 @@ public class OptionHandler {
 
             Object defaultValue = config.getProperty(option.name().toLowerCase());
 
-            try {
-
-                if( defaultValue != null && !((String) defaultValue).isEmpty() ) {
-
-                    if( option.getArgType() == ArgType.INT )
+            try
+            {
+                if  (defaultValue != null && !((String) defaultValue).isEmpty())
+                {
+                    if (option.getArgType() == ArgType.INT)
                         defaultValue = Integer.valueOf((String) defaultValue);
 
-                    else if( option.getArgType() == ArgType.BOOL )
+                    else if(option.getArgType() == ArgType.BOOL)
                         defaultValue = Boolean.valueOf((String) defaultValue);
-
-                } else if( defaultValue != null && ((String) defaultValue).isEmpty() ) {
-                    defaultValue = null;
                 }
 
-            } catch( Exception e ) {
+                else if(defaultValue != null && ((String) defaultValue).isEmpty())
+                {
+                    defaultValue = null;
+                }
+            }
+
+            catch (Exception e)
+            {
                 Logger.eprintlnMixedYellow("RMGOption", option.getName(), "obtained an invalid argument.");
-                ExceptionHandler.stackTrace(e);
-                Utils.exit();
+                Utils.exit(e);
             }
 
             option.setValue(args, defaultValue);
@@ -138,6 +140,12 @@ public class OptionHandler {
         if (option == TonkaBeanOption.EXEC_ARRAY)
             arg.nargs("+");
 
+        if (option == BeanshooterOption.STANDARD_OPERATION_ARGS)
+        {
+            arg.nargs("?");
+            arg.setDefault("");
+        }
+
         if (option == TonkaBeanOption.DOWNLOAD_DEST)
             arg.nargs("?");
 
@@ -145,6 +153,9 @@ public class OptionHandler {
             arg.nargs("?");
 
         if (option == BeanshooterOption.ATTR_VALUE)
+            arg.nargs("?");
+
+        if (option == BeanshooterOption.MODEL_RESOURCE)
             arg.nargs("?");
 
         if (option == BeanshooterOption.OBJ_NAME)
@@ -161,6 +172,11 @@ public class OptionHandler {
             List<String> mBeanNames = MBean.getLoadableBeanNames();
             mBeanNames.add("custom");
             arg.choices(mBeanNames);
+        }
+
+        if (option == BeanshooterOption.STANDARD_OPERATION)
+        {
+            arg.choices(new String[] { "exec", "upload", "tonka" });
         }
     }
 }

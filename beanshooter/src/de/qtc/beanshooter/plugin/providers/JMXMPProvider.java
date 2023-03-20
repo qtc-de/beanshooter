@@ -43,14 +43,14 @@ public class JMXMPProvider implements IMBeanServerProvider {
 
         java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
 
-        if( BeanshooterOption.CONN_SSL.getBool() )
+        if (BeanshooterOption.CONN_SSL.getBool())
         {
             env.put("jmx.remote.tls.socket.factory", PluginSystem.getSSLSocketFactory(host, port));
             env.put("jmx.remote.profiles", "TLS");
         }
 
         SASLMechanism saslMechanism = ArgumentHandler.getSASLMechanism();
-        if( saslMechanism != null )
+        if (saslMechanism != null)
         {
             if (!env.containsKey(JMXConnector.CREDENTIALS) && ArgumentHandler.getInstance().getAction() != BeanshooterOperation.BRUTE)
                 ArgumentHandler.requireAllOf(BeanshooterOption.CONN_USER, BeanshooterOption.CONN_PASS);
@@ -91,8 +91,7 @@ public class JMXMPProvider implements IMBeanServerProvider {
                 throw new SaslSuperflousException(e, true);
 
             Logger.eprintlnMixedYellow("Caught unexpected", "IOException", "while connecting to the specified JMX service.");
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
 
         catch( java.lang.SecurityException e )

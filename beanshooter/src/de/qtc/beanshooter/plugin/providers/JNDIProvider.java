@@ -40,34 +40,41 @@ public class JNDIProvider implements IMBeanServerProvider {
 
         java.security.Security.setProperty("ssl.SocketFactory.provider", PluginSystem.getDefaultSSLSocketFactoryClass(host, port));
 
-        if( BeanshooterOption.CONN_SSL.getBool() )
+        if (BeanshooterOption.CONN_SSL.getBool())
             env.put("com.sun.jndi.rmi.factory.socket", new SslRMIClientSocketFactory());
 
-        try {
+        try
+        {
             RMISocketFactory.setSocketFactory(PluginSystem.getDefaultRMISocketFactory(host, port));
+        }
 
-        } catch (IOException e) {
+        catch (IOException e)
+        {
             Logger.eprintlnMixedBlue("Unable to set custom", "RMISocketFactory.", "Host redirection will probably not work.");
             ExceptionHandler.showStackTrace(e);
             Logger.eprintln("");
         }
 
-        try {
+        try
+        {
             JMXServiceURL jmxUrl = new JMXServiceURL(String.format(connString, host, port));
             JMXConnector jmxConnector = JMXConnectorFactory.connect(jmxUrl, env);
 
             mBeanServerConnection = jmxConnector.getMBeanServerConnection();
+        }
 
-        } catch (MalformedURLException e) {
+        catch (MalformedURLException e)
+        {
             ExceptionHandler.internalError("DefaultMBeanServerProvider.getMBeanServerConnection", "Invalid URL.");
+            Utils.exit(e);
+        }
 
-        } catch (IOException e) {
+        catch (IOException e)
+        {
             Logger.eprintlnMixedYellow("Caught unexpected", "IOException", "while connecting to the specified JMX service.");
-            ExceptionHandler.showStackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
 
         return mBeanServerConnection;
     }
-
 }

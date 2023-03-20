@@ -19,7 +19,6 @@ import org.apache.http.ssl.TrustStrategy;
 import org.jolokia.client.J4pClientBuilder;
 import org.jolokia.client.jmxadapter.JolokiaJmxConnector;
 
-import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 
@@ -89,8 +88,7 @@ public class ExtendedJolokiaJmxConnector extends JolokiaJmxConnector
         catch (KeyManagementException | NoSuchAlgorithmException | KeyStoreException e)
         {
             Logger.printlnMixedYellow("Caught unexpected", e.getClass().getName(), "while setting the SSL context for Jolokia.");
-            ExceptionHandler.stackTrace(e);
-            Utils.exit();
+            Utils.exit(e);
         }
 
         if (mergedEnv.containsKey(CREDENTIALS))

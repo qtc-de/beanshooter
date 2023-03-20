@@ -4,7 +4,7 @@
     <parent>
         <groupId>de.qtc.beanshooter</groupId>
         <artifactId>reactor</artifactId>
-        <version>4.0.0</version>
+        <version>4.1.0</version>
     </parent>
 
     <artifactId>beanshooter</artifactId>
@@ -98,12 +98,16 @@
                     </manifest>
                     <manifestEntries>
                         <Add-Opens>
+                            java.base/java.lang
+                            java.base/java.util
                             java.base/java.lang.reflect
                             java.base/jdk.internal.misc
                             java.rmi/java.rmi.server
                             java.rmi/sun.rmi.server
                             java.rmi/sun.rmi.transport
                             java.rmi/sun.rmi.transport.tcp
+                            java.xml/com.sun.org.apache.xalan.internal.xsltc.runtime
+                            java.xml/com.sun.org.apache.xalan.internal.xsltc.trax
                         </Add-Opens>
                     </manifestEntries>
                 </archive>

@@ -1,7 +1,11 @@
 package de.qtc.beanshooter.utils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -35,14 +39,19 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.management.Descriptor;
+import javax.management.ImmutableDescriptor;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.modelmbean.ModelMBeanOperationInfo;
+import javax.management.modelmbean.RequiredModelMBean;
 
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.io.Logger;
-
+import de.qtc.beanshooter.operation.BeanshooterOption;
+import de.qtc.beanshooter.plugin.PluginSystem;
 import sun.rmi.server.UnicastRef;
 import sun.rmi.transport.LiveRef;
 import sun.rmi.transport.tcp.TCPEndpoint;
@@ -63,6 +72,18 @@ public class Utils {
      */
     public static void exit()
     {
+        Logger.eprintln("Cannot continue from here.");
+        System.exit(1);
+    }
+
+    /**
+     * Just a wrapper around System.exit(1) that prints an information before quitting.
+     * Also a stacktrace is printed if --stack-trace was used.
+     */
+    public static void exit(Exception e)
+    {
+        ExceptionHandler.showStackTrace(e);
+
         Logger.eprintln("Cannot continue from here.");
         System.exit(1);
     }
@@ -658,5 +679,153 @@ public class Utils {
         int port = endpoint.getPort();
 
         return String.format("%s:%d", host, port);
+    }
+
+    /**
+     * Create an array of ModelMBeanOperationInfo from the specified class. This method uses reflection to
+     * determine all the available methods within the specified class, filters methods with non serializable
+     * parameters and wraps each method into an ModelMBeanOperationInfo.
+     *
+     * @param cls  Class to obtain ModelMBeanOperationInfos from
+     * @return Array of ModelMBeanOperationInfo for the specified class
+     */
+    public static ModelMBeanOperationInfo[] createModelMBeanInfosFromClass(Class<?> cls)
+    {
+        Method[] methods = cls.getMethods();
+        List<ModelMBeanOperationInfo> infos = new ArrayList<ModelMBeanOperationInfo>();;
+
+        Map<String, Object> descriptorFields = new HashMap<String, Object>();
+        descriptorFields.put("class", cls.getName());
+        descriptorFields.put("role", "operation");
+        descriptorFields.put("descriptorType", "operation");
+
+        outer:
+        for (Method method : methods)
+        {
+            if (!BeanshooterOption.MODEL_ALL_METHODS.getBool())
+            {
+                for (Class<?> paramType : method.getParameterTypes())
+                {
+                    if (!(Serializable.class.isAssignableFrom(paramType)))
+                        continue outer;
+                }
+            }
+
+            descriptorFields.put("name", method.getName());
+            descriptorFields.put("displayName", method.getName());
+
+            Descriptor methodDescriptor = new ImmutableDescriptor(descriptorFields);
+            ModelMBeanOperationInfo info = new ModelMBeanOperationInfo(method.getName(), method, methodDescriptor);
+
+            infos.add(info);
+        }
+
+        try
+        {
+            Method setManagedResource = RequiredModelMBean.class.getMethod("setManagedResource", new Class[] {Object.class, String.class});
+            ModelMBeanOperationInfo info = new ModelMBeanOperationInfo("setManagedResource", setManagedResource);
+            infos.add(info);
+        }
+
+        catch (NoSuchMethodException | SecurityException e)
+        {
+            ExceptionHandler.internalError("createModelMBeanInfosFromClass", "unable to find setManagedResource method");
+        }
+
+        return infos.toArray(new ModelMBeanOperationInfo[0]);
+    }
+
+    /**
+     * Create an array of ModelMBeanOperationInfo from user specified signatures. This function inspects the
+     * MODEL_SIGNATURE and MODEL_SIGNATURE_FILE options and parses the contents accordingly. For each signature,
+     * a new ModelMBeanOperationInfo is created. All methods are expected to be present in the specified className.
+     *
+     * @param className  Class where the signatures are defined
+     * @return Array of ModelMBeanOperationInfo, one for each specified signature
+     */
+    public static ModelMBeanOperationInfo[] createModelMBeanInfosFromArg(String className)
+    {
+        List<ModelMBeanOperationInfo> operationInfos = new ArrayList<ModelMBeanOperationInfo>();
+
+        if (BeanshooterOption.MODEL_SIGNATURE.notNull())
+        {
+            ModelMBeanOperationInfo operationInfo = crateModelMBeanInfoFromString(className, BeanshooterOption.MODEL_SIGNATURE.getValue());
+            operationInfos.add(operationInfo);
+        }
+
+        else if (BeanshooterOption.MODEL_SIGNATURE_FILE.notNull())
+        {
+            try (BufferedReader br = new BufferedReader(new FileReader(BeanshooterOption.MODEL_SIGNATURE_FILE.<String>getValue())))
+            {
+                String line;
+
+                while ((line = br.readLine()) != null)
+                {
+                    ModelMBeanOperationInfo operationInfo = crateModelMBeanInfoFromString(className, line);
+                    operationInfos.add(operationInfo);
+                }
+            }
+
+            catch (FileNotFoundException e)
+            {
+                Logger.printlnMixedYellow("Caught unexpected", "FileNotFoundException", "while preparing method signatures.");
+                Logger.printlnMixedBlue("The specified input file", BeanshooterOption.MODEL_SIGNATURE_FILE.getValue(), "seems not to exist.");
+                Utils.exit(e);
+            }
+
+            catch (IOException e)
+            {
+                ExceptionHandler.handleFileRead(e, BeanshooterOption.MODEL_SIGNATURE_FILE.getValue(), true);
+            }
+        }
+
+        else
+        {
+            ExceptionHandler.internalError("createModelMBeanInfosFromArg", "Method was called but neither --signature nor --signature file was specified");
+        }
+
+        try
+        {
+            Method setManagedResource = RequiredModelMBean.class.getMethod("setManagedResource", new Class[] {Object.class, String.class});
+            ModelMBeanOperationInfo info = new ModelMBeanOperationInfo("setManagedResource", setManagedResource);
+            operationInfos.add(info);
+        }
+
+        catch (NoSuchMethodException | SecurityException e)
+        {
+            ExceptionHandler.internalError("createModelMBeanInfosFromClass", "unable to find setManagedResource method");
+        }
+
+        return operationInfos.toArray(new ModelMBeanOperationInfo[0]);
+    }
+
+    /**
+     * Create a ModelMBeanOperationInfo from the specified method signature.
+     *
+     * @param className  the class where the method is defined in
+     * @param method  the method signature
+     * @return ModelMBeanOperationInfo for the specified parameters
+     */
+    public static ModelMBeanOperationInfo crateModelMBeanInfoFromString(String className, String method)
+    {
+        String[] methodDesc = PluginSystem.getArgumentTypes(method, true);
+        String returnValue = method.split(" ", 2)[0];
+
+        Map<String, Object> descriptorFields = new HashMap<String, Object>();
+        descriptorFields.put("name", methodDesc[0]);
+        descriptorFields.put("displayName", methodDesc[0]);
+        descriptorFields.put("class", className);
+        descriptorFields.put("role", "operation");
+        descriptorFields.put("descriptorType", "operation");
+
+        Descriptor methodDescriptor = new ImmutableDescriptor(descriptorFields);
+        MBeanParameterInfo[] paramInfos = new MBeanParameterInfo[methodDesc.length - 1];
+
+        for (int ctr = 1; ctr < methodDesc.length; ctr++)
+        {
+            paramInfos[ctr - 1] = new MBeanParameterInfo(null, methodDesc[ctr], null);
+        }
+
+        return new ModelMBeanOperationInfo(methodDesc[0], null, paramInfos, returnValue, MBeanOperationInfo.UNKNOWN, methodDescriptor);
     }
 }
