@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [4.1.0] - Mar XX, 2023
+## [4.1.0] - Mar 20, 2023
 
 ### Added
 
 * Add [model](/#model) action (see CODE WHITE [blog post](TODO))
+* Add [standard](/#standard) action (see CODE WHITE [blog post](TODO))
 
 ### Changed
 
