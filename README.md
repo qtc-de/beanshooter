@@ -1533,8 +1533,8 @@ For each release, there is a *normal* and a *slim* version available. Both provi
 *beanshooter*, but only the *normal* version ships with [ysoserial](https://github.com/frohoff/ysoserial)
 included, resulting in a larger image size:
 
-* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:3.1.1` - `121MB`
-* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:3.1.1-slim` - `61.9MB`
+* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:4.1.0` - `124MB`
+* `docker pull ghcr.io/qtc-de/beanshooter/beanshooter:4.1.0-slim` - `64.8MB`
 
 You can also build the container on your own by running the following commands:
 
