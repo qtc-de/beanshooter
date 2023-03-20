@@ -15,7 +15,7 @@ FROM alpine:latest AS jdk-builder
 RUN set -ex \
     && apk add --no-cache openjdk11 \
     && /usr/lib/jvm/java-11-openjdk/bin/jlink \
-       --add-modules java.desktop,java.management.rmi,jdk.naming.rmi,java.security.sasl,jdk.unsupported,jdk.httpserver \
+       --add-modules java.desktop,java.management.rmi,jdk.naming.rmi,java.security.sasl,jdk.unsupported,jdk.httpserver,java.xml \
        --verbose --strip-debug --compress 2 --no-header-files --no-man-pages --output /jdk
 
 ###########################################
