@@ -12,8 +12,8 @@ RUN mvn clean package
 FROM alpine:latest AS jdk-builder
 RUN set -ex \
     && apk add --no-cache openjdk11 \
-    && /usr/lib/jvm/java-11-openjdk/bin/jlink --add-modules java.rmi,java.management.rmi,jdk.management.agent,jdk.naming.rmi --verbose --strip-debug --compress 2 \
-       --no-header-files --no-man-pages --output /jdk
+    && /usr/lib/jvm/java-11-openjdk/bin/jlink --add-modules java.rmi,java.management.rmi,jdk.management.agent,jdk.naming.rmi,java.xml \
+       --verbose --strip-debug --compress 2 --no-header-files --no-man-pages --output /jdk
 
 ###########################################
 ###          Container Stage            ###
