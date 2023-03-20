@@ -570,7 +570,8 @@ sun.io.unicode.encoding
 The `model` action uses reflection to determine available methods on the specified class. If you do not
 have the class locally available, you can still use it by specifying available methods via the `--signature`
 or `--signature-file` options. That being said, in order to get access to non default classes you need to
-provide an object instance that is also not a default class (not present in `rt.jar`). For *beanshooters*
+provide an object instance that is also not a default class (not present in `rt.jar`). This is required, as
+the target class needs to be loaded by the same *ClassLoader* as the provided object instance. For *beanshooters*
 *example-server*, `javax.management.remote.message.VersionMessage` is suitable, as this class is present
 in `opendmk_jmxremote_optional_jar` which is present in the client as well as in the server. We can use
 this as an object instance to invoke methods on other custom classes, like `de.qtc.beanshooter.server.utils.Logger`:
@@ -593,7 +594,7 @@ EMPTY OUTPUT - Just an Indent ;)
 ```
 
 If you want to know more about the technique that is implemented by the `model` action, I highly
-recommend [this blog post](TODO) by [CODE WHITE](https://www.code-white.com/en/) which explains it
+recommend [this blog post](TODO) by [CODE WHITE](https://twitter.com/codewhitesec) which explains it
 in great detail.
 
 
@@ -698,10 +699,11 @@ uid=0(root) gid=0(root) groups=0(root)
 ```
 
 Command execution via the `standard` action is blind and you do not receive the output of your command.
-Moreover, by default you command is passed to `Runtime.exec(String str)`, which does not support special
-shell characters. If you want to use shell features, use the `--exec-array` option and specify your command
-like this: `'sh -c echo "my cool command" > /tmp/test.txt'`. However, it is generally more recommended to
-use the *TonkaBean* deployment for execution commands:
+Moreover, by default your command is passed to `Runtime.exec(String str)`, which does not support special
+shell features. If you want to use shell features, use the `--exec-array` option and specify your command
+like this: `'sh -c echo "my cool command" > /tmp/test.txt'`. With `--exec-array`, *beanshooter* splits the
+specified command in three parts and passes them to `Runtime.exec(String[] arr)`. However, it is generally
+recommended to use the *TonkaBean* deployment for executing commands:
 
 ```console
 [qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 tonka
@@ -721,7 +723,7 @@ uid=0(root) gid=0(root) groups=0(root)
 ```
 
 The huge advantage compared to the regular `tonka deploy` action is that deployment via the *StandardMBean*
-does not require an outbound network connection. If a direct deployment via *StandardMBean* does not work,
+does not require an outbound network connection. If a direct deployment via `standard ... tonka` does not work,
 you may be able to upload the *TonkaBean* Jar file and load it via *MLet* and the `file://` protocol:
 
 ```console
@@ -771,7 +773,7 @@ you may be able to upload the *TonkaBean* Jar file and load it via *MLet* and th
 ```
 
 If you want to know more about the technique that is implemented by the `standard` action, I highly
-recommend [this blog post](TODO) by [CODE WHITE](https://www.code-white.com/en/) which explains it
+recommend [this blog post](TODO) by [CODE WHITE](https://twitter.com/codewhitesec) which explains it
 in great detail.
 
 #### Undeploy
