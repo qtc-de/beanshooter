@@ -594,8 +594,8 @@ EMPTY OUTPUT - Just an Indent ;)
 ```
 
 If you want to know more about the technique that is implemented by the `model` action, I highly
-recommend [this blog post](TODO) by [CODE WHITE](https://twitter.com/codewhitesec) which explains it
-in great detail.
+recommend this [blog post](https://codewhitesec.blogspot.com/2023/03/jmx-exploitation-revisited.html)
+by [CODE WHITE](https://twitter.com/codewhitesec) which explains it in great detail.
 
 
 #### Serial
@@ -773,8 +773,8 @@ you may be able to upload the *TonkaBean* Jar file and load it via *MLet* and th
 ```
 
 If you want to know more about the technique that is implemented by the `standard` action, I highly
-recommend [this blog post](TODO) by [CODE WHITE](https://twitter.com/codewhitesec) which explains it
-in great detail.
+recommend this [blog post](https://codewhitesec.blogspot.com/2023/03/jmx-exploitation-revisited.html)
+by [CODE WHITE](https://twitter.com/codewhitesec) which explains it in great detail.
 
 #### Undeploy
 

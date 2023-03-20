@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Add [model](/#model) action (see CODE WHITE [blog post](TODO))
-* Add [standard](/#standard) action (see CODE WHITE [blog post](TODO))
+* Add [model](/#model) action (see CODE WHITE [blog post](https://codewhitesec.blogspot.com/2023/03/jmx-exploitation-revisited.html))
+* Add [standard](/#standard) action (see CODE WHITE [blog post](https://codewhitesec.blogspot.com/2023/03/jmx-exploitation-revisited.html))
 
 ### Changed
 
