@@ -264,7 +264,7 @@ public class Dispatcher {
         if (BeanshooterOption.CONN_JOLOKIA.getBool())
             enumHelper.enumJolokiaVersion();
 
-        else
+        else if (!BeanshooterOption.CONN_JNDI.<String>getValue().contains("service:jmx:remote+"))
             enumHelper.enumSerial();
 
         if (!access)
