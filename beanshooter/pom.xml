@@ -97,6 +97,12 @@
                         <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                     </manifest>
                     <manifestEntries>
+                        <Built-By>
+                            Tobias Neitzel
+                        </Built-By>
+                        <Class-Path>
+                            wildfly-client-all-29.0.1.Final.jar
+                        </Class-Path>
                         <Add-Opens>
                             java.base/java.lang
                             java.base/java.util
