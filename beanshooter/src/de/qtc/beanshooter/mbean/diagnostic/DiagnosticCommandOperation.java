@@ -37,6 +37,7 @@ public enum DiagnosticCommandOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             DiagnosticCommandOption.FILENAME,
             DiagnosticCommandOption.RAW,
     }),
@@ -63,6 +64,7 @@ public enum DiagnosticCommandOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             DiagnosticCommandOption.LIBRARY_PATH,
     }),
 
@@ -88,6 +90,7 @@ public enum DiagnosticCommandOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             DiagnosticCommandOption.FILENAME,
     }),
 
@@ -113,6 +116,7 @@ public enum DiagnosticCommandOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
     }),
 
     CMDLINE("getCommandLine", "get the Java virtual machine command line", new Option[] {
@@ -137,6 +141,7 @@ public enum DiagnosticCommandOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
     }),
 
     PROPS("getSystemProperties", "get Java virtual machine System properties", new Option[] {
@@ -161,6 +166,7 @@ public enum DiagnosticCommandOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
     });
 
     private Method method;

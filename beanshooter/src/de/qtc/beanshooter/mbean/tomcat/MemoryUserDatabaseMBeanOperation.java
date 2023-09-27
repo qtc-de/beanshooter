@@ -38,6 +38,7 @@ public enum MemoryUserDatabaseMBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             MemoryUserDatabaseMBeanOption.USER_FILE,
             MemoryUserDatabaseMBeanOption.PASS_FILE,
     }),
@@ -64,6 +65,7 @@ public enum MemoryUserDatabaseMBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
     }),
 
     WRITE("write", "write a parially controlled file to the server", new Option[] {
@@ -88,6 +90,7 @@ public enum MemoryUserDatabaseMBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             MemoryUserDatabaseMBeanOption.LOCAL_FILE,
             MemoryUserDatabaseMBeanOption.REMOTE_FILE,
     });

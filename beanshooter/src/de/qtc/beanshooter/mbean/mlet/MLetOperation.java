@@ -37,6 +37,7 @@ public enum MLetOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             BeanshooterOption.DEPLOY_NO_STAGER,
             BeanshooterOption.DEPLOY_STAGER_ADDR,
             BeanshooterOption.DEPLOY_STAGER_PORT,

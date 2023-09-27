@@ -37,6 +37,7 @@ public enum TonkaBeanOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
     }),
 
     EXEC("execute", "execute a command on the MBeanServer", new Option[] {
@@ -61,6 +62,7 @@ public enum TonkaBeanOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             TonkaBeanOption.EXEC_CMD,
             TonkaBeanOption.EXEC_ENV,
             TonkaBeanOption.EXEC_CWD,
@@ -93,6 +95,7 @@ public enum TonkaBeanOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             TonkaBeanOption.EXEC_ARRAY,
             TonkaBeanOption.EXEC_ENV,
             TonkaBeanOption.EXEC_CWD,
@@ -124,6 +127,7 @@ public enum TonkaBeanOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             TonkaBeanOption.SHELL_CMD,
     }),
 
@@ -149,6 +153,7 @@ public enum TonkaBeanOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             TonkaBeanOption.UPLOAD_DEST,
             TonkaBeanOption.UPLOAD_SOURCE,
     }),
@@ -175,6 +180,7 @@ public enum TonkaBeanOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             TonkaBeanOption.DOWNLOAD_DEST,
             TonkaBeanOption.DOWNLOAD_SOURCE,
     });

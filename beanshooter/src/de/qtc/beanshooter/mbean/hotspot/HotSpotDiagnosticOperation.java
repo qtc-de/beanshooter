@@ -38,6 +38,7 @@ public enum HotSpotDiagnosticOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             HotSpotDiagnosticOption.DUMP_FILE,
             HotSpotDiagnosticOption.LIVE,
     }),
@@ -64,6 +65,7 @@ public enum HotSpotDiagnosticOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
     }),
 
     GET("getOption", "obtain a specific diagnostic option", new Option[] {
@@ -88,6 +90,7 @@ public enum HotSpotDiagnosticOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             HotSpotDiagnosticOption.OPTION_NAME,
     }),
 
@@ -113,6 +116,7 @@ public enum HotSpotDiagnosticOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             HotSpotDiagnosticOption.OPTION_NAME,
             HotSpotDiagnosticOption.OPTION_VALUE,
     });

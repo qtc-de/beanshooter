@@ -37,6 +37,7 @@ public enum FlightRecorderOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
     }),
 
     START("startRecording", "start a recording", new Option[] {
@@ -61,6 +62,7 @@ public enum FlightRecorderOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             FlightRecorderOption.RECORDING_ID,
     }),
 
@@ -86,6 +88,7 @@ public enum FlightRecorderOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             FlightRecorderOption.RECORDING_ID,
     }),
 
@@ -111,6 +114,7 @@ public enum FlightRecorderOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             FlightRecorderOption.RECORDING_ID,
             FlightRecorderOption.DUMP_FILE,
     }),
@@ -137,6 +141,7 @@ public enum FlightRecorderOperation implements Operation
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             FlightRecorderOption.RECORDING_ID,
             FlightRecorderOption.DUMP_FILE,
     });

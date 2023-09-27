@@ -40,6 +40,7 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_SASL,
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
+            BeanshooterOption.CONN_JNDI,
             BeanshooterOption.ATTR_ATTRIBUTE,
             BeanshooterOption.ATTR_VALUE,
             BeanshooterOption.ATTR_TYPE,
@@ -67,6 +68,7 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             BeanshooterOption.DEPLOY_NO_STAGER,
             BeanshooterOption.DEPLOY_STAGER_URL,
             BeanshooterOption.DEPLOY_STAGER_PORT,
@@ -107,6 +109,7 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             BeanshooterOption.ATTR_WRITEABLE,
             BeanshooterOption.ATTR_HARVEST,
             BeanshooterOption.ATTR_KEYWORDS,
@@ -134,6 +137,7 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
             BeanshooterOption.INVOKE_METHOD_ARGS,
             BeanshooterOption.INVOKE_METHOD,
             BeanshooterOption.INVOKE_NO_WRAP,
@@ -169,6 +173,7 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
     }),
 
     UNDEPLOY("undeploy", "undeploys the specified MBEAN from the JMX server", new Option[] {
@@ -193,6 +198,7 @@ public enum MBeanOperation implements Operation {
             BeanshooterOption.CONN_USER,
             BeanshooterOption.CONN_PASS,
             BeanshooterOption.CONN_SASL,
+            BeanshooterOption.CONN_JNDI,
     });
 
     private Method method;
