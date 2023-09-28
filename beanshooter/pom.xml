@@ -101,7 +101,7 @@
                             Tobias Neitzel (@qtc_de)
                         </Built-By>
                         <Class-Path>
-                            wildfly-client-all-29.0.1.Final.jar
+                            jboss-remoting.jar
                         </Class-Path>
                         <Add-Opens>
                             java.base/java.lang
