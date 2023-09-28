@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertPathValidatorException;
 import java.util.Map;
 
@@ -11,6 +13,8 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 import de.qtc.beanshooter.cli.ArgumentHandler;
@@ -18,6 +22,7 @@ import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.GlassFishException;
 import de.qtc.beanshooter.io.Logger;
+import de.qtc.beanshooter.networking.DummyTrustManager;
 import de.qtc.beanshooter.operation.BeanshooterOperation;
 import de.qtc.beanshooter.operation.BeanshooterOption;
 import de.qtc.beanshooter.plugin.IMBeanServerProvider;
@@ -41,6 +46,20 @@ public class JNDIProvider implements IMBeanServerProvider {
     {
         MBeanServerConnection mBeanServerConnection = null;
         String connString = ArgumentHandler.require(BeanshooterOption.CONN_JNDI);
+
+        try
+        {
+            SSLContext trustAllContext = SSLContext.getInstance("TLS");
+            trustAllContext.init(null, new X509TrustManager[] {new DummyTrustManager()}, null);
+            SSLContext.setDefault(trustAllContext);
+        }
+
+        catch (NoSuchAlgorithmException | KeyManagementException e)
+        {
+            Logger.eprintlnMixedBlue("Unable to set", "trust-all SSLContext", "- Cert validation might cause problems.");
+            ExceptionHandler.showStackTrace(e);
+            Logger.lineBreak();
+        }
 
         if (!connString.contains("://"))
         {
