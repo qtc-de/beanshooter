@@ -158,6 +158,13 @@ public class JNDIProvider implements IMBeanServerProvider {
                 Utils.exit(e);
             }
 
+            else if (t.getMessage().contains("Invalid response"))
+            {
+                Logger.eprintMixedBlue("You probably connected to an", "remote+https", "port using ");
+                Logger.printlnPlainBlue("remote+http");
+                Utils.exit(e);
+            }
+
             else
             {
                 String className = t.getClass().getName();
