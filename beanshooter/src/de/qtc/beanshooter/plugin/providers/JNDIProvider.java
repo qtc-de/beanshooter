@@ -1,6 +1,8 @@
 package de.qtc.beanshooter.plugin.providers;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.security.cert.CertPathValidatorException;
 import java.util.Map;
@@ -40,6 +42,25 @@ public class JNDIProvider implements IMBeanServerProvider {
         MBeanServerConnection mBeanServerConnection = null;
         String connString = ArgumentHandler.require(BeanshooterOption.CONN_JNDI);
 
+        if (!connString.contains("://"))
+        {
+            if (connString.startsWith("service:jmx:rmi"))
+            {
+                connString += String.format(":///jndi/rmi://%s:%d/jmxrmi", host, port);
+            }
+
+            else if (connString.startsWith("service:jmx:remote+http"))
+            {
+                connString += String.format("://%s:%d", host, port);
+            }
+
+            else
+            {
+                Logger.eprintlnMixedYellow("The specified", "connection string", "seems to be invalid.");
+                Utils.exit();
+            }
+        }
+
         try
         {
             JMXServiceURL jmxUrl = new JMXServiceURL(String.format(connString, host, port));
@@ -50,25 +71,23 @@ public class JNDIProvider implements IMBeanServerProvider {
 
         catch (MalformedURLException e)
         {
-        	String message = e.getMessage();
+            String message = e.getMessage();
 
-        	if (message.contains("Unsupported protocol"))
-        	{
-        		String protocol = message.split(": ")[1];
+            if (message.contains("Unsupported protocol"))
+            {
+                String protocol = message.split(": ")[1];
 
-	            Logger.eprintlnMixedYellow("The specified protocol", protocol, "is not supported by your Java installation.");
-	            Logger.eprintlnMixedBlue("You probably need to", "extend the classpath", "to make it work.");
-	            ExceptionHandler.showStackTrace(e);
-	            Utils.exit(e);
-        	}
+                Logger.eprintlnMixedYellow("The specified protocol", protocol, "is not supported by your Java installation.");
+                Logger.eprintlnMixedBlue("You probably need to", "extend the classpath", "to make it work.");
+                Utils.exit(e);
+            }
 
-        	else
-        	{
-	            Logger.eprintlnMixedYellow("Caught unexpected", "MalformedURLException", "during JNDI lookup.");
-	            Logger.eprintlnMixedBlue("The specified", "JNDI URL", "seems to be invalid.");
-	            ExceptionHandler.showStackTrace(e);
-	            Utils.exit(e);
-        	}
+            else
+            {
+                Logger.eprintlnMixedYellow("Caught unexpected", "MalformedURLException", "during JNDI lookup.");
+                Logger.eprintlnMixedBlue("The specified", "JNDI URL", "seems to be invalid.");
+                Utils.exit(e);
+            }
         }
 
         catch (IOException e)
@@ -135,13 +154,37 @@ public class JNDIProvider implements IMBeanServerProvider {
 
             else if (t instanceof javax.security.sasl.SaslException)
             {
-	            Logger.eprintlnMixedBlue("You probably need to", "specify credentials", "to connect to this server.");
-	            Utils.exit(e);
+                Logger.eprintlnMixedBlue("You probably need to", "specify credentials", "to connect to this server.");
+                Utils.exit(e);
             }
 
             else
             {
-                ExceptionHandler.unknownReason(e);
+                String className = t.getClass().getName();
+
+                if (className == "org.xnio.http.RedirectException")
+                {
+                    try
+                    {
+                        Method get_location = t.getClass().getMethod("getLocation", new Class<?>[] {});
+                        String location = (String)get_location.invoke(t);
+
+                        Logger.eprintlnMixedBlue("The server attempted to redirect to", location);
+                        Logger.eprintlnMixedYellow("You should relaunch", "beanshooter", "with this target specification.");
+                    }
+
+                    catch (SecurityException | IllegalArgumentException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e1)
+                    {
+                           Logger.eprintlnMixedBlue("The server has probably", "another open port", "that accepts connections.");
+                    }
+
+                    Utils.exit(e);
+                }
+
+                else
+                {
+                    ExceptionHandler.unknownReason(e);
+                }
             }
 
             Utils.exit(e);
