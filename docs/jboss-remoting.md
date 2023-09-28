@@ -38,7 +38,7 @@ support *JBoss Remoting* based *JMX* services by connecting with *beanshooter*. 
 *beanshooter* that you want to use *JBoss Remoting*, you have to use the `--jndi` parameter
 and specify your target like this:
 
-```
+```console
 [user@host ~]$ beanshooter enum jboss.remoting.example 9993 --jndi service:jmx:remote+https
 ```
 
@@ -49,7 +49,7 @@ downloading a *JBoss Remoting* library, you just need to rename it to `jboss-rem
 and place it beside *beanshooter*. A compatible library at the time of writing can be obtained
 like this:
 
-```
+```console
 [user@host ~]$ wget -O 'jboss-remoting.jar' 'https://repo1.maven.org/maven2/org/wildfly/wildfly-client-all/29.0.1.Final/wildfly-client-all-29.0.1.Final.jar'
 ```
 
