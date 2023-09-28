@@ -7,3 +7,4 @@ This folder contains some additional documentation on selected topics. Currently
 are available:
 
 * [Jolokia](./jolokia.md) - Some notes about *beanshooters* *Jolokia* support.
+* [JBoss Remoting](./jboss-remoting.md) - Some notes about *beanshooters* *JBoss Remoting* support.
