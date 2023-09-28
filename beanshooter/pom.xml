@@ -98,7 +98,7 @@
                     </manifest>
                     <manifestEntries>
                         <Built-By>
-                            Tobias Neitzel
+                            Tobias Neitzel (@qtc_de)
                         </Built-By>
                         <Class-Path>
                             wildfly-client-all-29.0.1.Final.jar
