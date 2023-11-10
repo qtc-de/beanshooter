@@ -76,6 +76,13 @@ public enum TonkaBeanOption implements Option
              ArgType.BOOL
              ),
 
+    EXEC_CHARSET("--charset",
+            "decode the output of the command with specific charset",
+                Arguments.store(),
+                OptionGroup.ACTION,
+                ArgType.STRING
+                ),
+
     UPLOAD_SOURCE("local",
                   "local file to upload onto the server",
                   Arguments.store(),
