@@ -67,6 +67,7 @@ public enum TonkaBeanOperation implements Operation
             TonkaBeanOption.EXEC_FILE,
             TonkaBeanOption.EXEC_HEX,
             TonkaBeanOption.EXEC_RAW,
+            TonkaBeanOption.EXEC_CHARSET,
             TonkaBeanOption.EXEC_BACK,
             TonkaBeanOption.SHELL_CMD,
     }),
@@ -99,6 +100,7 @@ public enum TonkaBeanOperation implements Operation
             TonkaBeanOption.EXEC_FILE,
             TonkaBeanOption.EXEC_HEX,
             TonkaBeanOption.EXEC_RAW,
+            TonkaBeanOption.EXEC_CHARSET,
             TonkaBeanOption.EXEC_BACK,
     }),
 

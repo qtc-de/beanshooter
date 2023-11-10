@@ -1,9 +1,6 @@
 package de.qtc.beanshooter.mbean.tonkabean;
 
-import java.io.Console;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Proxy;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -152,7 +149,25 @@ public class Dispatcher extends de.qtc.beanshooter.mbean.Dispatcher
             else
             {
                 Logger.printlnYellow("Server response:");
-                System.out.write(result);
+
+                if (TonkaBeanOption.EXEC_CHARSET.notNull()){
+                    String charset = TonkaBeanOption.EXEC_CHARSET.<String>getValue();
+
+                    InputStream is = new ByteArrayInputStream(result);
+                    Reader reader = new InputStreamReader(is, charset);
+                    BufferedReader br = new BufferedReader(reader);
+
+                    String s;
+                    while((s=br.readLine()) != null) {
+                        System.out.println(s);
+                    }
+
+                    br.close();
+                }
+
+                else{
+                    System.out.write(result);
+                }
             }
         }
 
