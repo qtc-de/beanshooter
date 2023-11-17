@@ -68,7 +68,7 @@ public class JNDIProvider implements IMBeanServerProvider {
                 connString += String.format(":///jndi/rmi://%s:%d/jmxrmi", host, port);
             }
 
-            else if (connString.startsWith("service:jmx:remote+http"))
+            else if (connString.startsWith("service:jmx:remote"))
             {
                 connString += String.format("://%s:%d", host, port);
             }
