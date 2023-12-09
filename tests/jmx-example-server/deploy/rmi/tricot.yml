@@ -186,8 +186,8 @@ tests:
       - deploy
       - ${TARGET_UNAUTH}
       - ${OPTIONS}
-      - de.qtc.beanshooter.tonkabean.TonkaBean
-      - 'de.qtc.beanshooter:type=Test'
+      - eu.tneitzel.beanshooter.tonkabean.TonkaBean
+      - 'eu.tneitzel.beanshooter:type=Test'
       - --jar-file
       - ./tonka-bean-4.1.0-jar-with-dependencies.jar
       - --stager-url
@@ -208,7 +208,7 @@ tests:
       - contains:
           values:
             - 'Deplyoing MBean: TonkaBean'
-            - 'MBean with object name de.qtc.beanshooter:type=Test was successfully deployed.'
+            - 'MBean with object name eu.tneitzel.beanshooter:type=Test was successfully deployed.'
       - file_exists:
          cleanup: True
          files:
@@ -225,7 +225,7 @@ tests:
       - undeploy
       - ${TARGET_UNAUTH}
       - ${OPTIONS}
-      - 'de.qtc.beanshooter:type=Test'
+      - 'eu.tneitzel.beanshooter:type=Test'
 
     conditions:
       all:

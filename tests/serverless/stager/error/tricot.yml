@@ -72,7 +72,7 @@ tests:
       - --object-name
       - 'test:test=1'
       - --class-name
-      - de.qtc.beanshooter.TestClass
+      - eu.tneitzel.beanshooter.TestClass
       - --no-color
 
     timeout: 5
@@ -99,7 +99,7 @@ tests:
       - --object-name
       - 'testtest=1'
       - --class-name
-      - de.qtc.beanshooter.TestClass
+      - eu.tneitzel.beanshooter.TestClass
       - --no-color
 
     timeout: 5
@@ -108,4 +108,4 @@ tests:
       - contains:
           values:
             - 'The specified ObjectName testtest=1 is invalid'
-            - 'Valid ObjectNames look like this: de.qtc.beanshooter:version=1'
+            - 'Valid ObjectNames look like this: eu.tneitzel.beanshooter:version=1'

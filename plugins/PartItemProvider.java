@@ -2,9 +2,9 @@ package org.apache.catalina.fileupload;
 
 import java.io.File;
 import java.io.Serializable;
-import de.qtc.beanshooter.cli.Operation;
-import de.qtc.beanshooter.exceptions.PluginException;
-import de.qtc.beanshooter.plugin.IPayloadProvider;
+import eu.tneitzel.beanshooter.cli.Operation;
+import eu.tneitzel.beanshooter.exceptions.PluginException;
+import eu.tneitzel.beanshooter.plugin.IPayloadProvider;
 
 /**
  * The PartItemProvider class represents an example for a beanshooter plugin that implements IPayloadProvider.

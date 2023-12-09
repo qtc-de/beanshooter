@@ -39,7 +39,7 @@ tests:
       - ${TARGET_UNAUTH}
       - ${OPTIONS}
       - TEST
-      - de.qtc.beanshooter:version=1
+      - eu.tneitzel.beanshooter:version=1
 
     validators:
       - error: True

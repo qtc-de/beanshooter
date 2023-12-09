@@ -29,5 +29,5 @@ tests:
       - contains:
           values:
             - 'MBean Status: deployed'
-            - 'Class Name: de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'Class Name: eu.tneitzel.beanshooter.tonkabean.TonkaBean'
             - 'Object Name: MLetTonkaBean:name=TonkaBean,id=1'

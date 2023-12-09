@@ -1,0 +1,15 @@
+package eu.tneitzel.beanshooter.plugin;
+
+import eu.tneitzel.beanshooter.cli.Operation;
+import eu.tneitzel.beanshooter.exceptions.PluginException;
+
+/**
+ * The IPayloadProvider interface is used during beanshooter operations that perform deserialization attacks.
+ * It is used to obtain the payload object that is send during deserialization attacks.
+ *
+ * @author Tobias Neitzel (@qtc_de)
+ */
+public interface IPayloadProvider
+{
+    Object getPayloadObject(Operation action, String name, String args) throws PluginException;
+}

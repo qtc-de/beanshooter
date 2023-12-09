@@ -35,7 +35,7 @@ tests:
           values:
             - 'Exporting MBean jar file: ./tonka-bean-'
             - 'Exporting MLet HTML file to: ./index.html'
-            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'eu.tneitzel.beanshooter.tonkabean.TonkaBean'
       - file_exists:
           cleanup: true
           files:
@@ -85,7 +85,7 @@ tests:
       - contains:
           values:
             - 'Exporting MLet HTML file to: ./mlet.html'
-            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'eu.tneitzel.beanshooter.tonkabean.TonkaBean'
       - file_exists:
           cleanup: true
           files:
@@ -112,7 +112,7 @@ tests:
           values:
             - 'Exporting MBean jar file: /tmp/tonka-bean-'
             - 'Exporting MLet HTML file to: /tmp/index.html'
-            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'eu.tneitzel.beanshooter.tonkabean.TonkaBean'
       - file_exists:
           cleanup: true
           files:

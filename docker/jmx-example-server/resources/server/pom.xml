@@ -3,7 +3,7 @@
   
   <modelVersion>4.0.0</modelVersion>
   
-  <groupId>de.qtc.beanshooter.server</groupId>
+  <groupId>eu.tneitzel.beanshooter.server</groupId>
   <artifactId>jmx-example-server</artifactId>
   <version>1.0.0</version>
   <name>jmx-example-server</name>
@@ -55,7 +55,7 @@
                <finalName>jmx-example-server-${project.version}</finalName>
                <archive>
                    <manifest>
-                       <mainClass>de.qtc.beanshooter.server.Starter</mainClass>
+                       <mainClass>eu.tneitzel.beanshooter.server.Starter</mainClass>
                        <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                    </manifest>
                </archive>

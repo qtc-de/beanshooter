@@ -44,7 +44,7 @@ plugins:
         - 8002
         - custom
         - --class-name
-        - de.qtc.beanshooter.Testclass
+        - eu.tneitzel.beanshooter.Testclass
         - --object-name
         - 'Testclass:test=true'
         - --jar-file
@@ -71,7 +71,7 @@ tests:
       - error: False
       - contains:
           values:
-            - <html><mlet code="de.qtc.beanshooter.tonkabean.TonkaBean"
+            - <html><mlet code="eu.tneitzel.beanshooter.tonkabean.TonkaBean"
             - name="MLetTonkaBean:name=TonkaBean,id=1"
             - codebase="http://127.0.0.4"></mlet></html>
 
@@ -94,7 +94,7 @@ tests:
       - error: False
       - contains:
           values:
-            - <html><mlet code="de.qtc.beanshooter.tonkabean.TonkaBean"
+            - <html><mlet code="eu.tneitzel.beanshooter.tonkabean.TonkaBean"
             - name="MLetTonkaBean:name=TonkaBean,id=1"
             - codebase="http://0.0.0.0:8001"></mlet></html>
 
@@ -117,7 +117,7 @@ tests:
       - error: False
       - contains:
           values:
-            - <html><mlet code="de.qtc.beanshooter.Testclass"
+            - <html><mlet code="eu.tneitzel.beanshooter.Testclass"
             - name="Testclass:test=true"
             - codebase="http://0.0.0.0:8002"></mlet></html>
 

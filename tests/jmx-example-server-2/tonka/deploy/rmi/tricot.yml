@@ -44,7 +44,7 @@ tests:
             - 'Creating MLetHandler for endpoint: /'
             - 'Waiting for incoming connections'
             - 'Incoming request from: '
-            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'eu.tneitzel.beanshooter.tonkabean.TonkaBean'
             - 'MBean with object name MLetTonkaBean:name=TonkaBean,id=1 was successfully deployed'
 
 

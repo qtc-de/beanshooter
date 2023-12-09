@@ -33,7 +33,7 @@ tests:
           values:
             - 'Loading MBean from http://${DOCKER-GW}:8080'
             - 'Incoming request from:'
-            - 'de.qtc.beanshooter.tonkabean.TonkaBean'
+            - 'eu.tneitzel.beanshooter.tonkabean.TonkaBean'
             - 'MBean was loaded successfully'
           invert:
             - 'Sending jar file with md5sum:'

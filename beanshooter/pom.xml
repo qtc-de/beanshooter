@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>de.qtc.beanshooter</groupId>
+        <groupId>eu.tneitzel.beanshooter</groupId>
         <artifactId>reactor</artifactId>
         <version>4.1.0</version>
     </parent>
@@ -93,7 +93,7 @@
                 <finalName>beanshooter-${project.version}</finalName>
                 <archive>
                     <manifest>
-                        <mainClass>de.qtc.beanshooter.Starter</mainClass>
+                        <mainClass>eu.tneitzel.beanshooter.Starter</mainClass>
                         <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                     </manifest>
                     <manifestEntries>
