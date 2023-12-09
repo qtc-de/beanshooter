@@ -23,6 +23,7 @@ import javax.management.modelmbean.ModelMBeanInfoSupport;
 import javax.management.modelmbean.ModelMBeanOperationInfo;
 import javax.management.modelmbean.RequiredModelMBean;
 import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerConfigurationException;
 
 import org.jolokia.client.exception.J4pRemoteException;
 
@@ -421,12 +422,27 @@ public class Dispatcher {
 
         catch (RuntimeMBeanException e)
         {
-            Throwable t = ExceptionHandler.getCause(e);
+            Throwable cause = ExceptionHandler.getCause(e);
 
-            if (t instanceof NullPointerException)
+            if (cause instanceof NullPointerException)
             {
                 Logger.printlnMixedBlue("Caught", "NullPointerException", "while invoking the newTransformer action.");
                 Logger.printlnMixedBlue("This is expected bahavior and the attack most likely", "worked", ":)");
+            }
+
+            else if (cause instanceof TransformerConfigurationException)
+            {
+                if (cause.getMessage().contains("Could not load the translet class '"))
+                {
+                    Logger.printlnMixedBlue("The", "translet class", "could not be loaded by the server.");
+                    Logger.printlnMixedYellow("This can occur when your Java version", "is newer", "than the version used by the server.");
+                    Logger.printlnMixedBlue("You can retry the attack using", "an older", "Java version.");
+                }
+
+                else
+                {
+                    ExceptionHandler.unexpectedException(e, "standard", "action", true);
+                }
             }
 
             else
