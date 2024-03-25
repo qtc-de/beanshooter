@@ -106,7 +106,7 @@ public enum MBean implements IMBean
           {
                   "eu.tneitzel.beanshooter.tonkabean.TonkaBean",
           },
-          "tonka-bean-4.1.0-jar-with-dependencies.jar",
+          "tonka-bean-5.0.0-jar-with-dependencies.jar",
           TonkaBeanOperation.values(),
           TonkaBeanOption.values()
          );

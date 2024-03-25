@@ -6,7 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [4.1.0] - Mar 20, 2023
+## v5.0.0 - MMM DD, 2024
+
+### Added
+
+* Add `--overwrite-host` and `--overwrite-port` options
+* Add support for JBoss Remoting
+
+### Changed
+
+* Change namespace to `eu.tneitzel`
+* Disable certificate validation for Jolokia `HTTPS` connector
+* Improve JNDI connector
+
+
+## v4.1.0 - Mar 20, 2023
 
 ### Added
 
@@ -18,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Improved exception handling
 
 
-## [4.0.0] - Mar 07, 2023
+## v4.0.0 - Mar 07, 2023
 
 ### Added
 
@@ -33,14 +47,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Some bugfixes and improved exception handling
 
 
-## [3.1.1] - Jan 19, 2023
+## v3.1.1 - Jan 19, 2023
 
 ### Changed
 
 * Small bugfix in JarHandler that occured when using a file system jar during deployment
 
 
-## [3.1.0] - Jan 19, 2023
+## v3.1.0 - Jan 19, 2023
 
 ### Added
 
@@ -58,7 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Catch exceptions caused by outdated TLS servers 
 
 
-## [3.0.0] - Aug 07, 2022
+## v3.0.0 - Aug 07, 2022
 
 ### Added
 
@@ -82,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Several bugfixes.
 
 
-## [3.0.0-rc.2] - Jun 07, 2022
+## v3.0.0-rc.2 - Jun 07, 2022
 
 ### Added
 
@@ -98,7 +112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Several bug fixes
 
 
-## [3.0.0-rc.1] - March 21, 2022
+## v3.0.0-rc.1 - March 21, 2022
 
 Global refactoring. Basically all code sections were renewed and several new features
 were implemented.
@@ -126,14 +140,14 @@ were implemented.
   investigate the full stack trace if required
 
 
-## [2.0.1] - Oct 2, 2020
+## v2.0.1 - Oct 2, 2020
 
 ### Changed
 
 * Fixed bug when using quotes within the !upload and !download shell wrappers
 
 
-## [2.0.0] - Oct 1, 2020
+## v2.0.0 - Oct 1, 2020
 
 ### Added
 
@@ -164,7 +178,7 @@ were implemented.
 * Add hostname specification to the registry server
 
 
-## [1.1.0] - Aug 6, 2020
+## v1.1.0 - Aug 6, 2020
 
 ### Added
 
@@ -176,6 +190,6 @@ were implemented.
 * Change default path of ``tonka-bean.jar`` (is now ``/opt/jmx-exploiter/tonka-bean/target``)
 
 
-## [1.0.0] - Nov 26, 2019
+## v1.0.0 - Nov 26, 2019
 
 Initial release :)
