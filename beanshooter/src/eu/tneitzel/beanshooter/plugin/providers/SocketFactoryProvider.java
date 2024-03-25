@@ -46,24 +46,38 @@ public class SocketFactoryProvider implements ISocketFactoryProvider {
      * are looked up from the RMI registry use the RMISocketFactory.getDefaultSocketFactory function to
      * obtain a SocketFactory. This factory is then used for explicit calls (method invocations) and for
      * implicit calls (DGC actions like clean or dirty).
+     *
+     * Since beanshooter v5.0.0, LoopbackSocketFactory also performs port redirection if the
+     * corresponding command line arguments have been specified.
      */
     @Override
     public RMISocketFactory getDefaultRMISocketFactory(String host, int port)
     {
         RMISocketFactory fac = RMISocketFactory.getDefaultSocketFactory();
-        return new LoopbackSocketFactory(host, fac, BeanshooterOption.CONN_FOLLOW.getBool());
+
+        String factoryHost = BeanshooterOption.TARGET_OVERWRITE_HOST.getValue(host);
+        int factoryPort = BeanshooterOption.TARGET_OVERWRITE_PORT.getValue(0);
+
+        return new LoopbackSocketFactory(factoryHost, factoryPort, fac, BeanshooterOption.CONN_FOLLOW.getBool());
     }
 
     /**
      * The default SSLRMISocketFactory used by beanshooter is the LoopbackSslSocketFactory, which
      * redirects all connection to the original target and thus prevents unwanted RMI redirections.
+     *
+     * Since beanshooter v5.0.0, LoopbackSslSocketFactory also performs port redirection if the
+     * corresponding command line arguments have been specified.
      */
     @Override
     public String getDefaultSSLSocketFactoryClass(String host, int port)
     {
         TrustAllSocketFactory trustAllFax = new TrustAllSocketFactory();
 
-        LoopbackSslSocketFactory.host = host;
+        String factoryHost = BeanshooterOption.TARGET_OVERWRITE_HOST.getValue(host);
+        int factoryPort = BeanshooterOption.TARGET_OVERWRITE_PORT.getValue(0);
+
+        LoopbackSslSocketFactory.host = factoryHost;
+        LoopbackSslSocketFactory.port = factoryPort;
         LoopbackSslSocketFactory.fac = trustAllFax.getSSLSocketFactory();
         LoopbackSslSocketFactory.followRedirect = BeanshooterOption.CONN_FOLLOW.getBool();
 

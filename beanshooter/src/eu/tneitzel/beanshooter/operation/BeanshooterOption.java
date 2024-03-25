@@ -68,6 +68,20 @@ public enum BeanshooterOption implements Option {
                 ArgType.INT,
                 "port"),
 
+    TARGET_OVERWRITE_HOST("--overwrite-host",
+            "overwrite the host a boundname points to",
+            Arguments.store(),
+            OptionGroup.TARGET,
+            ArgType.STRING,
+            "host"),
+
+    TARGET_OVERWRITE_PORT("--overwrite-port",
+            "overwrite the port a boundname points to",
+            Arguments.store(),
+            OptionGroup.TARGET,
+            ArgType.INT,
+            "port"),
+
     TARGET_BOUND_NAME("--bound-name",
                       "target bound name within an RMI registry",
                       Arguments.store(),

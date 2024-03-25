@@ -32,9 +32,10 @@ import eu.tneitzel.beanshooter.operation.BeanshooterOption;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public class LoopbackSocketFactory extends RMISocketFactory {
-
+public class LoopbackSocketFactory extends RMISocketFactory
+{
     private String host;
+    private int port;
     private RMISocketFactory fac;
     private boolean printInfo = true;
     private boolean followRedirect = false;
@@ -43,12 +44,14 @@ public class LoopbackSocketFactory extends RMISocketFactory {
      * Creates a new LoopbackSocketFactory.
      *
      * @param host remote host that is expected to get all further RMI connections
+     * @param port if not set to zero, redirect connections to the specified port
      * @param fac original socket factory to create sockets from
      * @param followRedirect if true, connections are not redirected to the expected host
      */
-    public LoopbackSocketFactory(String host, RMISocketFactory fac, boolean followRedirect)
+    public LoopbackSocketFactory(String host, int port, RMISocketFactory fac, boolean followRedirect)
     {
         this.host = host;
+        this.port = port;
         this.fac = fac;
         this.followRedirect= followRedirect;
     }
@@ -67,38 +70,54 @@ public class LoopbackSocketFactory extends RMISocketFactory {
     {
         Socket sock = null;
 
-        if(!this.host.equals(host)) {
-
-            if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
+        if (!this.host.equals(host))
+        {
+            if (printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool())
+            {
                 Logger.printInfoBox();
                 Logger.printlnMixedBlue("RMI object tries to connect to different remote host:", host);
             }
 
-            if( this.followRedirect ) {
-                if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() )
+            if (this.followRedirect)
+            {
+                if (printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool())
+                {
                     Logger.println("Following redirect to new target...");
+                }
 
-            } else {
+            }
 
+            else
+            {
                 host = this.host;
 
-                if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
+                if (printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool())
+                {
                     Logger.printlnMixedBlue("Redirecting the connection back to", host);
                     Logger.printlnMixedYellow("You can use", "--follow", "to prevent this.");
                 }
             }
 
-            if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
+            if (printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool())
+            {
                 Logger.decreaseIndent();
             }
 
             this.printInfo = false;
         }
 
-        try {
-            sock = fac.createSocket(host, port);
+        if (this.port > 0 && this.port != port)
+        {
+            port = this.port;
+        }
 
-        } catch( UnknownHostException e ) {
+        try
+        {
+            sock = fac.createSocket(host, port);
+        }
+
+        catch (UnknownHostException e)
+        {
             ExceptionHandler.unknownHost(e, host, true);
         }
 

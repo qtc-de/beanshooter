@@ -75,13 +75,18 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
 
     private synchronized static void SocketFactorySetup(String host, int port)
     {
-        if( setupComplete )
+        if (setupComplete)
+        {
             return;
+        }
 
-        try {
+        try
+        {
             RMISocketFactory.setSocketFactory(PluginSystem.getDefaultRMISocketFactory(host, port));
+        }
 
-        } catch (IOException e) {
+        catch (IOException e)
+        {
             Logger.eprintlnMixedBlue("Unable to set custom", "RMISocketFactory.", "Host redirection will probably not work.");
             ExceptionHandler.showStackTrace(e);
             Logger.eprintln("");

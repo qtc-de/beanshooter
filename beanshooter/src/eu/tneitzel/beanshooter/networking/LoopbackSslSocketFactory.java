@@ -33,9 +33,10 @@ import eu.tneitzel.beanshooter.operation.BeanshooterOption;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public class LoopbackSslSocketFactory extends SSLSocketFactory {
-
+public class LoopbackSslSocketFactory extends SSLSocketFactory
+{
     public static String host = "";
+    public static int port = 0;
     public static SSLSocketFactory fac = null;
     public static boolean printInfo = true;
     public static boolean followRedirect = false;
@@ -50,38 +51,54 @@ public class LoopbackSslSocketFactory extends SSLSocketFactory {
     {
         Socket sock = null;
 
-        if(!host.equals(target)) {
-
-            if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
+        if (!host.equals(target))
+        {
+            if (printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool())
+            {
                 Logger.printInfoBox();
                 Logger.printlnMixedBlue("RMI object tries to connect to different remote host:", target);
             }
 
-            if( followRedirect ) {
-                if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() )
+            if (followRedirect)
+            {
+                if (printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool())
+                {
                     Logger.println("Following SSL redirect to new target...");
+                }
 
-            } else {
+            }
 
+            else
+            {
                 target = host;
 
-                if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
+                if (printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool())
+                {
                     Logger.printlnMixedBlue("Redirecting the SSL connection back to", host);
                     Logger.printlnMixedYellow("You can use", "--follow", "to prevent this.");
                 }
             }
 
-            if( printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool() ) {
+            if (printInfo && BeanshooterOption.GLOBAL_VERBOSE.getBool())
+            {
                 Logger.decreaseIndent();
             }
 
             printInfo = false;
         }
 
-        try {
-            sock = fac.createSocket(host, port);
+        if (LoopbackSslSocketFactory.port > 0 && LoopbackSslSocketFactory.port != port)
+        {
+            port = LoopbackSslSocketFactory.port;
+        }
 
-        } catch( UnknownHostException e ) {
+        try
+        {
+            sock = fac.createSocket(host, port);
+        }
+
+        catch (UnknownHostException e)
+        {
             ExceptionHandler.unknownHost(e, host, true);
         }
 
