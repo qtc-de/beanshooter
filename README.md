@@ -5,10 +5,11 @@
 *beanshooter* is a *JMX* enumeration and attacking tool, which helps to identify common vulnerabilities on *JMX* endpoints.
 
 ![](https://github.com/qtc-de/beanshooter/workflows/maven%20CI/badge.svg)
-![](https://img.shields.io/badge/java-8%2b-blue)
+[![](https://img.shields.io/badge/version-5.0.0-blue)](https://github.com/qtc-de/beanshooter/releases)
 [![](https://img.shields.io/badge/build%20system-maven-blue)](https://maven.apache.org/)
-[![](https://img.shields.io/badge/version-4.1.0-blue)](https://github.com/qtc-de/beanshooter/releases)
+![](https://img.shields.io/badge/java-8%2b-blue)
 [![](https://img.shields.io/badge/license-GPL%20v3.0-blue)](https://github.com/qtc-de/beanshooter/blob/master/LICENSE)
+[![](https://img.shields.io/badge/javadoc-fa6b05)](https://qtc-de.github.io/beanshooter/)
 
 
 https://user-images.githubusercontent.com/49147108/183278179-4a5566a7-5af8-4ce8-a73d-1016876a36d5.mp4
