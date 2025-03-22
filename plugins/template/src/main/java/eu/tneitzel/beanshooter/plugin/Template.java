@@ -2,6 +2,12 @@ package eu.tneitzel.beanshooter.plugin;
 
 import java.rmi.server.RMIClientSocketFactory;
 import java.rmi.server.RMISocketFactory;
+import java.util.Map;
+
+import javax.management.MBeanServerConnection;
+import javax.net.SocketFactory;
+
+import eu.tneitzel.beanshooter.cli.Operation;
 
 
 /**
@@ -23,7 +29,7 @@ public class Template implements IArgumentProvider, IAuthenticationProvider, IMB
      * @param port  remote port
      * @return RMIClientSocketFactory to use
      */
-    public RMIClientSocketFactory getClientRMISocketFactory(String host, int port)
+    public RMIClientSocketFactory getRMIClientSocketFactory(String host, int port)
     {
         // TODO Override with something useful or remove
         return null;
@@ -51,7 +57,7 @@ public class Template implements IArgumentProvider, IAuthenticationProvider, IMB
      * @param port  remote port
      * @return SocketFactory to use for the connection
      */
-    public String getSSLSocketFactory(String host, int port)
+    public SocketFactory getSSLSocketFactory(String host, int port)
     {
         // TODO Override with something useful or remove
         return null;
@@ -64,7 +70,7 @@ public class Template implements IArgumentProvider, IAuthenticationProvider, IMB
      * @param port  remote port
      * @return name of the SSL socket factory class to use for SSL connections.
      */
-    public String getDefaultSSLSocketFactory(String host, int port)
+    public String getDefaultSSLSocketFactoryClass(String host, int port)
     {
         // TODO Override with something useful or remove
         return null;
