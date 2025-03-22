@@ -6,13 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## v5.0.0 - MMM DD, 2024
+## v5.0.0 - MMM DD, 2025
 
 ### Added
 
 * Add `--overwrite-host` and `--overwrite-port` options
 * Add support for JBoss Remoting
 * Add `T3` support
+* Add template plugin
+* Add *beanshooter* to maven central
 
 ### Changed
 
