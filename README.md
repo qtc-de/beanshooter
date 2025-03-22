@@ -406,7 +406,7 @@ Arguments:
     filename :  Name of the directives file (STRING, no default value)
 ```
 
-For more complex argument types that require some initialization, you can use *beanshooters PluginSystem* and define a custom
+For more complex argument types that require some initialization, you can use [beanshooters PluginSystem](/plugins) and define a custom
 class that implements the [IArgumentProvider Interface](beanshooter/src/de/qtc/beanshooter/plugin/IArgumentProvider.java).
 
 
