@@ -1,10 +1,9 @@
-package org.apache.catalina.fileupload;
+package eu.tneitzel.beanshooter.plugin;
 
-import java.io.File;
-import java.io.Serializable;
+import org.apache.catalina.fileupload.PartItem;
+
 import eu.tneitzel.beanshooter.cli.Operation;
 import eu.tneitzel.beanshooter.exceptions.PluginException;
-import eu.tneitzel.beanshooter.plugin.IPayloadProvider;
 
 /**
  * The PartItemProvider class represents an example for a beanshooter plugin that implements IPayloadProvider.
@@ -37,16 +36,5 @@ public class PartItemProvider implements IPayloadProvider
         }
 
         return new PartItem(arg);
-    }
-}
-
-class PartItem implements Serializable
-{
-    private static final long serialVersionUID = 2237570099615271025L;
-    public File dfosFile;
-
-    public PartItem(String path)
-    {
-        this.dfosFile = new File(path);
     }
 }

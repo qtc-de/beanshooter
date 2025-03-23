@@ -23,7 +23,7 @@ to your plugin repository :)
 
 At the time of writing, the following *beanshooter* plugins are available:
 
-* None :P
+* [PartItemProvider](/plugins/PartItemProvider)
 
 
 ### Plugin Development
