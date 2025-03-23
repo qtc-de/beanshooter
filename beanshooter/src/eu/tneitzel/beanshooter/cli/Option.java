@@ -1,7 +1,7 @@
 package eu.tneitzel.beanshooter.cli;
 
-import net.sourceforge.argparse4j.inf.ArgumentAction;
-import net.sourceforge.argparse4j.inf.Namespace;
+import eu.tneitzel.argparse4j.inf.ArgumentAction;
+import eu.tneitzel.argparse4j.inf.Namespace;
 
 /**
  * beanshooters command line layout contains subparsers for each supported MBean.

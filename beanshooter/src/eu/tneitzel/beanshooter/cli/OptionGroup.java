@@ -3,8 +3,8 @@ package eu.tneitzel.beanshooter.cli;
 import java.util.HashMap;
 import java.util.Objects;
 
-import net.sourceforge.argparse4j.inf.ArgumentGroup;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
+import eu.tneitzel.argparse4j.inf.ArgumentGroup;
+import eu.tneitzel.argparse4j.inf.ArgumentParser;
 
 /**
  * The OptionGroup enum contains logical groupings that are applied within the beanshooter

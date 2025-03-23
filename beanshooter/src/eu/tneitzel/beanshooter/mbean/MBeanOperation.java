@@ -2,13 +2,13 @@ package eu.tneitzel.beanshooter.mbean;
 
 import java.lang.reflect.Method;
 
+import eu.tneitzel.argparse4j.inf.Subparser;
+import eu.tneitzel.argparse4j.inf.Subparsers;
 import eu.tneitzel.beanshooter.cli.Operation;
 import eu.tneitzel.beanshooter.cli.Option;
 import eu.tneitzel.beanshooter.cli.OptionHandler;
 import eu.tneitzel.beanshooter.exceptions.ExceptionHandler;
 import eu.tneitzel.beanshooter.operation.BeanshooterOption;
-import net.sourceforge.argparse4j.inf.Subparser;
-import net.sourceforge.argparse4j.inf.Subparsers;
 
 /**
  * Enum containing the available generic MBean operations. This enum is mainly used to assign

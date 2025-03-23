@@ -6,6 +6,11 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
+import eu.tneitzel.argparse4j.ArgumentParsers;
+import eu.tneitzel.argparse4j.inf.ArgumentParser;
+import eu.tneitzel.argparse4j.inf.ArgumentParserException;
+import eu.tneitzel.argparse4j.inf.Namespace;
+import eu.tneitzel.argparse4j.inf.Subparsers;
 import eu.tneitzel.beanshooter.exceptions.ExceptionHandler;
 import eu.tneitzel.beanshooter.io.Logger;
 import eu.tneitzel.beanshooter.mbean.MBean;
@@ -14,11 +19,6 @@ import eu.tneitzel.beanshooter.operation.BeanshooterOperation;
 import eu.tneitzel.beanshooter.operation.BeanshooterOption;
 import eu.tneitzel.beanshooter.plugin.PluginSystem;
 import eu.tneitzel.beanshooter.utils.Utils;
-import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
-import net.sourceforge.argparse4j.inf.ArgumentParserException;
-import net.sourceforge.argparse4j.inf.Namespace;
-import net.sourceforge.argparse4j.inf.Subparsers;
 
 /**
  * The ArgumentHandler is a wrapper around the ArgumentParser of argparse4j. It handles

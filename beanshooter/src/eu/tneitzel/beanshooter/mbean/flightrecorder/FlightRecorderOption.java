@@ -1,12 +1,12 @@
 package eu.tneitzel.beanshooter.mbean.flightrecorder;
 
+import eu.tneitzel.argparse4j.impl.Arguments;
+import eu.tneitzel.argparse4j.inf.ArgumentAction;
+import eu.tneitzel.argparse4j.inf.Namespace;
 import eu.tneitzel.beanshooter.cli.ArgType;
 import eu.tneitzel.beanshooter.cli.Option;
 import eu.tneitzel.beanshooter.cli.OptionGroup;
 import eu.tneitzel.beanshooter.exceptions.ExceptionHandler;
-import net.sourceforge.argparse4j.impl.Arguments;
-import net.sourceforge.argparse4j.inf.ArgumentAction;
-import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
  * The FlightRecorderOption enum contains available options that are dedicated to FlightRecorderOperation. The options

@@ -5,6 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import eu.tneitzel.argparse4j.inf.Argument;
+import eu.tneitzel.argparse4j.inf.ArgumentGroup;
+import eu.tneitzel.argparse4j.inf.ArgumentParser;
+import eu.tneitzel.argparse4j.inf.Namespace;
 import eu.tneitzel.beanshooter.io.Logger;
 import eu.tneitzel.beanshooter.mbean.MBean;
 import eu.tneitzel.beanshooter.mbean.mlet.MLetOption;
@@ -12,10 +16,6 @@ import eu.tneitzel.beanshooter.mbean.tomcat.MemoryUserDatabaseMBeanOption;
 import eu.tneitzel.beanshooter.mbean.tonkabean.TonkaBeanOption;
 import eu.tneitzel.beanshooter.operation.BeanshooterOption;
 import eu.tneitzel.beanshooter.utils.Utils;
-import net.sourceforge.argparse4j.inf.Argument;
-import net.sourceforge.argparse4j.inf.ArgumentGroup;
-import net.sourceforge.argparse4j.inf.ArgumentParser;
-import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
  * The OptionHandler class (not to be confused with the ArgumentHandler class) is a helper class
