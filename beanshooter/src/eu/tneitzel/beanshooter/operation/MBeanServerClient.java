@@ -88,8 +88,8 @@ public class MBeanServerClient {
      * @param mBeanClassName class that is implemented by the MBean
      * @param mBeanObjectName objectName implemented by the MBean
      * @param jarFile path to a jar file for remote deployments (null if not desired)
-     * @param if a specific constructor should be used, define its parameters here
-     * @param if a specific constructor should be used, define its signature here
+     * @param params if a specific constructor should be used, define its parameters here
+     * @param signature if a specific constructor should be used, define its signature here
      */
     public void deployMBean(String mBeanClassName, ObjectName mBeanObjectName, String jarFile, Object[] params, String[] signature)
     {
@@ -280,13 +280,11 @@ public class MBeanServerClient {
      * Wrapper to invoke a function on an MBeanServerConnection. Automatically determines the required types
      * and makes invoking MBean functions a little bit less verbose.
      *
-     * @param conn MBeanServerConnection to invoke the function on
      * @param name ObjectName of the MBean to invoke the function on
      * @param methodName function name to invoke
      * @param argTypes array of argument type names for the desired method
      * @param args arguments to use for the call
      * @return return value of the MBean call.
-     * @throws InstanceNotFoundException
      * @throws MBeanException
      * @throws ReflectionException
      * @throws IOException
@@ -374,7 +372,7 @@ public class MBeanServerClient {
      * Wrapper around the getAttribute function from the MBeanServerConnection.
      *
      * @param name ObjectName of the MBean to obtain the attribute from
-     * @param attr the name of the attribute to obtain
+     * @param attributeName the name of the attribute to obtain
      * @return attribute value
      * @throws MBeanException
      * @throws ReflectionException
@@ -423,7 +421,6 @@ public class MBeanServerClient {
      *
      * @param name ObjectName of the MBean to set the attribute on
      * @param attr the Attribute to set
-     * @return attribute value
      * @throws MBeanException
      * @throws ReflectionException
      * @throws IOException

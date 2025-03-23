@@ -37,7 +37,7 @@ import eu.tneitzel.beanshooter.utils.Utils;
 public class JNDIProvider implements IMBeanServerProvider {
 
     /**
-     * Obtain the user specified JNDI string (--jndi <JNDI-STING>) from the command line and use it as a
+     * Obtain the user specified JNDI string (--jndi JNDI-STING) from the command line and use it as a
      * JMXServiceURL. The JNDI string may contain two %s placeholders that are replaced with the specified
      * host and port values.
      */

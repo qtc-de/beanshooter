@@ -57,7 +57,6 @@ public class SerialHelper
      * map.
      *
      * @param payload payload object to send
-     * @throws AuthenticationException
      */
     public static void serialPreauth(Object payload)
     {

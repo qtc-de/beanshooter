@@ -73,7 +73,7 @@ public class YsoIntegration
      * reflection. The result is a ysoserial gadget as it would be created on the command line.
      *
      * If the requested gadget is contained within templateGadgets, we create the gadget on our own (of course
-     * still with the help of the ysoserial source code - copy & paste).
+     * still with the help of the ysoserial source code - copy and paste).
      *
      * @param gadget name of the desired gadget
      * @param command command specification for the desired gadget

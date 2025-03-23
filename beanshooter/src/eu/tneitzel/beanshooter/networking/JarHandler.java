@@ -33,8 +33,7 @@ public class JarHandler implements HttpHandler {
     /**
      * Initializes the JarHandler object.
      *
-     * @param filename the filename of the Jar file to serve
-     * @param stagerOnly whether or not the handler is created through the stager action
+     * @param filename the filename of the Jar file to server
      * @param parent the parent StagerServer where the handler is used
      * @throws IOException
      */

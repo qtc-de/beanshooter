@@ -199,6 +199,7 @@ public class ArgumentHandler
      * If the corresponding option was not set, an error message is printed and the current execution
      * ends. This should be called first by functions that require an specific argument.
      *
+     * @param <T> return type
      * @param option Option that is required
      * @return the currently set option value
      */

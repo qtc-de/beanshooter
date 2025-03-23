@@ -159,8 +159,6 @@ public enum MemoryUserDatabaseMBeanOperation implements Operation {
 
     /**
      * Invokes the method that was saved within the Operation.
-     *
-     * @param dispatcherObject object to invoke the method on
      */
     public void invoke()
     {

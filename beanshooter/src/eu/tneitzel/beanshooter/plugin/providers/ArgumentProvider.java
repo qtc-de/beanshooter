@@ -31,7 +31,7 @@ public class ArgumentProvider implements IArgumentProvider
      *
      * For this to work, the function performs some additional wrapping around primitive types. If the user specified
      * a function signature that contains e.g. an int type, the function wraps the corresponding argument to
-     * Integer.valueOf(<arg>). This is done, because with javassist you cannot have expressions like: "new Object[] {1, 2}"
+     * Integer.valueOf(arg). This is done, because with javassist you cannot have expressions like: "new Object[] {1, 2}"
      * as javassist does not support boxing and unboxing.
      *
      * Since the method signature is required for wrapping, it is important that getArgumentTypes is called before

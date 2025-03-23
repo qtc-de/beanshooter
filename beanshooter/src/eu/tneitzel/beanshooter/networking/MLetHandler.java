@@ -39,7 +39,7 @@ public class MLetHandler implements HttpHandler {
      * @param beanClass the class that is implemented by the bean
      * @param jarName the name of the Jar file to load from the URL
      * @param objectName the objectName of the MBean to load
-     * @param stagerOnly whether or not the parent StagerServer was spawned by the stager action
+     * @param parent StagerServer to use
      */
     public MLetHandler(URL url, String beanClass, String jarName, String objectName, StagerServer parent)
     {

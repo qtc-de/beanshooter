@@ -504,7 +504,7 @@ public class PluginSystem {
      * string array of parameter types.
      *
      * @param signature user supplied method signature
-     * @param includeNanme     whether to include the methods name as a string
+     * @param includeName     whether to include the methods name as a string
      * @return String array containing the parsed parameter type names
      */
     public static String[] getArgumentTypes(String signature, boolean includeName)

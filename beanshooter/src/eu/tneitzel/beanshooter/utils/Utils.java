@@ -354,7 +354,7 @@ public class Utils {
     /**
      * Helper function that reads a file into a byte array.
      *
-     * @param file the file to read
+     * @param path the file to read
      * @return content of the file as byte array
      * @throws IOException
      */
@@ -668,7 +668,6 @@ public class Utils {
      *
      * @param remote  Remote object belonging to a JMX server
      * @return the target JMX server address in host:port format
-     * @throws several reflection related exceptions
      */
     public static String getJmxTarget(Remote remote) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException
     {

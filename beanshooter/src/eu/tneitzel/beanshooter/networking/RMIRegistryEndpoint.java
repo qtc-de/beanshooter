@@ -151,7 +151,6 @@ public class RMIRegistryEndpoint extends RMIEndpoint {
      *
      * @param boundNames list of bound names to determine the classes from
      * @return List of remote objects
-     * @throws Reflection related exceptions. RMI related once are caught by the other lookup function.
      */
     public Remote[] lookup(String[] boundNames)
     {

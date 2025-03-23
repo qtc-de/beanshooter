@@ -29,11 +29,11 @@ import eu.tneitzel.beanshooter.utils.Utils;
  *
  * @author Tobias Neitzel (@qtc_de)
  */
-public class JolokiaProvider implements IMBeanServerProvider {
-
+public class JolokiaProvider implements IMBeanServerProvider
+{
     /**
      * The execution flow is automatically brought to this provider, when the user uses the --jolokia option.
-     * The target host and port are when used to form the URI http(s)://<host>:<port>/jolokia. Using the
+     * The target host and port are when used to form the URI http(s)://host:port/jolokia. Using the
      * --jolokia-endpoint option, users can specify an alternative HTTP endpoint. Moreover, the arguments
      * --jolokia-proxy-target, --jolokia-proxy-user and --jolokia-proxy-pass allow to interact with Jolokia
      * running in proxy mode.

@@ -8,8 +8,12 @@ package eu.tneitzel.beanshooter.cli;
  */
 public enum ArgType
 {
+    /** Integer like arguments **/
     INT,
+    /** Boolean like arguments **/
     BOOL,
+    /** String like arguments **/
     STRING,
+    /** Array like arguments **/
     ARRAY;
 }

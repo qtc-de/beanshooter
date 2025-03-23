@@ -35,7 +35,7 @@ public class AuthenticationException extends Exception {
      * generic error message.
      *
      * @param e original exception
-     * @param showDetails whether to display the original error message unde generic error messages
+     * @param showDetails whether to display the original error message or generic error messages
      */
     public AuthenticationException(Exception e, boolean showDetails)
     {

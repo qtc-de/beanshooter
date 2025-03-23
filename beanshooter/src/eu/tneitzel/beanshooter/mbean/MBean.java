@@ -306,7 +306,7 @@ public enum MBean implements IMBean
 
     /**
      * During beanshooters enum operation, beanshooter attempts to list available MBeans on the
-     * remote MBeanServer. The result (Set<ObjectInstance>) is passed into this function, which
+     * remote MBeanServer. The result (Set&lt;ObjectInstance&gt;) is passed into this function, which
      * checks whether one of the available MBeans is present within the MBean enum. If this is
      * the case, beanshooter checks for an Operation with the name ENUM within the MBean operations.
      * If such an Operation is found, it is invoked.

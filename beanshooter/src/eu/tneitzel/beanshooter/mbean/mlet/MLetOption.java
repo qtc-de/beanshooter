@@ -185,7 +185,8 @@ public enum MLetOption implements Option
      * Attempts to set an option value obtained from an argparse4j Namespace object.
      * If the corresponding option was not specified, use the default value.
      *
-     * @param value
+     * @param args Namespace to obtain the value from
+     * @param def Default value to set for this option
      */
     public void setValue(Namespace args, Object def)
     {
