@@ -62,7 +62,7 @@ public class CredentialGuesser
         Logger.increaseIndent();
 
         EnumHelper enumHelper = new EnumHelper(host, port);
-        if( BeanshooterOption.CONN_SASL.isNull() && !enumHelper.requiresLogin() )
+        if (BeanshooterOption.CONN_SASL.isNull() && !enumHelper.requiresLogin())
         {
             Logger.printlnMixedYellow("The targeted JMX service accepts", "unauthenticated", "connections.");
             Logger.println("No need to bruteforce credentials.");
@@ -74,9 +74,9 @@ public class CredentialGuesser
         int threads = ArgumentHandler.require(BeanshooterOption.BRUTE_THREADS);
         pool = Executors.newFixedThreadPool(threads);
 
-        for(Entry<String,Set<String>> entry : credentials.entrySet())
+        for (Entry<String,Set<String>> entry : credentials.entrySet())
         {
-            for(Set<String> pwSet : Utils.splitSet(entry.getValue(), threads))
+            for (Set<String> pwSet : Utils.splitSet(entry.getValue(), threads))
             {
                 Runnable r = new GuessingWorker(entry.getKey(), pwSet);
                 pool.execute(r);
@@ -113,7 +113,7 @@ public class CredentialGuesser
     {
         int count = 0;
 
-        for(Entry<String,Set<String>> entry : credentials.entrySet())
+        for (Entry<String,Set<String>> entry : credentials.entrySet())
         {
             count += entry.getValue().size();
         }
@@ -151,7 +151,7 @@ public class CredentialGuesser
          */
         public void run()
         {
-            for(String password : passwords)
+            for (String password : passwords)
             {
                 Map<String,Object> env = PluginSystem.getEnv(username, password);
 
@@ -160,8 +160,10 @@ public class CredentialGuesser
                     PluginSystem.getMBeanServerConnectionUmanaged(host, port, env);
                     bar.printSuccess(username, password);
 
-                    if( BeanshooterOption.BRUTE_FIRST.getBool() )
+                    if (BeanshooterOption.BRUTE_FIRST.getBool())
+                    {
                         pool.shutdownNow();
+                    }
                 }
 
                 catch (SaslProfileException e)
@@ -172,8 +174,10 @@ public class CredentialGuesser
                      */
                     bar.printSuccess(username, password);
 
-                    if( BeanshooterOption.BRUTE_FIRST.getBool() )
+                    if (BeanshooterOption.BRUTE_FIRST.getBool())
+                    {
                         pool.shutdownNow();
+                    }
                 }
 
                 catch (J4pRemoteException e)

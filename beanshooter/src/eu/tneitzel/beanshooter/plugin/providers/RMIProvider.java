@@ -80,25 +80,37 @@ public class RMIProvider implements IMBeanServerProvider
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof java.io.InvalidClassException)
+            {
                 throw new InvalidLoginClassException(e);
+            }
 
             else if (t instanceof java.lang.ClassNotFoundException)
+            {
                 throw new InvalidLoginClassException(e);
+            }
 
             else if (t instanceof java.rmi.ConnectIOException)
+            {
                 ExceptionHandler.connectIOException(e, "newclient");
+            }
 
             else if (t instanceof java.io.NotSerializableException && t.getMessage().contains("PrincipalCallback"))
+            {
                 throw new GlassFishException(e);
+            }
 
             else if (t instanceof UnsupportedCallbackException)
+            {
                 ExceptionHandler.unsupportedCallback((Exception)t);
+            }
 
             Logger.resetIndent();
             Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while invoking the newClient method.");
 
             if (t instanceof java.rmi.NoSuchObjectException)
+            {
                 Logger.eprintlnMixedBlue("You probably specified an", "ObjID value", "that does not exist on the server.");
+            }
 
             else if (t instanceof java.net.ConnectException)
             {
@@ -119,7 +131,9 @@ public class RMIProvider implements IMBeanServerProvider
                 }
 
                 if (BeanshooterOption.TARGET_OBJID_CONNECTION.isNull())
+                {
                     Logger.eprintlnMixedYellow("The JMX", "bound name", "within the RMI registry is probably pointing to an invalid server.");
+                }
             }
 
             else if (t instanceof java.io.EOFException || t instanceof java.net.SocketException)
@@ -132,7 +146,9 @@ public class RMIProvider implements IMBeanServerProvider
                 Logger.eprintlnMixedBlue("This exception could be caused by the selected gadget and the deserialization attack may", "worked anyway.");
 
                 if (!BeanshooterOption.GLOBAL_STACK_TRACE.getBool())
+                {
                     Logger.eprintlnMixedYellow("If it did not work you may want to rerun with the", "--stack-trace", "option to further investigate.");
+                }
             }
 
             else if (t instanceof CertPathValidatorException)
@@ -158,7 +174,9 @@ public class RMIProvider implements IMBeanServerProvider
         catch (java.lang.IllegalArgumentException e)
         {
             if (e.getMessage().contains("Expected String[2]"))
+            {
                 throw new ApacheKarafException(e);
+            }
 
             throw e;
         }
@@ -168,7 +186,9 @@ public class RMIProvider implements IMBeanServerProvider
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof ClassCastException)
+            {
                 throw new LoginClassCastException(e);
+            }
 
             throw e;
         }

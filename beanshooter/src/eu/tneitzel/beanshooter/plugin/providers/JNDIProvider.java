@@ -20,6 +20,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import eu.tneitzel.beanshooter.cli.ArgumentHandler;
 import eu.tneitzel.beanshooter.exceptions.AuthenticationException;
 import eu.tneitzel.beanshooter.exceptions.ExceptionHandler;
+import eu.tneitzel.beanshooter.exceptions.WrongCredentialsException;
+import eu.tneitzel.beanshooter.exceptions.MissingCredentialsException;
 import eu.tneitzel.beanshooter.exceptions.GlassFishException;
 import eu.tneitzel.beanshooter.io.Logger;
 import eu.tneitzel.beanshooter.networking.DummyTrustManager;
@@ -119,13 +121,32 @@ public class JNDIProvider implements IMBeanServerProvider {
             Throwable t = ExceptionHandler.getCause(e);
 
             if (t instanceof java.rmi.ConnectIOException)
+            {
                 ExceptionHandler.connectIOException(e, "newclient");
+            }
 
             else if (t instanceof java.io.NotSerializableException && t.getMessage().contains("PrincipalCallback"))
+            {
                 throw new GlassFishException(e);
+            }
 
             else if (t instanceof UnsupportedCallbackException)
+            {
                 ExceptionHandler.unsupportedCallback((Exception)t);
+            }
+
+            else if (t instanceof javax.security.sasl.SaslException)
+            {
+                if (t.getMessage().contains("none of the mechanisms presented by the server"))
+                {
+                    throw new MissingCredentialsException(e);
+                }
+
+                else if (t.getMessage().contains("all available authentication mechanisms failed"))
+                {
+                    throw new WrongCredentialsException(e);
+                }
+            }
 
             Logger.resetIndent();
             Logger.eprintlnMixedYellow("Caught", t.getClass().getName(), "while invoking the newClient method.");
