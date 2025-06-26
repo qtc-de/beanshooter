@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Disable certificate validation for Jolokia `HTTPS` connector
 * Improve JNDI connector
 * Update GitHub workflows
+* Improve handling of authentication errors for JNDI provider
 
 
 ## v4.1.0 - Mar 20, 2023
