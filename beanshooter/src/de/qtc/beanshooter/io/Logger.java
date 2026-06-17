@@ -25,6 +25,16 @@ public class Logger {
     public static boolean stdout = true;
     public static boolean stderr = true;
 
+    /*
+     * When JSON Lines output is written to stdout, the human readable logging is redirected to stderr
+     * so that stdout only contains valid JSON. This flag is enabled by JsonLogger in that situation.
+     */
+    public static boolean redirectStdoutToStderr = false;
+
+    public static void redirectStdoutToStderr() {
+        Logger.redirectStdoutToStderr = true;
+    }
+
     public static void disable() {
         Logger.stdout = false;
         Logger.stderr = false;
@@ -102,10 +112,12 @@ public class Logger {
     {
         if( Logger.stdout ) {
 
+            java.io.PrintStream stream = Logger.redirectStdoutToStderr ? System.err : System.out;
+
             if( newline )
-                System.out.println(msg);
+                stream.println(msg);
             else
-                System.out.print(msg);
+                stream.print(msg);
         }
     }
 
@@ -601,34 +613,52 @@ public class Logger {
         Logger.printlnBlue("--------------------------------");
     }
 
+    /*
+     * Name of the enumeration check that is currently running. It is used to label the JSON Lines
+     * records that are emitted by the status* methods below. The context is set by the EnumHelper
+     * before each individual check.
+     */
+    public static String enumContext = null;
+
+    public static void setEnumContext(String context)
+    {
+        Logger.enumContext = context;
+    }
+
     public static void statusVulnerable()
     {
         printlnMixedRed("  Vulnerability Status:", "Vulnerable");
+        JsonLogger.log("enum", "check", enumContext, "category", "vulnerability", "status", "vulnerable");
     }
 
     public static void statusOk()
     {
         printlnMixedGreen("  Vulnerability Status:", "Non Vulnerable");
+        JsonLogger.log("enum", "check", enumContext, "category", "vulnerability", "status", "non-vulnerable");
     }
 
     public static void statusOutdated()
     {
         printlnMixedPurple("  Configuration Status:", "Outdated");
+        JsonLogger.log("enum", "check", enumContext, "category", "configuration", "status", "outdated");
     }
 
     public static void statusDefault()
     {
         printlnMixedGreen("  Configuration Status:", "Current Default");
+        JsonLogger.log("enum", "check", enumContext, "category", "configuration", "status", "default");
     }
 
     public static void statusNonDefault()
     {
         printlnMixedRed("  Configuration Status:", "Non Default");
+        JsonLogger.log("enum", "check", enumContext, "category", "configuration", "status", "non-default");
     }
 
     public static void statusUndecided(String statusType)
     {
         printlnMixedPurple("  " + statusType + " Status:", "Undecided");
+        JsonLogger.log("enum", "check", enumContext, "category", statusType.toLowerCase(), "status", "undecided");
     }
 
     public static void resetIndent()

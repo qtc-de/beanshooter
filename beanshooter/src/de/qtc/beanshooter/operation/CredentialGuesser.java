@@ -13,6 +13,7 @@ import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
 import de.qtc.beanshooter.exceptions.SaslProfileException;
+import de.qtc.beanshooter.io.JsonLogger;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.ProgressBar;
 import de.qtc.beanshooter.plugin.PluginSystem;
@@ -223,6 +224,8 @@ public class CredentialGuesser
         {
             Logger.print(new String(new char[length + 20]).replace("\0", " ") + "\r");
             Logger.printlnMixedYellow("Found valid credentials:", String.format("%s:%s", username, password));
+
+            JsonLogger.log("credentials", "host", host, "port", port, "username", username, "password", password);
         }
     }
 }

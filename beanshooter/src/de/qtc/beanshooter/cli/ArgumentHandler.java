@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.io.JsonLogger;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.mbean.MBean;
 import de.qtc.beanshooter.mbean.MBeanOperation;
@@ -78,6 +79,8 @@ public class ArgumentHandler
 
         if( BeanshooterOption.GLOBAL_NO_COLOR.getBool() )
             Logger.disableColor();
+
+        JsonLogger.enable(BeanshooterOption.GLOBAL_JSON.getValue());
 
         PluginSystem.init(BeanshooterOption.GLOBAL_PLUGIN.getValue());
     }

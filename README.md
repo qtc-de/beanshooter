@@ -108,6 +108,7 @@ autocompletion.
       + [download](#tonka-download)
 - [JMXMP](#jmxmp)
 - [Jolokia Support](#jolokia-support)
+- [JSON Output](#json-output)
 - [Docker Image](#docker-image)
 - [Example Server](#example-server)
 
@@ -1521,6 +1522,42 @@ consult the [Jolokia FAQ](/docs/jolokia.md#faq) if you have any questions. For p
 *Jolokia*, *beanshooter* provides an [example server](https://github.com/qtc-de/beanshooter/pkgs/container/beanshooter%2Fjolokia-example-server)
 that exposes an *Jolokia* endpoint on port `8080`. Additionally, a regular *RMI* based *JMX* endpoint
 can be found on port `1090`.
+
+
+### JSON Output
+
+---
+
+For automation and post processing, *beanshooter* supports a [JSON Lines](https://jsonlines.org/) output
+mode that can be enabled with the global `--json` option. When enabled, *beanshooter* emits one JSON
+object per line for each result it produces, which makes the output easy to parse with tools like
+[jq](https://jqlang.github.io/jq/). The records are written *live*, as they are produced, so the output
+can be consumed in a streaming fashion.
+
+The `--json` option takes an optional file argument:
+
+* `--json` &ndash; write JSON Lines to *stdout*. In this mode the human readable logging is redirected to
+  *stderr*, so that *stdout* contains valid JSON Lines only.
+* `--json <file>` &ndash; append JSON Lines to the specified file. The human readable logging stays on *stdout*.
+
+The following result records are currently emitted:
+
+| `type`        | Emitted by      | Notable fields                                  |
+| ------------- | --------------- | ----------------------------------------------- |
+| `credentials` | `brute`         | `host`, `port`, `username`, `password`          |
+| `mbean`       | `list`          | `class`, `objectName`, `interesting`            |
+| `enum`        | `enum`          | `check`, `category`, `status`                   |
+
+Each record additionally contains a `type` field and an ISO-8601 `time` field. Example:
+
+```console
+[user@host ~]$ beanshooter brute 172.17.0.2 1090 --json
+{"type":"credentials","time":"2023-03-20T12:00:00.123Z","host":"172.17.0.2","port":1090,"username":"controlRole","password":"control"}
+{"type":"credentials","time":"2023-03-20T12:00:00.210Z","host":"172.17.0.2","port":1090,"username":"monitorRole","password":"monitor"}
+
+[user@host ~]$ beanshooter list 172.17.0.2 1090 --json 2>/dev/null | jq -r 'select(.interesting) | .objectName'
+de.qtc.beanshooter:type=Tonka
+```
 
 
 ### Docker Image
