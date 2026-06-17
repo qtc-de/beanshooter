@@ -143,6 +143,7 @@ public class EnumHelper
     {
         Map<String, Object> env = ArgumentHandler.getEnv();
 
+        Logger.setEnumContext("credentials");
         Logger.printlnBlue("Checking specified credentials:");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -240,6 +241,7 @@ public class EnumHelper
     {
         Map<String, Object> env = PluginSystem.getEnv(null, null);
 
+        Logger.setEnumContext("unauthorized-access");
         Logger.printlnBlue("Checking for unauthorized access:");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -320,6 +322,7 @@ public class EnumHelper
     {
         Map<String, Object> env = PluginSystem.getEnv("karaf", "karaf");
 
+        Logger.setEnumContext("karaf-default-credentials");
         Logger.printlnBlue("Checking for Apache Karaf default credentials:");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -382,6 +385,7 @@ public class EnumHelper
     {
         Map<String, Object> env = PluginSystem.getEnv(null, null);
 
+        Logger.setEnumContext("sasl-configuration");
         Logger.printlnBlue("Checking servers SASL configuration:");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -482,6 +486,7 @@ public class EnumHelper
      */
     public void enumSerial()
     {
+        Logger.setEnumContext("preauth-deserialization");
         Logger.printlnBlue("Checking pre-auth deserialization behavior:");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -721,6 +726,7 @@ public class EnumHelper
             return;
         }
 
+        Logger.setEnumContext("jolokia-version");
         Logger.printlnBlue("Checking Jolokia Version:");
         Logger.lineBreak();
         Logger.increaseIndent();
@@ -755,6 +761,7 @@ public class EnumHelper
         BeanshooterOption.CONN_JOLOKIA_PROXY.setValue("INVALID-JMX-URL");
         Map<String, Object> env = ArgumentHandler.getEnv();
 
+        Logger.setEnumContext("jolokia-proxy");
         Logger.printlnBlue("Checking whether Jolokia Proxy Mode is enabled:");
         Logger.lineBreak();
         Logger.increaseIndent();

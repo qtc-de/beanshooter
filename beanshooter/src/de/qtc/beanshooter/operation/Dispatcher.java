@@ -29,6 +29,7 @@ import org.jolokia.client.exception.J4pRemoteException;
 import de.qtc.beanshooter.cli.ArgumentHandler;
 import de.qtc.beanshooter.exceptions.AuthenticationException;
 import de.qtc.beanshooter.exceptions.ExceptionHandler;
+import de.qtc.beanshooter.io.JsonLogger;
 import de.qtc.beanshooter.io.Logger;
 import de.qtc.beanshooter.io.WordlistHandler;
 import de.qtc.beanshooter.mbean.DynamicMBean;
@@ -525,12 +526,18 @@ public class Dispatcher {
                 continue;
             }
 
-            if (interestingMBeans.contains(instance.getClassName()))
+            boolean interesting = interestingMBeans.contains(instance.getClassName());
+
+            if (interesting)
                 Logger.printMixedRed("  -", instance.getClassName(), "");
             else
                 Logger.printMixedYellow("  -", instance.getClassName(), "");
 
             Logger.printlnPlainBlue("(" + instance.getObjectName().toString() + ")");
+
+            JsonLogger.log("mbean", "class", instance.getClassName(),
+                                    "objectName", instance.getObjectName().toString(),
+                                    "interesting", interesting);
         }
 
         Logger.decreaseIndent();

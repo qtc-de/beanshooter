@@ -146,6 +146,12 @@ public class OptionHandler {
             arg.setDefault("");
         }
 
+        if (option == BeanshooterOption.GLOBAL_JSON)
+        {
+            arg.nargs("?");
+            arg.setConst("-");
+        }
+
         if (option == TonkaBeanOption.DOWNLOAD_DEST)
             arg.nargs("?");
 

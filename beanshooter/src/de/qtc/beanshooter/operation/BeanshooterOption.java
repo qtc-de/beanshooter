@@ -54,6 +54,13 @@ public enum BeanshooterOption implements Option {
                        OptionGroup.GENERAL,
                        ArgType.BOOL),
 
+    GLOBAL_JSON("--json",
+                "write results as JSON Lines to FILE, or to stdout if no FILE is given (logs go to stderr)",
+                Arguments.store(),
+                OptionGroup.GENERAL,
+                ArgType.STRING,
+                "file"),
+
     TARGET_HOST("host",
                 "target host",
                 Arguments.store(),
